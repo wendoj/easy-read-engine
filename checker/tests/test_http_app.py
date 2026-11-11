@@ -6,7 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import checks
-from checks.config import MAX_LINE_CHARS, MAX_LINES, MAX_ORIGINAL_CHARS, MAX_SYMBOL_QUERY_CHARS
+from checks.config import ACTION_SYNONYMS, MAX_LINE_CHARS, MAX_LINES, MAX_ORIGINAL_CHARS, MAX_SYMBOL_QUERY_CHARS
 from http_app import MAX_BODY_BYTES, _StripQueryFilter, app
 
 RULES = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"]
@@ -95,6 +95,13 @@ def test_symbols_returns_list(client: TestClient) -> None:
     assert res.status_code == 200
     assert res.json() == [m.model_dump() for m in checks.find_symbol("pay", 3)]
     assert 1 <= len(res.json()) <= 3
+
+
+def test_action_synonyms_lists_the_config_table(client: TestClient) -> None:
+    res = client.get("/config/action-synonyms")
+    assert res.status_code == 200
+    assert {e["word"]: e["counts_as"] for e in res.json()} == ACTION_SYNONYMS
+    assert len(res.json()) == len(ACTION_SYNONYMS)
 
 
 # --- invalid and oversized input ---------------------------------------------

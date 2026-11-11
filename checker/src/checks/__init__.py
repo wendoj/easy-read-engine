@@ -8,7 +8,8 @@ from collections.abc import Callable
 
 from checks import key_facts as _key_facts
 from checks import symbols as _symbols
-from checks.models import Analysis, CheckResult, KeyFact, Line, Rule, SymbolMatch
+from checks.config import ACTION_SYNONYMS
+from checks.models import ActionSynonym, Analysis, CheckResult, KeyFact, Line, Rule, SymbolMatch
 from checks.p1_key_facts import check_p1
 from checks.p2_sentence_length import check_p2
 from checks.p3_one_idea import check_p3
@@ -19,7 +20,7 @@ from checks.p7_abbreviations import check_p7
 from checks.p8_symbols import check_p8
 from checks.sentences import split_sentences
 
-__all__ = ["CHECKERS", "analyse", "check_easy_read", "extract_key_facts", "find_symbol"]
+__all__ = ["CHECKERS", "action_synonyms", "analyse", "check_easy_read", "extract_key_facts", "find_symbol"]
 
 Checker = Callable[[str, list[KeyFact], list[Line]], CheckResult]
 
@@ -73,3 +74,12 @@ def find_symbol(query: str, limit: int = 5) -> list[SymbolMatch]:
     picture fits (R4.2). Every ID is in the index (R4.3, P8).
     """
     return _symbols.find_symbol(query, limit)
+
+
+def action_synonyms() -> list[ActionSynonym]:
+    """The verb swaps P1 accepts in required actions, from `config.ACTION_SYNONYMS`.
+
+    The rule report lists them (design "Key-fact extraction and normalisation"),
+    so no one is surprised by what P1 accepts.
+    """
+    return [ActionSynonym(word=word, counts_as=target) for word, target in ACTION_SYNONYMS.items()]

@@ -49,6 +49,13 @@ class SymbolMatch(BaseModel):
     score: float
 
 
+class ActionSynonym(BaseModel):
+    """One entry of the P1 action synonym table: a verb that P1 treats as `counts_as`."""
+
+    word: str
+    counts_as: str
+
+
 class CheckResult(BaseModel):
     rule: Rule
     passed: bool

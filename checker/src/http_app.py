@@ -37,7 +37,7 @@ from checks.config import (
     MAX_SYMBOL_QUERY_CHARS,
     SPACY_MODEL,
 )
-from checks.models import Analysis, CheckResult, KeyFact, Line, SymbolMatch
+from checks.models import ActionSynonym, Analysis, CheckResult, KeyFact, Line, SymbolMatch
 from checks.p8_symbols import symbol_ids
 from checks.symbols import search_index
 from checks.sentences import get_nlp
@@ -274,6 +274,15 @@ def symbols(
 ) -> list[SymbolMatch]:
     """Pictograms for `q`, best first."""
     return checks.find_symbol(q, limit)
+
+
+@app.get("/config/action-synonyms", response_model=list[ActionSynonym])
+def action_synonyms() -> list[ActionSynonym]:
+    """The verb swaps P1 accepts in required actions, for the rule report.
+
+    `checks/config.py` is the only copy; the web app shows this list as is.
+    """
+    return checks.action_synonyms()
 
 
 @app.get("/health", response_model=Health, responses={503: {"model": Health}})

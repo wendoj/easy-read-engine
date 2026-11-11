@@ -229,6 +229,29 @@
         }
       }
     },
+    "/config/action-synonyms": {
+      "get": {
+        "summary": "Action Synonyms",
+        "description": "The verb swaps P1 accepts in required actions, for the rule report.\n\n`checks/config.py` is the only copy; the web app shows this list as is.",
+        "operationId": "action_synonyms_config_action_synonyms_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ActionSynonym"
+                  },
+                  "type": "array",
+                  "title": "Response Action Synonyms Config Action Synonyms Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "summary": "Health",
@@ -261,6 +284,25 @@
   },
   "components": {
     "schemas": {
+      "ActionSynonym": {
+        "properties": {
+          "word": {
+            "type": "string",
+            "title": "Word"
+          },
+          "counts_as": {
+            "type": "string",
+            "title": "Counts As"
+          }
+        },
+        "type": "object",
+        "required": [
+          "word",
+          "counts_as"
+        ],
+        "title": "ActionSynonym",
+        "description": "One entry of the P1 action synonym table: a verb that P1 treats as `counts_as`."
+      },
       "AnalyseRequest": {
         "properties": {
           "original": {
