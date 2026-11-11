@@ -168,3 +168,51 @@ def test_reported_clause_after_a_pronoun_subject_still_counts() -> None:
 
 def test_no_lines_pass() -> None:
     assert check_p3("", [], []).passed
+
+
+def _p3_passes(text: str) -> bool:
+    return check_p3("", [], [Line(id="L1", text=text, source_sentence_id="s1", symbol_id=None)]).passed
+
+
+def test_clauses_that_finish_the_main_idea_pass() -> None:
+    """Regression: one-idea lines from the recorded sample letters failed P3."""
+    for text in [
+        "It looks like you missed a council tax payment.",
+        "Think you’ll miss more payments?",
+        "Let us know.",
+        "Rule 6 status lets you present evidence formally.",
+        "The call will discuss how evidence will be heard.",
+        "Go online to see if you are entitled to Council Tax support.",
+        "It is essential that you contact the Planning Inspectorate.",
+        "You must pay what you owe.",
+    ]:
+        assert _p3_passes(text), text
+
+
+def test_if_so_and_because_clauses_still_fail() -> None:
+    for text in [
+        "If you cannot pay, you must tell us.",
+        "You need to act now so you don’t have to pay.",
+        "We got your form and we will reply.",
+        "Pay £45 because your bill is wrong.",
+    ]:
+        assert not _p3_passes(text), text
+
+
+def test_if_question_after_check_or_find_out_passes() -> None:
+    """Regression: the parse tags these "if" questions as `advcl`, so they failed P3."""
+    for text in [
+        "Check if you’re due benefits.",
+        "Find out if you can get help.",
+        "Check if you can pay later.",
+    ]:
+        assert _p3_passes(text), text
+
+
+def test_if_condition_after_check_still_fails() -> None:
+    for text in [
+        "Check your bill if you moved.",
+        "If you moved, check your bill.",
+        "Tell the council if you move home.",
+    ]:
+        assert not _p3_passes(text), text
