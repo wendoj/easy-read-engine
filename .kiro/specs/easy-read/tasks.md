@@ -69,7 +69,7 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
 
 ## Day 2: checkers
 
-- [ ] 9. Implement P3, P5, P6 and P7 with their tests
+- [x] 9. Implement P3, P5, P6 and P7 with their tests
   - P3: count main verb clauses (`ROOT`, `conj` verbs on the root, and `ccomp`/`advcl` heads); fail if more than 1
   - P5: common-word list in `checks/wordlist/`; pass lemmas that are on the list, numbers, key-fact tokens, or defined on first use
   - P6: fail alphabetic `like_num` tokens
@@ -77,7 +77,7 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - For each checker: Hypothesis properties for passing and failing inputs, plus fixed checker-must-fail cases
   - _Requirements: 3.1; P3, P5, P6, P7_
 
-- [ ] 10. Build the ARASAAC pictogram index and P8
+- [-] 10. Build the ARASAAC pictogram index and P8
   - `checker/scripts/build_symbol_index.py`: fetch the English catalogue once using the endpoint confirmed in task 8; leave out pictograms flagged `violence` or `sex`; write `checker/data/symbols.json` in the format from design "Symbols"; commit the result
   - Add `checker/data/LICENSE-pictograms.md` stating the CC BY-NC-SA licence and the required attribution
   - `checks/p8_symbols.py`: every non-null `symbol_id` must exist in the index
