@@ -84,13 +84,13 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - Hypothesis property: IDs drawn from the index pass and IDs outside it fail
   - _Requirements: 4.3, 4.4; P8_
 
-- [ ] 11. Add `check_easy_read` and the synthetic letter generator
+- [x] 11. Add `check_easy_read` and the synthetic letter generator
   - `checks/__init__.py`: public functions `analyse`, `extract_key_facts`, `check_easy_read` (P1 to P8) and `find_symbol` (a stub until task 23), as in design "Checker service"
   - Hypothesis strategy in `checker/tests/strategies.py`: synthetic letters with random dates, amounts, reference numbers, and long, passive sentences, kept for the pipeline property in task 30
   - Property: `check_easy_read` always returns exactly one result for each of P1 to P8
   - _Requirements: 3.1, 6.1_
 
-- [ ] 12. Build the FastAPI adapter and generated types
+- [-] 12. Build the FastAPI adapter and generated types
   - `checker/src/http_app.py` with routes `POST /analyse`, `POST /key-facts`, `POST /check`, `GET /symbols?q=` and `GET /health` (which reports whether spaCy is loaded)
   - Validate requests with Pydantic; never log request bodies
   - Script to export the OpenAPI schema and generate `web/src/types/checker.ts` with `openapi-typescript`
