@@ -1,4 +1,4 @@
-> **DRAFT.** For you to edit before posting. Every fact here comes from this repository.
+> **DRAFT.** For you to edit before posting. Every fact here comes from this repository. The Easy Read checker feedback below is a paraphrase. A direct quote needs the reviewer's exact words and their permission.
 
 ## Short version
 
@@ -8,7 +8,7 @@ A model writes the lines. A rule checker with no model decides if you see them. 
 
 Built with Kiro for #KiroweenHackathon26
 
-[Add the live URL here]
+[Add the live URL here. Missing: the app is not deployed yet]
 
 ## Longer version
 
@@ -22,8 +22,8 @@ Easy Read Engine makes one, and checks it against 10 rules before you see it. Th
 
 Frankenstein parts: a language model, spaCy, ARASAAC pictograms, property tests and headless Chromium. Built spec-first with Kiro, with the checker packaged as a Kiro Power.
 
-[Add a quote from an Easy Read reviewer here]
+An Easy Read checker tried the app and told us it was easy to use and helped a lot.
 
 #KiroweenHackathon26
 
-[Add the live URL and the repository link here]
+[Add the live URL and the repository link here. Missing: the app is not deployed yet, and the repository link depends on it being public]

@@ -266,7 +266,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
 ### Non-coding checklist (you)
 
 - [x] Provide 3 public sample council letters for `fixtures/letters/`
-- [~] Show one output to someone who uses or makes Easy Read
+- [x] Show one output to someone who uses or makes Easy Read
 - [~] **Go/no-go decision.** Go if at least 7 of the 10 properties are automatic and the output is judged usable; record it in `docs/day1-results.md`
 - [~] Choose the official Easy Read guidance and add it to the steering doc
 - [~] Design pass on the main screen

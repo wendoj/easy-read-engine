@@ -1,5 +1,7 @@
 # Pass rates
 
+> **Bedrock samples, 11 November 2026.** After this run, the 3 public sample letters were recorded on the Bedrock chain (`web/data/samples/`, `npm run record-samples`). Each ended flagged after 3 tries, with P1 passing on all 3. The 8-letter fixture run on Bedrock (spec task 35) is still to do, and will replace the numbers below.
+
 > **Partial: 8 of the planned 20 public letters (3 public, 5 invented).** Only 3 public sample letters are in `fixtures/letters/` so far, so this run also includes the 5 invented letters. 6 of the 8 letters ended with a provider or model-output error, not a rule result. Treat these numbers as a smoke test of the pipeline on free-tier providers, not as a pass rate.
 
 - **Date:** 2026-11-11, 16:41 to 16:49 UTC
