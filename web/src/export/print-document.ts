@@ -94,12 +94,13 @@ export const PRINT_CSS = `
   line-height: 1.4;
 }
 .er-print *, .er-print *::before, .er-print *::after { box-sizing: border-box; }
-.er-print .er-title { font-size: 26pt; font-weight: 700; margin: 0 0 6mm; }
+.er-print .er-title { font-size: 26pt; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 6mm; }
 .er-print .er-notice {
   margin: 0 0 6mm;
   padding: 4mm 5mm;
-  border: 2pt solid #111111;
-  border-radius: 2mm;
+  background: #f8f8f8;
+  border: 1pt solid #e5e5e5;
+  border-radius: 4mm;
   font-size: 18pt;
   font-weight: 700;
 }
@@ -111,7 +112,7 @@ export const PRINT_CSS = `
   align-items: center;
   gap: 6mm;
   padding: 4mm 0;
-  border-bottom: 0.75pt solid #bbbbbb;
+  border-bottom: 0.5pt solid #e5e5e5;
   break-inside: avoid;
   page-break-inside: avoid;
 }
@@ -121,13 +122,14 @@ export const PRINT_CSS = `
   height: 30mm;
   object-fit: contain;
   background: #ffffff;
+  border-radius: 1pt;
 }
 .er-print .er-text { flex: 1 1 auto; min-width: 0; margin: 0; font-size: 20pt; }
 .er-print .er-marker { display: block; margin-top: 1mm; font-size: 16pt; font-weight: 700; color: #a0001c; }
 .er-print .er-footer {
   margin-top: 8mm;
   padding-top: 4mm;
-  border-top: 0.75pt solid #bbbbbb;
+  border-top: 0.5pt solid #e5e5e5;
   font-size: 16pt;
   break-inside: avoid;
   page-break-inside: avoid;
@@ -135,7 +137,12 @@ export const PRINT_CSS = `
 .er-print .er-footer p { margin: 0; }
 .er-print .er-footer a { color: inherit; }
 @media screen {
-  .er-print { padding: 15mm; border: 1px solid #dddddd; }
+  .er-print {
+    padding: 15mm;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06), 0 8px 14px -3px rgb(0 0 0 / 0.06);
+  }
 }
 @media print {
   .er-screen-only { display: none !important; }

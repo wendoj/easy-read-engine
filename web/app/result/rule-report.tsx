@@ -17,7 +17,7 @@ import { cn } from "cn";
 
 function ResultBadge({ row }: { row: RuleRow }) {
   return (
-    <Badge variant={row.passed ? "secondary" : "destructive"} className="h-6 px-2 text-sm">
+    <Badge variant={row.passed ? "secondary" : "destructive"} className="label-mono h-7 px-2.5">
       {row.resultLabel}
     </Badge>
   );
@@ -71,7 +71,7 @@ function RulesTable({ rows }: { rows: RuleRow[] }) {
 function SynonymTable({ synonyms }: { synonyms: ActionSynonym[] }) {
   return (
     <section aria-labelledby="synonyms-heading" className="flex flex-col gap-2">
-      <h3 id="synonyms-heading" className="text-lg font-semibold">
+      <h3 id="synonyms-heading" className="text-[22px] leading-[1.25] font-medium tracking-[-0.01em]">
         Words P1 counts as the same action
       </h3>
       {synonyms.length === 0 ? (
@@ -105,17 +105,17 @@ export function RuleReport({ input, synonyms }: { input: ReportInput; synonyms: 
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant={allPassed ? "outline" : "destructive"} size="lg" className="h-11 px-6 text-base">
+        <Button variant={allPassed ? "outline" : "destructive"} >
           {count.label}
         </Button>
       </SheetTrigger>
       {/* No description: the title and the tables say what this is (ui.md). */}
       <SheetContent
         aria-describedby={undefined}
-        className="w-full gap-6 overflow-y-auto data-[side=right]:w-full data-[side=right]:sm:max-w-3xl"
+        className="w-full gap-6 overflow-y-auto overscroll-contain bg-background data-[side=right]:w-full data-[side=right]:sm:max-w-3xl sm:rounded-l-[20px]"
       >
         <SheetHeader className="pr-12">
-          <SheetTitle className="text-2xl font-semibold">Check report</SheetTitle>
+          <SheetTitle className="text-[28px] leading-[1.2] font-normal tracking-[-0.02em]">Check report</SheetTitle>
         </SheetHeader>
         <div className="flex flex-col gap-8 px-4 pb-6">
           <RulesTable rows={rows} />

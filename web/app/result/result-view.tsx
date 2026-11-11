@@ -27,9 +27,12 @@
  * - Task 29: a result from a sample letter shows "Recorded on <date> with <model>" and says
  *   that P1 to P8 ran again and P9 and P10 are from the recording.
  */
+import { Info, LoaderCircle, Pencil } from "lucide-react";
+import { AnimatePresence, type Variants, motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FlagIcon, ProblemIcon } from "@/components/status-icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -70,15 +73,21 @@ import {
   recordEdit,
   undoEdit,
 } from "@/src/ui/line-edit";
+import { STAGGER, STATUS_FADE, enterVariants, lineEnterVariants } from "@/src/ui/motion";
 import { type LineRow as LineRowData, resultLayout, scrollTopToReveal } from "@/src/ui/result-layout";
 import { cn } from "cn";
 import { RuleReport } from "./rule-report";
 
 const PICTURE_SIZE = 64;
 
+const SECTION_HEADING = "text-[28px] leading-[1.2] font-normal tracking-[-0.02em]";
+
+/** Passes "hidden"/"visible" down to the lines, which set their own delays. */
+const LINES_PARENT = { hidden: {}, visible: {} };
+
 function BackLink() {
   return (
-    <Link href="/" className={buttonVariants({ variant: "outline", size: "lg", className: "h-11 w-fit px-6 text-base" })}>
+    <Link href="/" className={buttonVariants({ variant: "outline", className: "w-fit" })}>
       Convert another letter
     </Link>
   );
@@ -87,7 +96,8 @@ function BackLink() {
 /** R7.1. No close button, by design. */
 function SafetyNotice({ text }: { text: string }) {
   return (
-    <Alert role="note">
+    <Alert role="note" className="border-border bg-card">
+      <Info aria-hidden strokeWidth={1.5} absoluteStrokeWidth />
       <AlertDescription className="text-base text-foreground">{text}</AlertDescription>
     </Alert>
   );
@@ -129,7 +139,7 @@ function OriginalSentence({
 }) {
   const content = <FactText pieces={segment.pieces} styles={styles} />;
   if (!selected) return <span>{content}</span>;
-  return <mark className="rounded-sm bg-primary/15 text-foreground ring-2 ring-primary/40">{content}</mark>;
+  return <mark className="rounded-sm bg-accent-tint text-foreground ring-2 ring-accent-blue/60">{content}</mark>;
 }
 
 function OriginalText({
@@ -151,7 +161,7 @@ function OriginalText({
       role="region"
       aria-labelledby="original-heading"
       tabIndex={0}
-      className="max-h-[45vh] overflow-y-auto rounded-lg border bg-card p-4 text-lg leading-relaxed whitespace-pre-wrap focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none md:max-h-[calc(100vh-4rem)]"
+      className="max-h-[45vh] overflow-y-auto overscroll-contain p-5 focus-visible:outline-offset-[-2px] text-lg leading-relaxed whitespace-pre-wrap md:max-h-[calc(100vh-10rem)]"
     >
       {segments.map((segment) =>
         segment.kind === "text" ? (
@@ -174,7 +184,7 @@ function OriginalText({
 
 function Picture({ src }: { src: string | null }) {
   // Empty slot when there is no picture, so every line starts at the same place.
-  if (src === null) return <div aria-hidden className="size-16 shrink-0" />;
+  if (src === null) return <div aria-hidden className="size-16 shrink-0 rounded-lg bg-wash" />;
   // The symbols route caches the PNG already, so skip the optimiser. The line text carries the meaning, so alt is empty.
   return (
     <Image
@@ -183,7 +193,7 @@ function Picture({ src }: { src: string | null }) {
       width={PICTURE_SIZE}
       height={PICTURE_SIZE}
       unoptimized
-      className="size-16 shrink-0 rounded-md bg-white object-contain"
+      className="size-16 shrink-0 rounded-lg bg-white object-contain outline outline-1 -outline-offset-1 outline-black/10"
     />
   );
 }
@@ -232,22 +242,23 @@ function LineEditor({
         aria-invalid={edit.error !== null}
         aria-describedby={edit.error !== null ? errorId : undefined}
         onChange={(e) => onDraft(e.target.value)}
-        className="min-h-16 text-xl leading-snug md:text-xl"
+        className="min-h-16 text-[22px] leading-[1.4]"
       />
       {edit.error !== null && (
-        <Alert variant="destructive" id={errorId}>
-          <AlertDescription className="text-base text-destructive">{edit.error}</AlertDescription>
-        </Alert>
+        <motion.div initial={STATUS_FADE.initial} animate={STATUS_FADE.animate} transition={STATUS_FADE.transition}>
+          <Alert variant="destructive" id={errorId}>
+            <ProblemIcon />
+            <AlertDescription className="text-base text-destructive">{edit.error}</AlertDescription>
+          </Alert>
+        </motion.div>
       )}
       <div className="flex gap-3">
-        <Button type="submit" size="lg" className="h-11 px-6 text-base" disabled={edit.saving}>
+        <Button type="submit" disabled={edit.saving}>
           {edit.saving ? "Checking…" : "Save"}
         </Button>
         <Button
           type="button"
-          variant="outline"
-          size="lg"
-          className="h-11 px-6 text-base"
+          variant="ghost"
           disabled={edit.saving}
           onClick={onCancel}
         >
@@ -269,6 +280,7 @@ function LineRow({
   onDraft,
   onSave,
   onCancel,
+  variants,
 }: {
   row: LineRowData;
   styles: ReadonlyMap<string, FactStyle>;
@@ -282,53 +294,63 @@ function LineRow({
   onDraft: (text: string) => void;
   onSave: () => void;
   onCancel: () => void;
+  /** First-load cascade variants for this line. */
+  variants?: Variants;
 }) {
   if (edit !== null) {
     return (
-      <li className="flex items-start gap-4">
+      // Same element type as the read-only row, so opening the editor doesn't remount (and replay) the line.
+      <motion.li variants={variants} className="flex items-start gap-4 bg-wash p-4">
         <Picture src={row.symbolSrc} />
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <LineEditor edit={edit} onDraft={onDraft} onSave={onSave} onCancel={onCancel} />
         </div>
-      </li>
+      </motion.li>
     );
   }
   return (
-    <li className="flex items-start gap-4">
+    <motion.li variants={variants} className="flex items-start gap-4 p-4">
       <Picture src={row.symbolSrc} />
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
+      <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
         <button
           type="button"
           aria-pressed={selected}
           onClick={() => onSelect(row)}
           className={cn(
-            "min-h-16 w-full rounded-lg border px-4 py-3 text-left text-xl leading-snug transition-colors",
-            "hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-            selected ? "border-primary bg-primary/10" : "border-transparent",
+            "min-h-16 w-full rounded-xl border px-3 py-2.5 text-left text-[22px] leading-[1.4] transition-[background-color,border-color] duration-150",
+            "[-webkit-tap-highlight-color:transparent] hover:bg-tint",
+            selected ? "border-accent-blue bg-accent-tint hover:bg-accent-tint" : "border-transparent",
           )}
         >
           <LineText pieces={row.pieces} styles={styles} />
-          {row.flagged && (
-            <Badge
-              variant="destructive"
-              className="ml-3 h-auto min-h-6 px-2 align-middle text-sm whitespace-normal"
-            >
-              {lineMarkerLabel(row.failedRules)}
-            </Badge>
-          )}
+          {/* initial={false}: a line flagged on load shows at once; one flagged after an edit fades in. */}
+          <AnimatePresence initial={false}>
+            {row.flagged && (
+              <motion.span key="flag" className="inline" {...STATUS_FADE}>
+                <Badge
+                  variant="destructive"
+                  className="label-mono ml-3 h-auto min-h-7 border-destructive/30 bg-red-50 px-2.5 align-middle whitespace-normal normal-case [&>svg]:size-3.5!"
+                >
+                  <FlagIcon />
+                  {lineMarkerLabel(row.failedRules)}
+                </Badge>
+              </motion.span>
+            )}
+          </AnimatePresence>
         </button>
         <Button
           type="button"
-          variant="outline"
-          size="lg"
-          className="h-11 w-fit px-6 text-base"
+          variant="tint"
+          size="sm"
+          className="ml-1.5"
           disabled={editDisabled}
           onClick={() => onEdit(row)}
         >
+          <Pencil aria-hidden strokeWidth={1.5} absoluteStrokeWidth data-icon="inline-start" />
           Edit<span className="sr-only"> this line</span>
         </Button>
       </div>
-    </li>
+    </motion.li>
   );
 }
 
@@ -354,13 +376,14 @@ function BlockedState({
     if (source === "edit") undoRef.current?.focus();
   }, [source]);
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5 rounded-2xl border border-transparent bg-card p-5 shadow-window">
       <Alert variant="destructive" role="alert">
-        <AlertTitle className="text-lg font-semibold">{BLOCKED_HEADING}</AlertTitle>
+        <ProblemIcon strong className="translate-y-1!" />
+        <AlertTitle className="text-lg font-medium">{BLOCKED_HEADING}</AlertTitle>
         <AlertDescription className="text-base text-destructive">{BLOCKED_MESSAGES[source]}</AlertDescription>
       </Alert>
       <section aria-labelledby="failed-facts-heading" className="flex flex-col gap-3">
-        <h3 id="failed-facts-heading" className="text-xl font-semibold">
+        <h3 id="failed-facts-heading" className="text-[22px] leading-[1.25] font-medium tracking-[-0.01em]">
           {FAILED_FACTS_HEADING}
         </h3>
         {failedFacts.length === 0 ? (
@@ -380,12 +403,12 @@ function BlockedState({
         )}
       </section>
       {source === "edit" ? (
-        <Button ref={undoRef} type="button" size="lg" className="h-11 w-fit px-6 text-base" onClick={onUndo}>
+        <Button ref={undoRef} type="button" className="w-fit" onClick={onUndo}>
           Undo edit
         </Button>
       ) : (
         // The input screen is kept on navigation, so the confirmed text is still there.
-        <Link href="/" className={buttonVariants({ size: "lg", className: "h-11 w-fit px-6 text-base" })}>
+        <Link href="/" className={buttonVariants({ className: "w-fit" })}>
           Start again
         </Link>
       )}
@@ -408,7 +431,7 @@ function SymbolAttribution() {
             href={part.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-4 hover:text-foreground"
+            className="text-link underline underline-offset-4 hover:opacity-80"
           >
             {part.text}
           </a>
@@ -422,9 +445,8 @@ function SymbolAttribution() {
 
 function ResultFooter() {
   return (
-    <footer className="flex flex-col gap-4 border-t pt-6">
+    <footer className="border-t border-border pt-6">
       <SymbolAttribution />
-      <BackLink />
     </footer>
   );
 }
@@ -458,6 +480,7 @@ function SampleLabel({ sample }: { sample: SampleInfo }) {
 
 export function ResultView() {
   const { result, sample, setResult } = useConversion();
+  const reduceMotion = useReducedMotion() ?? false;
   const [edit, setEdit] = useState<EditState | null>(null);
   const [history, setHistory] = useState<UndoHistory>(EMPTY_HISTORY);
   const [exporting, setExporting] = useState(false);
@@ -563,67 +586,99 @@ export function ResultView() {
 
   const selectedRow = layout.rows.find((r) => r.id === selectedLineId) ?? null;
   const selectedSentenceId = selectedRow?.sourceSentenceId ?? null;
+  const chunk = enterVariants(reduceMotion);
 
+  // Staged entrance on first load only: toolbar, Easy Read column, footer,
+  // 100ms apart. The safety notice and the Original never move, so they are
+  // readable at once. Edits change `result` but don't remount this, so the
+  // entrance doesn't run again.
   return (
-    <div className="flex flex-col gap-6">
+    <motion.div className="flex flex-col gap-6" initial="hidden" animate="visible" variants={STAGGER}>
       <SafetyNotice text={result.notice} />
       {sample !== null && <SampleLabel sample={sample} />}
-      <div className="flex flex-wrap items-center gap-3">
+      <motion.div variants={chunk} className="flex flex-wrap items-center gap-2">
         <RuleReport input={result} synonyms={result.actionSynonyms} />
         {/* When blocked, "Undo edit" is in the blocked state instead. */}
         {undoAllowed && blocked === null && (
-          <Button type="button" variant="outline" size="lg" className="h-11 px-6 text-base" onClick={onUndo}>
+          <Button type="button" variant="ghost" onClick={onUndo}>
             Undo edit
           </Button>
         )}
         {/* R9.5: disabled while blocked, and while a line is being edited. */}
         <Button
           type="button"
-          size="lg"
-          className="h-11 px-6 text-base"
           disabled={!exportAllowed || exporting || edit !== null}
           onClick={() => void onExport()}
         >
+          {exporting && <LoaderCircle aria-hidden data-icon="inline-start" className="motion-safe:animate-spin" />}
           {exporting ? "Making the PDF…" : "Export PDF"}
         </Button>
         {exportAllowed && edit === null && (
-          <Link href="/print" className={buttonVariants({ variant: "outline", size: "lg", className: "h-11 px-6 text-base" })}>
+          <Link href="/print" className={buttonVariants({ variant: "outline" })}>
             Print preview
           </Link>
         )}
-      </div>
+      </motion.div>
       {exportError !== null && (
-        <Alert variant="destructive" role="alert">
-          <AlertDescription className="text-base text-destructive">{exportError}</AlertDescription>
-        </Alert>
+        <motion.div initial={STATUS_FADE.initial} animate={STATUS_FADE.animate} transition={STATUS_FADE.transition}>
+          <Alert variant="destructive" role="alert">
+            <ProblemIcon />
+            <AlertDescription className="text-base text-destructive">{exportError}</AlertDescription>
+          </Alert>
+        </motion.div>
       )}
-      <div className="grid items-start gap-8 md:grid-cols-2">
-        <section aria-labelledby="original-heading" className="flex flex-col gap-3 md:sticky md:top-4">
-          <h2 id="original-heading" className="text-2xl font-semibold">
+      <div className="grid items-start gap-6 md:grid-cols-2">
+        <section aria-labelledby="original-heading" className="flex flex-col gap-3 md:sticky md:top-6">
+          <h2 id="original-heading" className={SECTION_HEADING}>
             Original
           </h2>
-          <OriginalText
+          <div className="overflow-hidden rounded-2xl border border-transparent bg-card shadow-window">
+            <OriginalText
             segments={layout.segments}
             styles={layout.factStyles}
             selectedSentenceId={selectedSentenceId}
             register={register}
-            containerRef={originalRef}
-          />
+              containerRef={originalRef}
+            />
+          </div>
         </section>
-        <section aria-labelledby="easy-read-heading" className="flex flex-col gap-3">
-          <h2 id="easy-read-heading" className="text-2xl font-semibold">
+        {/* A blocked result is shown at once, with no entrance (the reader must see why). */}
+        <motion.section
+          variants={layout.withheld ? undefined : chunk}
+          aria-labelledby="easy-read-heading"
+          className="flex min-w-0 flex-col gap-3"
+        >
+          <h2 id="easy-read-heading" className={SECTION_HEADING}>
             Easy Read
           </h2>
+          {/*
+            Lines and the blocked state swap after an edit, with no slide and
+            no exit. A conversion that was blocked from the start shows at
+            once (the reader must see why); one blocked by an edit fades in.
+            The lines cascade in on first load, 40ms apart, first 8 only; they
+            inherit "hidden"/"visible" from the staged entrance.
+          */}
           {layout.withheld ? (
-            <BlockedState
-              source={blocked ?? "conversion"}
-              failedFacts={failedFacts}
-              styles={layout.factStyles}
-              onUndo={onUndo}
-            />
+            <motion.div
+              key="blocked"
+              initial={blocked === "edit" ? STATUS_FADE.initial : false}
+              animate={STATUS_FADE.animate}
+              transition={STATUS_FADE.transition}
+            >
+              <BlockedState
+                source={blocked ?? "conversion"}
+                failedFacts={failedFacts}
+                styles={layout.factStyles}
+                onUndo={onUndo}
+              />
+            </motion.div>
           ) : (
-            <ul className="flex flex-col gap-3">
-              {layout.rows.map((row) => (
+            <motion.ul
+              key="lines"
+              variants={LINES_PARENT}
+              className="divide-y divide-border overflow-hidden rounded-2xl border border-transparent bg-card shadow-window"
+            >
+              {layout.rows.map((row, index) => (
                 <LineRow
                   key={row.id}
                   row={row}
@@ -636,13 +691,16 @@ export function ResultView() {
                   onDraft={onDraft}
                   onSave={() => void onSave()}
                   onCancel={onCancel}
+                  variants={lineEnterVariants(reduceMotion, index)}
                 />
               ))}
-            </ul>
+            </motion.ul>
           )}
-        </section>
+        </motion.section>
       </div>
-      <ResultFooter />
-    </div>
+      <motion.div variants={chunk}>
+        <ResultFooter />
+      </motion.div>
+    </motion.div>
   );
 }

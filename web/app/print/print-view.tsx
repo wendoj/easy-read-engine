@@ -20,9 +20,9 @@ export function PrintView() {
 
   if (doc === null) {
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-10 text-lg">
+      <div className="flex w-full max-w-3xl flex-col gap-4 px-4 pt-14 pb-24 text-lg">
         <p>There is no Easy Read version to print. Letters aren&apos;t saved, so convert the letter again.</p>
-        <Link href="/" className={buttonVariants({ variant: "outline", size: "lg", className: "h-11 w-fit px-6 text-base" })}>
+        <Link href="/" className={buttonVariants({ variant: "outline", className: "w-fit" })}>
           Convert another letter
         </Link>
       </div>
@@ -30,12 +30,12 @@ export function PrintView() {
   }
 
   return (
-    <div className="flex flex-col gap-6 bg-muted/40 px-4 py-8">
+    <div className="er-backdrop flex flex-1 flex-col gap-6 px-4 pt-8 pb-16">
       <div className="er-screen-only mx-auto flex w-full max-w-[180mm] flex-wrap gap-3">
-        <Button type="button" size="lg" className="h-11 px-6 text-base" onClick={() => window.print()}>
+        <Button type="button" onClick={() => window.print()}>
           Print
         </Button>
-        <Link href="/result" className={buttonVariants({ variant: "outline", size: "lg", className: "h-11 px-6 text-base" })}>
+        <Link href="/result" className={buttonVariants({ variant: "outline" })}>
           Back to the Easy Read version
         </Link>
       </div>

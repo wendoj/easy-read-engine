@@ -235,11 +235,28 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
 
 ### Ship
 
-- [-] 33. Write the README and licence notes
+- [x] 33. Write the README and licence notes
   - Cover setup, test commands, the architecture summary, the model providers and their free limits, and the Easy Read guidance source
   - State that the code is MIT and the pictograms are CC BY-NC-SA, with the full ARASAAC attribution
   - Confirm `.kiro/` (specs, steering, hooks, MCP config) is committed
   - _Requirements: 4.4_
+
+### Follow-up
+
+- [x] 34. Move the model chains to Amazon Bedrock, with Groq as the only fallback
+  - Supersedes the Gemini and OpenRouter parts of tasks 1, 7 and 32
+  - `web/src/llm/config.ts`: providers `bedrock` (`bedrock-runtime` in `AWS_REGION`, default `eu-west-2`, key in `AWS_BEARER_TOKEN_BEDROCK`) and `groq`; any other provider fails start-up in every `APP_ENV`; `AWS_REGION` is validated
+  - `web/src/llm/client.ts`: also move on after a 401, 403 or 404
+  - Chains as in design "Model provider"; `.env.example`, README, `docs/deploy.md` and steering updated
+  - fast-check properties: entries tried in order with 401, 403 and 404 in the failure set; any provider other than `bedrock` or `groq` is rejected at start-up
+  - _Requirements: 7.4, 7.5 (supports); design "Model provider"_
+- [ ] 35. Re-run the fixture letters on the Bedrock chain and compare pass counts with `docs/pass-rates.md`
+  - _Requirements: none directly; design "Open Questions" 1_
+- [x] 36. Design pass and motion on the input and result screens
+  - Motion (`motion/react`), values in `web/src/ui/motion.ts`, as in design "UI" (Motion)
+  - Buttons scale to 0.96 on press; named transition properties instead of `transition-all`; `overscroll-contain` on the report Sheet and Select; reduced-motion fallback for the Sheet and Select keyframes
+  - Icons on every destructive Alert and on flagged-line Badges
+  - _Requirements: 3.4, 5.1, 7.1 (supports); design "UI"_
 
 ## Notes
 
@@ -248,7 +265,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
 
 ### Non-coding checklist (you)
 
-- [~] Provide 3 public sample council letters for `fixtures/letters/`
+- [x] Provide 3 public sample council letters for `fixtures/letters/`
 - [~] Show one output to someone who uses or makes Easy Read
 - [~] **Go/no-go decision.** Go if at least 7 of the 10 properties are automatic and the output is judged usable; record it in `docs/day1-results.md`
 - [~] Choose the official Easy Read guidance and add it to the steering doc
@@ -281,7 +298,9 @@ Each wave depends only on tasks in earlier waves. Main dependencies: sentences (
     { "id": 12, "tasks": ["23", "24", "25", "26", "29"] },
     { "id": 13, "tasks": ["27", "28"] },
     { "id": 14, "tasks": ["32"] },
-    { "id": 15, "tasks": ["33"] }
+    { "id": 15, "tasks": ["33"] },
+    { "id": 16, "tasks": ["34", "36"] },
+    { "id": 17, "tasks": ["35"] }
   ]
 }
 ```

@@ -2,14 +2,27 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Light only. `.dark` is never set, so `dark:` classes in the shadcn parts stay inert. */
 @custom-variant dark (&:is(.dark *));
+
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-brand-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-brand-mono), ui-monospace, monospace;
+  --font-heading: var(--font-brand-sans), ui-sans-serif, system-ui, sans-serif;
+  --color-wash: var(--wash);
+  --color-tint: var(--tint);
+  --color-tint-strong: var(--tint-strong);
+  --color-link: var(--link);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-tint: var(--accent-tint);
+  --shadow-panel: 0 0 0 1px rgb(0 0 0 / 0.06), 0 8px 14px -3px rgb(0 0 0 / 0.06);
+  --shadow-window-focus: 0 0 0 1px rgb(0 0 0 / 0.4), 0 9px 13px -3px rgb(0 0 0 / 0.06), 0 24px 48px -12px rgb(0 0 0 / 0.12);
+  --shadow-window: 0 0 0 1px rgb(0 0 0 / 0.12), 0 9px 13px -3px rgb(0 0 0 / 0.06), 0 24px 48px -12px rgb(0 0 0 / 0.12);
+  --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.06), 0 0 0 1px rgb(0 0 0 / 0.04);
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,73 +61,38 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * Devin.ai design language (devin.ai, Nov 2026), light theme only, with an
+ * Easy Read accessibility floor: secondary text is raised from Devin's 56% to
+ * 72% so it stays above 4.5:1, and form fields get a 3:1 border.
+ * See .plans/devin-design-restyle-spec.md.
+ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: #f7f7f7;            /* devin.ai page canvas */
+  --wash: #f8f8f8;                  /* --bg-wash */
+  --foreground: #191919;            /* --text-primary */
+  --card: #ffffff;                  /* --bg-elevated */
+  --card-foreground: #191919;
+  --popover: #ffffff;
+  --popover-foreground: #191919;
+  --primary: #000000;               /* --text-primary-strong: black pill CTA */
+  --primary-foreground: #ffffff;
+  --secondary: rgb(0 0 0 / 0.04);
+  --secondary-foreground: #191919;
+  --muted: rgb(0 0 0 / 0.04);
+  --muted-foreground: rgb(25 25 25 / 0.72);
+  --accent: rgb(0 0 0 / 0.04);
+  --accent-foreground: #191919;
+  --tint: rgb(0 0 0 / 0.04);        /* --tint-tertiary */
+  --tint-strong: rgb(0 0 0 / 0.08); /* --tint-primary */
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --border: rgb(0 0 0 / 0.08);      /* --border-primary */
+  --input: rgb(0 0 0 / 0.38);       /* 3:1 non-text contrast */
+  --ring: rgb(49 124 255);
+  --accent-blue: rgb(49 124 255);   /* --text-accent-primary: rings, bars, dots */
+  --accent-tint: rgb(226 239 255);  /* --bg-blue */
+  --link: rgb(0 95 204);            /* high-contrast accent, 5.8:1 for link text */
+  --radius: 0.75rem;
 }
 
 @layer base {
@@ -123,8 +101,168 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
   }
   html {
     @apply font-sans;
+  }
+}
+
+/*
+ * Reduced motion: the shadcn Sheet and Select enter and exit with
+ * tw-animate-css slide and zoom keyframes. Keep the fade and drop the
+ * movement, scale and blur. `!important` because the data-open/data-closed
+ * classes set these variables with higher specificity.
+ */
+@media (prefers-reduced-motion: reduce) {
+  [data-slot] {
+    --tw-enter-translate-x: 0 !important;
+    --tw-enter-translate-y: 0 !important;
+    --tw-exit-translate-x: 0 !important;
+    --tw-exit-translate-y: 0 !important;
+    --tw-enter-scale: 1 !important;
+    --tw-exit-scale: 1 !important;
+    --tw-enter-blur: 0 !important;
+    --tw-exit-blur: 0 !important;
+  }
+}
+
+/* Mono uppercase label (Devin `text-dt-label`), raised from 12px to 14px. */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * One focus style everywhere, as on devin.ai: a 2px outline in the current
+ * text colour, 2px off the element. Unlayered, so it wins over the
+ * `outline-none` utilities in the shadcn parts. Text fields inside a product
+ * window draw no outline: they show a caret, and the window darkens its ring
+ * instead (`.er-window`).
+ */
+:where(a, button, input, textarea, select, summary, [tabindex], [role="tab"]):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.er-window :where(textarea):focus-visible {
+  outline: none;
+}
+.er-window {
+  transition: box-shadow 150ms ease;
+}
+.er-window:has(textarea:focus-visible) {
+  box-shadow: var(--shadow-window-focus);
+}
+
+/*
+ * First-load entrance for server HTML (hero, subtitle, input). CSS, not
+ * Motion, so the page is never hidden waiting for hydration. Set `--i` for
+ * the 100ms stagger. Under reduced motion it is an opacity fade only.
+ */
+@keyframes er-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(4px);
+  }
+}
+@keyframes er-fade {
+  from {
+    opacity: 0;
+  }
+}
+.er-enter {
+  animation: er-fade 300ms var(--ease-out-strong) both;
+  animation-delay: calc(var(--i, 0) * 100ms);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .er-enter {
+    animation-name: er-enter;
+  }
+}
+
+/*
+ * Devin's "shine" on the current pipeline stage. Text stays readable: the
+ * highlight only lightens a narrow band. Off under reduced motion, and in
+ * forced colours (where transparent text would vanish).
+ */
+@keyframes er-shine {
+  from {
+    background-position-x: 100%;
+  }
+  to {
+    background-position-x: -100%;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .er-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      var(--foreground) 0%,
+      var(--foreground) 40%,
+      rgb(25 25 25 / 0.5) 50%,
+      var(--foreground) 60%,
+      var(--foreground) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: er-shine 2s linear infinite;
+  }
+}
+@media (forced-colors: active) {
+  .er-shimmer {
+    background: none;
+    color: CanvasText;
+  }
+}
+
+/*
+ * Devin's painted image backgrounds, approximated with layered soft
+ * gradients (decorative only; nothing sits on it except white windows).
+ */
+.er-backdrop {
+  background-color: #e9eef2;
+  background-image:
+    radial-gradient(60% 70% at 15% 20%, rgb(206 222 236 / 0.9), transparent 70%),
+    radial-gradient(50% 60% at 85% 15%, rgb(236 226 210 / 0.85), transparent 70%),
+    radial-gradient(70% 70% at 70% 90%, rgb(214 228 222 / 0.9), transparent 70%),
+    radial-gradient(40% 50% at 30% 85%, rgb(232 222 236 / 0.7), transparent 70%);
+}
+.er-backdrop-warm {
+  background-color: #efe9e2;
+  background-image:
+    radial-gradient(60% 70% at 80% 20%, rgb(240 222 200 / 0.9), transparent 70%),
+    radial-gradient(60% 60% at 20% 80%, rgb(222 228 238 / 0.9), transparent 70%);
+}
+.er-backdrop-cool {
+  background-color: #e6edf0;
+  background-image:
+    radial-gradient(60% 70% at 20% 20%, rgb(210 230 238 / 0.9), transparent 70%),
+    radial-gradient(60% 60% at 85% 85%, rgb(224 236 222 / 0.9), transparent 70%);
+}
+/* Devin's announcement bar: a soft grey strip with a faint sheen. */
+.er-banner {
+  background-color: #e4e4e4;
+  background-image: linear-gradient(90deg, rgb(255 255 255 / 0) 0%, rgb(255 255 255 / 0.55) 50%, rgb(255 255 255 / 0) 100%);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.04);
+}
+
+@media print {
+  .er-backdrop,
+  .er-backdrop-warm,
+  .er-backdrop-cool {
+    background: none;
   }
 }

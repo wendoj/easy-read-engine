@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import { CONVERT_ERRORS } from "@/src/convert/errors";
 import { MAX_CHARACTERS, MAX_WORDS, TOO_MANY_CHARACTERS_MESSAGE, tooLongMessage } from "@/src/convert/word-count";
 import { EXTRACT_ERRORS } from "@/src/extract/errors";
-import type { ConversionResult } from "@/src/pipeline/types";
+import type { ConversionResult, ProgressEvent } from "@/src/pipeline/types";
 import { convertLetter } from "@/src/ui/api";
 import {
   BUSY_FALLBACK,
@@ -16,7 +16,7 @@ import {
   TOO_LONG_FALLBACK,
   errorMessage,
 } from "@/src/ui/api-errors";
-import { parseConvertEvent, progressLabel, progressValue } from "@/src/ui/convert-events";
+import { parseConvertEvent, progressLabel, progressValue, stageRows } from "@/src/ui/convert-events";
 import { NdjsonParseError, NdjsonParser, readNdjson } from "@/src/ui/ndjson";
 import { wordLimitState } from "@/src/ui/word-limit";
 
@@ -240,5 +240,47 @@ describe("convertLetter", () => {
       fetch: fetchReturning(Response.json({ error: "too_long", message: tooLongMessage(1501) }, { status: 400 }), {}),
     });
     expect(rejected).toEqual({ ok: false, error: "too_long", message: tooLongMessage(1501) });
+  });
+});
+
+describe("stageRows", () => {
+  const ev = (stage: ProgressEvent["stage"], attempt = 1) =>
+    ({ type: "progress", stage, attempt, maxAttempts: 3 }) as ProgressEvent;
+  const states = (rows: ReturnType<typeof stageRows>) => rows.map((r) => `${r.id}:${r.state}`);
+
+  it("starts with Read current before any event, and no Fix row", () => {
+    expect(states(stageRows(null, false))).toEqual(["read:current", "write:pending", "check:pending"]);
+  });
+
+  it("marks earlier stages done and later ones pending", () => {
+    expect(states(stageRows(ev("checking"), false))).toEqual(["read:done", "write:done", "check:current"]);
+  });
+
+  it("adds the Fix row on the first regenerating event, with a try tag", () => {
+    const rows = stageRows(ev("regenerating", 2), false);
+    expect(states(rows)).toEqual(["read:done", "write:done", "check:done", "fix:current"]);
+    expect(rows[3].tag).toBe("Try 2 of 3");
+  });
+
+  it("keeps Fix as done when Check runs again, and tags the current Check", () => {
+    const rows = stageRows(ev("checking", 2), true);
+    expect(states(rows)).toEqual(["read:done", "write:done", "check:current", "fix:done"]);
+    expect(rows[2].tag).toBe("Try 2 of 3");
+    expect(rows[3].tag).toBeNull();
+  });
+
+  it("property: never more than 4 rows and exactly 1 current row", () => {
+    fc.assert(
+      fc.property(
+        fc.constantFrom("analysing", "rewriting", "checking", "regenerating" as const),
+        fc.integer({ min: 1, max: 3 }),
+        fc.boolean(),
+        (stage, attempt, sawFix) => {
+          const rows = stageRows(ev(stage as ProgressEvent["stage"], attempt), sawFix);
+          expect(rows.length).toBeLessThanOrEqual(4);
+          expect(rows.filter((r) => r.state === "current")).toHaveLength(1);
+        },
+      ),
+    );
   });
 });

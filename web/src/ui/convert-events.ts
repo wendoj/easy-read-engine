@@ -99,3 +99,39 @@ export function progressValue(event: ProgressEvent): number {
   else index = 1 + (attempt - 1) * 2;
   return Math.round(((index + 1) / (steps + 1)) * 100);
 }
+
+export type StageId = "read" | "write" | "check" | "fix";
+export type StageState = "done" | "current" | "pending";
+
+export interface StageRow {
+  id: StageId;
+  label: string;
+  state: StageState;
+  /** "Try 2 of 3" on the current Check or Fix row from the second try, otherwise null. */
+  tag: string | null;
+}
+
+const STAGE_ROWS: { id: StageId; stage: PipelineStage; label: string }[] = [
+  { id: "read", stage: "analysing", label: "Reading the letter" },
+  { id: "write", stage: "rewriting", label: "Writing the Easy Read version" },
+  { id: "check", stage: "checking", label: "Checking the lines" },
+  { id: "fix", stage: "regenerating", label: "Fixing lines that failed a check" },
+];
+
+/**
+ * Rows for the stage list on the input screen. At most 4 rows: the Fix row is
+ * shown only once a `regenerating` event has been seen (`sawFix`). Before the
+ * first event, Read is current. When Check runs again after a fix, Fix shows
+ * as done.
+ */
+export function stageRows(event: ProgressEvent | null, sawFix: boolean): StageRow[] {
+  const current = event === null ? 0 : STAGE_ROWS.findIndex((r) => r.stage === event.stage);
+  const showFix = sawFix || event?.stage === "regenerating";
+  return STAGE_ROWS.filter((r) => r.id !== "fix" || showFix).map((row, index) => {
+    let state: StageState = index < current ? "done" : index === current ? "current" : "pending";
+    if (row.id === "fix" && event?.stage === "checking") state = "done";
+    const retry = event !== null && event.attempt > 1 && (row.id === "check" || row.id === "fix");
+    const tag = state === "current" && retry ? `Try ${event.attempt} of ${event.maxAttempts}` : null;
+    return { id: row.id, label: row.label, state, tag };
+  });
+}
