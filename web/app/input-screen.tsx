@@ -9,6 +9,11 @@
  * Letter text stays in React state only (R7.4). The result goes to the
  * `ConversionProvider` in the root layout, and the result screen reads it with
  * `useConversion()`.
+ *
+ * "Try a sample letter" (task 29) loads a recorded result for a public sample
+ * letter through `/api/sample`, which re-runs P1 to P8 and makes no model
+ * call. The list holds only IDs and labels; the page passes it in from the
+ * server.
  */
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
@@ -17,10 +22,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import type { ProgressEvent } from "@/src/pipeline/types";
-import { convertLetter, extractText } from "@/src/ui/api";
+import type { SampleInfo } from "@/src/samples/sample";
+import { convertLetter, extractText, loadSample } from "@/src/ui/api";
 import { useConversion } from "@/src/ui/conversion-context";
 import { progressLabel, progressValue } from "@/src/ui/convert-events";
 import { wordLimitState } from "@/src/ui/word-limit";
@@ -31,7 +38,7 @@ export const OUTSIDE_AI_NOTICE =
   "Your letter text is sent to an outside AI service, so don't upload letters with personal details.";
 
 type Step = "enter" | "confirm";
-type Busy = null | "reading" | "converting";
+type Busy = null | "reading" | "converting" | "sample";
 
 function OutsideAiNotice() {
   return (
@@ -60,9 +67,60 @@ function WordCount({ text, id }: { text: string; id: string }) {
   );
 }
 
-export function InputScreen() {
+function SamplePicker({
+  samples,
+  busy,
+  disabled,
+  onShow,
+}: {
+  samples: readonly SampleInfo[];
+  busy: boolean;
+  disabled: boolean;
+  onShow: (id: string) => void;
+}) {
+  const ids = useId();
+  const [choice, setChoice] = useState<string>("");
+  if (samples.length === 0) return null;
+  return (
+    <section aria-labelledby={`${ids}-heading`} className="flex flex-col gap-3 border-t pt-6">
+      <h2 id={`${ids}-heading`} className="text-2xl font-semibold">
+        Try a sample letter
+      </h2>
+      <div className="flex flex-wrap items-center gap-3">
+        <Select value={choice} onValueChange={setChoice} disabled={disabled}>
+          <SelectTrigger aria-label="Sample letter" className="h-11! min-w-72 px-4 text-base">
+            <SelectValue placeholder="Choose a sample letter" />
+          </SelectTrigger>
+          <SelectContent>
+            {samples.map((s) => (
+              <SelectItem key={s.id} value={s.id} className="py-2 text-base">
+                {s.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          type="button"
+          size="lg"
+          variant="outline"
+          className="h-11 px-6 text-base"
+          disabled={choice === "" || disabled}
+          aria-busy={busy || undefined}
+          onClick={() => onShow(choice)}
+        >
+          {busy ? "Loading" : "Show sample"}
+        </Button>
+      </div>
+      <p aria-live="polite" role="status" className="font-medium empty:hidden">
+        {busy ? "Checking the sample letter" : ""}
+      </p>
+    </section>
+  );
+}
+
+export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] }) {
   const router = useRouter();
-  const { setResult } = useConversion();
+  const { startResult } = useConversion();
   const ids = useId();
   const pasteId = `${ids}-paste`;
   const pasteCountId = `${ids}-paste-count`;
@@ -124,7 +182,20 @@ export function InputScreen() {
     setBusy(null);
     setProgress(null);
     if (outcome.ok) {
-      setResult(outcome.result);
+      startResult(outcome.result, null);
+      router.push("/result");
+    } else if (!outcome.aborted) {
+      setError(outcome.message);
+    }
+  }
+
+  async function showSample(id: string) {
+    setError(null);
+    setBusy("sample");
+    const outcome = await loadSample(id, { signal: startRequest() });
+    setBusy(null);
+    if (outcome.ok) {
+      startResult(outcome.result, outcome.sample);
       router.push("/result");
     } else if (!outcome.aborted) {
       setError(outcome.message);
@@ -210,6 +281,7 @@ export function InputScreen() {
   }
 
   const reading = busy === "reading";
+  const loadingSample = busy === "sample";
   return (
     <section className="flex flex-col gap-5">
       <OutsideAiNotice />
@@ -294,6 +366,13 @@ export function InputScreen() {
       </Tabs>
 
       <ErrorAlert message={error} />
+
+      <SamplePicker
+        samples={samples}
+        busy={loadingSample}
+        disabled={busy !== null}
+        onShow={(id) => void showSample(id)}
+      />
     </section>
   );
 }

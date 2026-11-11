@@ -195,7 +195,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - fast-check properties: `/api/check` never changes the user's text, calls the judge only for edited lines, and returns `"blocked"` whenever P1 fails
   - _Requirements: 9.1 to 9.4_
 
-- [~] 27. Build the blocked state
+- [-] 27. Build the blocked state
   - Show the Original, the failed key facts with their original values, and a message that the output was withheld
   - Offer "Undo edit" when the block came from an edit; disable Export
   - _Requirements: 2.5, 9.3, 9.5_
@@ -207,7 +207,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
 
 ### Polish and evidence
 
-- [-] 29. Add the recorded sample letters
+- [x] 29. Add the recorded sample letters
   - Record results for the public sample letters, labelled with the date and the model that answered, and store them in `web/data/samples/`
   - Add a "Try a sample letter" list to the input screen; re-run P1 to P8 through the checker when a sample loads
   - _Requirements: 3.1; design "Protecting the live quota"_

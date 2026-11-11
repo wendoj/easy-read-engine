@@ -10,6 +10,7 @@
     "test": "vitest --run",
     "spike": "tsx --env-file-if-exists=../.env scripts/spike.ts",
     "fixtures": "tsx --env-file-if-exists=../.env scripts/fixtures.ts",
+    "record-samples": "tsx --env-file-if-exists=../.env scripts/record-samples.ts",
     "fixtures:property": "uv run --directory ../checker pytest -m needs_model",
     "gen:checker-types": "tsx scripts/gen-checker-types.ts"
   },

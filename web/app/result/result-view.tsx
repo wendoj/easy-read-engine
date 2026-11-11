@@ -20,6 +20,8 @@
  *   the editor open with the draft, so the text isn't lost.
  * - Task 27: the full blocked state replaces `WithheldMessage`.
  * - Task 28: the Export button goes in the toolbar, disabled when blocked.
+ * - Task 29: a result from a sample letter shows "Recorded on <date> with <model>" and says
+ *   that P1 to P8 ran again and P9 and P10 are from the recording.
  */
 import Image from "next/image";
 import Link from "next/link";
@@ -28,6 +30,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { RECORDED_CHECKS_NOTE, type SampleInfo, recordedLabel } from "@/src/samples/sample";
 import { checkEdit } from "@/src/ui/api";
 import { ARASAAC_ATTRIBUTION_PARTS } from "@/src/symbols/attribution";
 import { useConversion } from "@/src/ui/conversion-context";
@@ -360,8 +363,18 @@ function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+/** Task 29: when and with which model a sample letter was recorded, and which checks ran again. */
+function SampleLabel({ sample }: { sample: SampleInfo }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <p className="font-medium">{recordedLabel(sample)}</p>
+      <p className="text-base text-muted-foreground">{RECORDED_CHECKS_NOTE}</p>
+    </div>
+  );
+}
+
 export function ResultView() {
-  const { result, setResult } = useConversion();
+  const { result, sample, setResult } = useConversion();
   const [edit, setEdit] = useState<EditState | null>(null);
   const [history, setHistory] = useState<UndoHistory>(EMPTY_HISTORY);
   const layout = useMemo(() => (result ? resultLayout(result) : null), [result]);
@@ -452,6 +465,7 @@ export function ResultView() {
   return (
     <div className="flex flex-col gap-6">
       <SafetyNotice text={result.notice} />
+      {sample !== null && <SampleLabel sample={sample} />}
       <div className="flex flex-wrap items-center gap-3">
         <RuleReport input={result} synonyms={result.actionSynonyms} />
         {undoAllowed && (

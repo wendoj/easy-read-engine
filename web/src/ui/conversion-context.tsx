@@ -8,24 +8,45 @@
  * localStorage, sessionStorage, cookies, the URL or the server (R7.4). A
  * client navigation keeps it; a reload or a new tab loses it, and the result
  * screen then sends the user back to the input screen.
+ *
+ * `sample` is set when the result came from a recorded sample letter (task
+ * 29), so the result screen can show when and with which model it was
+ * recorded. `setResult` keeps it (edits to a sample are still that sample);
+ * `startResult` replaces both, for a new conversion or a newly loaded sample.
  */
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import type { ConversionResult } from "@/src/pipeline/types";
+import type { SampleInfo } from "@/src/samples/sample";
 
 export interface ConversionContextValue {
   /** The latest result, or null before a conversion or after `clearResult`. */
   result: ConversionResult | null;
+  /** The recorded sample the result came from, or null for the user's own letter. */
+  sample: SampleInfo | null;
+  /** Replaces the result and keeps `sample`. Used after an edit or an undo. */
   setResult: (result: ConversionResult) => void;
+  /** A new result: from a conversion (`sample` null) or a loaded sample. */
+  startResult: (result: ConversionResult, sample: SampleInfo | null) => void;
   clearResult: () => void;
 }
 
 const ConversionContext = createContext<ConversionContextValue | null>(null);
 
 export function ConversionProvider({ children }: { children: React.ReactNode }) {
-  const [result, setResultState] = useState<ConversionResult | null>(null);
-  const setResult = useCallback((next: ConversionResult) => setResultState(next), []);
-  const clearResult = useCallback(() => setResultState(null), []);
-  const value = useMemo(() => ({ result, setResult, clearResult }), [result, setResult, clearResult]);
+  const [state, setState] = useState<{ result: ConversionResult | null; sample: SampleInfo | null }>({
+    result: null,
+    sample: null,
+  });
+  const setResult = useCallback((next: ConversionResult) => setState((s) => ({ ...s, result: next })), []);
+  const startResult = useCallback(
+    (next: ConversionResult, sample: SampleInfo | null) => setState({ result: next, sample }),
+    [],
+  );
+  const clearResult = useCallback(() => setState({ result: null, sample: null }), []);
+  const value = useMemo(
+    () => ({ result: state.result, sample: state.sample, setResult, startResult, clearResult }),
+    [state, setResult, startResult, clearResult],
+  );
   return <ConversionContext.Provider value={value}>{children}</ConversionContext.Provider>;
 }
 

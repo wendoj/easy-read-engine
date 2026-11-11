@@ -1,9 +1,11 @@
 /**
- * Browser calls to `/api/extract`, `/api/convert` and `/api/check`. They return plain
+ * Browser calls to `/api/extract`, `/api/convert`, `/api/check` and `/api/sample`. They return plain
  * outcomes, never throw for HTTP errors, and never log or store letter text
  * (R7.4).
  */
+import { z } from "zod";
 import type { ConversionResult, ProgressEvent } from "@/src/pipeline/types";
+import { type SampleInfo, sampleInfoSchema } from "@/src/samples/sample";
 import {
   GENERIC_MESSAGE,
   NETWORK_MESSAGE,
@@ -11,7 +13,7 @@ import {
   errorMessage,
   readErrorBody,
 } from "./api-errors";
-import { parseConvertEvent } from "./convert-events";
+import { conversionResultSchema, parseConvertEvent } from "./convert-events";
 import { type CheckRequestBody, type CheckResponseBody, checkResponseSchema } from "./line-edit";
 import { readNdjson } from "./ndjson";
 
@@ -85,6 +87,42 @@ export async function checkEdit(
   const parsed = checkResponseSchema.safeParse(parsedBody);
   if (!parsed.success) return { ok: false, error: null, message: GENERIC_MESSAGE };
   return { ok: true, response: parsed.data };
+}
+
+const sampleResponseSchema = z.object({
+  result: conversionResultSchema,
+  sample: sampleInfoSchema,
+  judgeRecorded: z.literal(true),
+});
+
+export type SampleOutcome = { ok: true; result: ConversionResult; sample: SampleInfo } | ApiFailure;
+
+/**
+ * Loads a recorded sample letter. The server re-runs P1 to P8 through the
+ * checker and makes no model call, so this spends no model quota.
+ */
+export async function loadSample(
+  id: string,
+  options: { signal?: AbortSignal; fetch?: Fetch } = {},
+): Promise<SampleOutcome> {
+  let response: Response;
+  try {
+    response = await (options.fetch ?? fetch)("/api/sample", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id }),
+      signal: options.signal,
+    });
+  } catch (err) {
+    return failure(err, NETWORK_MESSAGE);
+  }
+  const body = await readErrorBody(response);
+  if (!response.ok) {
+    return { ok: false, error: codeOf(body), message: errorMessage("sample", response.status, body) };
+  }
+  const parsed = sampleResponseSchema.safeParse(body);
+  if (!parsed.success) return { ok: false, error: null, message: GENERIC_MESSAGE };
+  return { ok: true, result: parsed.data.result, sample: parsed.data.sample };
 }
 
 /**

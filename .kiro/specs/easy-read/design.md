@@ -228,7 +228,7 @@ Constraint: no money spent on model APIs. Everything below was checked in Novemb
 
 **Protecting the live quota:**
 
-- **Sample letters.** The input screen offers the public sample letters with results recorded from a real run, labelled with the date and model. P1 to P8 are re-run on load (no model call), so the checks shown are live. Judges and visitors can see the full flow without spending quota.
+- **Sample letters.** The input screen offers the public sample letters with results recorded from a real run, labelled with the date and model. P1 to P8 are re-run on load (no model call), so the checks shown are live. Judges and visitors can see the full flow without spending quota. Loading goes through `POST /api/sample` (`{ id }`), not `/api/check`, because `/api/check` always judges the edited lines; `/api/sample` calls only the checker (`analyse`, `check`, `line-facts`), keeps the recorded P9 and P10 verdicts and labels them as recorded, and isn't under the model rate limits. The files are in `web/data/samples/`, recorded with `npm run record-samples`, and imported statically on the server; the page gets only IDs and labels.
 - **Limits.** A per-IP limit applies, plus a global daily cap set just under the combined free allowance. When the cap is reached, the site says "Daily limit reached, try again tomorrow" before a conversion starts, not halfway through.
 - **Fixture runs** go one letter at a time, to stay under the per-minute limits.
 
