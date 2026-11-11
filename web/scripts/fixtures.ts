@@ -19,6 +19,10 @@
  * Both hold rule results and metadata only. Letter text, lines, check details
  * and key-fact values never go to the console or the file (R7.4).
  *
+ * The fixture job also runs the pipeline property (task 30):
+ * `npm run fixtures:property` runs `checker/tests/test_pipeline_property.py`
+ * against the running web app (`npm run dev`, WEB_URL). See that file.
+ *
  * Exit codes: 0 when every letter finished (passed, flagged or blocked all
  * count), 1 when a letter hit a model or input error, 2 when the checker or
  * the model config is unavailable.

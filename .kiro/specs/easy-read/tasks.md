@@ -147,7 +147,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Add a `--all` flag for the 20-letter pass-rate run in task 31
   - _Requirements: 3.1, 6.1_
 
-- [~] 20. Set up the three Kiro hooks
+- [-] 20. Set up the three Kiro hooks
   - Create them with the hook tool, not by hand
   - On save in `checker/src/checks/`: run the matching test file for that checker
   - On save in `prompts/`: run `npm run fixtures`
@@ -212,7 +212,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Add a "Try a sample letter" list to the input screen; re-run P1 to P8 through the checker when a sample loads
   - _Requirements: 3.1; design "Protecting the live quota"_
 
-- [-] 30. Add the pipeline property test
+- [x] 30. Add the pipeline property test
   - Use the strategy from task 11 to send synthetic letters through the full pipeline; every output must satisfy P1 to P8
   - Mark the test as needing a model, so it runs with the fixture job and not on every save
   - _Requirements: correctness properties, property-based testing items 1 and 2_

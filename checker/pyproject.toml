@@ -38,3 +38,10 @@ packages = ["src/checks"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+# Tests that call a live model run with the fixture job, not on every save:
+# `uv run pytest -m needs_model` (a later -m replaces this one). They are
+# deselected, never skipped or xfailed.
+addopts = "-m 'not needs_model'"
+markers = [
+    "needs_model: calls the running web app and a live model (task 30 pipeline property)",
+]
