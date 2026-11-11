@@ -389,3 +389,38 @@ def test_action_stops_where_a_joined_verb_clause_starts() -> None:
         "pay||date=2020-01-01,money=GBP 100",
         "pay||date=2034-04-04,money=GBP 500",
     ]
+
+
+def test_wrapped_action_keeps_its_object_and_date() -> None:
+    """Regression: layout line breaks split wrapped prose, so "please
+    contact\\nCitizens Advice" gave no action and "before\\n1 April 2026" lost
+    its date."""
+    contact = "If you have not already paid, please contact\nCitizens Advice for free help."
+    assert [f.normalised for f in extract_key_facts(contact) if f.type == "action"] != []
+    pay = (
+        "If you have not already paid, you must pay the full amount shown on this notice before\n"
+        "1 April 2026 at the latest."
+    )
+    assert [f.normalised for f in extract_key_facts(pay) if f.type == "action"] == [
+        "pay|amount|date=2026-04-01"
+    ]
+
+
+def test_joined_action_stops_before_a_because_or_if_clause() -> None:
+    """Regression: the joined verb's span ran to the end of the sentence, so
+    "because ..." and a dated "if ..." clause became part of the action."""
+    for text in [
+        "You must pay £45 and send the form back, because the council needs it by 3 March 2026.",
+        "You must pay £45 and send the form back, if you moved on 3 March 2026.",
+    ]:
+        actions = [(f.value, f.normalised) for f in extract_key_facts(text) if f.type == "action"]
+        assert actions == [
+            ("You must pay £45", "pay||money=GBP 4500"),
+            ("send the form back", "send back|form|"),
+        ], text
+
+
+def test_joined_action_still_keeps_its_own_date() -> None:
+    text = "You must pay £45 and send the form back by 3 March 2026."
+    actions = [f.normalised for f in extract_key_facts(text) if f.type == "action"]
+    assert actions == ["pay||money=GBP 4500", "send back|form|date=2026-03-03"]

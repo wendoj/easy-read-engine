@@ -118,3 +118,32 @@ def test_bullets_headings_and_web_addresses_start_new_sentences() -> None:
         "Pay online at www.example.gov.uk/pay",
         "Credit or debit card",
     ]
+
+
+def test_wrapped_line_before_a_capital_or_digit_stays_one_sentence() -> None:
+    """Regression: a wrapped prose line that ended on an ordinary word ended
+    the sentence whenever the next line started with a capital or a digit.
+    "please contact\\nCitizens Advice" lost its action and "before\\n1 April
+    2026" took the date away from the action, which weakened P1."""
+    for text in [
+        "If you have not already paid, please contact\nCitizens Advice for free help.",
+        "If you have not already paid, you must pay the full amount shown on this notice before\n"
+        "1 April 2026 at the latest.",
+        "If you cannot pay the full amount shown on this notice, please contact\n"
+        "Manchester City Council on 0161 234 5000.",
+    ]:
+        assert [s.text for s in split_sentences(text)] == [text]
+
+
+def test_short_layout_lines_and_web_addresses_still_split() -> None:
+    text = (
+        "Pay online at www.example.gov.uk/pay\nCredit or debit card\n"
+        "Your account number\n12345678\nPay by\n1 April 2026"
+    )
+    assert [s.text for s in split_sentences(text)] == [
+        "Pay online at www.example.gov.uk/pay",
+        "Credit or debit card",
+        "Your account number",
+        "12345678",
+        "Pay by\n1 April 2026",
+    ]

@@ -29,10 +29,14 @@ _CONTINUING_WORDS = frozenset(
     your our their his her its my this that these those which who whom whose
     is are was were be been being will would can could may might must should shall
     have has had do does did not no per via about over under within without between
-    such including like please""".split()
+    such including like please before after until""".split()
 )
 # A line that starts with a web address or email ("angliarevenues.gov.uk/...").
 _WEB_START = re.compile(r"(?i)(?:https?://|www\.|[\w-]+(?:\.[\w-]+)+/|[\w.+-]+@[\w-]+\.)")
+# A line that ends on a web address or email ("Pay online at www.example.gov.uk/pay").
+_WEB_END = re.compile(
+    r"(?i)(?:https?://\S+|www\.\S+|[\w-]+(?:\.[\w-]+)+/\S*|[\w.+-]+@[\w-]+(?:\.[\w-]+)+)[.,;]?$"
+)
 # Bullet and dash marks that start a list item.
 _BULLETS = frozenset("•◦▪‣*-–−")
 # A wrapped line of prose is close to the full width of its paragraph. A
@@ -105,25 +109,26 @@ def _layout_blocks(paragraph: str) -> list[tuple[int, int]]:
 def _is_layout_break(prev: str, nxt: str, widest: int) -> bool:
     """Whether the line break between two non-empty lines ends a sentence.
 
-    It does after a colon, a sentence end or a line that is only a web
-    address, and before a bullet or a web address. Before a capital or a digit it does too, unless the line before
-    ends on a word a sentence can't end on, or it is a long, wrapped line that
-    ends on a capitalised word (a name running onto the next line: "your
-    Council\nTax bill", "Data Protection Act\n2018").
+    It does after a colon, a sentence end or a web address, and before a
+    bullet or a web address. A long, wrapped line of prose breaks only there:
+    a wrapped line that ends on an ordinary word runs on into the next line,
+    even before a capital or a digit ("please contact\nCitizens Advice", "pay
+    it before\n1 April 2026"). A shorter line (a heading, label or table cell)
+    also breaks before a capital or a digit, unless it ends on a word a
+    sentence can't end on ("contact the\nCouncil Tax team").
     """
     if prev.endswith(":") or _TERMINAL.search(prev):
         return True
     if nxt[0] in _BULLETS or _WEB_START.match(nxt):
         return True
-    if " " not in prev and _WEB_START.match(prev):
+    if _WEB_END.search(prev):
         return True
+    if _width(prev) >= _SHORT_LINE * widest:
+        return False
     if not (nxt[0].isupper() or nxt[0].isdigit()):
         return False
     last = prev.split()[-1].strip(",;-–")
-    if prev.endswith((",", ";", "-", "–")) or last.lower() in _CONTINUING_WORDS:
-        return False
-    wrapped = _width(prev) >= _SHORT_LINE * widest
-    return not (wrapped and last[:1].isupper())
+    return not (prev.endswith((",", ";", "-", "–")) or last.lower() in _CONTINUING_WORDS)
 
 
 def _width(line: str) -> int:

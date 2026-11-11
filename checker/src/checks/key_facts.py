@@ -489,7 +489,8 @@ def _action_span(verb: Token) -> tuple[int, int]:
     ..."). spaCy sometimes attaches words after that clause, such as a date,
     to the first verb, or parses them as their own root. Those words belong to
     the joined verb's action, so a joined verb's span runs to the next joined
-    clause or the end of the sentence.
+    clause, the next "because"/"if" clause of the first verb, or the end of
+    the sentence.
     """
     excluded: set[int] = set()
     joined_verb = any(c.dep_ == "conj" and c.pos_ in ("VERB", "AUX") for c in verb.children)
@@ -505,13 +506,13 @@ def _action_span(verb: Token) -> tuple[int, int]:
         if t.i not in excluded and not t.is_punct and (cut is None or t.i < cut)
     ]
     if verb.dep_ == "conj" and verb.pos_ in ("VERB", "AUX"):
-        # The joined clause runs to the next joined clause or the end of the
-        # sentence. Trailing words may hang off the first verb or form their
-        # own spaCy root ("by 20 April 2034").
+        # The joined clause runs to the next joined clause, the next "because"
+        # or "if" clause, or the end of the sentence. Trailing words may hang
+        # off the first verb or form their own spaCy root ("by 20 April 2034").
         later = [
             c.left_edge.i
             for c in verb.head.children
-            if c.dep_ in ("conj", "cc") and c.i > verb.right_edge.i
+            if c.dep_ in ("conj", "cc", "advcl", "mark") and c.i > verb.right_edge.i
         ]
         # Each doc holds 1 checker sentence, so the doc end is the sentence end.
         stop = min(later) if later else len(verb.doc)
