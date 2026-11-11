@@ -11,7 +11,8 @@ dependencies = [
     "spacy>=3.8.18,<3.9",
     # Pinned spaCy model so checker results are reproducible (design "spaCy model").
     "en-core-web-sm",
-    "mcp>=1.2",
+    # mcp_server.py uses the 2.x API (MCPServer, formerly FastMCP).
+    "mcp>=2.3,<3",
 ]
 
 [dependency-groups]

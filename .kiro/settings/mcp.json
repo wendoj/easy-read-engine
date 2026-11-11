@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "easy-read-checker": {
+      "command": "uv",
+      "args": ["--directory", "/Users/wendyji/Developer/hackathons/easy-read-engine/checker", "run", "python", "src/mcp_server.py"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}

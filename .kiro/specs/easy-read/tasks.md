@@ -96,7 +96,7 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - Script to export the OpenAPI schema and generate `web/src/types/checker.ts` with `openapi-typescript`
   - _Requirements: 3.1, 7.4_
 
-- [-] 13. Build the MCP server
+- [x] 13. Build the MCP server
   - `checker/src/mcp_server.py` with the official Python MCP SDK over stdio, exposing tools `check_easy_read`, `extract_key_facts` and `find_symbol` that call the same functions as the HTTP routes
   - Add the local server entry to `.kiro/settings/mcp.json`
   - Make one sample call to each tool to confirm it responds
@@ -104,7 +104,7 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
 
 ## Day 3: pipeline
 
-- [ ] 14. Build the checker client
+- [-] 14. Build the checker client
   - `web/src/checker-client/`: a typed `fetch` wrapper using the generated types, with the base URL from `CHECKER_URL`, a request timeout, and a `CheckerUnavailable` error
   - _Requirements: 3.1_
 
