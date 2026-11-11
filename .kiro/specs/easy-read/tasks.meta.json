@@ -1,0 +1,311 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1. Scaffold the repository": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519133
+      },
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358528964
+      }
+    ],
+    "2. Write the steering documents": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519214
+      }
+    ],
+    "3. Define the checker data models and sentence splitting": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519254
+      }
+    ],
+    "4. Implement key-fact extraction and normalisation": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519301
+      }
+    ],
+    "5. Implement P1 and its tests": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519352
+      }
+    ],
+    "6. Implement P2 and P4 and their tests": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519400
+      }
+    ],
+    "7. Build the model client with the provider chain": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519470
+      }
+    ],
+    "8. Write the day 1 spike script and record results": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519505
+      }
+    ],
+    "9. Implement P3, P5, P6 and P7 with their tests": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519542
+      }
+    ],
+    "10. Build the ARASAAC pictogram index and P8": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519585
+      }
+    ],
+    "11. Add `check_easy_read` and the synthetic letter generator": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519625
+      }
+    ],
+    "12. Build the FastAPI adapter and generated types": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519670
+      }
+    ],
+    "13. Build the MCP server": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519717
+      }
+    ],
+    "14. Build the checker client": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519764
+      }
+    ],
+    "15. Write the prompts and the model calls for rewrite, regenerate and judge": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519804
+      }
+    ],
+    "16. Build the pipeline orchestrator": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519838
+      }
+    ],
+    "17. Build `/api/convert` with streaming, the letter length limit and rate limits": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519876
+      }
+    ],
+    "18. Build text extraction with `/api/extract`": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519919
+      }
+    ],
+    "19. Build the fixture script": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358519975
+      }
+    ],
+    "20. Set up the three Kiro hooks": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520052
+      }
+    ],
+    "21. Build the input screen": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520102
+      }
+    ],
+    "22. Build the side-by-side result screen": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520151
+      }
+    ],
+    "23. Implement pictogram search and the image cache": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520201
+      }
+    ],
+    "24. Build the rule report and pass count": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520235
+      }
+    ],
+    "25. Highlight key facts in both columns": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520283
+      }
+    ],
+    "26. Build editing and `/api/check`": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520333
+      }
+    ],
+    "27. Build the blocked state": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520386
+      }
+    ],
+    "28. Build the print layout and `/api/export`": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520420
+      }
+    ],
+    "29. Add the recorded sample letters": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520454
+      }
+    ],
+    "30. Add the pipeline property test": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520487
+      }
+    ],
+    "31. Run the pass-rate measurement": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520520
+      }
+    ],
+    "32. Containerise and deploy": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520573
+      }
+    ],
+    "33. Write the README and licence notes": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520633
+      }
+    ],
+    "Day 1: provide 3 public sample council letters for `fixtures/letters/`": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520683
+      }
+    ],
+    "Day 1: show one output to someone who uses or makes Easy Read": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520735
+      }
+    ],
+    "Day 1: **go/no-go decision.** Go if at least 7 of the 10 properties are automatic and the output is judged usable; record it in `docs/day1-results.md`": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520776
+      }
+    ],
+    "Day 1: choose the official Easy Read guidance and add it to the steering doc": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520819
+      }
+    ],
+    "Day 6: design pass on the main screen": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520854
+      }
+    ],
+    "Day 6: get feedback from 3 to 5 people, including on the ARASAAC pictures, and capture quotes": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520886
+      }
+    ],
+    "Day 7: test the live URL end to end": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520921
+      }
+    ],
+    "Day 7: record the demo video (under 3 minutes)": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358520959
+      }
+    ],
+    "Day 7: write the Kiro usage write-up": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358521000
+      }
+    ],
+    "Day 7: social post with #KiroweenHackathon26": [
+      {
+        "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794358521040
+      }
+    ]
+  }
+}
