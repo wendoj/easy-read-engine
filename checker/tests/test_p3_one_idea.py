@@ -1,0 +1,135 @@
+from hypothesis import given, settings
+from hypothesis import strategies as st
+
+from checks.models import Line
+from checks.p3_one_idea import check_p3
+
+# All text here is invented. No real letters or personal data.
+
+# --- generators --------------------------------------------------------------
+
+_SUBJECTS = ["The council", "Your doctor", "The office", "You", "The team", "Your landlord"]
+_MODAL_VERBS = ["will send", "can check", "must pay", "will close", "will fix", "can change"]
+_OBJECTS = ["your bill", "the form", "your account", "the letter", "your claim", "the payment"]
+# Present-tense clauses with their own subject, for "if" and "because" clauses.
+_SUB_SUBJECTS = ["you", "the council", "your landlord"]
+_SUB_VERBS = {"you": ["pay", "change", "send"], "the council": ["gets", "checks", "sends"],
+              "your landlord": ["gets", "checks", "sends"]}  # fmt: skip
+
+
+@st.composite
+def _clause(draw: st.DrawFn) -> str:
+    """One main clause with a subject, a verb and an object, no full stop."""
+    return " ".join(
+        draw(st.sampled_from(xs)) for xs in (_SUBJECTS, _MODAL_VERBS, _OBJECTS)
+    )
+
+
+@st.composite
+def _sub_clause(draw: st.DrawFn) -> str:
+    """A lower-case present-tense clause with its own subject."""
+    subject = draw(st.sampled_from(_SUB_SUBJECTS))
+    verb = draw(st.sampled_from(_SUB_VERBS[subject]))
+    return f"{subject} {verb} {draw(st.sampled_from(_OBJECTS))}"
+
+
+def _lower_first(text: str) -> str:
+    return text[0].lower() + text[1:]
+
+
+@st.composite
+def _one_idea(draw: st.DrawFn) -> str:
+    return draw(_clause()) + "."
+
+
+@st.composite
+def _two_ideas(draw: st.DrawFn) -> str:
+    """2 main clauses in 1 sentence, joined in one of the ways P3 must catch."""
+    first = draw(_clause())
+    kind = draw(st.sampled_from(["and", "but", "if", "because"]))
+    if kind in ("and", "but"):
+        return f"{first} {kind} {_lower_first(draw(_clause()))}."
+    if kind == "if":
+        return f"If {draw(_sub_clause())}, {_lower_first(first)}."
+    return f"{first} because {draw(_sub_clause())}."
+
+
+def _lines(texts: list[str]) -> list[Line]:
+    return [
+        Line(id=f"l{i}", text=t, source_sentence_id="s1", symbol_id=None)
+        for i, t in enumerate(texts, start=1)
+    ]
+
+
+# --- properties --------------------------------------------------------------
+
+
+@settings(max_examples=50, deadline=None)
+@given(st.lists(_one_idea(), min_size=1, max_size=5))
+def test_sentences_with_one_main_clause_pass(texts: list[str]) -> None:
+    """**Validates: Requirements 3.1; P3**"""
+    result = check_p3("", [], _lines(texts))
+    assert result.rule == "P3"
+    assert result.passed, result.details
+    assert result.line_ids == []
+
+
+@settings(max_examples=50, deadline=None)
+@given(st.lists(st.tuples(_one_idea(), _two_ideas(), st.booleans()), min_size=1, max_size=4), st.data())
+def test_sentences_with_two_main_clauses_fail(
+    rows: list[tuple[str, str, bool]], data: st.DataObject
+) -> None:
+    """**Validates: Requirements 3.1; P3**"""
+    flags = [f for _, _, f in rows]
+    flags[data.draw(st.integers(min_value=0, max_value=len(rows) - 1))] = True
+    lines = _lines([two if f else one for (one, two, _), f in zip(rows, flags)])
+    result = check_p3("", [], lines)
+    assert not result.passed
+    assert result.line_ids == [line.id for line, f in zip(lines, flags) if f]
+
+
+# --- checker-must-fail cases and examples ------------------------------------
+
+
+def test_two_clauses_joined_by_and_fail() -> None:
+    """Checker-must-fail case (the "not like this" example in the Easy Read rules).
+
+    **Validates: Requirements 3.1; P3**
+    """
+    text = "We have received your form and we will respond by 14 March 2026."
+    result = check_p3("", [], _lines([text]))
+    assert not result.passed
+    assert result.line_ids == ["l1"]
+    assert result.details == ["l1 has a sentence with 2 main clauses (limit 1)"]
+
+
+def test_if_clause_fails() -> None:
+    """Checker-must-fail case. **Validates: Requirements 3.1; P3**"""
+    assert not check_p3("", [], _lines(["If you cannot pay, phone the council."])).passed
+
+
+def test_two_verbs_sharing_a_subject_fail() -> None:
+    """Checker-must-fail case. **Validates: Requirements 3.1; P3**"""
+    assert not check_p3("", [], _lines(["You must pay £45 and send the form."])).passed
+
+
+def test_split_sentences_pass() -> None:
+    lines = _lines(["The council got your form.", "The council will reply by 14 March 2026."])
+    assert check_p3("", [], lines).passed
+
+
+def test_two_short_sentences_in_one_line_pass() -> None:
+    assert check_p3("", [], _lines(["The council got your form. It will reply soon."])).passed
+
+
+def test_to_clause_without_its_own_subject_passes() -> None:
+    text = "Your rent is the money you pay to live in your home."
+    assert check_p3("", [], _lines([text])).passed
+
+
+def test_need_to_passes() -> None:
+    assert check_p3("", [], _lines(["You need to pay £45."])).passed
+
+
+def test_no_lines_pass() -> None:
+    assert check_p3("", [], []).passed

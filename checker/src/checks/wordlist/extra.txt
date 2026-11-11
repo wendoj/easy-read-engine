@@ -1,0 +1,13 @@
+# Everyday words that UK letters use and the NGSL 1.2 lists leave out.
+# One lemma per line, lower case. Keep this list short: every word here is a
+# word P5 accepts without an explanation. See README.md.
+app
+cheque
+debit
+dentist
+internet
+landlord
+password
+pharmacy
+postcode
+wheelchair

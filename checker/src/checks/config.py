@@ -29,3 +29,28 @@ ACTION_SYNONYMS: dict[str, str] = {
 # Verb lemmas that look like imperatives in letters but ask for no action
 # ("Thank you for...", "Please note...", "Please find enclosed...").
 NON_ACTION_VERBS: frozenset[str] = frozenset({"thank", "note", "find"})
+
+# P3: the most main verb clauses a sentence may have. See p3_one_idea.py for
+# what counts as a clause.
+MAX_CLAUSES_PER_SENTENCE = 1
+
+# P5: common-word list files in checks/wordlist/ (sources and licences in its
+# README.md). A word passes if its lemma or its written form is in any of them.
+WORDLIST_FILES: tuple[str, ...] = (
+    "ngsl-1.2-lemmatized-for-research.csv",
+    "ngsl-1.2-supplement-lemmatized.csv",
+    "extra.txt",
+)
+# P5: names of people, organisations and places are not "hard words", so
+# tokens inside a spaCy entity with one of these labels pass.
+NAME_ENTITY_LABELS: frozenset[str] = frozenset({"PERSON", "ORG", "GPE", "LOC", "FAC", "NORP"})
+# P5: verb lemmas that define their subject on first use ("X means ...", "X is ...").
+DEFINING_VERBS: frozenset[str] = frozenset({"be", "mean"})
+
+# P7: the fewest letters in an all-caps token that P7 treats as an abbreviation.
+MIN_ABBREVIATION_LETTERS = 2
+# P7: small words an expansion may contain that have no letter in the
+# abbreviation ("Department for Work and Pensions (DWP)").
+ABBREVIATION_LINK_WORDS: frozenset[str] = frozenset(
+    {"a", "an", "and", "&", "for", "in", "of", "on", "the", "to"}
+)
