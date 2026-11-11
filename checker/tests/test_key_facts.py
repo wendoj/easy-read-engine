@@ -363,3 +363,17 @@ def test_synonym_targets_are_never_swapped_again() -> None:
 
 def test_date_without_a_year_keeps_month_and_day() -> None:
     assert _normalised("Reply by 1 March.", "date") == ["--03-01"]
+
+
+def test_joined_verb_done_to_you_is_not_your_action() -> None:
+    """Regression: "or even take you to court" is the council's action, but
+    spaCy joined it to "pay", so P1 asked the output to keep "take"."""
+    text = "The Council may ask you to pay all you owe straight away, or even take you to court."
+    phrases = [f.normalised.split("|")[0] for f in extract_key_facts(text) if f.type == "action"]
+    assert "take" not in phrases
+
+
+def test_glued_pdf_text_is_not_an_action() -> None:
+    text = "Do it online at example.gov.uk/billsmake the switch today."
+    phrases = [f.normalised.split("|")[0] for f in extract_key_facts(text) if f.type == "action"]
+    assert all(p.replace(" ", "").replace("-", "").isalpha() for p in phrases)

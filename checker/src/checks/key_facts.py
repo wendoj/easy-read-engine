@@ -463,11 +463,19 @@ def _action_verb(tok: Token) -> Token | None:
 
 
 def _conj_verbs(verb: Token) -> list[Token]:
-    """Verbs joined to `verb` by "and"/"or" that share its subject."""
+    """Verbs joined to `verb` by "and"/"or" that share its subject.
+
+    A joined verb whose object is "you" is skipped: the reader is not the one
+    doing it. spaCy often attaches the sender's action to the reader's ("ask
+    you to pay all you owe, or even take you to court").
+    """
     found: list[Token] = []
     for c in verb.children:
-        if c.dep_ == "conj" and c.pos_ == "VERB" and not any(
-            g.dep_ in _SUBJECT_DEPS for g in c.children
+        if (
+            c.dep_ == "conj"
+            and c.pos_ == "VERB"
+            and not any(g.dep_ in _SUBJECT_DEPS for g in c.children)
+            and not _has_you_object(c)
         ):
             found.append(c)
             found.extend(_conj_verbs(c))
@@ -521,7 +529,8 @@ def _action_candidates(
                     verbs.setdefault(v.i, v)
         for verb in sorted(verbs.values(), key=lambda v: v.i):
             lemma = verb.lemma_.lower()
-            if lemma in NON_ACTION_VERBS:
+            # Not a word: text glued together in a PDF ("example.gov.ukmake").
+            if lemma in NON_ACTION_VERBS or not lemma.replace("-", "").isalpha():
                 continue
             # "fill in" (prt) and "send it back" (back is often parsed as advmod)
             particles = [
