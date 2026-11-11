@@ -2,7 +2,17 @@
 
 Recorded 11 November 2026 with `cd web && npm run spike` (`web/scripts/spike.ts`, scored by `checker/scripts/score.py`).
 
-**Scope.** These results come from the 5 invented letters in `fixtures/letters/` only. They contain no real personal data. The 3 public sample council letters have not been added yet, so nothing here has been measured on a real council letter. This document records evidence only. The go/no-go decision and the model choice are left to you.
+**Scope.** The main sections below come from the 5 invented letters in `fixtures/letters/`. A later run on the 3 public sample letters is in [Public letters](#public-letters). None of the letters holds real personal data. This document records evidence only. The go/no-go decision and the model choice are left to you.
+
+## Summary
+
+- **No output passed P1, P2 and P4 together**, on the invented letters (3 runs) or the public letters (1 run).
+- **gpt-oss-120b** returned usable lines for 15 of 15 invented-letter requests and 2 of 3 public letters. Most P1 failures were reworded required actions. On the invented letters every date, amount, reference, phone number and address was kept; on 2 public letters 1 date each went missing. Long lines (P2) and passives (P4) remained in most letters.
+- **The longest public letter failed outright.** On the Manchester letter (1,071 words, 83 key facts), gpt-oss-120b called a tool that wasn't offered (400), and the plain-JSON retry returned 1 line.
+- **Nemotron (OpenRouter free)** returned no valid lines for any public letter, and for 8 of 15 invented-letter requests.
+- **Tokens:** gpt-oss-120b rewrite requests averaged 2,554 to 2,634 tokens on the invented letters and 3,781 on the public letters (maximum 4,089), under the design's 4,000 estimate on average.
+- **Vision:** Groq's `qwen/qwen3.8-27b` accepts an image. **ARASAAC:** `/v1/pictograms/all/en` returns the full English catalogue (13,907 pictograms).
+- **Pictogram search** returned a match for 84% of gpt-oss-120b lines on the invented letters and 81% on the public letters. Nobody has checked whether the matches are correct.
 
 ## Set-up
 
@@ -84,15 +94,68 @@ For each output line, the script searched `GET /v1/pictograms/en/search/{symbolQ
 
 No search request failed.
 
+## Public letters
+
+Recorded 11 November 2026 (13:34 UTC) with `npm run spike -- --set=public --skip-vision`. One pass per letter per candidate, with the same candidates, prompt and settings as above. The vision check was skipped because it had already passed. The ARASAAC catalogue check gave the same result as above.
+
+The 3 letters are public templates and samples from East Cambridgeshire District Council, Manchester City Council and the Planning Inspectorate (see `fixtures/letters/README.md`). Their personal details are placeholders in the source, such as `DD.MM.YYYY` and `£XXX.XX`, so some key facts the extractor would find in a real letter aren't there.
+
+| Letter | Words | Sentences | Key facts |
+| --- | --- | --- | --- |
+| `council-tax-final-notice-east-cambridgeshire.txt` | 855 | 33 | 36 |
+| `manchester-missed-council-tax-payment.txt` | 1,071 | 78 | 83 |
+| `planning-appeal-notification-letter.txt` | 624 | 43 | 6 |
+
+### Pass counts
+
+Each cell is the number of letters (out of 3) that passed.
+
+| Candidate | Scored | P1 | P2 | P4 | All 3 |
+| --- | --- | --- | --- | --- | --- |
+| `groq:openai/gpt-oss-120b` | 3 | 0 | 1 | 1 | 0 |
+| `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 0 | 0 | 0 | 0 | 0 |
+
+**gpt-oss-120b, per letter**
+
+| Letter | Lines | P1 | P2 | P4 | Tokens | Time |
+| --- | --- | --- | --- | --- | --- | --- |
+| East Cambridgeshire | 28 | fail: 9 actions changed, 1 date missing (7 lines) | fail (4 lines) | fail (1 line) | 2,799 + 993 = 3,792 | 2.7 s |
+| Manchester | 1 | fail: all 83 facts missing | pass | pass | 4,007 + 82 = 4,089 | 0.8 s |
+| Planning Inspectorate | 41 | fail: 1 date missing (1 line) | fail (3 lines) | fail (19 lines) | 2,186 + 1,276 = 3,462 | 3.2 s |
+
+- **Manchester.** The first request got a 429, and the script waited 20 seconds and retried once. The tool request then failed with a 400 (`tool_use_failed`), because the model called a tool named `json` that wasn't in the request. The plain-JSON retry returned valid JSON with only 1 line. The P2 and P4 passes for this letter are therefore meaningless. This is the longest fixture letter and the only one over 1,000 words.
+- **Actions.** As with the invented letters, 9 of the 10 P1 failures on the East Cambridgeshire letter were reworded required actions.
+- **Passives.** The Planning Inspectorate letter is written mostly in the passive ("will be determined", "must be received"), and 19 of the 41 output lines kept a passive.
+- Reasoning averaged 41 tokens per request (`reasoning_effort: "low"`). No request was truncated.
+
+**Nemotron.** All 6 requests (tool request and JSON retry for each letter) ended with `finish_reason: stop` after 1 to 20 completion tokens, with no valid lines. This matches the empty replies in the final invented-letter run and points to a problem with the free host, not with the letters.
+
+### Tokens per request
+
+| Request | Design estimate | Measured on public letters |
+| --- | --- | --- |
+| Rewrite, `gpt-oss-120b` | about 4,000 | average 3,781 (2,997 prompt and 784 completion), maximum 4,089 |
+| Rewrite, Nemotron | about 4,000 | average 3,274, maximum 4,737, almost all prompt. Replies were 1 to 20 tokens |
+
+The Manchester prompt was 4,007 tokens for 1,071 words. Scaling from that, a 1,500-word letter would need roughly 5,000 to 5,600 prompt tokens before any output, so with a full set of lines a request would come close to Groq's 8,000 tokens a minute.
+
+### Pictogram coverage
+
+| Candidate | Lines | Lines with a `symbolQuery` | Search returned a match | Share of all lines |
+| --- | --- | --- | --- | --- |
+| `gpt-oss-120b` | 70 | 70 | 57 | 81% |
+
+The Manchester letter contributes only 1 line.
+
 ## Not yet measured
 
-- The 3 public sample council letters.
+- A full rewrite of the Manchester letter, and any letter over 1,071 words.
 - P3 and P5 to P10, judge tokens, and whether the matched pictograms are correct.
 - Gemini as a development fallback (no key set).
 - How Nemotron behaves with a reasoning limit or a higher `max_tokens`. The task 7 client sends a reasoning setting only for `gpt-oss-120b` and the Qwen judge.
 
 ## Files
 
-- `web/scripts/spike.ts`: the spike. Flags are `--letter=`, `--model=`, `--skip-vision` and `--skip-arasaac`.
+- `web/scripts/spike.ts`: the spike. Flags are `--set=invented|public|all` (default `invented`), `--letter=`, `--model=`, `--skip-vision` and `--skip-arasaac`.
 - `checker/scripts/score.py`: the CLI over the checker. `analyse` returns sentences and key facts, and `score` runs P1, P2 and P4.
 - Raw output and `summary.json` for each run are in `web/.spike-output/<timestamp>/`. This folder is gitignored, and the console showed only counts.
