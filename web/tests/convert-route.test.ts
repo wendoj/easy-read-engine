@@ -369,7 +369,7 @@ describe("shared rate limits", () => {
 
   it("logs a masked client only", async () => {
     const events: unknown[] = [];
-    const limiter = createRateLimiter({ capacity: 1, refillPerHour: 1, dailyCap: 1000, costs: { convert: 1, extract: 1, check: 1 }, logger: (e) => events.push(e) });
+    const limiter = createRateLimiter({ capacity: 1, refillPerHour: 1, dailyCap: 1000, costs: { convert: 1, extract: 1, check: 1, export: 1 }, logger: (e) => events.push(e) });
     await limiter.limit(limitRequest("203.0.113.77"), "check");
     await limiter.limit(limitRequest("203.0.113.77"), "check");
     expect(events).toEqual([{ msg: "rate_limit", route: "check", code: "rate_limited", client: "203.0.113.x" }]);

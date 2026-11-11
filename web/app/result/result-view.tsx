@@ -21,7 +21,9 @@
  * - Task 27: `BlockedState` shows no lines, the failed key facts with their values from the
  *   Original, and "Undo edit" (block from an edit) or "Start again" (block from the conversion).
  *   Logic is in `src/ui/blocked-state.ts`.
- * - Task 28: the Export button goes in the toolbar, enabled only when `canExport(result)`.
+ * - Task 28: "Export PDF" in the toolbar, enabled only when `canExport(result)` (R9.5). It posts the
+ *   result to `/api/export`, which checks P1 again, and saves the PDF from a Blob. Errors (409, 429,
+ *   503) show in an Alert. "Print preview" opens `/print` with the same layout.
  * - Task 29: a result from a sample letter shows "Recorded on <date> with <model>" and says
  *   that P1 to P8 ran again and P9 and P10 are from the recording.
  */
@@ -33,7 +35,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RECORDED_CHECKS_NOTE, type SampleInfo, recordedLabel } from "@/src/samples/sample";
-import { checkEdit } from "@/src/ui/api";
+import { EXPORT_FILENAME } from "@/src/export/errors";
+import { checkEdit, exportPdf } from "@/src/ui/api";
 import {
   BLOCKED_HEADING,
   BLOCKED_MESSAGES,
@@ -42,6 +45,7 @@ import {
   type FailedFact,
   NO_FAILED_FACTS_MESSAGE,
   blockSource,
+  canExport,
   failedKeyFacts,
 } from "@/src/ui/blocked-state";
 import { ARASAAC_ATTRIBUTION_PARTS } from "@/src/symbols/attribution";
@@ -425,6 +429,19 @@ function ResultFooter() {
   );
 }
 
+/** Saves a Blob as a file. The object URL is revoked once the download has started. */
+function saveBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.rel = "noopener";
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
@@ -443,6 +460,8 @@ export function ResultView() {
   const { result, sample, setResult } = useConversion();
   const [edit, setEdit] = useState<EditState | null>(null);
   const [history, setHistory] = useState<UndoHistory>(EMPTY_HISTORY);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
   const layout = useMemo(() => (result ? resultLayout(result) : null), [result]);
   const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
   const originalRef = useRef<HTMLDivElement | null>(null);
@@ -504,11 +523,25 @@ export function ResultView() {
     setHistory((h) => recordEdit(h, before, after));
     setResult(after);
     setEdit(null);
+    setExportError(null);
   };
 
   const undoAllowed = edit === null && canUndo(history, result);
   const blocked = blockSource(result, history);
   const failedFacts = useMemo(() => (result ? failedKeyFacts(result) : []), [result]);
+
+  const exportAllowed = canExport(result);
+
+  /** Posts the result to `/api/export` and saves the PDF. The server checks P1 again (R9.5). */
+  const onExport = async () => {
+    if (result === null || !canExport(result) || exporting) return;
+    setExporting(true);
+    setExportError(null);
+    const outcome = await exportPdf(result);
+    setExporting(false);
+    if (outcome.ok) saveBlob(outcome.pdf, EXPORT_FILENAME);
+    else if (!outcome.aborted) setExportError(outcome.message);
+  };
 
   /** Restores the result before the last edit exactly. It was checked already, so no server call. */
   const onUndo = () => {
@@ -516,6 +549,7 @@ export function ResultView() {
     if (undone === null) return;
     setHistory(undone.history);
     setResult(undone.result);
+    setExportError(null);
   };
 
   if (!result || !layout) {
@@ -542,8 +576,27 @@ export function ResultView() {
             Undo edit
           </Button>
         )}
-        {/* Task 28: Export button, disabled unless canExport(result) (src/ui/blocked-state.ts, R9.5). */}
+        {/* R9.5: disabled while blocked, and while a line is being edited. */}
+        <Button
+          type="button"
+          size="lg"
+          className="h-11 px-6 text-base"
+          disabled={!exportAllowed || exporting || edit !== null}
+          onClick={() => void onExport()}
+        >
+          {exporting ? "Making the PDF…" : "Export PDF"}
+        </Button>
+        {exportAllowed && edit === null && (
+          <Link href="/print" className={buttonVariants({ variant: "outline", size: "lg", className: "h-11 px-6 text-base" })}>
+            Print preview
+          </Link>
+        )}
       </div>
+      {exportError !== null && (
+        <Alert variant="destructive" role="alert">
+          <AlertDescription className="text-base text-destructive">{exportError}</AlertDescription>
+        </Alert>
+      )}
       <div className="grid items-start gap-8 md:grid-cols-2">
         <section aria-labelledby="original-heading" className="flex flex-col gap-3 md:sticky md:top-4">
           <h2 id="original-heading" className="text-2xl font-semibold">

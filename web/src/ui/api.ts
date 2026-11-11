@@ -1,5 +1,5 @@
 /**
- * Browser calls to `/api/extract`, `/api/convert`, `/api/check` and `/api/sample`. They return plain
+ * Browser calls to `/api/extract`, `/api/convert`, `/api/check`, `/api/sample` and `/api/export`. They return plain
  * outcomes, never throw for HTTP errors, and never log or store letter text
  * (R7.4).
  */
@@ -87,6 +87,42 @@ export async function checkEdit(
   const parsed = checkResponseSchema.safeParse(parsedBody);
   if (!parsed.success) return { ok: false, error: null, message: GENERIC_MESSAGE };
   return { ok: true, response: parsed.data };
+}
+
+export type ExportOutcome = { ok: true; pdf: Blob } | ApiFailure;
+
+/**
+ * Sends the result on screen to `/api/export` and returns the PDF (R8.1). The
+ * server checks P1 again and returns 409 if the result is blocked (R9.5). The
+ * PDF stays in memory as a Blob until the browser saves it.
+ */
+export async function exportPdf(
+  result: ConversionResult,
+  options: { signal?: AbortSignal; fetch?: Fetch } = {},
+): Promise<ExportOutcome> {
+  let response: Response;
+  try {
+    response = await (options.fetch ?? fetch)("/api/export", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(result),
+      signal: options.signal,
+    });
+  } catch (err) {
+    return failure(err, NETWORK_MESSAGE);
+  }
+  if (!response.ok) {
+    const body = await readErrorBody(response);
+    return { ok: false, error: codeOf(body), message: errorMessage("export", response.status, body) };
+  }
+  if (!(response.headers.get("content-type") ?? "").startsWith("application/pdf")) {
+    return { ok: false, error: null, message: GENERIC_MESSAGE };
+  }
+  try {
+    return { ok: true, pdf: await response.blob() };
+  } catch (err) {
+    return failure(err, NETWORK_MESSAGE);
+  }
 }
 
 const sampleResponseSchema = z.object({

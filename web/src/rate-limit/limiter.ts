@@ -13,6 +13,11 @@
  *    reached, try again tomorrow" before any work starts. A conversion is
  *    charged in full up front, so it never runs out partway through.
  *
+ * `/api/export` (task 28) makes no model call, so it draws on the per-client
+ * bucket only (cost 3, so at most 10 PDFs an hour per client, as each one
+ * starts a Chromium page) and is never charged to the daily model cap
+ * (`DAILY_CAP_EXEMPT`).
+ *
  * A request is charged only when both limits allow it. State is in memory,
  * which is fine for the single instance on the VPS; it resets on restart.
  */
@@ -23,7 +28,10 @@ import type { LimitedRoute, RateLimitDecision, RateLimiter } from "./types";
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
 
-export const ROUTE_COSTS: Record<LimitedRoute, number> = { convert: 6, extract: 1, check: 1 };
+export const ROUTE_COSTS: Record<LimitedRoute, number> = { convert: 6, extract: 1, check: 1, export: 3 };
+
+/** Routes that make no model call, so they don't count against the daily model cap. */
+export const DAILY_CAP_EXEMPT: ReadonlySet<LimitedRoute> = new Set(["export"]);
 
 /**
  * 30 units an hour per client: 5 conversions, or fewer conversions plus
@@ -116,6 +124,7 @@ export function createRateLimiter(options: RateLimiterOptions = {}): RateLimiter
   const limit: RateLimiter = async (request, route) => {
     const nowMs = now();
     const cost = costs[route];
+    const dailyCost = DAILY_CAP_EXEMPT.has(route) ? 0 : cost;
     const key = clientKey(request.headers, hops);
 
     const today = utcDay(nowMs);
@@ -123,7 +132,7 @@ export function createRateLimiter(options: RateLimiterOptions = {}): RateLimiter
       day = today;
       used = 0;
     }
-    if (used + cost > dailyCap) {
+    if (dailyCost > 0 && used + dailyCost > dailyCap) {
       const untilMidnight = (today + 1) * DAY_MS - nowMs;
       return deny(route, key, {
         allowed: false,
@@ -150,7 +159,7 @@ export function createRateLimiter(options: RateLimiterOptions = {}): RateLimiter
 
     if (!buckets.has(key) && buckets.size >= maxTracked) sweep(nowMs);
     buckets.set(key, result.state);
-    used += cost;
+    used += dailyCost;
     return { allowed: true };
   };
 

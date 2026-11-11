@@ -200,7 +200,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Offer "Undo edit" when the block came from an edit; disable Export
   - _Requirements: 2.5, 9.3, 9.5_
 
-- [-] 28. Build the print layout and `/api/export`
+- [x] 28. Build the print layout and `/api/export`
   - `web/app/print/page.tsx`: A4, text of at least 16pt, picture column on the left, one line per row, the safety notice at the top of page 1, and the ARASAAC attribution and licence in the footer
   - `/api/export`: render the print page in headless Chromium and return the PDF; run up to 2 exports at once and queue the rest; return 409 when the result is blocked
   - _Requirements: 4.4, 7.1, 8.1, 8.2, 8.3, 9.5_
@@ -221,7 +221,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Run `npm run fixtures -- --all` on the 20 public sample letters and save the results table to `docs/pass-rates.md`
   - _Requirements: none; evidence for the write-up_
 
-- [~] 32. Containerise and deploy
+- [-] 32. Containerise and deploy
   - `checker/Dockerfile`: Python slim image with the spaCy model installed at build time, and a health check on `/health`
   - `web/Dockerfile`: Next.js `output: "standalone"` with Chromium and its system libraries
   - `docker-compose.yml`:
