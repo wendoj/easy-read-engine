@@ -43,14 +43,14 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - Test that a missing fact fails and maps to the lines from that fact's source sentence
   - _Requirements: 2.3, 2.4, 2.5, 2.6; P1_
 
-- [-] 6. Implement P2 and P4 and their tests
+- [x] 6. Implement P2 and P4 and their tests
   - `checks/p2_sentence_length.py`: fail any sentence over 15 words, with the limit in config
   - `checks/p4_passive.py`: fail on `auxpass` or `nsubjpass`
   - Hypothesis properties: any generated sentence of 16 or more words fails P2, and any of 15 or fewer passes; generated passive sentences fail P4 and their active forms pass
   - Fixed checker-must-fail cases from the brief: a 16-word sentence fails P2, a passive sentence fails P4
   - _Requirements: 3.1; P2, P4_
 
-- [~] 7. Build the model client with the provider chain
+- [-] 7. Build the model client with the provider chain
   - `web/src/llm/`: one OpenAI-compatible client for Groq, OpenRouter and Gemini, configured by `provider:model` env lists per role, as in design "Model provider"
   - Try entries in order and move on after a 429, a 5xx or a timeout; record which provider and model answered
   - Set `reasoning_effort: "low"` and a `max_tokens` cap for `gpt-oss-120b`, and turn off thinking mode for the Qwen judge
