@@ -8,7 +8,24 @@ Follow these rules in every Easy Read line, every prompt in `prompts/`, and ever
 
 ## Guidance source
 
-> **TODO (open question):** name the official Easy Read guidance these rules follow, with a link, and cite it in the README. Until then, these rules come from the spec's Rule set only. The thresholds below are starting values to tune, not published limits.
+These rules follow two published guides. The README ("Easy Read guidance") maps each rule to the point it comes from.
+
+- Inclusion Europe, [Information for all: European standards for making information easy to read and understand](https://www.inclusion-europe.eu/wp-content/uploads/2017/06/EN_Information_for_all.pdf) (2010). Cited below as "IE" with section and standard number.
+- Department of Health, [Making written information easier to understand for people with learning disabilities](https://www.gov.uk/government/publications/making-written-information-easier-to-understand-for-people-with-learning-disabilities-guidance-for-people-who-commission-or-produce-easy-read-information-revised-edition-2010), revised edition 2010. Cited below as "DH" with the Annex A section.
+
+| Rule | Source |
+| --- | --- |
+| P2 | IE 1.14 and 2.19 "Keep your sentences short". DH A6 "More than 15 words is harder to read" |
+| P3 | IE 2.19 "writing only 1 idea per sentence" |
+| P4 | IE 1.17 "Use active language rather than passive language where possible" |
+| P5 | IE 1.6, 1.7 and 2.11. DH A3 "Explain difficult words the first time they appear" |
+| P6 | IE 2.42 "Write numbers as digits". DH A4 "Express all numbers in figures, including 1 to 10" |
+| P7 | IE 1.12 and 2.16. DH A3 "use the full title the first time" |
+| P8 | IE 2.34 to 2.38 and DH A2 (pictures that match the text). Checking the ID against the index is this project's own rule |
+| "you" | IE 1.15 "Speak to people directly" |
+| Tone | IE 1.3 "do not use language for children when your information is for adults" |
+
+The guides give advice, not pass or fail limits. The checks turn them into hard rules, and those limits are this project's choice. DH says more than 15 words is "harder to read"; making 15 words a hard limit is ours. Neither guide has a no-advice rule. That rule comes from `safety.md` (R7.2).
 
 ## Rules for each line
 

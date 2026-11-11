@@ -6,6 +6,8 @@ Easy Read Engine turns an official letter, such as a council tax notice, into Ea
 
 Every Easy Read line is checked against a fixed set of rules (P1 to P10) before you see it. The original letter stays on screen next to the Easy Read version, and key facts such as dates, amounts and reference numbers are highlighted in both. You can edit lines and export the result as a PDF.
 
+It is for adults with learning disabilities, low literacy or English as a second language, and for the carers and support workers who read letters with them (`docs/brief.md`). The Easy Read version says what the letter says. It never tells the reader what to do.
+
 ## Setup
 
 You need:
@@ -75,6 +77,36 @@ There are two services.
 
 The prompts are in `prompts/`. The full design is in `.kiro/specs/easy-read/design.md`.
 
+## How it is stitched together (Frankenstein)
+
+The project joins parts that don't usually work together. The model writes, and the deterministic parts decide what the reader sees.
+
+| Part | What it does |
+| --- | --- |
+| Language models | Rewrite the letter into Easy Read lines, regenerate lines that failed, judge meaning (P9) and tone and advice (P10), and read photos of letters. Amazon Bedrock in `eu-west-2` first, Groq as the fallback |
+| spaCy dependency parsing | Splits sentences, extracts key facts and runs P2 to P7 in the checker. No model, so the same input always gives the same result |
+| ARASAAC pictogram library | Gives each line a picture, and P8 checks every picture ID against the committed index. CC BY-NC-SA |
+| Hypothesis and fast-check property tests | Prove the checker is right: generated letters with random dates, amounts and passive sentences, cases the checker must fail, and a mutation test that changes one fact and expects P1 to fail |
+| Headless Chromium | Renders the print page to an A4 PDF |
+
+How the checker gates the model:
+
+- Key facts are taken from the original before the model writes anything, so P1 compares the output with the original, never with itself.
+- If P1 still fails after 3 tries, or after a user edit, the output is blocked. No lines are shown, the failed key fact is named and export is turned off.
+- If any other rule still fails after 3 tries, the output is shown with that rule flagged.
+- If the advice check (P10) could not run, export is turned off.
+- If the checker service is down, nothing is shown (503).
+
+## Demo
+
+1. Paste a sample letter, or upload a typed PDF. Check the text, then convert it.
+2. The Easy Read version appears on the right, with the original on the left. Select a line to highlight the sentence it came from.
+3. Open the rule report from the pass count to see each rule and the lines it applied to.
+4. Edit a line and change its date, for example from 1 April 2026 to 2 April 2026. The checker runs again. P1 fails, the output is blocked, the changed date is named and export is turned off.
+5. Select **Undo edit** to get the checked version back.
+
+The notice that the Easy Read version is a simplified copy, and the original letter is the official one, stays on screen the whole time.
+
 ## The rules
 
 | Rule | What it checks | Checked by |
@@ -90,7 +122,7 @@ The prompts are in `prompts/`. The full design is in `.kiro/specs/easy-read/desi
 | P9 | Each line keeps the meaning of its source sentence | Judge model |
 | P10 | The tone is respectful, not childish, and gives no advice | Judge model |
 
-The thresholds are starting values to tune against real Easy Read documents. They aren't published limits.
+The rules come from published Easy Read guidance (see [Easy Read guidance](#easy-read-guidance)). The exact limits, such as 15 words for P2, are this project's choice, to tune against real Easy Read documents.
 
 ## Model providers
 
@@ -105,20 +137,59 @@ Each role (rewrite, judge, vision) has an ordered list of `provider:model` entri
 - **Amazon Bedrock** (first choice, paid per token). The app calls the OpenAI-compatible [Chat Completions API](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-chat-completions.html) on `bedrock-runtime` in `AWS_REGION` (default `eu-west-2`, London), with a Bedrock API key in `AWS_BEARER_TOKEN_BEDROCK`. It uses plain model IDs and no cross-Region inference profile, so letter text stays in London. All three models were listed as In-Region in London on 11 November 2026 ([Regional availability](https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html)). Create the key in the Bedrock console under API keys.
 - **Groq** (fallback, free plan). The [Groq rate limits page](https://console.groq.com/docs/rate-limits) lists `openai/gpt-oss-120b` and `qwen/qwen3.8-27b` at 30 requests a minute, 1,000 requests a day, 8,000 tokens a minute and 200,000 tokens a day each. These limits change often, so check the page again before relying on them.
 
+## Kiro setup
+
+The `.kiro/` folder holds the spec, steering, hooks and MCP config used to build this project. [docs/kiro-usage.md](docs/kiro-usage.md) describes how each was used.
+
+- **MCP server.** `.kiro/settings/mcp.json` starts `easy-read-checker` with `uv --directory checker`, a path relative to the workspace root, so it works in any clone. If your Kiro starts MCP servers from a different folder, change `checker` to the full path of the `checker` folder.
+- **Kiro Power.** `power-easy-read/` packages the checker MCP server and the Easy Read rules as a [Kiro Power](https://kiro.dev/docs/powers/create/), so other Kiro projects can use the same checks. It needs a clone of this repository. See `power-easy-read/README.md`.
+- **Reviewer agent.** `.kiro/agents/easy-read-reviewer.md` is a read-only [custom agent](https://kiro.dev/docs/custom-agents/) that reviews Easy Read lines, fixtures and prompt changes by calling the checker tools. It loads `easy-read-rules.md` and `safety.md` and can't edit files.
+
 ## AWS MCP servers (development)
 
-`.kiro/settings/mcp.json` can list two AWS servers next to `easy-read-checker`. Both run on your machine through `uvx` and are never deployed:
+`.kiro/settings/mcp.json` also lists two AWS servers next to `easy-read-checker`. Both run on your machine through `uvx` and are never deployed:
 
 - `aws-mcp`: the [AWS MCP Server](https://docs.aws.amazon.com/agent-toolkit/latest/userguide/getting-started-aws-mcp-server.html) through `mcp-proxy-for-aws-cli`, signed with SigV4 using your AWS CLI profile (`AWS_PROFILE`, default `default`), with `AWS_REGION=eu-west-2`. Sign in first with `aws login`. Tools need your approval each time.
 - `aws-docs`: `awslabs.aws-documentation-mcp-server`, for AWS documentation search. It needs no credentials.
 
 ## Easy Read guidance
 
-Which official Easy Read guidance these rules follow is still an open question.
+The rules follow two published guides:
 
-> **TODO:** name the official Easy Read guidance and link it here and in `.kiro/steering/easy-read-rules.md`.
+- **IE**: Inclusion Europe, [Information for all: European standards for making information easy to read and understand](https://www.inclusion-europe.eu/wp-content/uploads/2017/06/EN_Information_for_all.pdf), written by the "Pathways to adult education for people with intellectual disabilities" project partners in 2010 ([standards page](https://www.inclusion-europe.eu/easy-to-read-standards-guidelines/)). Section 1 is "General standards for easy to understand information" and section 2 is "Standards for written information". Numbers below are section and standard, so IE 2.19 is standard 19 in section 2.
+- **DH**: Department of Health, [Making written information easier to understand for people with learning disabilities: guidance for people who commission or produce Easy Read information](https://www.gov.uk/government/publications/making-written-information-easier-to-understand-for-people-with-learning-disabilities-guidance-for-people-who-commission-or-produce-easy-read-information-revised-edition-2010), revised edition, 18 November 2010. Numbers below are sections of Annex A, "Guidelines for producing Easy Read".
 
-Until then, the rules come from the project spec only (`.kiro/specs/easy-read/requirements.md`, "Correctness Properties").
+| Rule | What the guides say |
+| --- | --- |
+| P1 key facts | DH A1: "Important dates to be highlighted at the beginning of the document", for example "the date that a response is needed to a letter". IE 2.23: "Make sure the important information is easy to find". Neither guide says facts must be copied unchanged; that rule is ours |
+| P2 short sentences | IE 1.14 and 2.19: "Keep your sentences short". DH A6 "Length": "Each sentence to be as short as possible. More than 15 words is harder to read" |
+| P3 one idea per sentence | IE 2.19: "writing only 1 idea per sentence" and "using a full stop before starting a new idea, instead of using a comma or an 'and'" |
+| P4 active voice | IE 1.17: "Use active language rather than passive language where possible. For example, say 'The doctor will send you a letter' not 'you will be sent a letter'" |
+| P5 plain words | IE 1.6: "Use easy to understand words that people will know well". IE 1.7 and 2.11: explain difficult words. DH A3: "Explain difficult words the first time they appear" |
+| P6 numbers as digits | IE 2.42: "Write numbers as digits, not as words". DH A4: "Express all numbers in figures, including 1 to 10" |
+| P7 abbreviations | IE 1.12: "Avoid using initials ... If you have to use initials, explain them". IE 2.16: "Avoid all abbreviations like 'e.g.' or 'etc.'". DH A3: "It is best not to use acronyms or abbreviations ... You should use the full title the first time" |
+| P8 pictures | IE 2.34 to 2.38 and DH A2 "Pictures": pictures go next to the text and must match it. DH A1: "You do not have to put a picture against every single sentence". Checking each ID against the ARASAAC index is our own rule |
+| Speak to "you" | IE 1.15: "Speak to people directly. Use words like 'you' to do this" |
+| P10 tone | IE 1.3: "do not use language for children when your information is for adults". DH Annex B 1: pictures "simple and easy to understand, but not patronising" |
+| P10 no advice | Neither guide has this rule. It is ours (`safety.md`, R7.2). Both guides say good information helps people make their own decisions (IE "Why do we need these standards?", DH 2.2) |
+
+The guides give advice. The checker turns each point into a pass or fail rule, and those limits are this project's choice. DH says a sentence of more than 15 words "is harder to read"; making 15 words a hard limit is ours. P3 splits clauses joined by "and" or "but", although DH A4 says it is fine to start a sentence with "and" or "but".
+
+### What the guides say about layout
+
+These points apply to the screens and the PDF, not to the line checks:
+
+- Use a clear sans-serif font such as Arial (IE 2.5, DH A3). Text at least the size of Arial 14 (IE 2.6), and at least 16 point for print (DH A3). The PDF uses Arial at 18pt (`web/src/export/print-document.ts`).
+- No italics, no whole words in capitals, left-aligned text (IE 2.5, 2.7, 2.28; DH Annex B 4).
+- Pictures to the left of the text (DH A2).
+- Black or very dark text on a white or light cream background (DH A7).
+- "Do not write in columns" (IE 2.27). The result screen shows the original and the Easy Read version side by side so the reader or a supporter can check one against the other. The exported PDF has the Easy Read version only, one idea per line.
+- "Do not have animations on the screen" (IE section 3, standard 21, for websites).
+- Write dates in full, such as "Tuesday 13 October 2008" (IE 2.45, DH A4). The app keeps each date as the letter writes it, because P1 needs the same value.
+
+### Testing with readers
+
+Both guides say to involve people with learning disabilities and test with them (IE 1.5, DH section 4 and A9). This hasn't been done yet. No output has been reviewed by someone who uses or makes Easy Read.
 
 ## Safety
 
