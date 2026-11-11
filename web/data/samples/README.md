@@ -35,4 +35,6 @@ The script runs each public sample letter through the real pipeline, one at a ti
 
 ## Current state
 
-The last recording run (see the task 29 report) saved no samples: Groq returned invalid output or rate-limit errors and the OpenRouter fallbacks failed for all 3 letters. The list is hidden while this folder holds no samples. Run `npm run record-samples` again when the providers answer.
+`planning-appeal-notification-letter.json` was recorded on 11 November 2026 (flagged). The two council tax letters end blocked: P1 (key facts) still fails after 3 tries, so they are not saved.
+
+Earlier runs failed with `model_output_invalid`. The judge and regenerate replies on long letters hit their `max_tokens` cap (`finish_reason: "length"`) and were cut off mid-JSON. Bedrock requests now use `BEDROCK_MAX_TOKENS` and `BEDROCK_TIMEOUT_MS` (`src/llm/client.ts`). When a letter fails, the script prints the field paths that were wrong.
