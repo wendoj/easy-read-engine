@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Run fixture letters on prompt save",
+      "trigger": "PostFileSave",
+      "description": "When a file in prompts/ is saved, convert the 5 fixture letters through the full pipeline and run all 10 checks, so a prompt change that breaks a rule shows up at once. Uses live model quota on every save (about 35,000 to 105,000 tokens per run; Groq first, then OpenRouter and Gemini in development). Needs the checker service at CHECKER_URL. Takes a few minutes (15 s pause between letters).",
+      "matcher": "(^|/)prompts/[^/]+$",
+      "action": {
+        "type": "command",
+        "command": "cd web && npm run fixtures",
+        "timeout": 1800
+      }
+    }
+  ]
+}

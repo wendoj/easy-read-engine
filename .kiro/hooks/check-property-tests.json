@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Fail if a property test was skipped or deleted",
+      "trigger": "PostTaskExec",
+      "description": "After a spec task is marked done, compare checker/tests/ and web/tests/ with HEAD and fail (exit 1) if any test was removed, newly skipped, xfailed, marked todo/only/fails, lost its @given, or lost fc.assert calls. The needs_model deselection is not a skip. If this fails, do not commit the task (commit-after-task) until it is fixed. Kiro has no 'before done' trigger, so this uses PostTaskExec.",
+      "action": {
+        "type": "command",
+        "command": "cd checker && uv run python scripts/check_property_tests.py",
+        "timeout": 120
+      }
+    }
+  ]
+}

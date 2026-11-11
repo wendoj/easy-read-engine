@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Run matching checker test on save",
+      "trigger": "PostFileSave",
+      "description": "When a file in checker/src/checks/ is saved, run its tests: checks/<name>.py runs tests/test_<name>.py if it exists (e.g. p2_sentence_length.py runs tests/test_p2_sentence_length.py), otherwise the full checker suite. The saved path comes from the hook event JSON on stdin.",
+      "matcher": "checker/src/checks/",
+      "action": {
+        "type": "command",
+        "command": "cd checker && uv run python scripts/run_matching_test.py",
+        "timeout": 300
+      }
+    }
+  ]
+}

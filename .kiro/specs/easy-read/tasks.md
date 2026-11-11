@@ -147,7 +147,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Add a `--all` flag for the 20-letter pass-rate run in task 31
   - _Requirements: 3.1, 6.1_
 
-- [-] 20. Set up the three Kiro hooks
+- [x] 20. Set up the three Kiro hooks
   - Create them with the hook tool, not by hand
   - On save in `checker/src/checks/`: run the matching test file for that checker
   - On save in `prompts/`: run `npm run fixtures`
@@ -156,7 +156,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
 
 ### Pictures and layout
 
-- [~] 21. Build the input screen
+- [-] 21. Build the input screen
   - `web/app/page.tsx`: paste box, file upload, and an editable confirm step with a word count against the 1,500-word limit
   - Show the R7.5 notice above the Convert button; show the handwriting message from R1.4
   - Show the progress events from the `/api/convert` stream
