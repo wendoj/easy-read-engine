@@ -110,35 +110,48 @@ export const SUBMIT_REPLACEMENTS_TOOL: ToolDefinition = {
   },
 };
 
+/**
+ * Regenerate output. The shape is strict; the line IDs are not. With 30 or
+ * more failing lines the model often mislabels or skips one, and rejecting
+ * the whole reply for that threw away every good replacement (the pipeline
+ * then stopped with the last checked try). So:
+ *
+ * - a replacement for an ID that isn't failing, or a second one for the same
+ *   ID, is dropped (the first wins);
+ * - a failing line with no replacement keeps its text (`applyRegeneration`)
+ *   and is checked again on the next try;
+ * - an added line for a sentence that has no missing key fact is dropped.
+ *
+ * Only a reply with nothing usable in it is invalid, so it gets the one retry.
+ */
 export function regenerateSchema(failingIds: readonly string[], addableSentenceIds: ReadonlySet<string>) {
+  const wanted = new Set(failingIds);
   return z
     .object({
       replacements: z.array(z.object({ lineId: z.string().trim(), lines: z.array(draftLineSchema).min(1) })),
       added: z.array(draftLineSchema).default([]),
     })
-    .superRefine((value, ctx) => {
-      const wanted = new Set(failingIds);
+    .transform((value) => {
       const seen = new Set<string>();
-      value.replacements.forEach((r, i) => {
-        if (!wanted.has(r.lineId)) {
-          ctx.addIssue({ code: "custom", path: ["replacements", i, "lineId"], message: "not a failing line ID" });
-        } else if (seen.has(r.lineId)) {
-          ctx.addIssue({ code: "custom", path: ["replacements", i, "lineId"], message: "line ID given twice" });
-        }
+      const replacements = value.replacements.filter((r) => {
+        if (!wanted.has(r.lineId) || seen.has(r.lineId)) return false;
         seen.add(r.lineId);
+        return true;
       });
-      if (failingIds.some((id) => !seen.has(id))) {
-        ctx.addIssue({ code: "custom", path: ["replacements"], message: "a failing line ID has no replacement" });
+      const added = value.added.filter((line) => addableSentenceIds.has(line.sourceSentenceId));
+      return { replacements, added };
+    })
+    .superRefine((value, ctx) => {
+      if (value.replacements.length === 0 && value.added.length === 0) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["replacements"],
+          message:
+            failingIds.length > 0
+              ? "a failing line ID has no replacement"
+              : "not the sentence ID of a missing key fact",
+        });
       }
-      value.added.forEach((line, i) => {
-        if (!addableSentenceIds.has(line.sourceSentenceId)) {
-          ctx.addIssue({
-            code: "custom",
-            path: ["added", i, "sourceSentenceId"],
-            message: "not the sentence ID of a missing key fact",
-          });
-        }
-      });
     });
 }
 

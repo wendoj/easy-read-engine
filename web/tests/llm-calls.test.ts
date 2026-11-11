@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import fc from "fast-check";
 import type { CheckResult, KeyFact, Line, Sentence } from "@/src/checker-client/schemas";
 import {
+  buildJudgeMessages,
   type ChatMessage,
   type LineVerdict,
   type ModelConfig,
@@ -281,6 +282,28 @@ describe("regenerate", () => {
     expect(userText(m.sent[1])).toContain("a failing line ID has no replacement");
   });
 
+  it("keeps the usable part of a reply with a wrong or repeated line ID, in one request", async () => {
+    const good = { text: "You must pay.", sourceSentenceId: "s2", symbolQuery: "" };
+    const m = fakeModel([
+      {
+        tool: "submit_replacements",
+        args: {
+          replacements: [
+            { lineId: "L99", lines: [{ text: "Not a failing line.", sourceSentenceId: "s2", symbolQuery: "" }] },
+            { lineId: "L2", lines: [good] },
+            { lineId: "L2", lines: [{ text: "A second answer for L2.", sourceSentenceId: "s2", symbolQuery: "" }] },
+          ],
+          added: [{ text: "Not for a missing fact.", sourceSentenceId: "s1", symbolQuery: "" }],
+        },
+      },
+    ]);
+    const failing = collectFailures(lines, checks, keyFacts);
+    const result = await regenerate(m.client, { failing, sentences, keyFacts }, { prompt: REGEN_PROMPT, logger: m.logger });
+    expect(result.requests).toBe(1);
+    expect(result.replacements).toEqual([{ lineId: "L2", lines: [good] }]);
+    expect(result.added).toEqual([]);
+  });
+
   it("accepts new lines for a missing fact's sentence only", async () => {
     const added = { text: `Your reference number is ${SECRET_REF}.`, sourceSentenceId: "s3", symbolQuery: "" };
     const m = fakeModel([{ tool: "submit_replacements", args: { replacements: [], added: [added] } }]);
@@ -302,6 +325,18 @@ const JUDGE_PROMPT = parsePrompt("## System\nJUDGE\n## User\n{{pairs}}");
 const pairs = lines.map((l) => ({ lineId: l.id, source: sentences.find((s) => s.id === l.source_sentence_id)!.text, line: l.text }));
 
 describe("judge", () => {
+  it("shows each line the other lines split from the same sentence", () => {
+    const { user } = buildJudgeMessages(JUDGE_PROMPT, [
+      { lineId: "L1", source: "Pay £45 and send the form.", line: "You must pay £45." },
+      { lineId: "L2", source: "Pay £45 and send the form.", line: "You must send the form." },
+      { lineId: "L3", source: "Call us.", line: "Call the council." },
+    ]);
+    const blocks = user.split("\n\n");
+    expect(blocks[0]).toContain("Other lines from this sentence: L2: You must send the form.");
+    expect(blocks[1]).toContain("Other lines from this sentence: L1: You must pay £45.");
+    expect(blocks[2]).not.toContain("Other lines");
+  });
+
   it("returns P9 and P10 with the failing line IDs", async () => {
     const m = fakeModel([
       {
