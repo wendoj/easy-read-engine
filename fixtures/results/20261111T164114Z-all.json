@@ -1,0 +1,349 @@
+{
+  "kind": "easy-read-fixture-run",
+  "version": 1,
+  "startedAt": "2026-11-11T16:41:14.137Z",
+  "finishedAt": "2026-11-11T16:49:49.336Z",
+  "set": "all",
+  "lettersDir": "fixtures/letters",
+  "appEnv": "development",
+  "chains": {
+    "rewrite": [
+      "groq:openai/gpt-oss-120b",
+      "openrouter:nvidia/nemotron-3-ultra-550b-a55b:free"
+    ],
+    "judge": [
+      "groq:qwen/qwen3.8-27b",
+      "openrouter:thinkingmachines/inkling-small:free"
+    ],
+    "vision": [
+      "groq:qwen/qwen3.8-27b",
+      "openrouter:nvidia/nemotron-3.5-super-vl:free"
+    ]
+  },
+  "letters": [
+    {
+      "letter": "council-tax-final-notice-east-cambridgeshire.pdf",
+      "source": "pdf",
+      "ms": 77954,
+      "requests": {
+        "total": 13,
+        "ok": 4,
+        "outcomes": {
+          "ok": 4,
+          "client_error": 5,
+          "rate_limited": 4
+        }
+      },
+      "error": "model_output_invalid"
+    },
+    {
+      "letter": "invented-care-assessment.txt",
+      "source": "txt",
+      "ms": 15130,
+      "requests": {
+        "total": 8,
+        "ok": 4,
+        "outcomes": {
+          "ok": 4,
+          "rate_limited": 2,
+          "client_error": 2
+        }
+      },
+      "status": "flagged",
+      "attempts": 3,
+      "judgeAvailable": false,
+      "sentenceCount": 14,
+      "keyFactCount": 12,
+      "lineCount": 17,
+      "rules": {
+        "P1": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P2": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P3": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P4": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P5": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P6": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P7": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P8": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P9": {
+          "passed": false,
+          "failingLines": 17,
+          "failedFacts": 0
+        },
+        "P10": {
+          "passed": false,
+          "failingLines": 17,
+          "failedFacts": 0
+        }
+      },
+      "failedRules": [
+        "P5",
+        "P9",
+        "P10"
+      ],
+      "models": [
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "groq",
+          "model": "qwen/qwen3.8-27b"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 1,
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 2,
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b"
+        }
+      ],
+      "answeredBy": [
+        "groq:openai/gpt-oss-120b",
+        "groq:qwen/qwen3.8-27b"
+      ]
+    },
+    {
+      "letter": "invented-council-tax-reminder.txt",
+      "source": "txt",
+      "ms": 26348,
+      "requests": {
+        "total": 5,
+        "ok": 3,
+        "outcomes": {
+          "ok": 3,
+          "client_error": 1,
+          "rate_limited": 1
+        }
+      },
+      "error": "model_output_invalid"
+    },
+    {
+      "letter": "invented-housing-benefit-change.txt",
+      "source": "txt",
+      "ms": 15255,
+      "requests": {
+        "total": 9,
+        "ok": 4,
+        "outcomes": {
+          "ok": 4,
+          "client_error": 3,
+          "rate_limited": 2
+        }
+      },
+      "status": "flagged",
+      "attempts": 3,
+      "judgeAvailable": false,
+      "sentenceCount": 15,
+      "keyFactCount": 17,
+      "lineCount": 18,
+      "rules": {
+        "P1": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P2": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P3": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P4": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P5": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P6": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P7": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P8": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P9": {
+          "passed": false,
+          "failingLines": 18,
+          "failedFacts": 0
+        },
+        "P10": {
+          "passed": false,
+          "failingLines": 18,
+          "failedFacts": 0
+        }
+      },
+      "failedRules": [
+        "P7",
+        "P9",
+        "P10"
+      ],
+      "models": [
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "groq",
+          "model": "qwen/qwen3.8-27b"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 1,
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 2,
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b"
+        }
+      ],
+      "answeredBy": [
+        "groq:openai/gpt-oss-120b",
+        "groq:qwen/qwen3.8-27b"
+      ]
+    },
+    {
+      "letter": "invented-parking-penalty.txt",
+      "source": "txt",
+      "ms": 13116,
+      "requests": {
+        "total": 9,
+        "ok": 5,
+        "outcomes": {
+          "ok": 5,
+          "rate_limited": 3,
+          "client_error": 1
+        }
+      },
+      "error": "model_output_invalid"
+    },
+    {
+      "letter": "invented-repair-appointment.txt",
+      "source": "txt",
+      "ms": 15808,
+      "requests": {
+        "total": 9,
+        "ok": 5,
+        "outcomes": {
+          "ok": 5,
+          "rate_limited": 3,
+          "client_error": 1
+        }
+      },
+      "error": "model_output_invalid"
+    },
+    {
+      "letter": "manchester-missed-council-tax-payment.pdf",
+      "source": "pdf",
+      "ms": 16465,
+      "requests": {
+        "total": 3,
+        "ok": 1,
+        "outcomes": {
+          "client_error": 1,
+          "rate_limited": 1,
+          "ok": 1
+        }
+      },
+      "error": "model_output_invalid"
+    },
+    {
+      "letter": "planning-appeal-notification-letter.txt",
+      "source": "txt",
+      "ms": 20109,
+      "requests": {
+        "total": 11,
+        "ok": 3,
+        "outcomes": {
+          "ok": 3,
+          "client_error": 2,
+          "rate_limited": 6
+        }
+      },
+      "error": "providers_unavailable"
+    }
+  ],
+  "totals": {
+    "letters": 8,
+    "finished": 2,
+    "errors": 6,
+    "passed": 0,
+    "flagged": 2,
+    "blocked": 0,
+    "rulePasses": {
+      "P1": 2,
+      "P2": 2,
+      "P3": 2,
+      "P4": 2,
+      "P5": 1,
+      "P6": 2,
+      "P7": 1,
+      "P8": 2,
+      "P9": 0,
+      "P10": 0
+    }
+  }
+}

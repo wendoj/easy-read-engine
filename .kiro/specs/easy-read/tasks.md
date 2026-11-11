@@ -168,7 +168,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Show the safety notice at the top, with no way to dismiss it
   - _Requirements: 5.1, 5.2, 7.1_
 
-- [~] 23. Implement pictogram search and the image cache
+- [-] 23. Implement pictogram search and the image cache
   - `find_symbol`: rank by lemma overlap with keywords, plurals and tags, with a bonus for an exact keyword match, and return a score
   - `attachSymbols` in the pipeline: take the top match only above the threshold, otherwise `null`
   - Route `web/app/symbols/[id]/route.ts`: fetch the PNG from ARASAAC on first use, cache it in the `symbol-cache` directory, and serve later requests from the cache
@@ -217,7 +217,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Mark the test as needing a model, so it runs with the fixture job and not on every save
   - _Requirements: correctness properties, property-based testing items 1 and 2_
 
-- [-] 31. Run the pass-rate measurement
+- [x] 31. Run the pass-rate measurement
   - Run `npm run fixtures -- --all` on the 20 public sample letters and save the results table to `docs/pass-rates.md`
   - _Requirements: none; evidence for the write-up_
 
