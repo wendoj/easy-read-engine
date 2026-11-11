@@ -35,6 +35,11 @@ The script runs each public sample letter through the real pipeline, one at a ti
 
 ## Current state
 
-`planning-appeal-notification-letter.json` was recorded on 11 November 2026 (flagged). The two council tax letters end blocked: P1 (key facts) still fails after 3 tries, so they are not saved.
+All 3 public sample letters were recorded on 11 November 2026, each flagged (P1 passed, some other rules flagged).
 
-Earlier runs failed with `model_output_invalid`. The judge and regenerate replies on long letters hit their `max_tokens` cap (`finish_reason: "length"`) and were cut off mid-JSON. Bedrock requests now use `BEDROCK_MAX_TOKENS` and `BEDROCK_TIMEOUT_MS` (`src/llm/client.ts`). When a letter fails, the script prints the field paths that were wrong.
+Earlier runs failed in two ways:
+
+- `model_output_invalid`: the judge and regenerate replies on long letters hit their `max_tokens` cap (`finish_reason: "length"`) and were cut off mid-JSON. Bedrock requests now use `BEDROCK_MAX_TOKENS` and `BEDROCK_TIMEOUT_MS` (`src/llm/client.ts`).
+- Blocked by P1: the checker merged PDF layout lines (labels, table cells, headings) into long sentences and found "actions" in them that no rewrite could keep. `checker/src/checks/sentences.py` now ends a sentence at a layout line break.
+
+When a letter fails, the script prints the field paths that were wrong.

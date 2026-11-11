@@ -1,0 +1,3269 @@
+{
+  "id": "manchester-missed-council-tax-payment",
+  "label": "Missed Council Tax payment (Manchester)",
+  "source": "manchester-missed-council-tax-payment.pdf",
+  "recordedAt": "2026-11-11T22:22:57.013Z",
+  "models": [
+    "bedrock:openai.gpt-oss-120b-1:0",
+    "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
+  ],
+  "result": {
+    "status": "flagged",
+    "original": {
+      "text": "Missed council tax payment\nWe can help. Call 0161 234 5002\nPaid in the last few days? Thank you, please ignore this.\nwww.manchester.gov.uk/counciltax\nPhone: 0161 234 5002\nPO BOX 3, Manchester, M15 5BA\nDate: 8 July 2023\nAccount reference 5xxxxxxxx\nBill number 23/2\nProperty Band A\nIt looks like you missed a council tax payment. You need to pay £181.62 by 15 July if possible.\nPlease pay online now if you can – details on the back. If you can’t pay, there are lots of ways we can\nhelp.\nThink you’ll miss more payments?\nHere’s your current payment arrangement. If it looks like you’ll miss more payments, please contact\nus now.\nWe could make this arrangement work for you with:\n• payments spread over more months; or\n• Council Tax Support claims if your income’s low; or\n• money off your bill if you qualify; or\n• extra help for severe, unusual hardship; or\n• vulnerable people’s support – just let us know that’s you.\nWhy not pay by Direct Debit? It means you won’t forget in future and you can pick a payment date that\nsuits you – choose the 7th, 15th, 21st or 28th of the month.\nIf you think your bill is wrong, or things have changed, please tell us and we’ll update your bill.\nContact us now. Our number’s above – details on the back.\nYou need to act now so you don’t have to pay the whole year’s bill and summons costs.\n\n[back of 1st reminder – a) how to pay]\nHow to pay\nPlease pay by direct debit if you can at www.manchester.gov.uk/directdebit\nCredit or debit card\n–online at www.manchester.gov.uk/counciltax\n– by phone 24/7 on 0161 234 5006\nPost Office or PayPoint – take this with you and use the barcode to pay.\nHelp yourself\nIt’s easy to sort out your council tax online:\n• Apply for money off your bill\n• Check your account\n• Tell us about any changes\n• Change your payment amounts\n• Claim Council Tax Support\n• Get your bill by e-mail.\nwww.manchester.gov.uk/counciltax\n[back of 1st reminder – b) help offer]\nNeed help with council tax?\nWe can find a solution together.\n• Call 0161 234 5002, 9am—6pm, Monday—Friday.\n• See your options online, scan here:\n• Help yourself online:\n− Spread your payments over more months – fill in the form at www.manchester.gov.uk/xxxxx\n\n− Claim Council Tax support for low incomes. See if you qualify and claim: www.manchester.gov\nIf you think your bill is wrong, or things have changed, please tell us and we’ll update your bill.\nGet help now so you’re not liable for extra costs.\nStruggling with the cost of living?\nWe recommend free, independent money advice, as well as talking to us.\nCitizen’s Advice Manchester will help with debt advice benefit claims:\n0808 278 7800 and 0808 164 4406 www.citizensadvice.org.uk\nMoney Adviser Network gives free, independent government-funded debt advice:\n0800 138 7777 www.moneyhelper.org.uk\nStepChange Debt Charity helps you deal with debt and get back on track:\n0800 138 1111 www.stepchange.org\nNational Debtline 0808 808 4000:\nwww.nationaldebtline.org\n\nMissed Council Tax Payment\nSecond reminder\nWe can help. Call 0161 234 5002\nPaid in the last few days? Thank you, please ignore this.\nwww.manchester.gov.uk/counciltax\nPhone: 0161 234 5002\nPO BOX 3, Manchester, M15 5BA\nDate: 8 July 2023\nAccount reference 5xxxxxxxx\nBill number 23/2\nProperty Band A\nIt looks like you’ve missed another council tax payment, and we want to help.\nYou should pay if you can – details on the back.\nIf you can’t, call us on the number above to chat about ways to sort out what you owe, which is:\nHere’s your current payment arrangement. If it looks like you’ll miss more payments, contact us\nnow. There’s lots of ways we can help.\nWe could make this arrangement work for you with:\n• payments spread over more months; or\n• Council Tax Support claims if your income’s low; or\n• money off your bill if you qualify; or\n• extra help for severe, unusual hardship; or\n• vulnerable people’s support – just let us know that’s you.\nWhy not pay by Direct Debit – you can pick a payment date that suits you – choose the 7th, 15th, 21st or\n28th of the month.\n\nContact us now. Our number’s above – details on the back.\nYou need to act now so you don’t have to pay the whole year’s bill and summons costs.\n[back of 2nd reminder – a) help offer]\nStruggling to pay?\nTell us now – We can find a solution together\nCall 0161 234 5002, 9am—6pm, Monday—Friday.\nWe could:\n• Change your payment plan.\n• Check if you’re due benefits.\n• Get money off if you qualify – and extra help even if you don’t.\n• Take a ‘breathing space’ from paying off any previous years’ arrears.\n• Give extra help for severe, unusual hardship.\n• Offer special support if you’re vulnerable.\nGet help now so you won’t owe the whole year’s bill and summons costs.\nSee your options online: scan here:\nHelp yourself online:\n− Spread your payments over more months – fill in the form at www.manchester.gov.uk/xxxxx\n− Claim Council Tax support for low incomes. See if you qualify and claim: www.manchester.gov\nIf you think your bill is wrong, or things have changed, please tell us and we’ll update your bill.\nGet help now so you’re not liable for extra costs.\nStruggling with the cost of living?\nWe recommend free, independent money advice, as well as talking to us.\n\nCitizen’s Advice Manchester will help with debt advice benefit claims:\n0808 278 7800 and 0808 164 4406 www.citizensadvice.org.uk\nMoney Adviser Network gives free, independent government-funded debt advice:\n0800 138 7777 www.moneyhelper.org.uk\nStepChange Debt Charity helps you deal with debt and get back on track:\n0800 138 1111 www.stepchange.org\nNational Debtline 0808 808 4000:\nwww.nationaldebtline.org\n[back of 2nd reminder – b) how to pay]\nHow to pay\nPlease pay by direct debit if you can at www.manchester.gov.uk/directdebit\nCredit or debit card\n–online at www.manchester.gov.uk/counciltax\n– by phone 24/7 on 0161 234 5006\nPost Office or PayPoint – take this with you and use the barcode to pay.\nHelp yourself\nIt’s easy to sort out your council tax online at www.manchester.gov.uk/counciltax\n• Apply for money off your bill\n• Check your account\n• Tell us about any changes\n• Change your payment amounts\n• Claim Council Tax Support\n• Get your bill by e-mail.",
+      "sentences": [
+        {
+          "id": "s1",
+          "text": "Missed council tax payment",
+          "start": 0,
+          "end": 26
+        },
+        {
+          "id": "s2",
+          "text": "We can help.",
+          "start": 27,
+          "end": 39
+        },
+        {
+          "id": "s3",
+          "text": "Call 0161 234 5002",
+          "start": 40,
+          "end": 58
+        },
+        {
+          "id": "s4",
+          "text": "Paid in the last few days?",
+          "start": 59,
+          "end": 85
+        },
+        {
+          "id": "s5",
+          "text": "Thank you, please ignore this.",
+          "start": 86,
+          "end": 116
+        },
+        {
+          "id": "s6",
+          "text": "www.manchester.gov.uk/counciltax",
+          "start": 117,
+          "end": 149
+        },
+        {
+          "id": "s7",
+          "text": "Phone: 0161 234 5002",
+          "start": 150,
+          "end": 170
+        },
+        {
+          "id": "s8",
+          "text": "PO BOX 3, Manchester, M15 5BA",
+          "start": 171,
+          "end": 200
+        },
+        {
+          "id": "s9",
+          "text": "Date: 8 July 2023",
+          "start": 201,
+          "end": 218
+        },
+        {
+          "id": "s10",
+          "text": "Account reference 5xxxxxxxx",
+          "start": 219,
+          "end": 246
+        },
+        {
+          "id": "s11",
+          "text": "Bill number 23/2",
+          "start": 247,
+          "end": 263
+        },
+        {
+          "id": "s12",
+          "text": "Property Band A",
+          "start": 264,
+          "end": 279
+        },
+        {
+          "id": "s13",
+          "text": "It looks like you missed a council tax payment.",
+          "start": 280,
+          "end": 327
+        },
+        {
+          "id": "s14",
+          "text": "You need to pay £181.62 by 15 July if possible.",
+          "start": 328,
+          "end": 375
+        },
+        {
+          "id": "s15",
+          "text": "Please pay online now if you can – details on the back.",
+          "start": 376,
+          "end": 431
+        },
+        {
+          "id": "s16",
+          "text": "If you can’t pay, there are lots of ways we can\nhelp.",
+          "start": 432,
+          "end": 485
+        },
+        {
+          "id": "s17",
+          "text": "Think you’ll miss more payments?",
+          "start": 486,
+          "end": 518
+        },
+        {
+          "id": "s18",
+          "text": "Here’s your current payment arrangement.",
+          "start": 519,
+          "end": 559
+        },
+        {
+          "id": "s19",
+          "text": "If it looks like you’ll miss more payments, please contact\nus now.",
+          "start": 560,
+          "end": 626
+        },
+        {
+          "id": "s20",
+          "text": "We could make this arrangement work for you with:",
+          "start": 627,
+          "end": 676
+        },
+        {
+          "id": "s21",
+          "text": "• payments spread over more months; or",
+          "start": 677,
+          "end": 715
+        },
+        {
+          "id": "s22",
+          "text": "• Council Tax Support claims if your income’s low; or",
+          "start": 716,
+          "end": 769
+        },
+        {
+          "id": "s23",
+          "text": "• money off your bill if you qualify; or",
+          "start": 770,
+          "end": 810
+        },
+        {
+          "id": "s24",
+          "text": "• extra help for severe, unusual hardship; or",
+          "start": 811,
+          "end": 856
+        },
+        {
+          "id": "s25",
+          "text": "• vulnerable people’s support – just let us know that’s you.",
+          "start": 857,
+          "end": 917
+        },
+        {
+          "id": "s26",
+          "text": "Why not pay by Direct Debit?",
+          "start": 918,
+          "end": 946
+        },
+        {
+          "id": "s27",
+          "text": "It means you won’t forget in future and you can pick a payment date that\nsuits you – choose the 7th, 15th, 21st or 28th of the month.",
+          "start": 947,
+          "end": 1080
+        },
+        {
+          "id": "s28",
+          "text": "If you think your bill is wrong, or things have changed, please tell us and we’ll update your bill.",
+          "start": 1081,
+          "end": 1180
+        },
+        {
+          "id": "s29",
+          "text": "Contact us now.",
+          "start": 1181,
+          "end": 1196
+        },
+        {
+          "id": "s30",
+          "text": "Our number’s above – details on the back.",
+          "start": 1197,
+          "end": 1238
+        },
+        {
+          "id": "s31",
+          "text": "You need to act now so you don’t have to pay the whole year’s bill and summons costs.",
+          "start": 1239,
+          "end": 1324
+        },
+        {
+          "id": "s32",
+          "text": "[back of 1st reminder – a) how to pay]",
+          "start": 1326,
+          "end": 1364
+        },
+        {
+          "id": "s33",
+          "text": "How to pay",
+          "start": 1365,
+          "end": 1375
+        },
+        {
+          "id": "s34",
+          "text": "Please pay by direct debit if you can at www.manchester.gov.uk/directdebit",
+          "start": 1376,
+          "end": 1450
+        },
+        {
+          "id": "s35",
+          "text": "Credit or debit card",
+          "start": 1451,
+          "end": 1471
+        },
+        {
+          "id": "s36",
+          "text": "–online at www.manchester.gov.uk/counciltax",
+          "start": 1472,
+          "end": 1515
+        },
+        {
+          "id": "s37",
+          "text": "– by phone 24/7 on 0161 234 5006",
+          "start": 1516,
+          "end": 1548
+        },
+        {
+          "id": "s38",
+          "text": "Post Office or PayPoint – take this with you and use the barcode to pay.",
+          "start": 1549,
+          "end": 1621
+        },
+        {
+          "id": "s39",
+          "text": "Help yourself",
+          "start": 1622,
+          "end": 1635
+        },
+        {
+          "id": "s40",
+          "text": "It’s easy to sort out your council tax online:",
+          "start": 1636,
+          "end": 1682
+        },
+        {
+          "id": "s41",
+          "text": "• Apply for money off your bill",
+          "start": 1683,
+          "end": 1714
+        },
+        {
+          "id": "s42",
+          "text": "• Check your account",
+          "start": 1715,
+          "end": 1735
+        },
+        {
+          "id": "s43",
+          "text": "• Tell us about any changes",
+          "start": 1736,
+          "end": 1763
+        },
+        {
+          "id": "s44",
+          "text": "•",
+          "start": 1764,
+          "end": 1765
+        },
+        {
+          "id": "s45",
+          "text": "Change your payment amounts",
+          "start": 1766,
+          "end": 1793
+        },
+        {
+          "id": "s46",
+          "text": "• Claim Council Tax Support",
+          "start": 1794,
+          "end": 1821
+        },
+        {
+          "id": "s47",
+          "text": "• Get your bill by e-mail.",
+          "start": 1822,
+          "end": 1848
+        },
+        {
+          "id": "s48",
+          "text": "www.manchester.gov.uk/counciltax",
+          "start": 1849,
+          "end": 1881
+        },
+        {
+          "id": "s49",
+          "text": "[back of 1st reminder – b) help offer]",
+          "start": 1882,
+          "end": 1920
+        },
+        {
+          "id": "s50",
+          "text": "Need help with council tax?",
+          "start": 1921,
+          "end": 1948
+        },
+        {
+          "id": "s51",
+          "text": "We can find a solution together.",
+          "start": 1949,
+          "end": 1981
+        },
+        {
+          "id": "s52",
+          "text": "• Call 0161 234 5002, 9am—6pm, Monday—Friday.",
+          "start": 1982,
+          "end": 2027
+        },
+        {
+          "id": "s53",
+          "text": "• See your options online, scan here:",
+          "start": 2028,
+          "end": 2065
+        },
+        {
+          "id": "s54",
+          "text": "• Help yourself online:",
+          "start": 2066,
+          "end": 2089
+        },
+        {
+          "id": "s55",
+          "text": "− Spread your payments over more months – fill in the form at www.manchester.gov.uk/xxxxx",
+          "start": 2090,
+          "end": 2179
+        },
+        {
+          "id": "s56",
+          "text": "− Claim Council Tax support for low incomes.",
+          "start": 2181,
+          "end": 2225
+        },
+        {
+          "id": "s57",
+          "text": "See if you qualify and claim: www.manchester.gov",
+          "start": 2226,
+          "end": 2274
+        },
+        {
+          "id": "s58",
+          "text": "If you think your bill is wrong, or things have changed, please tell us and we’ll update your bill.",
+          "start": 2275,
+          "end": 2374
+        },
+        {
+          "id": "s59",
+          "text": "Get help now so you’re not liable for extra costs.",
+          "start": 2375,
+          "end": 2425
+        },
+        {
+          "id": "s60",
+          "text": "Struggling with the cost of living?",
+          "start": 2426,
+          "end": 2461
+        },
+        {
+          "id": "s61",
+          "text": "We recommend free, independent money advice, as well as talking to us.",
+          "start": 2462,
+          "end": 2532
+        },
+        {
+          "id": "s62",
+          "text": "Citizen’s Advice Manchester will help with debt advice benefit claims:",
+          "start": 2533,
+          "end": 2603
+        },
+        {
+          "id": "s63",
+          "text": "0808 278 7800 and 0808 164 4406 www.citizensadvice.org.uk",
+          "start": 2604,
+          "end": 2661
+        },
+        {
+          "id": "s64",
+          "text": "Money Adviser Network gives free, independent government-funded debt advice:",
+          "start": 2662,
+          "end": 2738
+        },
+        {
+          "id": "s65",
+          "text": "0800 138 7777 www.moneyhelper.org.uk",
+          "start": 2739,
+          "end": 2775
+        },
+        {
+          "id": "s66",
+          "text": "StepChange Debt Charity helps you deal with debt and get back on track:",
+          "start": 2776,
+          "end": 2847
+        },
+        {
+          "id": "s67",
+          "text": "0800 138 1111 www.stepchange.org",
+          "start": 2848,
+          "end": 2880
+        },
+        {
+          "id": "s68",
+          "text": "National Debtline 0808 808 4000:",
+          "start": 2881,
+          "end": 2913
+        },
+        {
+          "id": "s69",
+          "text": "www.nationaldebtline.org",
+          "start": 2914,
+          "end": 2938
+        },
+        {
+          "id": "s70",
+          "text": "Missed Council Tax Payment",
+          "start": 2940,
+          "end": 2966
+        },
+        {
+          "id": "s71",
+          "text": "Second reminder",
+          "start": 2967,
+          "end": 2982
+        },
+        {
+          "id": "s72",
+          "text": "We can help.",
+          "start": 2983,
+          "end": 2995
+        },
+        {
+          "id": "s73",
+          "text": "Call 0161 234 5002",
+          "start": 2996,
+          "end": 3014
+        },
+        {
+          "id": "s74",
+          "text": "Paid in the last few days?",
+          "start": 3015,
+          "end": 3041
+        },
+        {
+          "id": "s75",
+          "text": "Thank you, please ignore this.",
+          "start": 3042,
+          "end": 3072
+        },
+        {
+          "id": "s76",
+          "text": "www.manchester.gov.uk/counciltax",
+          "start": 3073,
+          "end": 3105
+        },
+        {
+          "id": "s77",
+          "text": "Phone: 0161 234 5002",
+          "start": 3106,
+          "end": 3126
+        },
+        {
+          "id": "s78",
+          "text": "PO BOX 3, Manchester, M15 5BA",
+          "start": 3127,
+          "end": 3156
+        },
+        {
+          "id": "s79",
+          "text": "Date: 8 July 2023",
+          "start": 3157,
+          "end": 3174
+        },
+        {
+          "id": "s80",
+          "text": "Account reference 5xxxxxxxx",
+          "start": 3175,
+          "end": 3202
+        },
+        {
+          "id": "s81",
+          "text": "Bill number 23/2",
+          "start": 3203,
+          "end": 3219
+        },
+        {
+          "id": "s82",
+          "text": "Property Band A",
+          "start": 3220,
+          "end": 3235
+        },
+        {
+          "id": "s83",
+          "text": "It looks like you’ve missed another council tax payment, and we want to help.",
+          "start": 3236,
+          "end": 3313
+        },
+        {
+          "id": "s84",
+          "text": "You should pay if you can – details on the back.",
+          "start": 3314,
+          "end": 3362
+        },
+        {
+          "id": "s85",
+          "text": "If you can’t, call us on the number above to chat about ways to sort out what you owe, which is:",
+          "start": 3363,
+          "end": 3459
+        },
+        {
+          "id": "s86",
+          "text": "Here’s your current payment arrangement.",
+          "start": 3460,
+          "end": 3500
+        },
+        {
+          "id": "s87",
+          "text": "If it looks like you’ll miss more payments, contact us\nnow.",
+          "start": 3501,
+          "end": 3560
+        },
+        {
+          "id": "s88",
+          "text": "There’s lots of ways we can help.",
+          "start": 3561,
+          "end": 3594
+        },
+        {
+          "id": "s89",
+          "text": "We could make this arrangement work for you with:",
+          "start": 3595,
+          "end": 3644
+        },
+        {
+          "id": "s90",
+          "text": "• payments spread over more months; or",
+          "start": 3645,
+          "end": 3683
+        },
+        {
+          "id": "s91",
+          "text": "• Council Tax Support claims if your income’s low; or",
+          "start": 3684,
+          "end": 3737
+        },
+        {
+          "id": "s92",
+          "text": "• money off your bill if you qualify; or",
+          "start": 3738,
+          "end": 3778
+        },
+        {
+          "id": "s93",
+          "text": "• extra help for severe, unusual hardship; or",
+          "start": 3779,
+          "end": 3824
+        },
+        {
+          "id": "s94",
+          "text": "• vulnerable people’s support – just let us know that’s you.",
+          "start": 3825,
+          "end": 3885
+        },
+        {
+          "id": "s95",
+          "text": "Why not pay by Direct Debit – you can pick a payment date that suits you – choose the 7th, 15th, 21st or\n28th of the month.",
+          "start": 3886,
+          "end": 4009
+        },
+        {
+          "id": "s96",
+          "text": "Contact us now.",
+          "start": 4011,
+          "end": 4026
+        },
+        {
+          "id": "s97",
+          "text": "Our number’s above – details on the back.",
+          "start": 4027,
+          "end": 4068
+        },
+        {
+          "id": "s98",
+          "text": "You need to act now so you don’t have to pay the whole year’s bill and summons costs.",
+          "start": 4069,
+          "end": 4154
+        },
+        {
+          "id": "s99",
+          "text": "[back of 2nd reminder – a) help offer]",
+          "start": 4155,
+          "end": 4193
+        },
+        {
+          "id": "s100",
+          "text": "Struggling to pay?",
+          "start": 4194,
+          "end": 4212
+        },
+        {
+          "id": "s101",
+          "text": "Tell us now – We can find a solution together",
+          "start": 4213,
+          "end": 4258
+        },
+        {
+          "id": "s102",
+          "text": "Call 0161 234 5002, 9am—6pm, Monday—Friday.",
+          "start": 4259,
+          "end": 4302
+        },
+        {
+          "id": "s103",
+          "text": "We could:",
+          "start": 4303,
+          "end": 4312
+        },
+        {
+          "id": "s104",
+          "text": "• Change your payment plan.",
+          "start": 4313,
+          "end": 4340
+        },
+        {
+          "id": "s105",
+          "text": "• Check if you’re due benefits.",
+          "start": 4341,
+          "end": 4372
+        },
+        {
+          "id": "s106",
+          "text": "• Get money off if you qualify – and extra help even if you don’t.",
+          "start": 4373,
+          "end": 4439
+        },
+        {
+          "id": "s107",
+          "text": "• Take a ‘breathing space’ from paying off any previous years’ arrears.",
+          "start": 4440,
+          "end": 4511
+        },
+        {
+          "id": "s108",
+          "text": "• Give extra help for severe, unusual hardship.",
+          "start": 4512,
+          "end": 4559
+        },
+        {
+          "id": "s109",
+          "text": "• Offer special support if you’re vulnerable.",
+          "start": 4560,
+          "end": 4605
+        },
+        {
+          "id": "s110",
+          "text": "Get help now so you won’t owe the whole year’s bill and summons costs.",
+          "start": 4606,
+          "end": 4676
+        },
+        {
+          "id": "s111",
+          "text": "See your options online: scan here:",
+          "start": 4677,
+          "end": 4712
+        },
+        {
+          "id": "s112",
+          "text": "Help yourself online:",
+          "start": 4713,
+          "end": 4734
+        },
+        {
+          "id": "s113",
+          "text": "− Spread your payments over more months – fill in the form at www.manchester.gov.uk/xxxxx",
+          "start": 4735,
+          "end": 4824
+        },
+        {
+          "id": "s114",
+          "text": "− Claim Council Tax support for low incomes.",
+          "start": 4825,
+          "end": 4869
+        },
+        {
+          "id": "s115",
+          "text": "See if you qualify and claim: www.manchester.gov",
+          "start": 4870,
+          "end": 4918
+        },
+        {
+          "id": "s116",
+          "text": "If you think your bill is wrong, or things have changed, please tell us and we’ll update your bill.",
+          "start": 4919,
+          "end": 5018
+        },
+        {
+          "id": "s117",
+          "text": "Get help now so you’re not liable for extra costs.",
+          "start": 5019,
+          "end": 5069
+        },
+        {
+          "id": "s118",
+          "text": "Struggling with the cost of living?",
+          "start": 5070,
+          "end": 5105
+        },
+        {
+          "id": "s119",
+          "text": "We recommend free, independent money advice, as well as talking to us.",
+          "start": 5106,
+          "end": 5176
+        },
+        {
+          "id": "s120",
+          "text": "Citizen’s Advice Manchester will help with debt advice benefit claims:",
+          "start": 5178,
+          "end": 5248
+        },
+        {
+          "id": "s121",
+          "text": "0808 278 7800 and 0808 164 4406 www.citizensadvice.org.uk",
+          "start": 5249,
+          "end": 5306
+        },
+        {
+          "id": "s122",
+          "text": "Money Adviser Network gives free, independent government-funded debt advice:",
+          "start": 5307,
+          "end": 5383
+        },
+        {
+          "id": "s123",
+          "text": "0800 138 7777 www.moneyhelper.org.uk",
+          "start": 5384,
+          "end": 5420
+        },
+        {
+          "id": "s124",
+          "text": "StepChange Debt Charity helps you deal with debt and get back on track:",
+          "start": 5421,
+          "end": 5492
+        },
+        {
+          "id": "s125",
+          "text": "0800 138 1111 www.stepchange.org",
+          "start": 5493,
+          "end": 5525
+        },
+        {
+          "id": "s126",
+          "text": "National Debtline 0808 808 4000:",
+          "start": 5526,
+          "end": 5558
+        },
+        {
+          "id": "s127",
+          "text": "www.nationaldebtline.org",
+          "start": 5559,
+          "end": 5583
+        },
+        {
+          "id": "s128",
+          "text": "[back of 2nd reminder – b) how to pay]",
+          "start": 5584,
+          "end": 5622
+        },
+        {
+          "id": "s129",
+          "text": "How to pay",
+          "start": 5623,
+          "end": 5633
+        },
+        {
+          "id": "s130",
+          "text": "Please pay by direct debit if you can at www.manchester.gov.uk/directdebit",
+          "start": 5634,
+          "end": 5708
+        },
+        {
+          "id": "s131",
+          "text": "Credit or debit card",
+          "start": 5709,
+          "end": 5729
+        },
+        {
+          "id": "s132",
+          "text": "–online at www.manchester.gov.uk/counciltax",
+          "start": 5730,
+          "end": 5773
+        },
+        {
+          "id": "s133",
+          "text": "– by phone 24/7 on 0161 234 5006",
+          "start": 5774,
+          "end": 5806
+        },
+        {
+          "id": "s134",
+          "text": "Post Office or PayPoint – take this with you and use the barcode to pay.",
+          "start": 5807,
+          "end": 5879
+        },
+        {
+          "id": "s135",
+          "text": "Help yourself",
+          "start": 5880,
+          "end": 5893
+        },
+        {
+          "id": "s136",
+          "text": "It’s easy to sort out your council tax online at www.manchester.gov.uk/counciltax",
+          "start": 5894,
+          "end": 5975
+        },
+        {
+          "id": "s137",
+          "text": "• Apply for money off your bill",
+          "start": 5976,
+          "end": 6007
+        },
+        {
+          "id": "s138",
+          "text": "• Check your account",
+          "start": 6008,
+          "end": 6028
+        },
+        {
+          "id": "s139",
+          "text": "• Tell us about any changes",
+          "start": 6029,
+          "end": 6056
+        },
+        {
+          "id": "s140",
+          "text": "•",
+          "start": 6057,
+          "end": 6058
+        },
+        {
+          "id": "s141",
+          "text": "Change your payment amounts",
+          "start": 6059,
+          "end": 6086
+        },
+        {
+          "id": "s142",
+          "text": "• Claim Council Tax Support",
+          "start": 6087,
+          "end": 6114
+        },
+        {
+          "id": "s143",
+          "text": "• Get your bill by e-mail.",
+          "start": 6115,
+          "end": 6141
+        }
+      ]
+    },
+    "keyFacts": [
+      {
+        "id": "k1",
+        "type": "action",
+        "value": "Call 0161 234 5002",
+        "normalised": "phone||",
+        "start": 40,
+        "end": 58,
+        "sentence_id": "s3"
+      },
+      {
+        "id": "k2",
+        "type": "phone",
+        "value": "0161 234 5002",
+        "normalised": "01612345002",
+        "start": 45,
+        "end": 58,
+        "sentence_id": "s3"
+      },
+      {
+        "id": "k3",
+        "type": "action",
+        "value": "please ignore this",
+        "normalised": "ignore||",
+        "start": 97,
+        "end": 115,
+        "sentence_id": "s5"
+      },
+      {
+        "id": "k4",
+        "type": "phone",
+        "value": "0161 234 5002",
+        "normalised": "01612345002",
+        "start": 157,
+        "end": 170,
+        "sentence_id": "s7"
+      },
+      {
+        "id": "k5",
+        "type": "address",
+        "value": "M15 5BA",
+        "normalised": "M155BA",
+        "start": 193,
+        "end": 200,
+        "sentence_id": "s8"
+      },
+      {
+        "id": "k6",
+        "type": "date",
+        "value": "8 July 2023",
+        "normalised": "2023-07-08",
+        "start": 207,
+        "end": 218,
+        "sentence_id": "s9"
+      },
+      {
+        "id": "k7",
+        "type": "reference",
+        "value": "5xxxxxxxx",
+        "normalised": "5XXXXXXXX",
+        "start": 237,
+        "end": 246,
+        "sentence_id": "s10"
+      },
+      {
+        "id": "k8",
+        "type": "action",
+        "value": "to pay £181.62 by 15 July",
+        "normalised": "pay||date=--07-15,money=GBP 18162",
+        "start": 337,
+        "end": 362,
+        "sentence_id": "s14"
+      },
+      {
+        "id": "k9",
+        "type": "money",
+        "value": "£181.62",
+        "normalised": "GBP 18162",
+        "start": 344,
+        "end": 351,
+        "sentence_id": "s14"
+      },
+      {
+        "id": "k10",
+        "type": "date",
+        "value": "15 July",
+        "normalised": "--07-15",
+        "start": 355,
+        "end": 362,
+        "sentence_id": "s14"
+      },
+      {
+        "id": "k11",
+        "type": "action",
+        "value": "Please pay online now if you can – details on the back",
+        "normalised": "pay|detail|",
+        "start": 376,
+        "end": 430,
+        "sentence_id": "s15"
+      },
+      {
+        "id": "k12",
+        "type": "action",
+        "value": "Think you’ll miss more payments",
+        "normalised": "think||",
+        "start": 486,
+        "end": 517,
+        "sentence_id": "s17"
+      },
+      {
+        "id": "k13",
+        "type": "action",
+        "value": "please contact\nus now",
+        "normalised": "phone||",
+        "start": 604,
+        "end": 625,
+        "sentence_id": "s19"
+      },
+      {
+        "id": "k14",
+        "type": "action",
+        "value": "Why not pay by Direct Debit",
+        "normalised": "not pay||",
+        "start": 918,
+        "end": 945,
+        "sentence_id": "s26"
+      },
+      {
+        "id": "k15",
+        "type": "action",
+        "value": "It means you won’t forget in future and you can pick a payment date that\nsuits you – choose the 7th, 15th, 21st or 28th of the month",
+        "normalised": "choose||date=21st or 28th of the month",
+        "start": 947,
+        "end": 1079,
+        "sentence_id": "s27"
+      },
+      {
+        "id": "k16",
+        "type": "date",
+        "value": "21st or 28th of the month",
+        "normalised": "21st or 28th of the month",
+        "start": 1054,
+        "end": 1079,
+        "sentence_id": "s27"
+      },
+      {
+        "id": "k17",
+        "type": "action",
+        "value": "please tell us",
+        "normalised": "tell||",
+        "start": 1138,
+        "end": 1152,
+        "sentence_id": "s28"
+      },
+      {
+        "id": "k18",
+        "type": "action",
+        "value": "Contact us now",
+        "normalised": "phone||",
+        "start": 1181,
+        "end": 1195,
+        "sentence_id": "s29"
+      },
+      {
+        "id": "k19",
+        "type": "action",
+        "value": "to act now",
+        "normalised": "act||",
+        "start": 1248,
+        "end": 1258,
+        "sentence_id": "s31"
+      },
+      {
+        "id": "k20",
+        "type": "action",
+        "value": "to pay the whole year’s bill and summons costs",
+        "normalised": "pay|bill,cost|",
+        "start": 1277,
+        "end": 1323,
+        "sentence_id": "s31"
+      },
+      {
+        "id": "k21",
+        "type": "action",
+        "value": "Please pay by direct debit if you can at www.manchester.gov.uk/directdebit",
+        "normalised": "pay||",
+        "start": 1376,
+        "end": 1450,
+        "sentence_id": "s34"
+      },
+      {
+        "id": "k22",
+        "type": "phone",
+        "value": "0161 234 5006",
+        "normalised": "01612345006",
+        "start": 1535,
+        "end": 1548,
+        "sentence_id": "s37"
+      },
+      {
+        "id": "k23",
+        "type": "action",
+        "value": "Help yourself",
+        "normalised": "help||",
+        "start": 1622,
+        "end": 1635,
+        "sentence_id": "s39"
+      },
+      {
+        "id": "k24",
+        "type": "action",
+        "value": "Apply for money off your bill",
+        "normalised": "apply||",
+        "start": 1685,
+        "end": 1714,
+        "sentence_id": "s41"
+      },
+      {
+        "id": "k25",
+        "type": "action",
+        "value": "Check your account",
+        "normalised": "check|account|",
+        "start": 1717,
+        "end": 1735,
+        "sentence_id": "s42"
+      },
+      {
+        "id": "k26",
+        "type": "action",
+        "value": "Tell us about any changes",
+        "normalised": "tell||",
+        "start": 1738,
+        "end": 1763,
+        "sentence_id": "s43"
+      },
+      {
+        "id": "k27",
+        "type": "action",
+        "value": "Change your payment amounts",
+        "normalised": "change|amount|",
+        "start": 1766,
+        "end": 1793,
+        "sentence_id": "s45"
+      },
+      {
+        "id": "k28",
+        "type": "action",
+        "value": "Get your bill by e-mail",
+        "normalised": "get|bill|",
+        "start": 1824,
+        "end": 1847,
+        "sentence_id": "s47"
+      },
+      {
+        "id": "k29",
+        "type": "action",
+        "value": "Need help with council tax",
+        "normalised": "need|help|",
+        "start": 1921,
+        "end": 1947,
+        "sentence_id": "s50"
+      },
+      {
+        "id": "k30",
+        "type": "phone",
+        "value": "0161 234 5002",
+        "normalised": "01612345002",
+        "start": 1989,
+        "end": 2002,
+        "sentence_id": "s52"
+      },
+      {
+        "id": "k31",
+        "type": "time",
+        "value": "9am",
+        "normalised": "09:00",
+        "start": 2004,
+        "end": 2007,
+        "sentence_id": "s52"
+      },
+      {
+        "id": "k32",
+        "type": "time",
+        "value": "6pm",
+        "normalised": "18:00",
+        "start": 2008,
+        "end": 2011,
+        "sentence_id": "s52"
+      },
+      {
+        "id": "k33",
+        "type": "date",
+        "value": "Friday",
+        "normalised": "friday",
+        "start": 2020,
+        "end": 2026,
+        "sentence_id": "s52"
+      },
+      {
+        "id": "k34",
+        "type": "action",
+        "value": "See your options online",
+        "normalised": "see|option|",
+        "start": 2030,
+        "end": 2053,
+        "sentence_id": "s53"
+      },
+      {
+        "id": "k35",
+        "type": "action",
+        "value": "Help yourself online",
+        "normalised": "help||",
+        "start": 2068,
+        "end": 2088,
+        "sentence_id": "s54"
+      },
+      {
+        "id": "k36",
+        "type": "action",
+        "value": "See if you qualify and claim: www.manchester.gov",
+        "normalised": "see||",
+        "start": 2226,
+        "end": 2274,
+        "sentence_id": "s57"
+      },
+      {
+        "id": "k37",
+        "type": "action",
+        "value": "please tell us",
+        "normalised": "tell||",
+        "start": 2332,
+        "end": 2346,
+        "sentence_id": "s58"
+      },
+      {
+        "id": "k38",
+        "type": "action",
+        "value": "Get help now",
+        "normalised": "get|help|",
+        "start": 2375,
+        "end": 2387,
+        "sentence_id": "s59"
+      },
+      {
+        "id": "k39",
+        "type": "phone",
+        "value": "0808 278 7800",
+        "normalised": "08082787800",
+        "start": 2604,
+        "end": 2617,
+        "sentence_id": "s63"
+      },
+      {
+        "id": "k40",
+        "type": "phone",
+        "value": "0808 164 4406",
+        "normalised": "08081644406",
+        "start": 2622,
+        "end": 2635,
+        "sentence_id": "s63"
+      },
+      {
+        "id": "k41",
+        "type": "phone",
+        "value": "0800 138 7777",
+        "normalised": "08001387777",
+        "start": 2739,
+        "end": 2752,
+        "sentence_id": "s65"
+      },
+      {
+        "id": "k42",
+        "type": "phone",
+        "value": "0800 138 1111",
+        "normalised": "08001381111",
+        "start": 2848,
+        "end": 2861,
+        "sentence_id": "s67"
+      },
+      {
+        "id": "k43",
+        "type": "phone",
+        "value": "0808 808 4000",
+        "normalised": "08088084000",
+        "start": 2899,
+        "end": 2912,
+        "sentence_id": "s68"
+      },
+      {
+        "id": "k44",
+        "type": "action",
+        "value": "Call 0161 234 5002",
+        "normalised": "phone||",
+        "start": 2996,
+        "end": 3014,
+        "sentence_id": "s73"
+      },
+      {
+        "id": "k45",
+        "type": "phone",
+        "value": "0161 234 5002",
+        "normalised": "01612345002",
+        "start": 3001,
+        "end": 3014,
+        "sentence_id": "s73"
+      },
+      {
+        "id": "k46",
+        "type": "action",
+        "value": "please ignore this",
+        "normalised": "ignore||",
+        "start": 3053,
+        "end": 3071,
+        "sentence_id": "s75"
+      },
+      {
+        "id": "k47",
+        "type": "phone",
+        "value": "0161 234 5002",
+        "normalised": "01612345002",
+        "start": 3113,
+        "end": 3126,
+        "sentence_id": "s77"
+      },
+      {
+        "id": "k48",
+        "type": "address",
+        "value": "M15 5BA",
+        "normalised": "M155BA",
+        "start": 3149,
+        "end": 3156,
+        "sentence_id": "s78"
+      },
+      {
+        "id": "k49",
+        "type": "date",
+        "value": "8 July 2023",
+        "normalised": "2023-07-08",
+        "start": 3163,
+        "end": 3174,
+        "sentence_id": "s79"
+      },
+      {
+        "id": "k50",
+        "type": "reference",
+        "value": "5xxxxxxxx",
+        "normalised": "5XXXXXXXX",
+        "start": 3193,
+        "end": 3202,
+        "sentence_id": "s80"
+      },
+      {
+        "id": "k51",
+        "type": "action",
+        "value": "You should pay if you can – details on the back",
+        "normalised": "pay|detail|",
+        "start": 3314,
+        "end": 3361,
+        "sentence_id": "s84"
+      },
+      {
+        "id": "k52",
+        "type": "action",
+        "value": "call us on the number above",
+        "normalised": "phone||",
+        "start": 3377,
+        "end": 3404,
+        "sentence_id": "s85"
+      },
+      {
+        "id": "k53",
+        "type": "action",
+        "value": "contact us\nnow",
+        "normalised": "phone||",
+        "start": 3545,
+        "end": 3559,
+        "sentence_id": "s87"
+      },
+      {
+        "id": "k54",
+        "type": "action",
+        "value": "Why not pay by Direct Debit – you can pick a payment date that suits you – choose the 7th, 15th, 21st or\n28th of the month",
+        "normalised": "choose||date=21st or 28th of the month",
+        "start": 3886,
+        "end": 4008,
+        "sentence_id": "s95"
+      },
+      {
+        "id": "k55",
+        "type": "date",
+        "value": "21st or\n28th of the month",
+        "normalised": "21st or 28th of the month",
+        "start": 3983,
+        "end": 4008,
+        "sentence_id": "s95"
+      },
+      {
+        "id": "k56",
+        "type": "action",
+        "value": "Contact us now",
+        "normalised": "phone||",
+        "start": 4011,
+        "end": 4025,
+        "sentence_id": "s96"
+      },
+      {
+        "id": "k57",
+        "type": "action",
+        "value": "to act now",
+        "normalised": "act||",
+        "start": 4078,
+        "end": 4088,
+        "sentence_id": "s98"
+      },
+      {
+        "id": "k58",
+        "type": "action",
+        "value": "to pay the whole year’s bill and summons costs",
+        "normalised": "pay|bill,cost|",
+        "start": 4107,
+        "end": 4153,
+        "sentence_id": "s98"
+      },
+      {
+        "id": "k59",
+        "type": "action",
+        "value": "Tell us now – We can find a solution together",
+        "normalised": "tell||",
+        "start": 4213,
+        "end": 4258,
+        "sentence_id": "s101"
+      },
+      {
+        "id": "k60",
+        "type": "action",
+        "value": "Call 0161 234 5002, 9am—6pm, Monday—Friday",
+        "normalised": "phone||date=friday",
+        "start": 4259,
+        "end": 4301,
+        "sentence_id": "s102"
+      },
+      {
+        "id": "k61",
+        "type": "phone",
+        "value": "0161 234 5002",
+        "normalised": "01612345002",
+        "start": 4264,
+        "end": 4277,
+        "sentence_id": "s102"
+      },
+      {
+        "id": "k62",
+        "type": "time",
+        "value": "9am",
+        "normalised": "09:00",
+        "start": 4279,
+        "end": 4282,
+        "sentence_id": "s102"
+      },
+      {
+        "id": "k63",
+        "type": "time",
+        "value": "6pm",
+        "normalised": "18:00",
+        "start": 4283,
+        "end": 4286,
+        "sentence_id": "s102"
+      },
+      {
+        "id": "k64",
+        "type": "date",
+        "value": "Friday",
+        "normalised": "friday",
+        "start": 4295,
+        "end": 4301,
+        "sentence_id": "s102"
+      },
+      {
+        "id": "k65",
+        "type": "action",
+        "value": "Change your payment plan",
+        "normalised": "change|plan|",
+        "start": 4315,
+        "end": 4339,
+        "sentence_id": "s104"
+      },
+      {
+        "id": "k66",
+        "type": "action",
+        "value": "Check",
+        "normalised": "check||",
+        "start": 4343,
+        "end": 4348,
+        "sentence_id": "s105"
+      },
+      {
+        "id": "k67",
+        "type": "action",
+        "value": "Take a ‘breathing space’ from paying off any previous years’ arrears",
+        "normalised": "take|space|",
+        "start": 4442,
+        "end": 4510,
+        "sentence_id": "s107"
+      },
+      {
+        "id": "k68",
+        "type": "action",
+        "value": "Give extra help for severe, unusual hardship",
+        "normalised": "give|help|",
+        "start": 4514,
+        "end": 4558,
+        "sentence_id": "s108"
+      },
+      {
+        "id": "k69",
+        "type": "action",
+        "value": "Offer special support",
+        "normalised": "offer|support|",
+        "start": 4562,
+        "end": 4583,
+        "sentence_id": "s109"
+      },
+      {
+        "id": "k70",
+        "type": "action",
+        "value": "Get help now",
+        "normalised": "get|help|",
+        "start": 4606,
+        "end": 4618,
+        "sentence_id": "s110"
+      },
+      {
+        "id": "k71",
+        "type": "action",
+        "value": "See your options online",
+        "normalised": "see|option|",
+        "start": 4677,
+        "end": 4700,
+        "sentence_id": "s111"
+      },
+      {
+        "id": "k72",
+        "type": "action",
+        "value": "Help yourself online",
+        "normalised": "help||",
+        "start": 4713,
+        "end": 4733,
+        "sentence_id": "s112"
+      },
+      {
+        "id": "k73",
+        "type": "action",
+        "value": "See if you qualify and claim: www.manchester.gov",
+        "normalised": "see||",
+        "start": 4870,
+        "end": 4918,
+        "sentence_id": "s115"
+      },
+      {
+        "id": "k74",
+        "type": "action",
+        "value": "please tell us",
+        "normalised": "tell||",
+        "start": 4976,
+        "end": 4990,
+        "sentence_id": "s116"
+      },
+      {
+        "id": "k75",
+        "type": "action",
+        "value": "Get help now",
+        "normalised": "get|help|",
+        "start": 5019,
+        "end": 5031,
+        "sentence_id": "s117"
+      },
+      {
+        "id": "k76",
+        "type": "phone",
+        "value": "0808 278 7800",
+        "normalised": "08082787800",
+        "start": 5249,
+        "end": 5262,
+        "sentence_id": "s121"
+      },
+      {
+        "id": "k77",
+        "type": "phone",
+        "value": "0808 164 4406",
+        "normalised": "08081644406",
+        "start": 5267,
+        "end": 5280,
+        "sentence_id": "s121"
+      },
+      {
+        "id": "k78",
+        "type": "phone",
+        "value": "0800 138 7777",
+        "normalised": "08001387777",
+        "start": 5384,
+        "end": 5397,
+        "sentence_id": "s123"
+      },
+      {
+        "id": "k79",
+        "type": "phone",
+        "value": "0800 138 1111",
+        "normalised": "08001381111",
+        "start": 5493,
+        "end": 5506,
+        "sentence_id": "s125"
+      },
+      {
+        "id": "k80",
+        "type": "phone",
+        "value": "0808 808 4000",
+        "normalised": "08088084000",
+        "start": 5544,
+        "end": 5557,
+        "sentence_id": "s126"
+      },
+      {
+        "id": "k81",
+        "type": "action",
+        "value": "Please pay by direct debit if you can at www.manchester.gov.uk/directdebit",
+        "normalised": "pay||",
+        "start": 5634,
+        "end": 5708,
+        "sentence_id": "s130"
+      },
+      {
+        "id": "k82",
+        "type": "phone",
+        "value": "0161 234 5006",
+        "normalised": "01612345006",
+        "start": 5793,
+        "end": 5806,
+        "sentence_id": "s133"
+      },
+      {
+        "id": "k83",
+        "type": "action",
+        "value": "Help yourself",
+        "normalised": "help||",
+        "start": 5880,
+        "end": 5893,
+        "sentence_id": "s135"
+      },
+      {
+        "id": "k84",
+        "type": "action",
+        "value": "Apply for money off your bill",
+        "normalised": "apply||",
+        "start": 5978,
+        "end": 6007,
+        "sentence_id": "s137"
+      },
+      {
+        "id": "k85",
+        "type": "action",
+        "value": "Check your account",
+        "normalised": "check|account|",
+        "start": 6010,
+        "end": 6028,
+        "sentence_id": "s138"
+      },
+      {
+        "id": "k86",
+        "type": "action",
+        "value": "Tell us about any changes",
+        "normalised": "tell||",
+        "start": 6031,
+        "end": 6056,
+        "sentence_id": "s139"
+      },
+      {
+        "id": "k87",
+        "type": "action",
+        "value": "Change your payment amounts",
+        "normalised": "change|amount|",
+        "start": 6059,
+        "end": 6086,
+        "sentence_id": "s141"
+      },
+      {
+        "id": "k88",
+        "type": "action",
+        "value": "Get your bill by e-mail",
+        "normalised": "get|bill|",
+        "start": 6117,
+        "end": 6140,
+        "sentence_id": "s143"
+      }
+    ],
+    "lines": [
+      {
+        "id": "L1",
+        "text": "You missed a council tax payment.",
+        "source_sentence_id": "s1",
+        "symbol_id": "35449"
+      },
+      {
+        "id": "L2",
+        "text": "The council can help.",
+        "source_sentence_id": "s2",
+        "symbol_id": "4570"
+      },
+      {
+        "id": "L3",
+        "text": "You can call 0161 234 5002.",
+        "source_sentence_id": "s3",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L4",
+        "text": "Did you pay in the last few days?",
+        "source_sentence_id": "s4",
+        "symbol_id": "32488"
+      },
+      {
+        "id": "L5",
+        "text": "Thank you, please ignore this.",
+        "source_sentence_id": "s5",
+        "symbol_id": null
+      },
+      {
+        "id": "L6",
+        "text": "Website: www.manchester.gov.uk/counciltax.",
+        "source_sentence_id": "s6",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L7",
+        "text": "Phone: 0161 234 5002.",
+        "source_sentence_id": "s7",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L8",
+        "text": "Address: PO BOX 3, Manchester, M15 5BA.",
+        "source_sentence_id": "s8",
+        "symbol_id": "30231"
+      },
+      {
+        "id": "L9",
+        "text": "Date: 8 July 2023.",
+        "source_sentence_id": "s9",
+        "symbol_id": "32488"
+      },
+      {
+        "id": "L10",
+        "text": "Account reference 5xxxxxxxx.",
+        "source_sentence_id": "s10",
+        "symbol_id": null
+      },
+      {
+        "id": "L11",
+        "text": "Bill number 23/2.",
+        "source_sentence_id": "s11",
+        "symbol_id": "5995"
+      },
+      {
+        "id": "L12",
+        "text": "Property Band A.",
+        "source_sentence_id": "s12",
+        "symbol_id": "2317"
+      },
+      {
+        "id": "L13",
+        "text": "It looks like you missed a council tax payment.",
+        "source_sentence_id": "s13",
+        "symbol_id": "35449"
+      },
+      {
+        "id": "L14",
+        "text": "You need to pay £181.62 by 15 July if possible.",
+        "source_sentence_id": "s14",
+        "symbol_id": "4630"
+      },
+      {
+        "id": "L15",
+        "text": "Please pay online now if you can.",
+        "source_sentence_id": "s15",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L113",
+        "text": "Details are on the back.",
+        "source_sentence_id": "s15",
+        "symbol_id": null
+      },
+      {
+        "id": "L16",
+        "text": "If you can’t pay, there are many ways we can help.",
+        "source_sentence_id": "s16",
+        "symbol_id": "4570"
+      },
+      {
+        "id": "L17",
+        "text": "Think you’ll miss more payments?",
+        "source_sentence_id": "s17",
+        "symbol_id": "7217"
+      },
+      {
+        "id": "L18",
+        "text": "Here is your current payment arrangement.",
+        "source_sentence_id": "s18",
+        "symbol_id": "2398"
+      },
+      {
+        "id": "L19",
+        "text": "If you think you’ll miss more payments, please contact us now.",
+        "source_sentence_id": "s19",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L20",
+        "text": "We could make this arrangement work for you with:",
+        "source_sentence_id": "s20",
+        "symbol_id": null
+      },
+      {
+        "id": "L21",
+        "text": "Payments spread over more months.",
+        "source_sentence_id": "s21",
+        "symbol_id": "32488"
+      },
+      {
+        "id": "L22",
+        "text": "Council Tax Support claims if your income is low.",
+        "source_sentence_id": "s22",
+        "symbol_id": "35449"
+      },
+      {
+        "id": "L23",
+        "text": "Money off your bill if you qualify.",
+        "source_sentence_id": "s23",
+        "symbol_id": "4630"
+      },
+      {
+        "id": "L24",
+        "text": "Extra help for severe, unusual hardship.",
+        "source_sentence_id": "s24",
+        "symbol_id": "4570"
+      },
+      {
+        "id": "L25",
+        "text": "Vulnerable people’s support – let us know that’s you.",
+        "source_sentence_id": "s25",
+        "symbol_id": "39622"
+      },
+      {
+        "id": "L26",
+        "text": "Why not pay by Direct Debit.",
+        "source_sentence_id": "s26",
+        "symbol_id": null
+      },
+      {
+        "id": "L27",
+        "text": "It means you won’t forget in future.",
+        "source_sentence_id": "s27",
+        "symbol_id": null
+      },
+      {
+        "id": "L114",
+        "text": "You can pick a payment date that suits you.",
+        "source_sentence_id": "s27",
+        "symbol_id": "32488"
+      },
+      {
+        "id": "L115",
+        "text": "Choose the 7th, 15th, 21st or 28th of the month.",
+        "source_sentence_id": "s27",
+        "symbol_id": "11227"
+      },
+      {
+        "id": "L28",
+        "text": "If you think your bill is wrong, please tell us.",
+        "source_sentence_id": "s28",
+        "symbol_id": "5995"
+      },
+      {
+        "id": "L116",
+        "text": "We will update your bill.",
+        "source_sentence_id": "s28",
+        "symbol_id": null
+      },
+      {
+        "id": "L29",
+        "text": "Contact us now.",
+        "source_sentence_id": "s29",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L30",
+        "text": "Our number’s above – details on the back.",
+        "source_sentence_id": "s30",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L31",
+        "text": "You need to act now so you don’t have to pay the whole year’s bill and summons costs.",
+        "source_sentence_id": "s31",
+        "symbol_id": "5995"
+      },
+      {
+        "id": "L32",
+        "text": "How to pay.",
+        "source_sentence_id": "s33",
+        "symbol_id": "2398"
+      },
+      {
+        "id": "L33",
+        "text": "Please pay by direct debit if you can at www.manchester.gov.uk/directdebit.",
+        "source_sentence_id": "s34",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L34",
+        "text": "Credit or debit card.",
+        "source_sentence_id": "s35",
+        "symbol_id": "17208"
+      },
+      {
+        "id": "L35",
+        "text": "By phone 24/7 on 0161 234 5006.",
+        "source_sentence_id": "s37",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L36",
+        "text": "Post Office or PayPoint – take this with you and use the barcode to pay.",
+        "source_sentence_id": "s38",
+        "symbol_id": "10320"
+      },
+      {
+        "id": "L37",
+        "text": "Help yourself.",
+        "source_sentence_id": "s39",
+        "symbol_id": null
+      },
+      {
+        "id": "L38",
+        "text": "It’s easy to sort out your council tax online:",
+        "source_sentence_id": "s40",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L39",
+        "text": "Apply for money off your bill.",
+        "source_sentence_id": "s41",
+        "symbol_id": null
+      },
+      {
+        "id": "L40",
+        "text": "Check your account.",
+        "source_sentence_id": "s42",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L41",
+        "text": "Tell us about any changes.",
+        "source_sentence_id": "s43",
+        "symbol_id": "2398"
+      },
+      {
+        "id": "L42",
+        "text": "Change your payment amounts.",
+        "source_sentence_id": "s45",
+        "symbol_id": "4630"
+      },
+      {
+        "id": "L43",
+        "text": "Claim Council Tax Support.",
+        "source_sentence_id": "s46",
+        "symbol_id": "30008"
+      },
+      {
+        "id": "L44",
+        "text": "Get your bill by e‑mail.",
+        "source_sentence_id": "s47",
+        "symbol_id": "27355"
+      },
+      {
+        "id": "L45",
+        "text": "Need help with council tax.",
+        "source_sentence_id": "s50",
+        "symbol_id": "4570"
+      },
+      {
+        "id": "L46",
+        "text": "We can find a solution together.",
+        "source_sentence_id": "s51",
+        "symbol_id": "15262"
+      },
+      {
+        "id": "L47",
+        "text": "Call 0161 234 5002, 9am—6pm, Monday—Friday.",
+        "source_sentence_id": "s52",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L48",
+        "text": "See your options online, scan here.",
+        "source_sentence_id": "s53",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L49",
+        "text": "Help yourself online.",
+        "source_sentence_id": "s54",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L50",
+        "text": "Spread your payments over more months – fill in the form at www.manchester.gov.uk/xxxxx.",
+        "source_sentence_id": "s55",
+        "symbol_id": "9173"
+      },
+      {
+        "id": "L51",
+        "text": "Claim Council Tax support for low incomes.",
+        "source_sentence_id": "s56",
+        "symbol_id": "30008"
+      },
+      {
+        "id": "L52",
+        "text": "See if you qualify and claim: www.manchester.gov.",
+        "source_sentence_id": "s57",
+        "symbol_id": null
+      },
+      {
+        "id": "L53",
+        "text": "Get help now so you are not liable for extra costs.",
+        "source_sentence_id": "s59",
+        "symbol_id": "4570"
+      },
+      {
+        "id": "L54",
+        "text": "Struggling with the cost of living.",
+        "source_sentence_id": "s60",
+        "symbol_id": "4630"
+      },
+      {
+        "id": "L55",
+        "text": "We recommend free, independent money advice, as well as talking to us.",
+        "source_sentence_id": "s61",
+        "symbol_id": null
+      },
+      {
+        "id": "L56",
+        "text": "Citizen’s Advice Manchester – phone 0808 278 7800 and 0808 164 4406.",
+        "source_sentence_id": "s63",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L57",
+        "text": "Money Adviser Network – phone 0800 138 7777.",
+        "source_sentence_id": "s65",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L58",
+        "text": "StepChange Debt Charity – phone 0800 138 1111.",
+        "source_sentence_id": "s67",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L59",
+        "text": "National Debtline – phone 0808 808 4000.",
+        "source_sentence_id": "s68",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L60",
+        "text": "Missed Council Tax Payment.",
+        "source_sentence_id": "s70",
+        "symbol_id": "35449"
+      },
+      {
+        "id": "L61",
+        "text": "Second reminder.",
+        "source_sentence_id": "s71",
+        "symbol_id": null
+      },
+      {
+        "id": "L62",
+        "text": "We can help.",
+        "source_sentence_id": "s72",
+        "symbol_id": "4570"
+      },
+      {
+        "id": "L63",
+        "text": "Call 0161 234 5002.",
+        "source_sentence_id": "s73",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L64",
+        "text": "Paid in the last few days?",
+        "source_sentence_id": "s74",
+        "symbol_id": "32488"
+      },
+      {
+        "id": "L65",
+        "text": "Thank you, please ignore this.",
+        "source_sentence_id": "s75",
+        "symbol_id": null
+      },
+      {
+        "id": "L66",
+        "text": "Website: www.manchester.gov.uk/counciltax.",
+        "source_sentence_id": "s76",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L67",
+        "text": "Phone: 0161 234 5002.",
+        "source_sentence_id": "s77",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L68",
+        "text": "Address: PO BOX 3, Manchester, M15 5BA.",
+        "source_sentence_id": "s78",
+        "symbol_id": "30231"
+      },
+      {
+        "id": "L69",
+        "text": "Date: 8 July 2023.",
+        "source_sentence_id": "s79",
+        "symbol_id": "32488"
+      },
+      {
+        "id": "L70",
+        "text": "Account reference 5xxxxxxxx.",
+        "source_sentence_id": "s80",
+        "symbol_id": null
+      },
+      {
+        "id": "L71",
+        "text": "Bill number 23/2.",
+        "source_sentence_id": "s81",
+        "symbol_id": "5995"
+      },
+      {
+        "id": "L72",
+        "text": "Property Band A.",
+        "source_sentence_id": "s82",
+        "symbol_id": "2317"
+      },
+      {
+        "id": "L73",
+        "text": "It looks like you’ve missed another council tax payment, and we want to help.",
+        "source_sentence_id": "s83",
+        "symbol_id": "35449"
+      },
+      {
+        "id": "L74",
+        "text": "You should pay if you can – details on the back.",
+        "source_sentence_id": "s84",
+        "symbol_id": null
+      },
+      {
+        "id": "L75",
+        "text": "If you can’t, call us on the number above to chat about ways to sort out what you owe.",
+        "source_sentence_id": "s85",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L76",
+        "text": "Here is your current payment arrangement.",
+        "source_sentence_id": "s86",
+        "symbol_id": "2398"
+      },
+      {
+        "id": "L77",
+        "text": "If it looks like you’ll miss more payments, contact us now.",
+        "source_sentence_id": "s87",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L78",
+        "text": "There are many ways we can help.",
+        "source_sentence_id": "s88",
+        "symbol_id": "4570"
+      },
+      {
+        "id": "L79",
+        "text": "Why not pay by Direct Debit – you can pick a payment date that suits you – choose the 7th, 15th, 21st or 28th of the month.",
+        "source_sentence_id": "s95",
+        "symbol_id": "11227"
+      },
+      {
+        "id": "L80",
+        "text": "Contact us now.",
+        "source_sentence_id": "s96",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L81",
+        "text": "You need to act now so you don’t have to pay the whole year’s bill and summons costs.",
+        "source_sentence_id": "s98",
+        "symbol_id": "5995"
+      },
+      {
+        "id": "L82",
+        "text": "Struggling to pay?",
+        "source_sentence_id": "s100",
+        "symbol_id": "4630"
+      },
+      {
+        "id": "L83",
+        "text": "Tell us now – we can find a solution together.",
+        "source_sentence_id": "s101",
+        "symbol_id": null
+      },
+      {
+        "id": "L84",
+        "text": "Call 0161 234 5002, 9am—6pm, Monday—Friday.",
+        "source_sentence_id": "s102",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L85",
+        "text": "Change your payment plan.",
+        "source_sentence_id": "s104",
+        "symbol_id": null
+      },
+      {
+        "id": "L86",
+        "text": "Check if you’re due benefits.",
+        "source_sentence_id": "s105",
+        "symbol_id": null
+      },
+      {
+        "id": "L87",
+        "text": "Get money off if you qualify – and extra help even if you don’t.",
+        "source_sentence_id": "s106",
+        "symbol_id": "4630"
+      },
+      {
+        "id": "L88",
+        "text": "Take a ‘breathing space’ from paying off any previous years’ arrears.",
+        "source_sentence_id": "s107",
+        "symbol_id": "25074"
+      },
+      {
+        "id": "L89",
+        "text": "Give extra help for severe, unusual hardship.",
+        "source_sentence_id": "s108",
+        "symbol_id": "4570"
+      },
+      {
+        "id": "L90",
+        "text": "Offer special support if you’re vulnerable.",
+        "source_sentence_id": "s109",
+        "symbol_id": "30008"
+      },
+      {
+        "id": "L91",
+        "text": "Get help now so you won’t owe the whole year’s bill and summons costs.",
+        "source_sentence_id": "s110",
+        "symbol_id": "4570"
+      },
+      {
+        "id": "L92",
+        "text": "See your options online: scan here.",
+        "source_sentence_id": "s111",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L93",
+        "text": "Help yourself online.",
+        "source_sentence_id": "s112",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L94",
+        "text": "Spread your payments over more months – fill in the form at www.manchester.gov.uk/xxxxx.",
+        "source_sentence_id": "s113",
+        "symbol_id": "9173"
+      },
+      {
+        "id": "L95",
+        "text": "Claim Council Tax support for low incomes.",
+        "source_sentence_id": "s114",
+        "symbol_id": "30008"
+      },
+      {
+        "id": "L96",
+        "text": "See if you qualify and claim: www.manchester.gov.",
+        "source_sentence_id": "s115",
+        "symbol_id": null
+      },
+      {
+        "id": "L97",
+        "text": "If you think your bill is wrong, please tell us.",
+        "source_sentence_id": "s116",
+        "symbol_id": "5995"
+      },
+      {
+        "id": "L117",
+        "text": "We will update your bill.",
+        "source_sentence_id": "s116",
+        "symbol_id": null
+      },
+      {
+        "id": "L98",
+        "text": "Get help now so you are not liable for extra costs.",
+        "source_sentence_id": "s117",
+        "symbol_id": "4570"
+      },
+      {
+        "id": "L99",
+        "text": "Struggling with the cost of living.",
+        "source_sentence_id": "s118",
+        "symbol_id": "4630"
+      },
+      {
+        "id": "L100",
+        "text": "We recommend free, independent money advice, as well as talking to us.",
+        "source_sentence_id": "s119",
+        "symbol_id": null
+      },
+      {
+        "id": "L101",
+        "text": "Citizen’s Advice Manchester – phone 0808 278 7800 and 0808 164 4406.",
+        "source_sentence_id": "s121",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L102",
+        "text": "Money Adviser Network – phone 0800 138 7777.",
+        "source_sentence_id": "s123",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L103",
+        "text": "StepChange Debt Charity – phone 0800 138 1111.",
+        "source_sentence_id": "s125",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L104",
+        "text": "National Debtline – phone 0808 808 4000.",
+        "source_sentence_id": "s126",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L105",
+        "text": "Please pay by direct debit if you can at www.manchester.gov.uk/directdebit.",
+        "source_sentence_id": "s130",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L106",
+        "text": "By phone 24/7 on 0161 234 5006.",
+        "source_sentence_id": "s133",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L107",
+        "text": "Help yourself.",
+        "source_sentence_id": "s135",
+        "symbol_id": null
+      },
+      {
+        "id": "L108",
+        "text": "Apply for money off your bill.",
+        "source_sentence_id": "s137",
+        "symbol_id": null
+      },
+      {
+        "id": "L109",
+        "text": "Check your account.",
+        "source_sentence_id": "s138",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L110",
+        "text": "Tell us about any changes.",
+        "source_sentence_id": "s139",
+        "symbol_id": "2398"
+      },
+      {
+        "id": "L111",
+        "text": "Change your payment amounts.",
+        "source_sentence_id": "s141",
+        "symbol_id": "4630"
+      },
+      {
+        "id": "L112",
+        "text": "Get your bill by e‑mail.",
+        "source_sentence_id": "s143",
+        "symbol_id": "27355"
+      }
+    ],
+    "checks": [
+      {
+        "rule": "P1",
+        "passed": true,
+        "line_ids": [],
+        "failed_fact_ids": [],
+        "details": []
+      },
+      {
+        "rule": "P2",
+        "passed": false,
+        "line_ids": [
+          "L31",
+          "L75",
+          "L79",
+          "L81"
+        ],
+        "failed_fact_ids": [],
+        "details": [
+          "L31 has a sentence of 18 words (limit 15)",
+          "L75 has a sentence of 19 words (limit 15)",
+          "L79 has a sentence of 25 words (limit 15)",
+          "L81 has a sentence of 18 words (limit 15)"
+        ]
+      },
+      {
+        "rule": "P3",
+        "passed": false,
+        "line_ids": [
+          "L13",
+          "L15",
+          "L16",
+          "L17",
+          "L19",
+          "L20",
+          "L22",
+          "L23",
+          "L25",
+          "L28",
+          "L31",
+          "L33",
+          "L36",
+          "L52",
+          "L53",
+          "L73",
+          "L74",
+          "L75",
+          "L77",
+          "L79",
+          "L81",
+          "L83",
+          "L86",
+          "L87",
+          "L90",
+          "L91",
+          "L96",
+          "L97",
+          "L98",
+          "L105"
+        ],
+        "failed_fact_ids": [],
+        "details": [
+          "L13 has a sentence with 2 main clauses (limit 1)",
+          "L15 has a sentence with 2 main clauses (limit 1)",
+          "L16 has a sentence with 2 main clauses (limit 1)",
+          "L17 has a sentence with 2 main clauses (limit 1)",
+          "L19 has a sentence with 3 main clauses (limit 1)",
+          "L20 has a sentence with 2 main clauses (limit 1)",
+          "L22 has a sentence with 2 main clauses (limit 1)",
+          "L23 has a sentence with 2 main clauses (limit 1)",
+          "L25 has a sentence with 3 main clauses (limit 1)",
+          "L28 has a sentence with 3 main clauses (limit 1)",
+          "L31 has a sentence with 2 main clauses (limit 1)",
+          "L33 has a sentence with 2 main clauses (limit 1)",
+          "L36 has a sentence with 2 main clauses (limit 1)",
+          "L52 has a sentence with 2 main clauses (limit 1)",
+          "L53 has a sentence with 2 main clauses (limit 1)",
+          "L73 has a sentence with 3 main clauses (limit 1)",
+          "L74 has a sentence with 2 main clauses (limit 1)",
+          "L75 has a sentence with 3 main clauses (limit 1)",
+          "L77 has a sentence with 3 main clauses (limit 1)",
+          "L79 has a sentence with 2 main clauses (limit 1)",
+          "L81 has a sentence with 2 main clauses (limit 1)",
+          "L83 has a sentence with 2 main clauses (limit 1)",
+          "L86 has a sentence with 2 main clauses (limit 1)",
+          "L87 has a sentence with 3 main clauses (limit 1)",
+          "L90 has a sentence with 2 main clauses (limit 1)",
+          "L91 has a sentence with 2 main clauses (limit 1)",
+          "L96 has a sentence with 2 main clauses (limit 1)",
+          "L97 has a sentence with 3 main clauses (limit 1)",
+          "L98 has a sentence with 2 main clauses (limit 1)",
+          "L105 has a sentence with 2 main clauses (limit 1)"
+        ]
+      },
+      {
+        "rule": "P4",
+        "passed": true,
+        "line_ids": [],
+        "failed_fact_ids": [],
+        "details": []
+      },
+      {
+        "rule": "P5",
+        "passed": false,
+        "line_ids": [
+          "L12",
+          "L17",
+          "L19",
+          "L24",
+          "L25",
+          "L31",
+          "L36",
+          "L44",
+          "L53",
+          "L56",
+          "L58",
+          "L59",
+          "L61",
+          "L72",
+          "L73",
+          "L75",
+          "L77",
+          "L81",
+          "L86",
+          "L87",
+          "L88",
+          "L89",
+          "L90",
+          "L91",
+          "L98",
+          "L101",
+          "L103",
+          "L104",
+          "L112"
+        ],
+        "failed_fact_ids": [],
+        "details": [
+          "L12 has 1 words that are not common and not explained",
+          "L17 has 1 words that are not common and not explained",
+          "L19 has 1 words that are not common and not explained",
+          "L24 has 1 words that are not common and not explained",
+          "L25 has 1 words that are not common and not explained",
+          "L31 has 1 words that are not common and not explained",
+          "L36 has 1 words that are not common and not explained",
+          "L44 has 1 words that are not common and not explained",
+          "L53 has 1 words that are not common and not explained",
+          "L56 has 1 words that are not common and not explained",
+          "L58 has 1 words that are not common and not explained",
+          "L59 has 1 words that are not common and not explained",
+          "L61 has 1 words that are not common and not explained",
+          "L72 has 1 words that are not common and not explained",
+          "L73 has 1 words that are not common and not explained",
+          "L75 has 1 words that are not common and not explained",
+          "L77 has 1 words that are not common and not explained",
+          "L81 has 1 words that are not common and not explained",
+          "L86 has 1 words that are not common and not explained",
+          "L87 has 1 words that are not common and not explained",
+          "L88 has 1 words that are not common and not explained",
+          "L89 has 1 words that are not common and not explained",
+          "L90 has 2 words that are not common and not explained",
+          "L91 has 1 words that are not common and not explained",
+          "L98 has 1 words that are not common and not explained",
+          "L101 has 1 words that are not common and not explained",
+          "L103 has 1 words that are not common and not explained",
+          "L104 has 1 words that are not common and not explained",
+          "L112 has 1 words that are not common and not explained"
+        ]
+      },
+      {
+        "rule": "P6",
+        "passed": true,
+        "line_ids": [],
+        "failed_fact_ids": [],
+        "details": []
+      },
+      {
+        "rule": "P7",
+        "passed": false,
+        "line_ids": [
+          "L8",
+          "L68"
+        ],
+        "failed_fact_ids": [],
+        "details": [
+          "L8 has 2 abbreviations that are not explained",
+          "L68 has 2 abbreviations that are not explained"
+        ]
+      },
+      {
+        "rule": "P8",
+        "passed": true,
+        "line_ids": [],
+        "failed_fact_ids": [],
+        "details": []
+      },
+      {
+        "rule": "P9",
+        "passed": false,
+        "line_ids": [
+          "L113",
+          "L27",
+          "L114",
+          "L115",
+          "L28",
+          "L116",
+          "L56",
+          "L57",
+          "L58",
+          "L59",
+          "L75",
+          "L97",
+          "L117",
+          "L101",
+          "L102",
+          "L103",
+          "L104"
+        ],
+        "failed_fact_ids": [],
+        "details": [
+          "L113 meaning: Leaves out 'please pay online now if you can'.",
+          "L27 meaning: Leaves out 'you can pick a payment date'.",
+          "L114 meaning: Leaves out 'you won’t forget in future'.",
+          "L115 meaning: Leaves out 'you won’t forget' and 'pick a date'.",
+          "L28 meaning: Leaves out 'things have changed' and 'we’ll update'.",
+          "L116 meaning: Leaves out 'if you think your bill is wrong'.",
+          "L56 meaning: Adds 'Citizen’s Advice Manchester' not in source.",
+          "L57 meaning: Adds 'Money Adviser Network' not in source.",
+          "L58 meaning: Adds 'StepChange Debt Charity' not in source.",
+          "L59 meaning: Adds 'National Debtline' not in source.",
+          "L75 meaning: Leaves out 'which is' and the amount owed.",
+          "L97 meaning: Leaves out 'things have changed' and 'we’ll update'.",
+          "L117 meaning: Leaves out 'if you think your bill is wrong'.",
+          "L101 meaning: Adds 'Citizen’s Advice Manchester' not in source.",
+          "L102 meaning: Adds 'Money Adviser Network' not in source.",
+          "L103 meaning: Adds 'StepChange Debt Charity' not in source.",
+          "L104 meaning: Adds 'National Debtline' not in source."
+        ]
+      },
+      {
+        "rule": "P10",
+        "passed": false,
+        "line_ids": [
+          "L55",
+          "L100"
+        ],
+        "failed_fact_ids": [],
+        "details": [
+          "L55 advice: Tells the reader to get advice, but the sentence only recommends.",
+          "L100 advice: Tells the reader to get advice, but the sentence only recommends."
+        ]
+      }
+    ],
+    "attempts": 3,
+    "notice": "This is a simplified version of your letter. The original letter is the official one.",
+    "judgeAvailable": true,
+    "models": [
+      {
+        "task": "rewrite",
+        "attempt": 1,
+        "provider": "bedrock",
+        "model": "openai.gpt-oss-120b-1:0"
+      },
+      {
+        "task": "judge",
+        "attempt": 1,
+        "provider": "bedrock",
+        "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+      },
+      {
+        "task": "regenerate",
+        "attempt": 1,
+        "provider": "bedrock",
+        "model": "openai.gpt-oss-120b-1:0"
+      },
+      {
+        "task": "judge",
+        "attempt": 2,
+        "provider": "bedrock",
+        "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+      },
+      {
+        "task": "regenerate",
+        "attempt": 2,
+        "provider": "bedrock",
+        "model": "openai.gpt-oss-120b-1:0"
+      },
+      {
+        "task": "judge",
+        "attempt": 3,
+        "provider": "bedrock",
+        "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+      }
+    ],
+    "actionSynonyms": [
+      {
+        "word": "contact",
+        "counts_as": "phone"
+      },
+      {
+        "word": "call",
+        "counts_as": "phone"
+      },
+      {
+        "word": "ring",
+        "counts_as": "phone"
+      },
+      {
+        "word": "telephone",
+        "counts_as": "phone"
+      },
+      {
+        "word": "submit",
+        "counts_as": "send"
+      },
+      {
+        "word": "return",
+        "counts_as": "send back"
+      },
+      {
+        "word": "complete",
+        "counts_as": "fill in"
+      },
+      {
+        "word": "fill out",
+        "counts_as": "fill in"
+      },
+      {
+        "word": "provide",
+        "counts_as": "give"
+      },
+      {
+        "word": "inform",
+        "counts_as": "tell"
+      },
+      {
+        "word": "notify",
+        "counts_as": "tell"
+      },
+      {
+        "word": "make a payment",
+        "counts_as": "pay"
+      },
+      {
+        "word": "make an application",
+        "counts_as": "apply"
+      },
+      {
+        "word": "respond",
+        "counts_as": "reply"
+      },
+      {
+        "word": "write back",
+        "counts_as": "reply"
+      },
+      {
+        "word": "attend",
+        "counts_as": "go"
+      },
+      {
+        "word": "request",
+        "counts_as": "ask"
+      },
+      {
+        "word": "obtain",
+        "counts_as": "get"
+      },
+      {
+        "word": "retain",
+        "counts_as": "keep"
+      }
+    ],
+    "lineFacts": [
+      {
+        "line_id": "L3",
+        "fact_id": "k2",
+        "start": 13,
+        "end": 26
+      },
+      {
+        "line_id": "L5",
+        "fact_id": "k3",
+        "start": 11,
+        "end": 29
+      },
+      {
+        "line_id": "L7",
+        "fact_id": "k4",
+        "start": 7,
+        "end": 20
+      },
+      {
+        "line_id": "L8",
+        "fact_id": "k5",
+        "start": 31,
+        "end": 38
+      },
+      {
+        "line_id": "L9",
+        "fact_id": "k6",
+        "start": 6,
+        "end": 17
+      },
+      {
+        "line_id": "L10",
+        "fact_id": "k7",
+        "start": 18,
+        "end": 27
+      },
+      {
+        "line_id": "L14",
+        "fact_id": "k8",
+        "start": 9,
+        "end": 34
+      },
+      {
+        "line_id": "L14",
+        "fact_id": "k9",
+        "start": 16,
+        "end": 23
+      },
+      {
+        "line_id": "L14",
+        "fact_id": "k10",
+        "start": 27,
+        "end": 34
+      },
+      {
+        "line_id": "L15",
+        "fact_id": "k11",
+        "start": 0,
+        "end": 21
+      },
+      {
+        "line_id": "L17",
+        "fact_id": "k12",
+        "start": 0,
+        "end": 31
+      },
+      {
+        "line_id": "L19",
+        "fact_id": "k13",
+        "start": 40,
+        "end": 61
+      },
+      {
+        "line_id": "L26",
+        "fact_id": "k14",
+        "start": 0,
+        "end": 27
+      },
+      {
+        "line_id": "L115",
+        "fact_id": "k15",
+        "start": 0,
+        "end": 47
+      },
+      {
+        "line_id": "L115",
+        "fact_id": "k16",
+        "start": 22,
+        "end": 47
+      },
+      {
+        "line_id": "L28",
+        "fact_id": "k17",
+        "start": 33,
+        "end": 47
+      },
+      {
+        "line_id": "L29",
+        "fact_id": "k18",
+        "start": 0,
+        "end": 14
+      },
+      {
+        "line_id": "L31",
+        "fact_id": "k19",
+        "start": 9,
+        "end": 19
+      },
+      {
+        "line_id": "L31",
+        "fact_id": "k20",
+        "start": 38,
+        "end": 84
+      },
+      {
+        "line_id": "L33",
+        "fact_id": "k21",
+        "start": 0,
+        "end": 74
+      },
+      {
+        "line_id": "L35",
+        "fact_id": "k22",
+        "start": 17,
+        "end": 30
+      },
+      {
+        "line_id": "L37",
+        "fact_id": "k23",
+        "start": 0,
+        "end": 13
+      },
+      {
+        "line_id": "L39",
+        "fact_id": "k24",
+        "start": 0,
+        "end": 29
+      },
+      {
+        "line_id": "L40",
+        "fact_id": "k25",
+        "start": 0,
+        "end": 18
+      },
+      {
+        "line_id": "L41",
+        "fact_id": "k26",
+        "start": 0,
+        "end": 25
+      },
+      {
+        "line_id": "L42",
+        "fact_id": "k27",
+        "start": 0,
+        "end": 27
+      },
+      {
+        "line_id": "L44",
+        "fact_id": "k28",
+        "start": 0,
+        "end": 23
+      },
+      {
+        "line_id": "L45",
+        "fact_id": "k29",
+        "start": 0,
+        "end": 26
+      },
+      {
+        "line_id": "L47",
+        "fact_id": "k1",
+        "start": 0,
+        "end": 42
+      },
+      {
+        "line_id": "L47",
+        "fact_id": "k30",
+        "start": 5,
+        "end": 18
+      },
+      {
+        "line_id": "L47",
+        "fact_id": "k31",
+        "start": 20,
+        "end": 23
+      },
+      {
+        "line_id": "L47",
+        "fact_id": "k32",
+        "start": 24,
+        "end": 27
+      },
+      {
+        "line_id": "L47",
+        "fact_id": "k33",
+        "start": 36,
+        "end": 42
+      },
+      {
+        "line_id": "L48",
+        "fact_id": "k34",
+        "start": 0,
+        "end": 23
+      },
+      {
+        "line_id": "L49",
+        "fact_id": "k35",
+        "start": 0,
+        "end": 20
+      },
+      {
+        "line_id": "L52",
+        "fact_id": "k36",
+        "start": 0,
+        "end": 3
+      },
+      {
+        "line_id": "L53",
+        "fact_id": "k38",
+        "start": 0,
+        "end": 12
+      },
+      {
+        "line_id": "L56",
+        "fact_id": "k39",
+        "start": 36,
+        "end": 49
+      },
+      {
+        "line_id": "L56",
+        "fact_id": "k40",
+        "start": 54,
+        "end": 67
+      },
+      {
+        "line_id": "L57",
+        "fact_id": "k41",
+        "start": 30,
+        "end": 43
+      },
+      {
+        "line_id": "L58",
+        "fact_id": "k42",
+        "start": 32,
+        "end": 45
+      },
+      {
+        "line_id": "L59",
+        "fact_id": "k43",
+        "start": 26,
+        "end": 39
+      },
+      {
+        "line_id": "L63",
+        "fact_id": "k44",
+        "start": 0,
+        "end": 18
+      },
+      {
+        "line_id": "L63",
+        "fact_id": "k45",
+        "start": 5,
+        "end": 18
+      },
+      {
+        "line_id": "L65",
+        "fact_id": "k46",
+        "start": 11,
+        "end": 29
+      },
+      {
+        "line_id": "L67",
+        "fact_id": "k47",
+        "start": 7,
+        "end": 20
+      },
+      {
+        "line_id": "L68",
+        "fact_id": "k48",
+        "start": 31,
+        "end": 38
+      },
+      {
+        "line_id": "L69",
+        "fact_id": "k49",
+        "start": 6,
+        "end": 17
+      },
+      {
+        "line_id": "L70",
+        "fact_id": "k50",
+        "start": 18,
+        "end": 27
+      },
+      {
+        "line_id": "L74",
+        "fact_id": "k51",
+        "start": 0,
+        "end": 47
+      },
+      {
+        "line_id": "L75",
+        "fact_id": "k52",
+        "start": 14,
+        "end": 41
+      },
+      {
+        "line_id": "L77",
+        "fact_id": "k53",
+        "start": 44,
+        "end": 58
+      },
+      {
+        "line_id": "L79",
+        "fact_id": "k54",
+        "start": 0,
+        "end": 122
+      },
+      {
+        "line_id": "L79",
+        "fact_id": "k55",
+        "start": 97,
+        "end": 122
+      },
+      {
+        "line_id": "L80",
+        "fact_id": "k56",
+        "start": 0,
+        "end": 14
+      },
+      {
+        "line_id": "L81",
+        "fact_id": "k57",
+        "start": 9,
+        "end": 19
+      },
+      {
+        "line_id": "L81",
+        "fact_id": "k58",
+        "start": 38,
+        "end": 84
+      },
+      {
+        "line_id": "L83",
+        "fact_id": "k59",
+        "start": 0,
+        "end": 45
+      },
+      {
+        "line_id": "L84",
+        "fact_id": "k60",
+        "start": 0,
+        "end": 42
+      },
+      {
+        "line_id": "L84",
+        "fact_id": "k61",
+        "start": 5,
+        "end": 18
+      },
+      {
+        "line_id": "L84",
+        "fact_id": "k62",
+        "start": 20,
+        "end": 23
+      },
+      {
+        "line_id": "L84",
+        "fact_id": "k63",
+        "start": 24,
+        "end": 27
+      },
+      {
+        "line_id": "L84",
+        "fact_id": "k64",
+        "start": 36,
+        "end": 42
+      },
+      {
+        "line_id": "L85",
+        "fact_id": "k65",
+        "start": 0,
+        "end": 24
+      },
+      {
+        "line_id": "L86",
+        "fact_id": "k66",
+        "start": 0,
+        "end": 5
+      },
+      {
+        "line_id": "L88",
+        "fact_id": "k67",
+        "start": 0,
+        "end": 68
+      },
+      {
+        "line_id": "L89",
+        "fact_id": "k68",
+        "start": 0,
+        "end": 44
+      },
+      {
+        "line_id": "L90",
+        "fact_id": "k69",
+        "start": 0,
+        "end": 21
+      },
+      {
+        "line_id": "L91",
+        "fact_id": "k70",
+        "start": 0,
+        "end": 12
+      },
+      {
+        "line_id": "L92",
+        "fact_id": "k71",
+        "start": 0,
+        "end": 34
+      },
+      {
+        "line_id": "L93",
+        "fact_id": "k72",
+        "start": 0,
+        "end": 20
+      },
+      {
+        "line_id": "L96",
+        "fact_id": "k73",
+        "start": 0,
+        "end": 3
+      },
+      {
+        "line_id": "L97",
+        "fact_id": "k74",
+        "start": 33,
+        "end": 47
+      },
+      {
+        "line_id": "L98",
+        "fact_id": "k75",
+        "start": 0,
+        "end": 12
+      },
+      {
+        "line_id": "L101",
+        "fact_id": "k76",
+        "start": 36,
+        "end": 49
+      },
+      {
+        "line_id": "L101",
+        "fact_id": "k77",
+        "start": 54,
+        "end": 67
+      },
+      {
+        "line_id": "L102",
+        "fact_id": "k78",
+        "start": 30,
+        "end": 43
+      },
+      {
+        "line_id": "L103",
+        "fact_id": "k79",
+        "start": 32,
+        "end": 45
+      },
+      {
+        "line_id": "L104",
+        "fact_id": "k80",
+        "start": 26,
+        "end": 39
+      },
+      {
+        "line_id": "L105",
+        "fact_id": "k81",
+        "start": 0,
+        "end": 74
+      },
+      {
+        "line_id": "L106",
+        "fact_id": "k82",
+        "start": 17,
+        "end": 30
+      },
+      {
+        "line_id": "L107",
+        "fact_id": "k83",
+        "start": 0,
+        "end": 13
+      },
+      {
+        "line_id": "L108",
+        "fact_id": "k84",
+        "start": 0,
+        "end": 29
+      },
+      {
+        "line_id": "L109",
+        "fact_id": "k85",
+        "start": 0,
+        "end": 18
+      },
+      {
+        "line_id": "L110",
+        "fact_id": "k86",
+        "start": 0,
+        "end": 25
+      },
+      {
+        "line_id": "L111",
+        "fact_id": "k87",
+        "start": 0,
+        "end": 27
+      },
+      {
+        "line_id": "L112",
+        "fact_id": "k88",
+        "start": 0,
+        "end": 23
+      }
+    ]
+  }
+}

@@ -2,7 +2,7 @@
   "id": "planning-appeal-notification-letter",
   "label": "Planning appeal notice (Planning Inspectorate)",
   "source": "planning-appeal-notification-letter.txt",
-  "recordedAt": "2026-11-11T21:14:58.917Z",
+  "recordedAt": "2026-11-11T22:27:17.926Z",
   "models": [
     "bedrock:openai.gpt-oss-120b-1:0",
     "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
@@ -14,258 +14,306 @@
       "sentences": [
         {
           "id": "s1",
-          "text": "TOWN AND COUNTRY PLANNING ACT 1990\nAPPEAL UNDER SECTION 78",
+          "text": "TOWN AND COUNTRY PLANNING ACT 1990",
           "start": 0,
-          "end": 58
+          "end": 34
         },
         {
           "id": "s2",
+          "text": "APPEAL UNDER SECTION 78",
+          "start": 35,
+          "end": 58
+        },
+        {
+          "id": "s3",
           "text": "Site Address:",
           "start": 60,
           "end": 73
         },
         {
-          "id": "s3",
-          "text": "[Insert here]\nDescription of development:",
-          "start": 74,
-          "end": 115
-        },
-        {
           "id": "s4",
-          "text": "[Insert here]\nApplication reference:",
-          "start": 116,
-          "end": 152
+          "text": "[Insert here]",
+          "start": 74,
+          "end": 87
         },
         {
           "id": "s5",
-          "text": "[Insert here]\nAppellant’s name:",
-          "start": 153,
-          "end": 184
+          "text": "Description of development:",
+          "start": 88,
+          "end": 115
         },
         {
           "id": "s6",
-          "text": "[Insert here]\nAppeal reference:",
-          "start": 185,
-          "end": 216
+          "text": "[Insert here]",
+          "start": 116,
+          "end": 129
         },
         {
           "id": "s7",
-          "text": "[Insert here]\nAppeal start date:",
-          "start": 217,
-          "end": 249
+          "text": "Application reference:",
+          "start": 130,
+          "end": 152
         },
         {
           "id": "s8",
+          "text": "[Insert here]",
+          "start": 153,
+          "end": 166
+        },
+        {
+          "id": "s9",
+          "text": "Appellant’s name:",
+          "start": 167,
+          "end": 184
+        },
+        {
+          "id": "s10",
+          "text": "[Insert here]",
+          "start": 185,
+          "end": 198
+        },
+        {
+          "id": "s11",
+          "text": "Appeal reference:",
+          "start": 199,
+          "end": 216
+        },
+        {
+          "id": "s12",
+          "text": "[Insert here]",
+          "start": 217,
+          "end": 230
+        },
+        {
+          "id": "s13",
+          "text": "Appeal start date:",
+          "start": 231,
+          "end": 249
+        },
+        {
+          "id": "s14",
           "text": "[Insert here]",
           "start": 250,
           "end": 263
         },
         {
-          "id": "s9",
+          "id": "s15",
           "text": "I refer to the above details.",
           "start": 265,
           "end": 294
         },
         {
-          "id": "s10",
+          "id": "s16",
           "text": "An appeal has been made to the Secretary of State against the decision of [insert LPA name] to [insert reason for appeal, i.e. refuse to grant planning permission].",
           "start": 296,
           "end": 460
         },
         {
-          "id": "s11",
+          "id": "s17",
           "text": "*The appeal will be determined on the basis of written representations.",
           "start": 462,
           "end": 533
         },
         {
-          "id": "s12",
+          "id": "s18",
           "text": "The procedure to be followed is set out in Part 2 of The Town and Country Planning (Appeals) (Written Representations Procedure) (England) Regulations 2009, as amended.",
           "start": 534,
           "end": 702
         },
         {
-          "id": "s13",
+          "id": "s19",
           "text": "*The appeal will be determined on the basis of a hearing.",
           "start": 704,
           "end": 761
         },
         {
-          "id": "s14",
+          "id": "s20",
           "text": "The procedure to be followed is set out in The Town and Country Planning (Hearings Procedure) (England) Rules 2000, as amended.",
           "start": 763,
           "end": 890
         },
         {
-          "id": "s15",
+          "id": "s21",
           "text": "*The appeal will be determined on the basis of an inquiry.",
           "start": 892,
           "end": 950
         },
         {
-          "id": "s16",
+          "id": "s22",
           "text": "The procedure to be followed is set out in the Town and Country Planning Appeals (Determination by Inspectors) (Inquiry Procedure) (England) Rules 2000, as amended.",
           "start": 952,
           "end": 1116
         },
         {
-          "id": "s17",
+          "id": "s23",
           "text": "For any group or organisation who wish to take an active part in the Inquiry, the opportunity is available to apply for what is known as Rule 6 status.",
           "start": 1118,
           "end": 1269
         },
         {
-          "id": "s18",
+          "id": "s24",
           "text": "Although unusual, there is also scope for interested individuals to take part on the same basis.",
           "start": 1271,
           "end": 1367
         },
         {
-          "id": "s19",
+          "id": "s25",
           "text": "Rule 6 status means that you would be able to present your evidence on a formal basis and cross examine the evidence of others.",
           "start": 1370,
           "end": 1497
         },
         {
-          "id": "s20",
+          "id": "s26",
           "text": "You can find guidance at the following link:",
           "start": 1499,
           "end": 1543
         },
         {
-          "id": "s21",
+          "id": "s27",
           "text": "https://www.gov.uk/government/publications/apply-for-rule-6-status-on-a-planning-appeal-or-called-in-application",
           "start": 1545,
           "end": 1657
         },
         {
-          "id": "s22",
+          "id": "s28",
           "text": "Arrangements for the Inquiry are currently being finalised by the Planning Inspectorate.",
           "start": 1659,
           "end": 1747
         },
         {
-          "id": "s23",
+          "id": "s29",
           "text": "These will include a pre-Inquiry conference call with the lead parties to deal with procedural and administrative matters, including how the evidence will be heard.",
           "start": 1749,
           "end": 1913
         },
         {
-          "id": "s24",
+          "id": "s30",
           "text": "As a Rule 6 party, it is anticipated that you would also be a part of that process.",
           "start": 1915,
           "end": 1998
         },
         {
-          "id": "s25",
+          "id": "s31",
           "text": "If, having read the above guidance, you wish to apply for Rule 6 status and/or have any related questions, you should contact the Planning Inspectorate immediately.",
           "start": 2000,
           "end": 2164
         },
         {
-          "id": "s26",
+          "id": "s32",
           "text": "If you are interested but are unable to access the guidance electronically, again, you should contact the Planning Inspectorate who will try and assist.",
           "start": 2166,
           "end": 2318
         },
         {
-          "id": "s27",
+          "id": "s33",
           "text": "If, having read the above guidance, you wish to apply for Rule 6 status it is essential that you contact the Planning Inspectorate immediately.",
           "start": 2320,
           "end": 2463
         },
         {
-          "id": "s28",
+          "id": "s34",
           "text": "[*Delete as appropriate]",
           "start": 2465,
           "end": 2489
         },
         {
-          "id": "s29",
+          "id": "s35",
           "text": "We have forwarded all the representations made to us on the application to the Planning Inspectorate and the appellant.",
           "start": 2491,
           "end": 2610
         },
         {
-          "id": "s30",
+          "id": "s36",
           "text": "These will be considered by the Inspector when determining the appeal.",
           "start": 2611,
           "end": 2681
         },
         {
-          "id": "s31",
+          "id": "s37",
           "text": "If you wish to make comments, or modify/withdraw your previous representation, you can do so online at https://appeal-planning-decision.service.gov.uk/comment-planning-appeal/enter-appeal-reference.",
           "start": 2683,
           "end": 2881
         },
         {
-          "id": "s32",
+          "id": "s38",
           "text": "In deciding whether to provide further comments, you are advised that the         appellant may have submitted additional evidence that you have not previously seen.",
           "start": 2883,
           "end": 3048
         },
         {
-          "id": "s33",
+          "id": "s39",
           "text": "Your comments can address such matters.",
           "start": 3050,
           "end": 3089
         },
         {
-          "id": "s34",
+          "id": "s40",
           "text": "If you do not have access to the internet, you can send your comments to:",
           "start": 3091,
           "end": 3164
         },
         {
-          "id": "s35",
-          "text": "The Planning Inspectorate\nc/o QUADIENT\n69 Buckingham Avenue\nSlough\nSL1 4PN",
+          "id": "s41",
+          "text": "The Planning Inspectorate\nc/o QUADIENT",
           "start": 3166,
+          "end": 3204
+        },
+        {
+          "id": "s42",
+          "text": "69 Buckingham Avenue\nSlough",
+          "start": 3205,
+          "end": 3232
+        },
+        {
+          "id": "s43",
+          "text": "SL1 4PN",
+          "start": 3233,
           "end": 3240
         },
         {
-          "id": "s36",
+          "id": "s44",
           "text": "All representations must be received by [insert date 5 weeks from the start date].",
           "start": 3242,
           "end": 3324
         },
         {
-          "id": "s37",
+          "id": "s45",
           "text": "Any representations submitted after the deadline will not usually be considered and will be returned.",
           "start": 3326,
           "end": 3427
         },
         {
-          "id": "s38",
+          "id": "s46",
           "text": "The Planning Inspectorate does not acknowledge representations.",
           "start": 3428,
           "end": 3491
         },
         {
-          "id": "s39",
+          "id": "s47",
           "text": "All representations must quote the appeal reference.",
           "start": 3492,
           "end": 3544
         },
         {
-          "id": "s40",
+          "id": "s48",
           "text": "Please note that any representations you submit to the Planning Inspectorate will be copied to the appellant and this local planning authority and will be considered by the Inspector when determining the appeal.",
           "start": 3546,
           "end": 3757
         },
         {
-          "id": "s41",
+          "id": "s49",
           "text": "The appeal documents are available for inspection at [insert venue] between [insert times between which documents can be inspected].",
           "start": 3759,
           "end": 3891
         },
         {
-          "id": "s42",
+          "id": "s50",
           "text": "You can get a copy of one of the Planning Inspectorate’s “Guide to taking part in planning appeals” booklets free of charge from GOV.UK at https://www.gov.uk/government/collections/taking-part-in-a-planning-listed-building-or-enforcement-appeal or from us.",
           "start": 3893,
           "end": 4149
         },
         {
-          "id": "s43",
+          "id": "s51",
           "text": "When made, the decision will be published online at https://appeal-planning-decision.service.gov.uk/comment-planning-appeal/enter-appeal-reference.",
           "start": 4151,
           "end": 4298
@@ -289,7 +337,7 @@
         "normalised": "2009",
         "start": 685,
         "end": 689,
-        "sentence_id": "s12"
+        "sentence_id": "s18"
       },
       {
         "id": "k3",
@@ -298,7 +346,7 @@
         "normalised": "phone|inspectorate|",
         "start": 2107,
         "end": 2163,
-        "sentence_id": "s25"
+        "sentence_id": "s31"
       },
       {
         "id": "k4",
@@ -307,7 +355,7 @@
         "normalised": "phone|inspectorate|",
         "start": 2242,
         "end": 2317,
-        "sentence_id": "s26"
+        "sentence_id": "s32"
       },
       {
         "id": "k5",
@@ -316,7 +364,7 @@
         "normalised": "SL14PN|69 buckingham avenue",
         "start": 3205,
         "end": 3240,
-        "sentence_id": "s35"
+        "sentence_id": "s42"
       },
       {
         "id": "k6",
@@ -325,248 +373,350 @@
         "normalised": "5 weeks",
         "start": 3295,
         "end": 3302,
-        "sentence_id": "s36"
+        "sentence_id": "s44"
       }
     ],
     "lines": [
       {
         "id": "L1",
-        "text": "This is an appeal under Section 78 of the Town and Country Planning Act 1990.",
+        "text": "The Town and Country Planning Act 1990.",
         "source_sentence_id": "s1",
         "symbol_id": "11473"
       },
       {
         "id": "L2",
-        "text": "Site address:",
+        "text": "Appeal under Section 78.",
         "source_sentence_id": "s2",
-        "symbol_id": "2317"
+        "symbol_id": "2398"
       },
       {
         "id": "L3",
-        "text": "Description of development:",
+        "text": "Site address:",
         "source_sentence_id": "s3",
-        "symbol_id": "24739"
+        "symbol_id": "2317"
       },
       {
         "id": "L4",
-        "text": "Application reference:",
+        "text": "[Insert here].",
         "source_sentence_id": "s4",
         "symbol_id": null
       },
       {
         "id": "L5",
-        "text": "Appellant’s name:",
+        "text": "Description of development:",
         "source_sentence_id": "s5",
-        "symbol_id": "34557"
+        "symbol_id": "24739"
       },
       {
         "id": "L6",
-        "text": "Appeal reference:",
+        "text": "[Insert here].",
         "source_sentence_id": "s6",
         "symbol_id": null
       },
       {
         "id": "L7",
-        "text": "Appeal start date:",
+        "text": "Application reference:",
         "source_sentence_id": "s7",
-        "symbol_id": "32488"
-      },
-      {
-        "id": "L8",
-        "text": "I refer to the above details.",
-        "source_sentence_id": "s9",
-        "symbol_id": "2398"
-      },
-      {
-        "id": "L9",
-        "text": "You have appealed to the Secretary of State against the decision of the local planning authority.",
-        "source_sentence_id": "s10",
-        "symbol_id": "6963"
-      },
-      {
-        "id": "L10",
-        "text": "The appeal will be decided by written representations.",
-        "source_sentence_id": "s11",
-        "symbol_id": "2398"
-      },
-      {
-        "id": "L11",
-        "text": "The procedure is set out in Part 2 of the 2009 Written Representations Regulations.",
-        "source_sentence_id": "s12",
-        "symbol_id": "34779"
-      },
-      {
-        "id": "L12",
-        "text": "The appeal will be decided by a hearing.",
-        "source_sentence_id": "s13",
-        "symbol_id": "8147"
-      },
-      {
-        "id": "L13",
-        "text": "The procedure is set out in the 2000 Hearings Procedure Rules.",
-        "source_sentence_id": "s14",
-        "symbol_id": "34779"
-      },
-      {
-        "id": "L14",
-        "text": "The appeal will be decided by an inquiry.",
-        "source_sentence_id": "s15",
-        "symbol_id": "15322"
-      },
-      {
-        "id": "L15",
-        "text": "The procedure is set out in the 2000 Inquiry Procedure Rules.",
-        "source_sentence_id": "s16",
-        "symbol_id": "34779"
-      },
-      {
-        "id": "L16",
-        "text": "Groups or organisations can apply for Rule 6 status to take part in the inquiry.",
-        "source_sentence_id": "s17",
-        "symbol_id": "7116"
-      },
-      {
-        "id": "L17",
-        "text": "Individuals can also take part on the same basis.",
-        "source_sentence_id": "s18",
-        "symbol_id": "34557"
-      },
-      {
-        "id": "L18",
-        "text": "Rule 6 status lets you present evidence formally and cross‑examine others.",
-        "source_sentence_id": "s19",
         "symbol_id": null
       },
       {
-        "id": "L19",
-        "text": "You can find guidance at the link provided.",
-        "source_sentence_id": "s20",
-        "symbol_id": "39888"
+        "id": "L8",
+        "text": "[Insert here].",
+        "source_sentence_id": "s8",
+        "symbol_id": null
       },
       {
-        "id": "L20",
-        "text": "Arrangements for the inquiry are being finalised by the Planning Inspectorate.",
-        "source_sentence_id": "s22",
+        "id": "L9",
+        "text": "Appellant’s name:",
+        "source_sentence_id": "s9",
+        "symbol_id": "34557"
+      },
+      {
+        "id": "L10",
+        "text": "[Insert here].",
+        "source_sentence_id": "s10",
+        "symbol_id": null
+      },
+      {
+        "id": "L11",
+        "text": "Appeal reference:",
+        "source_sentence_id": "s11",
+        "symbol_id": null
+      },
+      {
+        "id": "L12",
+        "text": "[Insert here].",
+        "source_sentence_id": "s12",
+        "symbol_id": null
+      },
+      {
+        "id": "L13",
+        "text": "Appeal start date:",
+        "source_sentence_id": "s13",
         "symbol_id": "32488"
       },
       {
-        "id": "L21",
-        "text": "A pre‑inquiry conference call will be held with lead parties.",
-        "source_sentence_id": "s23",
-        "symbol_id": "2791"
+        "id": "L14",
+        "text": "[Insert here].",
+        "source_sentence_id": "s14",
+        "symbol_id": null
       },
       {
-        "id": "L22",
-        "text": "As a Rule 6 party, you would also join that process.",
-        "source_sentence_id": "s24",
-        "symbol_id": "8207"
+        "id": "L15",
+        "text": "I refer to the above details.",
+        "source_sentence_id": "s15",
+        "symbol_id": "6963"
       },
       {
-        "id": "L23",
-        "text": "You should contact the Planning Inspectorate immediately.",
-        "source_sentence_id": "s25",
-        "symbol_id": "2791"
+        "id": "L16",
+        "text": "The council has made an appeal to the Secretary of State.",
+        "source_sentence_id": "s16",
+        "symbol_id": null
       },
       {
-        "id": "L24",
-        "text": "If you cannot access the guidance online, you should contact the Planning Inspectorate who will try and assist.",
-        "source_sentence_id": "s26",
-        "symbol_id": "4570"
+        "id": "L17",
+        "text": "The appeal challenges the decision of [insert LPA name].",
+        "source_sentence_id": "s16",
+        "symbol_id": "37861"
       },
       {
-        "id": "L25",
-        "text": "If you wish to apply for Rule 6 status, you must contact the Planning Inspectorate immediately.",
-        "source_sentence_id": "s27",
-        "symbol_id": "2791"
-      },
-      {
-        "id": "L26",
-        "text": "We have forwarded all representations to the Planning Inspectorate and the appellant.",
-        "source_sentence_id": "s29",
+        "id": "L18",
+        "text": "The appeal will be decided by written representations.",
+        "source_sentence_id": "s17",
         "symbol_id": "2398"
       },
       {
+        "id": "L19",
+        "text": "The procedure is set out in the 2009 Regulations.",
+        "source_sentence_id": "s18",
+        "symbol_id": "34779"
+      },
+      {
+        "id": "L20",
+        "text": "The appeal will be decided by a hearing.",
+        "source_sentence_id": "s19",
+        "symbol_id": "8147"
+      },
+      {
+        "id": "L21",
+        "text": "The procedure is set out in the Hearings Procedure Rules 2000.",
+        "source_sentence_id": "s20",
+        "symbol_id": "34779"
+      },
+      {
+        "id": "L22",
+        "text": "The appeal will be decided by an inquiry.",
+        "source_sentence_id": "s21",
+        "symbol_id": "15322"
+      },
+      {
+        "id": "L23",
+        "text": "The procedure is set out in the Inquiry Procedure Rules 2000.",
+        "source_sentence_id": "s22",
+        "symbol_id": "34779"
+      },
+      {
+        "id": "L24",
+        "text": "Groups or organisations can apply for Rule 6 status.",
+        "source_sentence_id": "s23",
+        "symbol_id": "7116"
+      },
+      {
+        "id": "L25",
+        "text": "Individuals can also take part on the same basis.",
+        "source_sentence_id": "s24",
+        "symbol_id": "34557"
+      },
+      {
+        "id": "L26",
+        "text": "Rule 6 status lets you present evidence formally.",
+        "source_sentence_id": "s25",
+        "symbol_id": null
+      },
+      {
         "id": "L27",
-        "text": "The Inspector will consider these when deciding the appeal.",
-        "source_sentence_id": "s30",
-        "symbol_id": "39145"
+        "text": "Rule 6 status lets you cross‑examine others’ evidence.",
+        "source_sentence_id": "s25",
+        "symbol_id": "7217"
       },
       {
         "id": "L28",
-        "text": "You can comment or change your representation online at the given website.",
-        "source_sentence_id": "s31",
-        "symbol_id": "2487"
+        "text": "You can find guidance at the following link.",
+        "source_sentence_id": "s26",
+        "symbol_id": "39888"
       },
       {
         "id": "L29",
-        "text": "The appellant may have added evidence you have not seen.",
-        "source_sentence_id": "s32",
+        "text": "https://www.gov.uk/government/publications/apply-for-rule-6-status-on-a-planning-appeal-or-called-in-application",
+        "source_sentence_id": "s27",
         "symbol_id": null
       },
       {
         "id": "L30",
-        "text": "Your comments can address those matters.",
-        "source_sentence_id": "s33",
-        "symbol_id": null
+        "text": "Arrangements for the inquiry are being finalised by the Planning Inspectorate.",
+        "source_sentence_id": "s28",
+        "symbol_id": "8207"
       },
       {
         "id": "L31",
-        "text": "If you do not have internet, you can send comments to the address below.",
-        "source_sentence_id": "s34",
-        "symbol_id": "2688"
+        "text": "A pre‑Inquiry conference call will be held with lead parties.",
+        "source_sentence_id": "s29",
+        "symbol_id": "2791"
       },
       {
         "id": "L32",
-        "text": "The Planning Inspectorate, c/o QUADIENT, 69 Buckingham Avenue Slough SL1 4PN.",
-        "source_sentence_id": "s35",
-        "symbol_id": "30231"
+        "text": "The call will deal with procedural and administrative matters.",
+        "source_sentence_id": "s29",
+        "symbol_id": null
       },
       {
         "id": "L33",
-        "text": "All representations must be received by 5 weeks from the start date.",
-        "source_sentence_id": "s36",
+        "text": "The call will discuss how evidence will be heard.",
+        "source_sentence_id": "s29",
         "symbol_id": null
       },
       {
         "id": "L34",
-        "text": "Late representations will usually not be considered and will be returned.",
-        "source_sentence_id": "s37",
-        "symbol_id": "37780"
+        "text": "As a Rule 6 party, you would be part of that process.",
+        "source_sentence_id": "s30",
+        "symbol_id": "22149"
       },
       {
         "id": "L35",
-        "text": "The Planning Inspectorate does not acknowledge representations.",
-        "source_sentence_id": "s38",
-        "symbol_id": "39145"
+        "text": "If you wish to apply for Rule 6 status, you should contact the Planning Inspectorate immediately.",
+        "source_sentence_id": "s31",
+        "symbol_id": "2791"
       },
       {
         "id": "L36",
-        "text": "All representations must quote the appeal reference.",
+        "text": "If you are interested but cannot access the guidance online, you should contact the Planning Inspectorate who will try and assist.",
+        "source_sentence_id": "s32",
+        "symbol_id": "4570"
+      },
+      {
+        "id": "L37",
+        "text": "If you wish to apply for Rule 6 status, it is essential that you contact the Planning Inspectorate immediately.",
+        "source_sentence_id": "s33",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L38",
+        "text": "[*Delete as appropriate].",
+        "source_sentence_id": "s34",
+        "symbol_id": null
+      },
+      {
+        "id": "L39",
+        "text": "The council has forwarded all representations to the Planning Inspectorate and the appellant.",
+        "source_sentence_id": "s35",
+        "symbol_id": "2398"
+      },
+      {
+        "id": "L40",
+        "text": "The Inspector will consider these representations when deciding the appeal.",
+        "source_sentence_id": "s36",
+        "symbol_id": "37861"
+      },
+      {
+        "id": "L41",
+        "text": "If you wish to comment or change your representation, you can do so online.",
+        "source_sentence_id": "s37",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L42",
+        "text": "https://appeal-planning-decision.service.gov.uk/comment-planning-appeal/enter-appeal-reference",
+        "source_sentence_id": "s37",
+        "symbol_id": null
+      },
+      {
+        "id": "L43",
+        "text": "The appellant may have added evidence you have not seen.",
+        "source_sentence_id": "s38",
+        "symbol_id": null
+      },
+      {
+        "id": "L44",
+        "text": "Your comments can address that evidence.",
         "source_sentence_id": "s39",
         "symbol_id": null
       },
       {
-        "id": "L37",
-        "text": "Your submissions will be copied to the appellant and the local planning authority.",
+        "id": "L45",
+        "text": "If you do not have internet, you can send comments to the address below.",
         "source_sentence_id": "s40",
-        "symbol_id": "21559"
+        "symbol_id": "6963"
       },
       {
-        "id": "L38",
-        "text": "The appeal documents can be inspected at the venue and times shown.",
+        "id": "L46",
+        "text": "The Planning Inspectorate c/o QUADIENT.",
         "source_sentence_id": "s41",
-        "symbol_id": "21802"
+        "symbol_id": "5983"
       },
       {
-        "id": "L39",
-        "text": "You can get a free guide booklet from the website or from us.",
+        "id": "L47",
+        "text": "69 Buckingham Avenue Slough SL1 4PN.",
         "source_sentence_id": "s42",
+        "symbol_id": "30231"
+      },
+      {
+        "id": "L48",
+        "text": "All representations must be received by 5 weeks.",
+        "source_sentence_id": "s44",
         "symbol_id": null
       },
       {
-        "id": "L40",
-        "text": "The decision will be published online at the given website.",
-        "source_sentence_id": "s43",
+        "id": "L49",
+        "text": "Representations after the deadline will usually not be considered and will be returned.",
+        "source_sentence_id": "s45",
+        "symbol_id": "6248"
+      },
+      {
+        "id": "L50",
+        "text": "The Planning Inspectorate does not acknowledge representations.",
+        "source_sentence_id": "s46",
+        "symbol_id": null
+      },
+      {
+        "id": "L51",
+        "text": "All representations must quote the appeal reference.",
+        "source_sentence_id": "s47",
+        "symbol_id": null
+      },
+      {
+        "id": "L52",
+        "text": "Your representation will be copied to the appellant and the local planning authority.",
+        "source_sentence_id": "s48",
+        "symbol_id": "21559"
+      },
+      {
+        "id": "L53",
+        "text": "The appeal documents can be inspected at [insert venue] between [insert times].",
+        "source_sentence_id": "s49",
+        "symbol_id": "21802"
+      },
+      {
+        "id": "L54",
+        "text": "You can get a free guide booklet from GOV.UK or from us.",
+        "source_sentence_id": "s50",
+        "symbol_id": null
+      },
+      {
+        "id": "L55",
+        "text": "https://www.gov.uk/government/collections/taking-part-in-a-planning-listed-building-or-enforcement-appeal",
+        "source_sentence_id": "s50",
+        "symbol_id": null
+      },
+      {
+        "id": "L56",
+        "text": "When made, the decision will be published online.",
+        "source_sentence_id": "s51",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L57",
+        "text": "https://appeal-planning-decision.service.gov.uk/comment-planning-appeal/enter-appeal-reference",
+        "source_sentence_id": "s51",
         "symbol_id": null
       }
     ],
@@ -582,114 +732,126 @@
         "rule": "P2",
         "passed": false,
         "line_ids": [
-          "L9",
-          "L24",
-          "L25"
+          "L35",
+          "L36",
+          "L37"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L9 has a sentence of 16 words (limit 15)",
-          "L24 has a sentence of 18 words (limit 15)",
-          "L25 has a sentence of 16 words (limit 15)"
+          "L35 has a sentence of 16 words (limit 15)",
+          "L36 has a sentence of 21 words (limit 15)",
+          "L37 has a sentence of 19 words (limit 15)"
         ]
       },
       {
         "rule": "P3",
         "passed": false,
         "line_ids": [
-          "L18",
-          "L24",
-          "L25",
-          "L28",
-          "L31",
-          "L34"
+          "L26",
+          "L33",
+          "L35",
+          "L36",
+          "L37",
+          "L41",
+          "L45",
+          "L49"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L18 has a sentence with 2 main clauses (limit 1)",
-          "L24 has a sentence with 2 main clauses (limit 1)",
-          "L25 has a sentence with 2 main clauses (limit 1)",
-          "L28 has a sentence with 2 main clauses (limit 1)",
-          "L31 has a sentence with 2 main clauses (limit 1)",
-          "L34 has a sentence with 2 main clauses (limit 1)"
+          "L26 has a sentence with 2 main clauses (limit 1)",
+          "L33 has a sentence with 2 main clauses (limit 1)",
+          "L35 has a sentence with 2 main clauses (limit 1)",
+          "L36 has a sentence with 2 main clauses (limit 1)",
+          "L37 has a sentence with 3 main clauses (limit 1)",
+          "L41 has a sentence with 2 main clauses (limit 1)",
+          "L45 has a sentence with 2 main clauses (limit 1)",
+          "L49 has a sentence with 2 main clauses (limit 1)"
         ]
       },
       {
         "rule": "P4",
         "passed": false,
         "line_ids": [
-          "L10",
-          "L11",
-          "L12",
-          "L13",
-          "L14",
-          "L15",
+          "L18",
+          "L19",
           "L20",
           "L21",
+          "L22",
+          "L23",
+          "L30",
+          "L31",
           "L33",
-          "L34",
-          "L37",
-          "L38",
-          "L40"
+          "L48",
+          "L49",
+          "L52",
+          "L53",
+          "L56"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L10 uses the passive voice",
-          "L11 uses the passive voice",
-          "L12 uses the passive voice",
-          "L13 uses the passive voice",
-          "L14 uses the passive voice",
-          "L15 uses the passive voice",
+          "L18 uses the passive voice",
+          "L19 uses the passive voice",
           "L20 uses the passive voice",
           "L21 uses the passive voice",
+          "L22 uses the passive voice",
+          "L23 uses the passive voice",
+          "L30 uses the passive voice",
+          "L31 uses the passive voice",
           "L33 uses the passive voice",
-          "L34 uses the passive voice",
-          "L37 uses the passive voice",
-          "L38 uses the passive voice",
-          "L40 uses the passive voice"
+          "L48 uses the passive voice",
+          "L49 uses the passive voice",
+          "L52 uses the passive voice",
+          "L53 uses the passive voice",
+          "L56 uses the passive voice"
         ]
       },
       {
         "rule": "P5",
         "passed": false,
         "line_ids": [
-          "L5",
           "L9",
-          "L18",
-          "L19",
-          "L20",
-          "L21",
-          "L23",
-          "L24",
-          "L25",
+          "L17",
           "L26",
           "L27",
-          "L29",
+          "L28",
+          "L30",
+          "L31",
           "L32",
+          "L35",
+          "L36",
           "L37",
           "L38",
           "L39",
-          "L40"
+          "L40",
+          "L43",
+          "L49",
+          "L52",
+          "L53",
+          "L54",
+          "L56"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L5 has 1 words that are not common and not explained",
           "L9 has 1 words that are not common and not explained",
-          "L18 has 2 words that are not common and not explained",
-          "L19 has 1 words that are not common and not explained",
-          "L20 has 1 words that are not common and not explained",
-          "L21 has 1 words that are not common and not explained",
-          "L23 has 1 words that are not common and not explained",
-          "L24 has 1 words that are not common and not explained",
-          "L25 has 1 words that are not common and not explained",
+          "L17 has 1 words that are not common and not explained",
           "L26 has 1 words that are not common and not explained",
           "L27 has 1 words that are not common and not explained",
-          "L29 has 1 words that are not common and not explained",
+          "L28 has 1 words that are not common and not explained",
+          "L30 has 1 words that are not common and not explained",
+          "L31 has 1 words that are not common and not explained",
           "L32 has 2 words that are not common and not explained",
-          "L37 has 3 words that are not common and not explained",
-          "L38 has 2 words that are not common and not explained",
+          "L35 has 1 words that are not common and not explained",
+          "L36 has 1 words that are not common and not explained",
+          "L37 has 1 words that are not common and not explained",
+          "L38 has 1 words that are not common and not explained",
           "L39 has 1 words that are not common and not explained",
-          "L40 has 1 words that are not common and not explained"
+          "L40 has 1 words that are not common and not explained",
+          "L43 has 1 words that are not common and not explained",
+          "L49 has 1 words that are not common and not explained",
+          "L52 has 2 words that are not common and not explained",
+          "L53 has 4 words that are not common and not explained",
+          "L54 has 2 words that are not common and not explained",
+          "L56 has 1 words that are not common and not explained"
         ]
       },
       {
@@ -703,11 +865,13 @@
         "rule": "P7",
         "passed": false,
         "line_ids": [
-          "L32"
+          "L17",
+          "L46"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L32 has 1 abbreviations that are not explained"
+          "L17 has 1 abbreviations that are not explained",
+          "L46 has 1 abbreviations that are not explained"
         ]
       },
       {
@@ -721,25 +885,25 @@
         "rule": "P9",
         "passed": false,
         "line_ids": [
-          "L9",
-          "L23"
+          "L16",
+          "L39",
+          "L47",
+          "L48"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L9 meaning: Says 'you have appealed' but source says 'an appeal has been made'.",
-          "L23 meaning: Says 'you should' but source says 'you should' as instruction."
+          "L16 meaning: Says council made appeal, but appellant did.",
+          "L39 meaning: Says council forwarded, but source does not say who.",
+          "L47 meaning: Adds postcode not in source.",
+          "L48 meaning: Says 5 weeks, but source has specific date."
         ]
       },
       {
         "rule": "P10",
-        "passed": false,
-        "line_ids": [
-          "L23"
-        ],
+        "passed": true,
+        "line_ids": [],
         "failed_fact_ids": [],
-        "details": [
-          "L23 advice: Tells the reader to contact, but source gives instruction."
-        ]
+        "details": []
       }
     ],
     "attempts": 1,
@@ -803,47 +967,73 @@
       {
         "word": "notify",
         "counts_as": "tell"
+      },
+      {
+        "word": "make a payment",
+        "counts_as": "pay"
+      },
+      {
+        "word": "make an application",
+        "counts_as": "apply"
+      },
+      {
+        "word": "respond",
+        "counts_as": "reply"
+      },
+      {
+        "word": "write back",
+        "counts_as": "reply"
+      },
+      {
+        "word": "attend",
+        "counts_as": "go"
+      },
+      {
+        "word": "request",
+        "counts_as": "ask"
+      },
+      {
+        "word": "obtain",
+        "counts_as": "get"
+      },
+      {
+        "word": "retain",
+        "counts_as": "keep"
       }
     ],
     "lineFacts": [
       {
         "line_id": "L1",
         "fact_id": "k1",
-        "start": 72,
-        "end": 76
+        "start": 34,
+        "end": 38
       },
       {
-        "line_id": "L11",
+        "line_id": "L19",
         "fact_id": "k2",
-        "start": 42,
-        "end": 46
+        "start": 32,
+        "end": 36
       },
       {
-        "line_id": "L23",
-        "fact_id": "k3",
-        "start": 0,
-        "end": 56
-      },
-      {
-        "line_id": "L24",
-        "fact_id": "k4",
-        "start": 42,
-        "end": 110
-      },
-      {
-        "line_id": "L25",
+        "line_id": "L35",
         "fact_id": "k3",
         "start": 40,
-        "end": 94
+        "end": 96
       },
       {
-        "line_id": "L32",
+        "line_id": "L36",
+        "fact_id": "k4",
+        "start": 61,
+        "end": 129
+      },
+      {
+        "line_id": "L47",
         "fact_id": "k5",
-        "start": 41,
-        "end": 76
+        "start": 0,
+        "end": 35
       },
       {
-        "line_id": "L33",
+        "line_id": "L48",
         "fact_id": "k6",
         "start": 40,
         "end": 47

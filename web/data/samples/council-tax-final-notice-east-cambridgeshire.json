@@ -1,0 +1,1832 @@
+{
+  "id": "council-tax-final-notice-east-cambridgeshire",
+  "label": "Council Tax final notice (East Cambridgeshire)",
+  "source": "council-tax-final-notice-east-cambridgeshire.pdf",
+  "recordedAt": "2026-11-11T22:20:44.950Z",
+  "models": [
+    "bedrock:openai.gpt-oss-120b-1:0",
+    "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
+  ],
+  "result": {
+    "status": "flagged",
+    "original": {
+      "text": "Date of Issue:\nProperty Band\nYour account reference is\nFor enquiries about this notice:\nContact us: angliarevenues.gov.uk/eccontactus\nOr phone: 01842 756577\nMore than 90% of residents pay their Council Tax on time.\nYou are here\nBill Issued\nReminder:\nPay\noverdue\namount\nFinal\nNotice:\nPay full\namount\nCourt\nSummons:\nPay all plus\ncosts\nXXXXXXXXX\nB\nDD.MM.YYYY Council Tax\nFinal Notice\nDD.MM.YYYY to DD.MM.YYYY\nCouncil Tax payers\nAddress1\nAddress2\nAddress3\nAddress4\nPOSTCODE\nThis notice is for:\nProp Address1\nProp Address2\nProp Address3\nProp Address4\nPOSTCODE\nDear Sir/Madam\nIt appears we have not received your monthly Council Tax payment on time and you now owe £XXX.XX.\nIf you have paid your Council Tax, and there is nothing left to pay for the year, please ignore this\nreminder.\nIf you have not yet paid all your Council Tax, please pay £XXX.XX within the next 7 days using one of the\nmethods shown over the page. If you do not pay by DD.MM.YYYY, we will send you a court summons and you\nwill have to pay an additional £75.00 in costs.\nIf you cannot pay what you owe you need to tell us immediately. Contact us on 01842 756577 so that we can\ndiscuss options with you. You may also want to seek advice from organisations like Citizens Advice or the\nMoney Advice Service.\nIf you have any questions about this notice, please contact us using our contact form or call us on the phone\nnumber shown above. Always remember to tell us your account reference when you contact us.\n\nsign up now at or by calling us on 01842 756 567\nAny personal information shared with us in regards to your Council Tax bill will be processed, protected\nand disposed of in accordance with the UK General Data Protection Regulation and the Data Protection Act\n2018. Your Council Tax information may also be shared where we have a legal requirement to do so, for\nexample bodies responsible for auditing, administering public funds and statistical analysis, or for the\npurpose of preventing and detecting fraud. We may also use your data for purposes of electoral\nregistration but this does not mean you will be automatically registered to vote. For more information\ngo to:\nangliarevenues.gov.uk/eastcambridgeshire\nWe accept debit and credit card payments 365 days of the year\nGo to to pay online any day, any time; or call\n0300 456 0692 to pay using our 24 hour automated phone payment line. You will need\nyour credit/debit card and your Council Tax account reference from the front of this bill.\nangliarevenues.gov.uk/eastcambridgeshire\nwww.eastcambs.gov.uk/notices/privacy-notice\nDo it online angliarevenues.gov.uk/eastcambridgeshire\nMore than 80% of people pay their Council Tax bills by Direct Debit - it's the UK's\nfavourite way to pay bills\ntrust Direct Debit to put you in control of your bills\nthe Direct Debit Guarantee protects you in the rare event that there is an error in\nthe payment of your Direct Debit\nmanage your Council Tax account at a time that suits you\nhelp to save trees and reduce carbon\nBy Post Send cheques to East Cambridgeshire District Council,\nThe Grange, Nutholt Lane, Ely, Cambs, CB7 4EE. You MUST quote your Council Tax\naccount reference as shown on the front of this bill on the back of your cheque.\nAre you behind with your Council Tax payments?\nIf you fall behind with your Council Tax payments you may lose the right to pay by\ninstalments and the Council may ask you to pay all you owe straight away, or even take\nyou to court. Tell us if you miss a payment. We will try to help you stay in control of your bill.\nHelp with managing debt is also available at MoneyHelper\nTo see if you are entitled to Council Tax support, go to\nmoneyhelper.org.uk/en\nMoving home and people moving into or out of your home are likely to affect your Council\nTax bill and you need to tell us as soon as you can at angliarevenues.gov.uk/eccontactus\nCouncil Tax instalments\nYou can pay your Council Tax in 12 monthly instalments from April to March, instead of 10.\nWhichever way you choose to pay you must tell us if you wish to change to 12 monthly\ninstalments and provide your Council Tax account reference. angliarevenues.gov.uk/contact\nCouncil Tax information\nOther ways to pay your Council Tax\nMoving home? Change of circumstances? Let us know\nData Protection and Data Sharing\nPhone calls are charged local rate from a BT landline. Other operators and mobile phone charges may vary.\nIf your instalments change we are required to give you 14 days notice. This may mean that\nan instalment is missed and subsequent instalments could be effected.\nGo paperless. Sign up today to receive your bill electronically\nangliarevenues.gov.uk/eastcambridgeshiremake the switch today at\nangliarevenues.gov.uk/eastcambridgeshire\nset up a Direct Debit and never forget to pay your Council Tax bill again\nOnline banking payments\nIf you choose this method to pay you must:\ntell your bank to make the payment at least 7 days earlier than the due date\ngive your Council Tax account reference of XXXXXXXXX as the payment reference\npay East Cambridgeshire District Council, sort code 52-41-19, account number 43136052",
+      "sentences": [
+        {
+          "id": "s1",
+          "text": "Date of Issue:",
+          "start": 0,
+          "end": 14
+        },
+        {
+          "id": "s2",
+          "text": "Property Band",
+          "start": 15,
+          "end": 28
+        },
+        {
+          "id": "s3",
+          "text": "Your account reference is\nFor enquiries about this notice:",
+          "start": 29,
+          "end": 87
+        },
+        {
+          "id": "s4",
+          "text": "Contact us: angliarevenues.gov.uk/eccontactus",
+          "start": 88,
+          "end": 133
+        },
+        {
+          "id": "s5",
+          "text": "Or phone: 01842 756577",
+          "start": 134,
+          "end": 156
+        },
+        {
+          "id": "s6",
+          "text": "More than 90% of residents pay their Council Tax on time.",
+          "start": 157,
+          "end": 214
+        },
+        {
+          "id": "s7",
+          "text": "You are here",
+          "start": 215,
+          "end": 227
+        },
+        {
+          "id": "s8",
+          "text": "Bill Issued",
+          "start": 228,
+          "end": 239
+        },
+        {
+          "id": "s9",
+          "text": "Reminder:",
+          "start": 240,
+          "end": 249
+        },
+        {
+          "id": "s10",
+          "text": "Pay\noverdue\namount",
+          "start": 250,
+          "end": 268
+        },
+        {
+          "id": "s11",
+          "text": "Final",
+          "start": 269,
+          "end": 274
+        },
+        {
+          "id": "s12",
+          "text": "Notice:",
+          "start": 275,
+          "end": 282
+        },
+        {
+          "id": "s13",
+          "text": "Pay full\namount",
+          "start": 283,
+          "end": 298
+        },
+        {
+          "id": "s14",
+          "text": "Court",
+          "start": 299,
+          "end": 304
+        },
+        {
+          "id": "s15",
+          "text": "Summons:",
+          "start": 305,
+          "end": 313
+        },
+        {
+          "id": "s16",
+          "text": "Pay all plus\ncosts",
+          "start": 314,
+          "end": 332
+        },
+        {
+          "id": "s17",
+          "text": "XXXXXXXXX",
+          "start": 333,
+          "end": 342
+        },
+        {
+          "id": "s18",
+          "text": "B",
+          "start": 343,
+          "end": 344
+        },
+        {
+          "id": "s19",
+          "text": "DD.MM.YYYY Council Tax",
+          "start": 345,
+          "end": 367
+        },
+        {
+          "id": "s20",
+          "text": "Final Notice",
+          "start": 368,
+          "end": 380
+        },
+        {
+          "id": "s21",
+          "text": "DD.MM.YYYY to DD.MM.YYYY",
+          "start": 381,
+          "end": 405
+        },
+        {
+          "id": "s22",
+          "text": "Council Tax payers",
+          "start": 406,
+          "end": 424
+        },
+        {
+          "id": "s23",
+          "text": "Address1",
+          "start": 425,
+          "end": 433
+        },
+        {
+          "id": "s24",
+          "text": "Address2",
+          "start": 434,
+          "end": 442
+        },
+        {
+          "id": "s25",
+          "text": "Address3",
+          "start": 443,
+          "end": 451
+        },
+        {
+          "id": "s26",
+          "text": "Address4",
+          "start": 452,
+          "end": 460
+        },
+        {
+          "id": "s27",
+          "text": "POSTCODE",
+          "start": 461,
+          "end": 469
+        },
+        {
+          "id": "s28",
+          "text": "This notice is for:",
+          "start": 470,
+          "end": 489
+        },
+        {
+          "id": "s29",
+          "text": "Prop Address1",
+          "start": 490,
+          "end": 503
+        },
+        {
+          "id": "s30",
+          "text": "Prop Address2",
+          "start": 504,
+          "end": 517
+        },
+        {
+          "id": "s31",
+          "text": "Prop Address3",
+          "start": 518,
+          "end": 531
+        },
+        {
+          "id": "s32",
+          "text": "Prop Address4",
+          "start": 532,
+          "end": 545
+        },
+        {
+          "id": "s33",
+          "text": "POSTCODE",
+          "start": 546,
+          "end": 554
+        },
+        {
+          "id": "s34",
+          "text": "Dear Sir/Madam",
+          "start": 555,
+          "end": 569
+        },
+        {
+          "id": "s35",
+          "text": "It appears we have not received your monthly Council Tax payment on time and you now owe £XXX.XX.",
+          "start": 570,
+          "end": 667
+        },
+        {
+          "id": "s36",
+          "text": "If you have paid your Council Tax, and there is nothing left to pay for the year, please ignore this\nreminder.",
+          "start": 668,
+          "end": 778
+        },
+        {
+          "id": "s37",
+          "text": "If you have not yet paid all your Council Tax, please pay £XXX.XX within the next 7 days using one of the\nmethods shown over the page.",
+          "start": 779,
+          "end": 913
+        },
+        {
+          "id": "s38",
+          "text": "If you do not pay by DD.MM.YYYY, we will send you a court summons and you\nwill have to pay an additional £75.00 in costs.",
+          "start": 914,
+          "end": 1035
+        },
+        {
+          "id": "s39",
+          "text": "If you cannot pay what you owe you need to tell us immediately.",
+          "start": 1036,
+          "end": 1099
+        },
+        {
+          "id": "s40",
+          "text": "Contact us on 01842 756577 so that we can\ndiscuss options with you.",
+          "start": 1100,
+          "end": 1167
+        },
+        {
+          "id": "s41",
+          "text": "You may also want to seek advice from organisations like Citizens Advice or the\nMoney Advice Service.",
+          "start": 1168,
+          "end": 1269
+        },
+        {
+          "id": "s42",
+          "text": "If you have any questions about this notice, please contact us using our contact form or call us on the phone\nnumber shown above.",
+          "start": 1270,
+          "end": 1399
+        },
+        {
+          "id": "s43",
+          "text": "Always remember to tell us your account reference when you contact us.",
+          "start": 1400,
+          "end": 1470
+        },
+        {
+          "id": "s44",
+          "text": "sign up now at or by calling us on 01842 756 567",
+          "start": 1472,
+          "end": 1520
+        },
+        {
+          "id": "s45",
+          "text": "Any personal information shared with us in regards to your Council Tax bill will be processed, protected\nand disposed of in accordance with the UK General Data Protection Regulation and the Data Protection Act\n2018.",
+          "start": 1521,
+          "end": 1736
+        },
+        {
+          "id": "s46",
+          "text": "Your Council Tax information may also be shared where we have a legal requirement to do so, for\nexample bodies responsible for auditing, administering public funds and statistical analysis, or for the\npurpose of preventing and detecting fraud.",
+          "start": 1737,
+          "end": 1980
+        },
+        {
+          "id": "s47",
+          "text": "We may also use your data for purposes of electoral\nregistration but this does not mean you will be automatically registered to vote.",
+          "start": 1981,
+          "end": 2114
+        },
+        {
+          "id": "s48",
+          "text": "For more information\ngo to:",
+          "start": 2115,
+          "end": 2142
+        },
+        {
+          "id": "s49",
+          "text": "angliarevenues.gov.uk/eastcambridgeshire",
+          "start": 2143,
+          "end": 2183
+        },
+        {
+          "id": "s50",
+          "text": "We accept debit and credit card payments 365 days of the year",
+          "start": 2184,
+          "end": 2245
+        },
+        {
+          "id": "s51",
+          "text": "Go to to pay online any day, any time; or call",
+          "start": 2246,
+          "end": 2292
+        },
+        {
+          "id": "s52",
+          "text": "0300 456 0692 to pay using our 24 hour automated phone payment line.",
+          "start": 2293,
+          "end": 2361
+        },
+        {
+          "id": "s53",
+          "text": "You will need\nyour credit/debit card and your Council Tax account reference from the front of this bill.",
+          "start": 2362,
+          "end": 2466
+        },
+        {
+          "id": "s54",
+          "text": "angliarevenues.gov.uk/eastcambridgeshire",
+          "start": 2467,
+          "end": 2507
+        },
+        {
+          "id": "s55",
+          "text": "www.eastcambs.gov.uk/notices/privacy-notice",
+          "start": 2508,
+          "end": 2551
+        },
+        {
+          "id": "s56",
+          "text": "Do it online angliarevenues.gov.uk/eastcambridgeshire",
+          "start": 2552,
+          "end": 2605
+        },
+        {
+          "id": "s57",
+          "text": "More than 80% of people pay their Council Tax bills by Direct Debit - it's the UK's\nfavourite way to pay bills\ntrust Direct Debit to put you in control of your bills\nthe Direct Debit Guarantee protects you in the rare event that there is an error in\nthe payment of your Direct Debit\nmanage your Council Tax account at a time that suits you\nhelp to save trees and reduce carbon",
+          "start": 2606,
+          "end": 2982
+        },
+        {
+          "id": "s58",
+          "text": "By Post Send cheques to East Cambridgeshire District Council,\nThe Grange, Nutholt Lane, Ely, Cambs, CB7 4EE.",
+          "start": 2983,
+          "end": 3091
+        },
+        {
+          "id": "s59",
+          "text": "You MUST quote your Council Tax\naccount reference as shown on the front of this bill on the back of your cheque.",
+          "start": 3092,
+          "end": 3204
+        },
+        {
+          "id": "s60",
+          "text": "Are you behind with your Council Tax payments?",
+          "start": 3205,
+          "end": 3251
+        },
+        {
+          "id": "s61",
+          "text": "If you fall behind with your Council Tax payments you may lose the right to pay by\ninstalments and the Council may ask you to pay all you owe straight away, or even take\nyou to court.",
+          "start": 3252,
+          "end": 3435
+        },
+        {
+          "id": "s62",
+          "text": "Tell us if you miss a payment.",
+          "start": 3436,
+          "end": 3466
+        },
+        {
+          "id": "s63",
+          "text": "We will try to help you stay in control of your bill.",
+          "start": 3467,
+          "end": 3520
+        },
+        {
+          "id": "s64",
+          "text": "Help with managing debt is also available at MoneyHelper",
+          "start": 3521,
+          "end": 3577
+        },
+        {
+          "id": "s65",
+          "text": "To see if you are entitled to Council Tax support, go to",
+          "start": 3578,
+          "end": 3634
+        },
+        {
+          "id": "s66",
+          "text": "moneyhelper.org.uk/en",
+          "start": 3635,
+          "end": 3656
+        },
+        {
+          "id": "s67",
+          "text": "Moving home and people moving into or out of your home are likely to affect your Council\nTax bill and you need to tell us as soon as you can at angliarevenues.gov.uk/eccontactus",
+          "start": 3657,
+          "end": 3834
+        },
+        {
+          "id": "s68",
+          "text": "Council Tax instalments",
+          "start": 3835,
+          "end": 3858
+        },
+        {
+          "id": "s69",
+          "text": "You can pay your Council Tax in 12 monthly instalments from April to March, instead of 10.",
+          "start": 3859,
+          "end": 3949
+        },
+        {
+          "id": "s70",
+          "text": "Whichever way you choose to pay you must tell us if you wish to change to 12 monthly\ninstalments and provide your Council Tax account reference.",
+          "start": 3950,
+          "end": 4094
+        },
+        {
+          "id": "s71",
+          "text": "angliarevenues.gov.uk/contact",
+          "start": 4095,
+          "end": 4124
+        },
+        {
+          "id": "s72",
+          "text": "Council Tax information",
+          "start": 4125,
+          "end": 4148
+        },
+        {
+          "id": "s73",
+          "text": "Other ways to pay your Council Tax",
+          "start": 4149,
+          "end": 4183
+        },
+        {
+          "id": "s74",
+          "text": "Moving home?",
+          "start": 4184,
+          "end": 4196
+        },
+        {
+          "id": "s75",
+          "text": "Change of circumstances?",
+          "start": 4197,
+          "end": 4221
+        },
+        {
+          "id": "s76",
+          "text": "Let us know",
+          "start": 4222,
+          "end": 4233
+        },
+        {
+          "id": "s77",
+          "text": "Data Protection and Data Sharing",
+          "start": 4234,
+          "end": 4266
+        },
+        {
+          "id": "s78",
+          "text": "Phone calls are charged local rate from a BT landline.",
+          "start": 4267,
+          "end": 4321
+        },
+        {
+          "id": "s79",
+          "text": "Other operators and mobile phone charges may vary.",
+          "start": 4322,
+          "end": 4372
+        },
+        {
+          "id": "s80",
+          "text": "If your instalments change we are required to give you 14 days notice.",
+          "start": 4373,
+          "end": 4443
+        },
+        {
+          "id": "s81",
+          "text": "This may mean that\nan instalment is missed and subsequent instalments could be effected.",
+          "start": 4444,
+          "end": 4532
+        },
+        {
+          "id": "s82",
+          "text": "Go paperless.",
+          "start": 4533,
+          "end": 4546
+        },
+        {
+          "id": "s83",
+          "text": "Sign up today to receive your bill electronically",
+          "start": 4547,
+          "end": 4596
+        },
+        {
+          "id": "s84",
+          "text": "angliarevenues.gov.uk/eastcambridgeshiremake the switch today at",
+          "start": 4597,
+          "end": 4661
+        },
+        {
+          "id": "s85",
+          "text": "angliarevenues.gov.uk/eastcambridgeshire",
+          "start": 4662,
+          "end": 4702
+        },
+        {
+          "id": "s86",
+          "text": "set up a Direct Debit and never forget to pay your Council Tax bill again",
+          "start": 4703,
+          "end": 4776
+        },
+        {
+          "id": "s87",
+          "text": "Online banking payments",
+          "start": 4777,
+          "end": 4800
+        },
+        {
+          "id": "s88",
+          "text": "If you choose this method to pay you must:",
+          "start": 4801,
+          "end": 4843
+        },
+        {
+          "id": "s89",
+          "text": "tell your bank to make the payment at least 7 days earlier than the due date\ngive your Council Tax account reference of XXXXXXXXX as the payment reference\npay East Cambridgeshire District Council, sort code 52-41-19, account number 43136052",
+          "start": 4844,
+          "end": 5084
+        }
+      ]
+    },
+    "keyFacts": [
+      {
+        "id": "k1",
+        "type": "action",
+        "value": "Contact us: angliarevenues.gov.uk/eccontactus",
+        "normalised": "phone||",
+        "start": 88,
+        "end": 133,
+        "sentence_id": "s4"
+      },
+      {
+        "id": "k2",
+        "type": "phone",
+        "value": "01842 756577",
+        "normalised": "01842756577",
+        "start": 144,
+        "end": 156,
+        "sentence_id": "s5"
+      },
+      {
+        "id": "k3",
+        "type": "action",
+        "value": "Pay\noverdue\namount",
+        "normalised": "pay|amount|",
+        "start": 250,
+        "end": 268,
+        "sentence_id": "s10"
+      },
+      {
+        "id": "k4",
+        "type": "action",
+        "value": "Pay full\namount",
+        "normalised": "pay|amount|",
+        "start": 283,
+        "end": 298,
+        "sentence_id": "s13"
+      },
+      {
+        "id": "k5",
+        "type": "action",
+        "value": "Pay all plus\ncosts",
+        "normalised": "pay|cost|",
+        "start": 314,
+        "end": 332,
+        "sentence_id": "s16"
+      },
+      {
+        "id": "k6",
+        "type": "action",
+        "value": "please ignore this\nreminder",
+        "normalised": "ignore|reminder|",
+        "start": 750,
+        "end": 777,
+        "sentence_id": "s36"
+      },
+      {
+        "id": "k7",
+        "type": "action",
+        "value": "please pay £XXX.XX within the next 7 days",
+        "normalised": "pay|xxx.xx|date=7 days",
+        "start": 826,
+        "end": 867,
+        "sentence_id": "s37"
+      },
+      {
+        "id": "k8",
+        "type": "date",
+        "value": "7 days",
+        "normalised": "7 days",
+        "start": 861,
+        "end": 867,
+        "sentence_id": "s37"
+      },
+      {
+        "id": "k9",
+        "type": "action",
+        "value": "to pay an additional £75.00 in costs",
+        "normalised": "pay||money=GBP 7500",
+        "start": 998,
+        "end": 1034,
+        "sentence_id": "s38"
+      },
+      {
+        "id": "k10",
+        "type": "money",
+        "value": "£75.00",
+        "normalised": "GBP 7500",
+        "start": 1019,
+        "end": 1025,
+        "sentence_id": "s38"
+      },
+      {
+        "id": "k11",
+        "type": "action",
+        "value": "to tell us immediately",
+        "normalised": "tell||",
+        "start": 1076,
+        "end": 1098,
+        "sentence_id": "s39"
+      },
+      {
+        "id": "k12",
+        "type": "action",
+        "value": "Contact us on 01842 756577",
+        "normalised": "phone||",
+        "start": 1100,
+        "end": 1126,
+        "sentence_id": "s40"
+      },
+      {
+        "id": "k13",
+        "type": "phone",
+        "value": "01842 756577",
+        "normalised": "01842756577",
+        "start": 1114,
+        "end": 1126,
+        "sentence_id": "s40"
+      },
+      {
+        "id": "k14",
+        "type": "action",
+        "value": "please contact us",
+        "normalised": "phone||",
+        "start": 1315,
+        "end": 1332,
+        "sentence_id": "s42"
+      },
+      {
+        "id": "k15",
+        "type": "action",
+        "value": "call us on the phone\nnumber shown above",
+        "normalised": "phone||",
+        "start": 1359,
+        "end": 1398,
+        "sentence_id": "s42"
+      },
+      {
+        "id": "k16",
+        "type": "action",
+        "value": "Always remember to tell us your account reference when you contact us",
+        "normalised": "remember||",
+        "start": 1400,
+        "end": 1469,
+        "sentence_id": "s43"
+      },
+      {
+        "id": "k17",
+        "type": "action",
+        "value": "sign up now at or by calling us on 01842 756 567",
+        "normalised": "sign up||",
+        "start": 1472,
+        "end": 1520,
+        "sentence_id": "s44"
+      },
+      {
+        "id": "k18",
+        "type": "phone",
+        "value": "01842 756 567",
+        "normalised": "01842756567",
+        "start": 1507,
+        "end": 1520,
+        "sentence_id": "s44"
+      },
+      {
+        "id": "k19",
+        "type": "date",
+        "value": "2018",
+        "normalised": "2018",
+        "start": 1731,
+        "end": 1735,
+        "sentence_id": "s45"
+      },
+      {
+        "id": "k20",
+        "type": "action",
+        "value": "For more information\ngo to",
+        "normalised": "go||",
+        "start": 2115,
+        "end": 2141,
+        "sentence_id": "s48"
+      },
+      {
+        "id": "k21",
+        "type": "date",
+        "value": "365 days",
+        "normalised": "365 days",
+        "start": 2225,
+        "end": 2233,
+        "sentence_id": "s50"
+      },
+      {
+        "id": "k22",
+        "type": "action",
+        "value": "Go to to pay online any day, any time",
+        "normalised": "go||",
+        "start": 2246,
+        "end": 2283,
+        "sentence_id": "s51"
+      },
+      {
+        "id": "k23",
+        "type": "action",
+        "value": "call",
+        "normalised": "phone||",
+        "start": 2288,
+        "end": 2292,
+        "sentence_id": "s51"
+      },
+      {
+        "id": "k24",
+        "type": "phone",
+        "value": "0300 456 0692",
+        "normalised": "03004560692",
+        "start": 2293,
+        "end": 2306,
+        "sentence_id": "s52"
+      },
+      {
+        "id": "k25",
+        "type": "time",
+        "value": "24 hour",
+        "normalised": "24 hour",
+        "start": 2324,
+        "end": 2331,
+        "sentence_id": "s52"
+      },
+      {
+        "id": "k26",
+        "type": "action",
+        "value": "By Post Send cheques to East Cambridgeshire District Council,\nThe Grange, Nutholt Lane, Ely, Cambs, CB7 4EE",
+        "normalised": "send|cheque|",
+        "start": 2983,
+        "end": 3090,
+        "sentence_id": "s58"
+      },
+      {
+        "id": "k27",
+        "type": "address",
+        "value": "CB7 4EE",
+        "normalised": "CB74EE",
+        "start": 3083,
+        "end": 3090,
+        "sentence_id": "s58"
+      },
+      {
+        "id": "k28",
+        "type": "action",
+        "value": "You MUST quote your Council Tax\naccount reference",
+        "normalised": "quote|reference|",
+        "start": 3092,
+        "end": 3141,
+        "sentence_id": "s59"
+      },
+      {
+        "id": "k29",
+        "type": "action",
+        "value": "to pay all you owe straight away",
+        "normalised": "pay||",
+        "start": 3375,
+        "end": 3407,
+        "sentence_id": "s61"
+      },
+      {
+        "id": "k30",
+        "type": "action",
+        "value": "Tell us if you miss a payment",
+        "normalised": "tell||",
+        "start": 3436,
+        "end": 3465,
+        "sentence_id": "s62"
+      },
+      {
+        "id": "k31",
+        "type": "action",
+        "value": "go to",
+        "normalised": "go||",
+        "start": 3629,
+        "end": 3634,
+        "sentence_id": "s65"
+      },
+      {
+        "id": "k32",
+        "type": "action",
+        "value": "to tell us as soon as you can at angliarevenues.gov.uk/eccontactus",
+        "normalised": "tell||",
+        "start": 3768,
+        "end": 3834,
+        "sentence_id": "s67"
+      },
+      {
+        "id": "k33",
+        "type": "date",
+        "value": "April to March",
+        "normalised": "april to march",
+        "start": 3919,
+        "end": 3933,
+        "sentence_id": "s69"
+      },
+      {
+        "id": "k34",
+        "type": "action",
+        "value": "Let us know",
+        "normalised": "let||",
+        "start": 4222,
+        "end": 4233,
+        "sentence_id": "s76"
+      },
+      {
+        "id": "k35",
+        "type": "date",
+        "value": "14 days",
+        "normalised": "14 days",
+        "start": 4428,
+        "end": 4435,
+        "sentence_id": "s80"
+      },
+      {
+        "id": "k36",
+        "type": "action",
+        "value": "Go paperless",
+        "normalised": "go||",
+        "start": 4533,
+        "end": 4545,
+        "sentence_id": "s82"
+      },
+      {
+        "id": "k37",
+        "type": "action",
+        "value": "Sign up today",
+        "normalised": "sign up||",
+        "start": 4547,
+        "end": 4560,
+        "sentence_id": "s83"
+      },
+      {
+        "id": "k38",
+        "type": "action",
+        "value": "tell your bank to make the payment at least 7 days earlier than the due date\ngive your Council Tax account reference of XXXXXXXXX as the payment reference\npay East Cambridgeshire District Council, sort code 52-41-19, account number 43136052",
+        "normalised": "tell|bank|date=7 days",
+        "start": 4844,
+        "end": 5084,
+        "sentence_id": "s89"
+      },
+      {
+        "id": "k39",
+        "type": "date",
+        "value": "7 days",
+        "normalised": "7 days",
+        "start": 4888,
+        "end": 4894,
+        "sentence_id": "s89"
+      },
+      {
+        "id": "k40",
+        "type": "reference",
+        "value": "52-41-19",
+        "normalised": "52-41-19",
+        "start": 5051,
+        "end": 5059,
+        "sentence_id": "s89"
+      },
+      {
+        "id": "k41",
+        "type": "reference",
+        "value": "43136052",
+        "normalised": "43136052",
+        "start": 5076,
+        "end": 5084,
+        "sentence_id": "s89"
+      }
+    ],
+    "lines": [
+      {
+        "id": "L1",
+        "text": "Contact us: angliarevenues.gov.uk/eccontactus",
+        "source_sentence_id": "s4",
+        "symbol_id": null
+      },
+      {
+        "id": "L2",
+        "text": "Call 01842 756577",
+        "source_sentence_id": "s5",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L3",
+        "text": "You must pay the overdue amount.",
+        "source_sentence_id": "s10",
+        "symbol_id": null
+      },
+      {
+        "id": "L4",
+        "text": "Pay full amount",
+        "source_sentence_id": "s13",
+        "symbol_id": "9014"
+      },
+      {
+        "id": "L5",
+        "text": "Pay all plus costs",
+        "source_sentence_id": "s16",
+        "symbol_id": "9014"
+      },
+      {
+        "id": "L6",
+        "text": "If you have already paid your Council Tax and nothing is left to pay, please ignore this reminder.",
+        "source_sentence_id": "s36",
+        "symbol_id": null
+      },
+      {
+        "id": "L32",
+        "text": "You can ignore this reminder if you have paid and nothing is left to pay.",
+        "source_sentence_id": "s36",
+        "symbol_id": null
+      },
+      {
+        "id": "L7",
+        "text": "If you have not yet paid all your Council Tax, please pay £XXX.XX within the next 7 days.",
+        "source_sentence_id": "s37",
+        "symbol_id": null
+      },
+      {
+        "id": "L8",
+        "text": "If you do not pay by DD.MM.YYYY, we will send you a court summons and you will have to pay an additional £75.00 in costs.",
+        "source_sentence_id": "s38",
+        "symbol_id": null
+      },
+      {
+        "id": "L33",
+        "text": "You will have to pay an additional £75.00 in costs if you do not pay by DD.MM.YYYY.",
+        "source_sentence_id": "s38",
+        "symbol_id": null
+      },
+      {
+        "id": "L9",
+        "text": "If you cannot pay what you owe, you must tell us immediately.",
+        "source_sentence_id": "s39",
+        "symbol_id": null
+      },
+      {
+        "id": "L10",
+        "text": "Contact us on 01842 756577",
+        "source_sentence_id": "s40",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L11",
+        "text": "If you have any questions about this notice, you can use our contact form.",
+        "source_sentence_id": "s42",
+        "symbol_id": "9173"
+      },
+      {
+        "id": "L47",
+        "text": "You can also call us on the phone number shown above.",
+        "source_sentence_id": "s42",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L34",
+        "text": "You can also call us on the phone number shown above.",
+        "source_sentence_id": "s42",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L12",
+        "text": "You can also call us on the phone number shown above.",
+        "source_sentence_id": "s42",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L13",
+        "text": "Always remember to tell us your account reference.",
+        "source_sentence_id": "s43",
+        "symbol_id": null
+      },
+      {
+        "id": "L35",
+        "text": "When you contact us, always remember to tell us your account reference.",
+        "source_sentence_id": "s43",
+        "symbol_id": null
+      },
+      {
+        "id": "L14",
+        "text": "Sign up now by calling us on 01842 756 567.",
+        "source_sentence_id": "s44",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L36",
+        "text": "Or call us on 01842 756 567 to sign up now.",
+        "source_sentence_id": "s44",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L46",
+        "text": "The council updated the data protection rules in 2018.",
+        "source_sentence_id": "s45",
+        "symbol_id": "21802"
+      },
+      {
+        "id": "L15",
+        "text": "For more information go to",
+        "source_sentence_id": "s48",
+        "symbol_id": null
+      },
+      {
+        "id": "L16",
+        "text": "You can pay any day, 365 days a year",
+        "source_sentence_id": "s50",
+        "symbol_id": "32488"
+      },
+      {
+        "id": "L17",
+        "text": "Go to pay online any day, any time.",
+        "source_sentence_id": "s51",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L48",
+        "text": "Or you can call.",
+        "source_sentence_id": "s51",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L18",
+        "text": "You can go online to pay any day, any time.",
+        "source_sentence_id": "s51",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L49",
+        "text": "Or you can call.",
+        "source_sentence_id": "s51",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L37",
+        "text": "Or you can call.",
+        "source_sentence_id": "s51",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L19",
+        "text": "Call 0300 456 0692 to pay using the 24 hour automated phone line.",
+        "source_sentence_id": "s52",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L20",
+        "text": "Send cheques to East Cambridgeshire District Council, The Grange, Nutholt Lane, Ely, CB7 4EE.",
+        "source_sentence_id": "s58",
+        "symbol_id": null
+      },
+      {
+        "id": "L21",
+        "text": "You must quote your Council Tax account reference on the back of your cheque.",
+        "source_sentence_id": "s59",
+        "symbol_id": "16605"
+      },
+      {
+        "id": "L22",
+        "text": "If you fall behind, you may lose the right to pay by instalments.",
+        "source_sentence_id": "s61",
+        "symbol_id": "32488"
+      },
+      {
+        "id": "L50",
+        "text": "The council may ask you to pay all you owe straight away.",
+        "source_sentence_id": "s61",
+        "symbol_id": "4630"
+      },
+      {
+        "id": "L51",
+        "text": "Or even take you to court.",
+        "source_sentence_id": "s61",
+        "symbol_id": "8147"
+      },
+      {
+        "id": "L38",
+        "text": "The council may ask you to pay all you owe straight away.",
+        "source_sentence_id": "s61",
+        "symbol_id": "4630"
+      },
+      {
+        "id": "L23",
+        "text": "Tell us.",
+        "source_sentence_id": "s62",
+        "symbol_id": "27465"
+      },
+      {
+        "id": "L39",
+        "text": "If you miss a payment, tell us.",
+        "source_sentence_id": "s62",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L24",
+        "text": "Go online to see if you are entitled to Council Tax support.",
+        "source_sentence_id": "s65",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L40",
+        "text": "Go to see if you are entitled to Council Tax support.",
+        "source_sentence_id": "s65",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L25",
+        "text": "Tell us as soon as you can at angliarevenues.gov.uk/eccontactus.",
+        "source_sentence_id": "s67",
+        "symbol_id": null
+      },
+      {
+        "id": "L41",
+        "text": "Use the website angliarevenues.gov.uk/eccontactus.",
+        "source_sentence_id": "s67",
+        "symbol_id": null
+      },
+      {
+        "id": "L26",
+        "text": "You can pay your Council Tax in 12 monthly instalments from April to March.",
+        "source_sentence_id": "s69",
+        "symbol_id": null
+      },
+      {
+        "id": "L27",
+        "text": "Let us know.",
+        "source_sentence_id": "s76",
+        "symbol_id": "27465"
+      },
+      {
+        "id": "L28",
+        "text": "We will give you 14 days notice.",
+        "source_sentence_id": "s80",
+        "symbol_id": "32488"
+      },
+      {
+        "id": "L42",
+        "text": "This is if your instalments change.",
+        "source_sentence_id": "s80",
+        "symbol_id": "32488"
+      },
+      {
+        "id": "L29",
+        "text": "Go paperless.",
+        "source_sentence_id": "s82",
+        "symbol_id": null
+      },
+      {
+        "id": "L30",
+        "text": "Sign up today to receive your bill electronically.",
+        "source_sentence_id": "s83",
+        "symbol_id": "27355"
+      },
+      {
+        "id": "L31",
+        "text": "Tell your bank to pay at least 7 days before the due date.",
+        "source_sentence_id": "s89",
+        "symbol_id": "3062"
+      },
+      {
+        "id": "L43",
+        "text": "Use your Council Tax account reference as the payment reference.",
+        "source_sentence_id": "s89",
+        "symbol_id": null
+      },
+      {
+        "id": "L44",
+        "text": "Pay to East Cambridgeshire District Council, sort code 52-41-19.",
+        "source_sentence_id": "s89",
+        "symbol_id": "3062"
+      },
+      {
+        "id": "L45",
+        "text": "Account number is 43136052.",
+        "source_sentence_id": "s89",
+        "symbol_id": "3062"
+      }
+    ],
+    "checks": [
+      {
+        "rule": "P1",
+        "passed": true,
+        "line_ids": [],
+        "failed_fact_ids": [],
+        "details": []
+      },
+      {
+        "rule": "P2",
+        "passed": false,
+        "line_ids": [
+          "L6",
+          "L7",
+          "L8",
+          "L33"
+        ],
+        "failed_fact_ids": [],
+        "details": [
+          "L6 has a sentence of 18 words (limit 15)",
+          "L7 has a sentence of 18 words (limit 15)",
+          "L8 has a sentence of 25 words (limit 15)",
+          "L33 has a sentence of 17 words (limit 15)"
+        ]
+      },
+      {
+        "rule": "P3",
+        "passed": false,
+        "line_ids": [
+          "L6",
+          "L32",
+          "L7",
+          "L8",
+          "L33",
+          "L9",
+          "L11",
+          "L35",
+          "L22",
+          "L39",
+          "L24",
+          "L40",
+          "L27",
+          "L42"
+        ],
+        "failed_fact_ids": [],
+        "details": [
+          "L6 has a sentence with 2 main clauses (limit 1)",
+          "L32 has a sentence with 2 main clauses (limit 1)",
+          "L7 has a sentence with 2 main clauses (limit 1)",
+          "L8 has a sentence with 3 main clauses (limit 1)",
+          "L33 has a sentence with 2 main clauses (limit 1)",
+          "L9 has a sentence with 3 main clauses (limit 1)",
+          "L11 has a sentence with 2 main clauses (limit 1)",
+          "L35 has a sentence with 2 main clauses (limit 1)",
+          "L22 has a sentence with 2 main clauses (limit 1)",
+          "L39 has a sentence with 2 main clauses (limit 1)",
+          "L24 has a sentence with 2 main clauses (limit 1)",
+          "L40 has a sentence with 2 main clauses (limit 1)",
+          "L27 has a sentence with 2 main clauses (limit 1)",
+          "L42 has a sentence with 2 main clauses (limit 1)"
+        ]
+      },
+      {
+        "rule": "P4",
+        "passed": false,
+        "line_ids": [
+          "L6",
+          "L32"
+        ],
+        "failed_fact_ids": [],
+        "details": [
+          "L6 uses the passive voice",
+          "L32 uses the passive voice"
+        ]
+      },
+      {
+        "rule": "P5",
+        "passed": false,
+        "line_ids": [
+          "L3",
+          "L6",
+          "L32",
+          "L8",
+          "L19",
+          "L20",
+          "L22",
+          "L26",
+          "L42",
+          "L29",
+          "L30"
+        ],
+        "failed_fact_ids": [],
+        "details": [
+          "L3 has 1 words that are not common and not explained",
+          "L6 has 1 words that are not common and not explained",
+          "L32 has 1 words that are not common and not explained",
+          "L8 has 1 words that are not common and not explained",
+          "L19 has 1 words that are not common and not explained",
+          "L20 has 1 words that are not common and not explained",
+          "L22 has 1 words that are not common and not explained",
+          "L26 has 1 words that are not common and not explained",
+          "L42 has 1 words that are not common and not explained",
+          "L29 has 1 words that are not common and not explained",
+          "L30 has 1 words that are not common and not explained"
+        ]
+      },
+      {
+        "rule": "P6",
+        "passed": true,
+        "line_ids": [],
+        "failed_fact_ids": [],
+        "details": []
+      },
+      {
+        "rule": "P7",
+        "passed": true,
+        "line_ids": [],
+        "failed_fact_ids": [],
+        "details": []
+      },
+      {
+        "rule": "P8",
+        "passed": true,
+        "line_ids": [],
+        "failed_fact_ids": [],
+        "details": []
+      },
+      {
+        "rule": "P9",
+        "passed": false,
+        "line_ids": [
+          "L11",
+          "L47",
+          "L34",
+          "L12",
+          "L14",
+          "L36",
+          "L46",
+          "L17",
+          "L48",
+          "L18",
+          "L49",
+          "L37",
+          "L22",
+          "L50",
+          "L51",
+          "L38",
+          "L23",
+          "L41",
+          "L28",
+          "L42",
+          "L31",
+          "L43",
+          "L44",
+          "L45"
+        ],
+        "failed_fact_ids": [],
+        "details": [
+          "L11 meaning: Leaves out 'contact us using our contact form'.",
+          "L47 meaning: Leaves out 'contact us using our contact form'.",
+          "L34 meaning: Leaves out 'contact us using our contact form'.",
+          "L12 meaning: Leaves out 'contact us using our contact form'.",
+          "L14 meaning: Leaves out 'sign up now at' website option.",
+          "L36 meaning: Leaves out 'sign up now at' website option.",
+          "L46 meaning: Adds 'the council updated' which is not in source.",
+          "L17 meaning: Leaves out 'or call' payment method.",
+          "L48 meaning: Leaves out 'Go to to pay online' option.",
+          "L18 meaning: Leaves out 'or call' payment method.",
+          "L49 meaning: Leaves out 'Go to to pay online' option.",
+          "L37 meaning: Leaves out 'Go to to pay online' option.",
+          "L22 meaning: Leaves out 'council may take you to court'.",
+          "L50 meaning: Leaves out 'lose right to pay by instalments'.",
+          "L51 meaning: Leaves out 'lose right to pay by instalments'.",
+          "L38 meaning: Leaves out 'lose right to pay by instalments'.",
+          "L23 meaning: Leaves out 'if you miss a payment' condition.",
+          "L41 meaning: Leaves out 'moving home affects your bill'.",
+          "L28 meaning: Leaves out 'if your instalments change' condition.",
+          "L42 meaning: Leaves out 'we are required to give notice'.",
+          "L31 meaning: Leaves out payment reference and bank details.",
+          "L43 meaning: Leaves out bank details and timing instruction.",
+          "L44 meaning: Leaves out account number and timing instruction.",
+          "L45 meaning: Leaves out sort code and timing instruction."
+        ]
+      },
+      {
+        "rule": "P10",
+        "passed": true,
+        "line_ids": [],
+        "failed_fact_ids": [],
+        "details": []
+      }
+    ],
+    "attempts": 3,
+    "notice": "This is a simplified version of your letter. The original letter is the official one.",
+    "judgeAvailable": true,
+    "models": [
+      {
+        "task": "rewrite",
+        "attempt": 1,
+        "provider": "bedrock",
+        "model": "openai.gpt-oss-120b-1:0"
+      },
+      {
+        "task": "judge",
+        "attempt": 1,
+        "provider": "bedrock",
+        "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+      },
+      {
+        "task": "regenerate",
+        "attempt": 1,
+        "provider": "bedrock",
+        "model": "openai.gpt-oss-120b-1:0"
+      },
+      {
+        "task": "judge",
+        "attempt": 2,
+        "provider": "bedrock",
+        "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+      },
+      {
+        "task": "regenerate",
+        "attempt": 2,
+        "provider": "bedrock",
+        "model": "openai.gpt-oss-120b-1:0"
+      },
+      {
+        "task": "judge",
+        "attempt": 3,
+        "provider": "bedrock",
+        "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+      }
+    ],
+    "actionSynonyms": [
+      {
+        "word": "contact",
+        "counts_as": "phone"
+      },
+      {
+        "word": "call",
+        "counts_as": "phone"
+      },
+      {
+        "word": "ring",
+        "counts_as": "phone"
+      },
+      {
+        "word": "telephone",
+        "counts_as": "phone"
+      },
+      {
+        "word": "submit",
+        "counts_as": "send"
+      },
+      {
+        "word": "return",
+        "counts_as": "send back"
+      },
+      {
+        "word": "complete",
+        "counts_as": "fill in"
+      },
+      {
+        "word": "fill out",
+        "counts_as": "fill in"
+      },
+      {
+        "word": "provide",
+        "counts_as": "give"
+      },
+      {
+        "word": "inform",
+        "counts_as": "tell"
+      },
+      {
+        "word": "notify",
+        "counts_as": "tell"
+      },
+      {
+        "word": "make a payment",
+        "counts_as": "pay"
+      },
+      {
+        "word": "make an application",
+        "counts_as": "apply"
+      },
+      {
+        "word": "respond",
+        "counts_as": "reply"
+      },
+      {
+        "word": "write back",
+        "counts_as": "reply"
+      },
+      {
+        "word": "attend",
+        "counts_as": "go"
+      },
+      {
+        "word": "request",
+        "counts_as": "ask"
+      },
+      {
+        "word": "obtain",
+        "counts_as": "get"
+      },
+      {
+        "word": "retain",
+        "counts_as": "keep"
+      }
+    ],
+    "lineFacts": [
+      {
+        "line_id": "L1",
+        "fact_id": "k1",
+        "start": 0,
+        "end": 45
+      },
+      {
+        "line_id": "L2",
+        "fact_id": "k1",
+        "start": 0,
+        "end": 17
+      },
+      {
+        "line_id": "L2",
+        "fact_id": "k2",
+        "start": 5,
+        "end": 17
+      },
+      {
+        "line_id": "L3",
+        "fact_id": "k3",
+        "start": 0,
+        "end": 31
+      },
+      {
+        "line_id": "L4",
+        "fact_id": "k4",
+        "start": 0,
+        "end": 15
+      },
+      {
+        "line_id": "L5",
+        "fact_id": "k5",
+        "start": 0,
+        "end": 18
+      },
+      {
+        "line_id": "L6",
+        "fact_id": "k6",
+        "start": 70,
+        "end": 97
+      },
+      {
+        "line_id": "L7",
+        "fact_id": "k7",
+        "start": 47,
+        "end": 88
+      },
+      {
+        "line_id": "L7",
+        "fact_id": "k8",
+        "start": 82,
+        "end": 88
+      },
+      {
+        "line_id": "L8",
+        "fact_id": "k9",
+        "start": 84,
+        "end": 120
+      },
+      {
+        "line_id": "L8",
+        "fact_id": "k10",
+        "start": 105,
+        "end": 111
+      },
+      {
+        "line_id": "L33",
+        "fact_id": "k9",
+        "start": 14,
+        "end": 50
+      },
+      {
+        "line_id": "L33",
+        "fact_id": "k10",
+        "start": 35,
+        "end": 41
+      },
+      {
+        "line_id": "L9",
+        "fact_id": "k11",
+        "start": 32,
+        "end": 60
+      },
+      {
+        "line_id": "L10",
+        "fact_id": "k12",
+        "start": 0,
+        "end": 26
+      },
+      {
+        "line_id": "L10",
+        "fact_id": "k13",
+        "start": 14,
+        "end": 26
+      },
+      {
+        "line_id": "L13",
+        "fact_id": "k16",
+        "start": 0,
+        "end": 49
+      },
+      {
+        "line_id": "L14",
+        "fact_id": "k17",
+        "start": 0,
+        "end": 42
+      },
+      {
+        "line_id": "L14",
+        "fact_id": "k18",
+        "start": 29,
+        "end": 42
+      },
+      {
+        "line_id": "L36",
+        "fact_id": "k1",
+        "start": 3,
+        "end": 27
+      },
+      {
+        "line_id": "L36",
+        "fact_id": "k18",
+        "start": 14,
+        "end": 27
+      },
+      {
+        "line_id": "L46",
+        "fact_id": "k19",
+        "start": 49,
+        "end": 53
+      },
+      {
+        "line_id": "L15",
+        "fact_id": "k20",
+        "start": 0,
+        "end": 26
+      },
+      {
+        "line_id": "L16",
+        "fact_id": "k21",
+        "start": 21,
+        "end": 29
+      },
+      {
+        "line_id": "L17",
+        "fact_id": "k22",
+        "start": 0,
+        "end": 34
+      },
+      {
+        "line_id": "L19",
+        "fact_id": "k1",
+        "start": 0,
+        "end": 64
+      },
+      {
+        "line_id": "L19",
+        "fact_id": "k24",
+        "start": 5,
+        "end": 18
+      },
+      {
+        "line_id": "L19",
+        "fact_id": "k25",
+        "start": 32,
+        "end": 43
+      },
+      {
+        "line_id": "L20",
+        "fact_id": "k26",
+        "start": 0,
+        "end": 92
+      },
+      {
+        "line_id": "L20",
+        "fact_id": "k27",
+        "start": 85,
+        "end": 92
+      },
+      {
+        "line_id": "L21",
+        "fact_id": "k28",
+        "start": 0,
+        "end": 76
+      },
+      {
+        "line_id": "L50",
+        "fact_id": "k29",
+        "start": 24,
+        "end": 56
+      },
+      {
+        "line_id": "L38",
+        "fact_id": "k29",
+        "start": 24,
+        "end": 56
+      },
+      {
+        "line_id": "L23",
+        "fact_id": "k30",
+        "start": 0,
+        "end": 7
+      },
+      {
+        "line_id": "L39",
+        "fact_id": "k30",
+        "start": 23,
+        "end": 30
+      },
+      {
+        "line_id": "L24",
+        "fact_id": "k31",
+        "start": 0,
+        "end": 9
+      },
+      {
+        "line_id": "L40",
+        "fact_id": "k31",
+        "start": 0,
+        "end": 2
+      },
+      {
+        "line_id": "L25",
+        "fact_id": "k32",
+        "start": 0,
+        "end": 63
+      },
+      {
+        "line_id": "L26",
+        "fact_id": "k33",
+        "start": 60,
+        "end": 74
+      },
+      {
+        "line_id": "L27",
+        "fact_id": "k34",
+        "start": 0,
+        "end": 11
+      },
+      {
+        "line_id": "L28",
+        "fact_id": "k35",
+        "start": 17,
+        "end": 24
+      },
+      {
+        "line_id": "L29",
+        "fact_id": "k36",
+        "start": 0,
+        "end": 12
+      },
+      {
+        "line_id": "L30",
+        "fact_id": "k37",
+        "start": 0,
+        "end": 13
+      },
+      {
+        "line_id": "L31",
+        "fact_id": "k38",
+        "start": 0,
+        "end": 57
+      },
+      {
+        "line_id": "L31",
+        "fact_id": "k39",
+        "start": 31,
+        "end": 37
+      },
+      {
+        "line_id": "L44",
+        "fact_id": "k29",
+        "start": 0,
+        "end": 63
+      },
+      {
+        "line_id": "L44",
+        "fact_id": "k40",
+        "start": 55,
+        "end": 63
+      },
+      {
+        "line_id": "L45",
+        "fact_id": "k41",
+        "start": 18,
+        "end": 26
+      }
+    ]
+  }
+}
