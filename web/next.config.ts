@@ -1,4 +1,16 @@
+import path from "node:path";
 import type { NextConfig } from "next";
+
+// `.env` lives at the repo root (README "Setup"), shared with the checker
+// and the scripts. Next reads `.env` from `web/` only, so `npm run dev` had no
+// CHECKER_URL or model keys. `process.loadEnvFile` never overrides a variable
+// that is already set, so a deployment's own settings win. In Docker there is
+// no root `.env`, and this does nothing.
+try {
+  process.loadEnvFile(path.resolve(process.cwd(), "..", ".env"));
+} catch (err) {
+  if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err;
+}
 
 const nextConfig: NextConfig = {
   /* config options here */
