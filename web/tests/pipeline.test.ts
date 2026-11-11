@@ -9,6 +9,8 @@ import {
   type RegenerateInput,
   type RegenerateResult,
   JUDGE_UNAVAILABLE,
+  ModelOutputError,
+  ProviderChainError,
   buildJudgeResults,
   judgeUnavailableResults,
 } from "@/src/llm";
@@ -26,8 +28,10 @@ import {
   applyRegeneration,
   convert,
   decide,
+  completeChecks,
   failingLineIds,
   missingFacts,
+  statusOf,
 } from "@/src/pipeline";
 
 // --- scripted fakes ---------------------------------------------------------------
@@ -96,9 +100,21 @@ interface Recorder {
   modelCalls: { rewrite: number; regenerate: number; judge: number };
   /** Line IDs sent to `lineFacts`, one entry per call. */
   lineFactCalls: string[][];
+  /** For each regenerate call, the index of the try it followed. */
+  regenerateAfter: number[];
 }
 
-function fakes(s: Scenario, opts: { failCheckOn?: number; failAnalyse?: boolean } = {}) {
+interface FakeOptions {
+  failCheckOn?: number;
+  failAnalyse?: boolean;
+  /** Regenerate call number (1-based) that throws `regenerateError`. */
+  failRegenerateOn?: number;
+  regenerateError?: Error;
+  /** Thrown by `lineFacts`. */
+  lineFactsError?: Error;
+}
+
+function fakes(s: Scenario, opts: FakeOptions = {}) {
   const rec: Recorder = {
     checked: [],
     checkResults: [],
@@ -106,6 +122,7 @@ function fakes(s: Scenario, opts: { failCheckOn?: number; failAnalyse?: boolean 
     regenerateInputs: [],
     modelCalls: { rewrite: 0, regenerate: 0, judge: 0 },
     lineFactCalls: [],
+    regenerateAfter: [],
   };
   const planFor = (i: number) => s.plans[Math.min(i, s.plans.length - 1)];
 
@@ -135,6 +152,7 @@ function fakes(s: Scenario, opts: { failCheckOn?: number; failAnalyse?: boolean 
     },
     async lineFacts({ lines }) {
       rec.lineFactCalls.push(lines.map((l) => l.id));
+      if (opts.lineFactsError) throw opts.lineFactsError;
       return lines.slice(0, 1).map((l) => ({ line_id: l.id, fact_id: "f1", start: 0, end: l.text.length }));
     },
     async symbols() {
@@ -153,8 +171,10 @@ function fakes(s: Scenario, opts: { failCheckOn?: number; failAnalyse?: boolean 
     },
     async regenerate(input): Promise<RegenerateResult> {
       rec.modelCalls.regenerate += 1;
-      rec.regenerateInputs.push(input);
       const call = rec.modelCalls.regenerate;
+      if (opts.failRegenerateOn === call) throw opts.regenerateError ?? new ModelOutputError("regenerate", 2, []);
+      rec.regenerateInputs.push(input);
+      rec.regenerateAfter.push(rec.checked.length - 1);
       const replacements = input.failing.map(({ line }) => {
         const n = s.splits[splitAt++ % s.splits.length];
         return {
@@ -255,8 +275,8 @@ const scenario: fc.Arbitrary<Scenario> = fc
 
 const originalOf = (s: Scenario) => s.sentences.map((x) => x.text).join(" ");
 
-async function run(s: Scenario) {
-  const f = fakes(s);
+async function run(s: Scenario, opts: FakeOptions = {}) {
+  const f = fakes(s, opts);
   const logs: PipelineLogEvent[] = [];
   const events: ProgressEvent[] = [];
   const result = await convert(originalOf(s), {
@@ -333,20 +353,24 @@ describe("convert: fast-check properties", () => {
     await fc.assert(
       fc.asyncProperty(scenario, async (s) => {
         const { rec } = await run(s);
+        // A try with no regenerate before the next one (the judge retry) keeps every line.
         for (let k = 0; k + 1 < rec.checked.length; k++) {
+          if (!rec.regenerateAfter.includes(k)) expect(rec.checked[k + 1]).toEqual(rec.checked[k]);
+        }
+        rec.regenerateAfter.forEach((k, j) => {
           const before = rec.checked[k];
           const after = rec.checked[k + 1];
           const judgeAvailable = rec.judged[k].available;
           const checks = [...rec.checkResults[k], ...rec.judged[k].checks];
           // Lines the fakes failed, not counting "judge unavailable".
           const expected = new Set(failingLineIds(checks, { lines: before, keyFacts: s.keyFacts, judgeAvailable }));
-          const sent = new Set(rec.regenerateInputs[k].failing.map((f) => f.line.id));
+          const sent = new Set(rec.regenerateInputs[j].failing.map((f) => f.line.id));
           expect(sent).toEqual(expected);
           // Every other line keeps its ID, text and source, in the same order.
           const kept = before.filter((l) => !sent.has(l.id));
           const survivors = after.filter((l) => kept.some((x) => x.id === l.id));
           expect(survivors).toEqual(kept);
-        }
+        });
       }),
       RUNS,
     );
@@ -373,6 +397,28 @@ describe("convert: fast-check properties", () => {
         expect(rewrite).toBe(1);
         expect(regenerate).toBeLessThanOrEqual(MAX_ATTEMPTS - 1);
         expect(rewrite + regenerate + judge).toBeLessThanOrEqual(6);
+      }),
+      RUNS,
+    );
+  });
+
+  it("a regenerate failure at any try returns the last checked try, decided as usual", async () => {
+    // **Validates: Requirements 2.5, 3.4, 3.5, 3.6** (a model error never throws a checked result away)
+    const error = fc.constantFrom<() => Error>(
+      () => new ModelOutputError("regenerate", 2, ["lines"]),
+      () => new ProviderChainError("rewrite", [], undefined),
+    );
+    await fc.assert(
+      fc.asyncProperty(scenario, fc.integer({ min: 1, max: MAX_ATTEMPTS - 1 }), error, async (s, failOn, makeError) => {
+        const { result, rec, logs } = await run(s, { failRegenerateOn: failOn, regenerateError: makeError() });
+        const last = completeChecks(lastTry(rec));
+        expect(result.attempts).toBe(rec.checked.length);
+        expect(result.status).toBe(statusOf(last));
+        expect(result.checks).toEqual(last);
+        expect(result.lines).toEqual(result.status === "blocked" ? [] : rec.checked[rec.checked.length - 1]);
+        const stopped = logs.filter((l) => l.msg === "pipeline_regenerate_failed");
+        expect(stopped).toHaveLength(rec.modelCalls.regenerate >= failOn ? 1 : 0);
+        expect(JSON.stringify(logs)).not.toContain("zq");
       }),
       RUNS,
     );
@@ -489,13 +535,90 @@ describe("convert: examples", () => {
     const s = scenarioOf({ drafts: [draft("a", "s1"), draft("b", "s2")], plans: [{ ...pass, judgeAvailable: false }] });
     const { result, rec } = await runOf(s);
     expect(result.status).toBe("flagged");
-    expect(result.attempts).toBe(1);
+    // One extra try for the judge on the same lines, then it gives up.
+    expect(result.attempts).toBe(2);
+    expect(rec.modelCalls.judge).toBe(2);
+    expect(rec.checked[1]).toEqual(rec.checked[0]);
     expect(rec.modelCalls.regenerate).toBe(0);
     expect(result.judgeAvailable).toBe(false);
     for (const rule of ["P9", "P10"] as Rule[]) {
       const c = result.checks.find((x) => x.rule === rule)!;
       expect(c.passed).toBe(false);
       expect(c.details.every((d) => d.endsWith(JUDGE_UNAVAILABLE))).toBe(true);
+    }
+  });
+
+  it("asks an unavailable judge again when nothing else failed, and passes if it then answers", async () => {
+    const s = scenarioOf({ drafts: [draft("a", "s1"), draft("b", "s2")], plans: [{ ...pass, judgeAvailable: false }, pass] });
+    const { result, rec } = await runOf(s);
+    expect(rec.modelCalls.judge).toBe(2);
+    expect(rec.modelCalls.regenerate).toBe(0);
+    expect(result.attempts).toBe(2);
+    expect(result.status).toBe("passed");
+    expect(result.judgeAvailable).toBe(true);
+    expect(result.checks.every((c) => c.passed)).toBe(true);
+  });
+
+  it("flags P9 and P10 with judgeAvailable false when the judge is unavailable on every try", async () => {
+    const s = scenarioOf({ plans: [{ ...pass, judgeAvailable: false, rules: { P2: [0] } }, { ...pass, judgeAvailable: false }] });
+    const { result, rec } = await runOf(s);
+    expect(result.status).toBe("flagged");
+    expect(result.judgeAvailable).toBe(false);
+    expect(result.attempts).toBe(3);
+    expect(rec.modelCalls.judge).toBe(3);
+    expect(rec.modelCalls.regenerate).toBe(1);
+    for (const rule of ["P9", "P10"] as Rule[]) expect(result.checks.find((c) => c.rule === rule)?.passed).toBe(false);
+  });
+
+  it("returns try 1's checked result when regenerate throws ModelOutputError", async () => {
+    const s = scenarioOf({ drafts: [draft("a", "s1"), draft("b", "s2")], plans: [{ ...pass, rules: { P4: [1] } }, pass] });
+    const f = fakes(s, { failRegenerateOn: 1, regenerateError: new ModelOutputError("regenerate", 2, ["lines"]) });
+    const logs: PipelineLogEvent[] = [];
+    const result = await convert(originalOf(s), { checker: f.checker, model: f.model, logger: (e) => logs.push(e) });
+    expect(result.status).toBe("flagged");
+    expect(result.attempts).toBe(1);
+    expect(result.lines.map((l) => l.id)).toEqual(["L1", "L2"]);
+    expect(result.checks.find((c) => c.rule === "P4")?.passed).toBe(false);
+    expect(result.models.map((m) => m.task)).toEqual(["rewrite", "judge"]);
+    expect(f.rec.lineFactCalls).toEqual([["L1", "L2"]]);
+    expect(logs.find((l) => l.msg === "pipeline_regenerate_failed")).toEqual({
+      msg: "pipeline_regenerate_failed",
+      attempt: 1,
+      error: "ModelOutputError",
+    });
+    expect(logs.at(-1)?.msg).toBe("pipeline_done");
+  });
+
+  it("returns a blocked result from the checks when regenerate throws ProviderChainError and P1 failed", async () => {
+    const s = scenarioOf({ keyFacts: [FACT], drafts: [draft("b", "s2")], plans: [{ ...pass, p1: [{ fact: 0, changed: true, pick: 0 }] }] });
+    const f = fakes(s, { failRegenerateOn: 2, regenerateError: new ProviderChainError("rewrite", [], undefined) });
+    const result = await convert(originalOf(s), { checker: f.checker, model: f.model, logger: () => {} });
+    expect(result.status).toBe("blocked");
+    expect(result.attempts).toBe(2);
+    expect(result.lines).toEqual([]);
+    expect(result.checks[0].failed_fact_ids).toEqual(["f1"]);
+  });
+
+  it("still throws other regenerate errors", async () => {
+    const s = scenarioOf({ plans: [{ ...pass, rules: { P2: [0] } }] });
+    const f = fakes(s, { failRegenerateOn: 1, regenerateError: new TypeError("bug") });
+    await expect(convert("x", { checker: f.checker, model: f.model, logger: () => {} })).rejects.toBeInstanceOf(TypeError);
+  });
+
+  it("returns the checked result with no highlighting when lineFacts fails", async () => {
+    const s = scenarioOf({ drafts: [draft("a", "s1"), draft("b", "s2")] });
+    for (const error of [new CheckerUnavailable("/line-facts", "timeout"), new Error("boom")]) {
+      const f = fakes(s, { lineFactsError: error });
+      const logs: PipelineLogEvent[] = [];
+      const result = await convert(originalOf(s), { checker: f.checker, model: f.model, logger: (e) => logs.push(e) });
+      expect(result.status).toBe("passed");
+      expect(result.lines).toHaveLength(2);
+      expect(result.lineFacts).toEqual([]);
+      expect(logs.find((l) => l.msg === "pipeline_line_facts_failed")).toEqual({
+        msg: "pipeline_line_facts_failed",
+        attempt: 1,
+        error: error.name,
+      });
     }
   });
 
@@ -518,6 +641,9 @@ describe("convert: examples", () => {
     expect(a.rec.modelCalls.rewrite).toBe(0);
     const b = fakes(s, { failCheckOn: 2 });
     await expect(convert("x", { checker: b.checker, model: b.model, logger: () => {} })).rejects.toBeInstanceOf(CheckerUnavailable);
+    // Also when a regenerate failure would otherwise end the loop early: the check never ran on try 1.
+    const c = fakes(s, { failCheckOn: 1, failRegenerateOn: 1 });
+    await expect(convert("x", { checker: c.checker, model: c.model, logger: () => {} })).rejects.toBeInstanceOf(CheckerUnavailable);
   });
 
   it("streams progress events for each try", async () => {

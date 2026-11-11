@@ -114,6 +114,19 @@ export type PipelineLogEvent =
       failedRules: Rule[];
       models: ModelUse[];
       ms: number;
+    }
+  | {
+      /** Regenerate gave no usable answer, so the last checked try is the result. */
+      msg: "pipeline_regenerate_failed";
+      attempt: number;
+      /** The error class name only, never its message. */
+      error: string;
+    }
+  | {
+      /** Key-fact spans couldn't be fetched; the checked result is returned without highlighting. */
+      msg: "pipeline_line_facts_failed";
+      attempt: number;
+      error: string;
     };
 
 export type PipelineLogger = (event: PipelineLogEvent) => void;
