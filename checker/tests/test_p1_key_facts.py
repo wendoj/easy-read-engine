@@ -335,6 +335,39 @@ def test_deadlines_swapped_on_statement_lines_fail() -> None:
     assert kept.passed, kept.details
 
 
+def test_deadlines_swapped_before_their_payments_fail() -> None:
+    # Reproduced in review v3: each deadline line went to the payment before
+    # it, so the swapped lines passed and the faithful lines failed.
+    original = "You must pay £45 by 1 April 2026 and you must pay £20 by 1 May 2026."
+    facts, result = _p1(
+        original,
+        ["The deadline is 1 May 2026.", "You must pay £45.",
+         "The deadline is 1 April 2026.", "You must pay £20."],  # fmt: skip
+    )
+    assert not result.passed
+    assert {f.id for f in facts if f.type == "action"} <= set(result.failed_fact_ids)
+    _, kept = _p1(
+        original,
+        ["The deadline is 1 April 2026.", "You must pay £45.",
+         "The deadline is 1 May 2026.", "You must pay £20."],  # fmt: skip
+    )
+    assert kept.passed, kept.details
+
+
+def test_deadline_between_two_payments_in_a_mixed_layout_is_not_guessed() -> None:
+    # Deadline lines both before the first payment and after the last, so the
+    # middle one could describe either payment. P1 fails rather than guess.
+    original = "You must pay £45 by 1 April 2026 and you must pay £20 by 1 May 2026."
+    facts, result = _p1(
+        original,
+        ["The first deadline is 1 April 2026.", "You must pay £45.",
+         "The deadline is 1 May 2026.", "You must pay £20.",
+         "Your reference is AB123456."],  # fmt: skip
+    )
+    assert not result.passed
+    assert {f.id for f in facts if f.type == "action"} & set(result.failed_fact_ids)
+
+
 def test_statement_line_before_a_single_action_still_counts() -> None:
     _, result = _p1(
         "Send the form back by 14 March 2026.",
@@ -421,3 +454,20 @@ def test_split_action_is_highlighted_on_its_verb_lines() -> None:
     ]
     spans = line_fact_spans(facts, lines)
     assert {s.line_id for s in spans if s.fact_id == action.id} == {"l1", "l2"}
+
+
+def test_year_inside_a_name_still_matches() -> None:
+    """Regression: spaCy tagged "2018" as a date in the Original but not in
+    "the Data Protection Act 2018" in the output."""
+    original = "We handle your data under the Data Protection Act\n2018."
+    facts = [f for f in extract_key_facts(original) if f.type == "date"]
+    lines = [Line(id="L1", text="The council follows the Data Protection Act 2018.", source_sentence_id="s1", symbol_id=None)]
+    result = check_p1(original, facts, lines)
+    assert result.passed, result.details
+
+
+def test_changed_year_still_fails() -> None:
+    original = "We handle your data under the Data Protection Act\n2018."
+    facts = [f for f in extract_key_facts(original) if f.type == "date"]
+    lines = [Line(id="L1", text="The council follows the Data Protection Act 2019.", source_sentence_id="s1", symbol_id=None)]
+    assert not check_p1(original, facts, lines).passed

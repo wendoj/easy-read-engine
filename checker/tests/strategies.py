@@ -74,7 +74,8 @@ def two_payment_swaps(draw: st.DrawFn) -> tuple[str, list[str], list[str]]:
     Returns (Original sentence, faithful lines, swapped lines). The swapped
     lines exchange the amounts or the dates between the 2 payments. The lines
     are one line per payment, a P3 split of each payment over 2 lines, or a
-    split where each date is a statement with no action ("The deadline is D.").
+    split where each date is a statement with no action ("The deadline is D."),
+    placed after or before its payment.
     """
     m1, m2 = draw(st.lists(money, min_size=2, max_size=2, unique_by=_money_key))
     d1, d2 = draw(st.lists(dates, min_size=2, max_size=2, unique_by=_date_key))
@@ -84,6 +85,7 @@ def two_payment_swaps(draw: st.DrawFn) -> tuple[str, list[str], list[str]]:
     forms = [
         ["You must pay {m}.", "Pay it by {d}."],
         ["You must pay {m}.", "The deadline is {d}."],
+        ["The deadline is {d}.", "You must pay {m}."],
         ["You must pay {m} by {d}."],
     ]
     form = draw(st.sampled_from(forms))

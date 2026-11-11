@@ -25,9 +25,11 @@ of the same type (R2.3, R2.6):
   new unit starts when an action repeats a value type or object. A unit must
   carry the Original action's own values, and lines that belong to a sibling
   unit are not searched. A line in the group with no action of that phrase
-  ("The deadline is 1 May 2026.") belongs to the nearest unit before it, or
-  to every unit if it comes before the first one. So when one sentence holds
-  2 payments, swapping their amounts or dates between the lines fails.
+  ("The deadline is 1 May 2026.") belongs to the nearest unit before it when
+  no such line with a key fact comes before the first action, or to the
+  nearest unit after it when none comes after the last action. If both
+  happen, a line between 2 units belongs to neither. So when one sentence
+  holds 2 payments, swapping their amounts or dates between the lines fails.
 
 The lines are joined with line breaks and extracted as one text, with one
 "sentence" per line. Facts never run across a line break, except an address,
@@ -92,7 +94,7 @@ def _output_facts(lines: list[Line]) -> list[_OutputFact]:
         offset += len(line.text) + len(_LINE_BREAK)
     text = _LINE_BREAK.join(line.text for line in lines)
 
-    facts = extract_key_facts(text, sentences, permissive_actions=True)
+    facts = extract_key_facts(text, sentences)
     covered = [(f.start, f.end) for f in facts if f.type != "action"]
     for m in _YEAR.finditer(text):
         if not any(start < m.end() and m.start() < end for start, end in covered):
@@ -209,11 +211,21 @@ class _Matcher:
     def _unit_lines(self, unit: list[int], units: list[list[int]], group: set[str]) -> set[str]:
         """The lines a unit searches for objects and values.
 
-        These are the unit's own action lines, plus each group line with no
-        action of this phrase that comes after the unit's action lines and
-        before the next unit's ("You must pay £45." then "The deadline is 1
-        April 2026."). Such lines before the first action are shared by every
-        unit, so with one unit the whole group is searched.
+        These are the unit's own action lines plus some of the group's other
+        lines (lines with no action of this phrase). With one unit, the whole
+        group is searched. With several, the other lines that hold a key fact
+        set the layout:
+
+        - none before the first action: each line describes the action before
+          it ("You must pay £45." then "The deadline is 1 April 2026.");
+        - none after the last action: each line describes the action after it
+          ("The deadline is 1 April 2026." then "You must pay £45.");
+        - some before and some after: a line between 2 units could describe
+          either, so no unit searches it, and a line before the first or after
+          the last action goes to that unit. P1 fails rather than guess.
+
+        A line with no unit on the side the layout points to holds no key fact,
+        so it is shared by every unit.
         """
         order = {line.id: n for n, line in enumerate(self._lines)}
         owner: dict[str, int] = {}
@@ -223,10 +235,30 @@ class _Matcher:
                     owner[line_id] = n
         index = units.index(unit)
         lines = {line_id for line_id, n in owner.items() if n == index}
+        others = group - owner.keys()
+        if len(units) == 1:
+            return lines | others
         action_lines = sorted(owner, key=order.__getitem__)
-        for line_id in group - owner.keys():
-            earlier = [x for x in action_lines if order[x] < order[line_id]]
-            if not earlier or owner[earlier[-1]] == index:
+        first, last = order[action_lines[0]], order[action_lines[-1]]
+        fact_lines = {
+            x for o in self._output if o.type != "action" for x in o.line_ids if x in others
+        }
+        after = not any(order[x] < first for x in fact_lines)
+        before = not any(order[x] > last for x in fact_lines)
+        for line_id in others:
+            earlier = [owner[x] for x in action_lines if order[x] < order[line_id]]
+            later = [owner[x] for x in action_lines if order[x] > order[line_id]]
+            if after:
+                belongs = earlier[-1] == index if earlier else True
+            elif before:
+                belongs = later[0] == index if later else True
+            elif not earlier:
+                belongs = later[0] == index
+            elif not later:
+                belongs = earlier[-1] == index
+            else:
+                belongs = earlier[-1] == later[0] == index
+            if belongs:
                 lines.add(line_id)
         return lines
 
