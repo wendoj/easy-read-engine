@@ -1,6 +1,6 @@
 # How Kiro was used
 
-This write-up covers the spec, steering, hooks, MCP server, Power and custom agent in `.kiro/` and `power-easy-read/`. Every number has its source next to it: a file in this repository or a git commit. Commit counts are up to commit `f4c748f`, the last commit before this write-up. Later notes also cite commits after it, up to `40faaee`.
+This write-up covers the spec, steering, hooks, MCP server, Power and custom agent in `.kiro/` and `power-easy-read/`. Every number has its source next to it: a file in this repository or a git commit. Commit counts are up to commit `f4c748f`, the last commit before this write-up. Later notes also cite commits after it, up to `9776bc4`.
 
 ## Spec
 
@@ -47,8 +47,8 @@ What the git history shows about them:
 - **The commit hook was fixed once.** Its first version led to 7 commits that only marked a task done (`1de56c3` to `6eaebc5`, tasks 1 to 12). Commit `4e1f4dc` changed the hook to put the task status in the same commit as the code. No status-only commits came after it.
 - **The property guard has its own tests.** Task 20 added `checker/scripts/check_property_tests.py` (280 lines) and `checker/tests/test_check_property_tests.py` (219 lines) (`git show --stat 9d2da5c`).
 - **The property guard caught a test change once.** The pipeline's P1 behaviour changed so that it keeps the latest try that passed P1 when the last try breaks it. `checker/scripts/check_property_tests.py`, which the `check-property-tests.json` hook runs, then reported 3 renamed fast-check properties in `web/tests/pipeline.test.ts`. They were reviewed and kept as renamed properties, each still using `fc.assert` for the same requirement, and a new property was added for the kept try. The body of commit `03c6c1b` records this.
-- **The prompt-save hook has no recorded before and after.** The prompt changes in `7d0fccc` and `7d8335d` have not been through a live fixture run yet, so we don't claim a result for them.
-- **Recorded samples can be re-checked offline.** `checker/scripts/recheck_samples.py` (`55f32dd`) runs P1 to P8 on the recorded sample lines with the current checker and prints only rule IDs and counts. After the P3 and P5 fixes in `68cb6b3` and `9214a3f`, failing lines across the 3 recorded samples went from 99 to 60, with no new recording.
+- **The prompt-save hook has no recorded before and after.** The prompt changes in `7d0fccc` and `7d8335d` have not been through the 8-letter fixture run (task 35), so we don't claim a fixture result for them. They were live for 1 recording: the 3 public samples were re-recorded on Bedrock in `40faaee`, after those commits and after the P3 and P5 checker fixes. Summed over all 10 rules, the failing lines in the recorded checks went from 190 (`24116c8`) to 103 (`40faaee`). That re-record changed the prompts, the checker and the model's answers at once, so the drop can't be credited to the prompts alone.
+- **Recorded samples can be re-checked offline.** `checker/scripts/recheck_samples.py` (`55f32dd`) runs P1 to P8 on the recorded sample lines with the current checker and prints only rule IDs and counts. On the `40faaee` recordings, with no new recording, the failing lines summed over P1 to P8 went from 119 (checker at `78db0f8`) to 80 after the P3 and P5 fixes in `68cb6b3` and `9214a3f`. A review then found 3 exemptions too wide and a line-break rule that weakened P1. The stricter fixes in `f9f2f81` and `9776bc4` bring the count to 90. P1 passes on all 3 samples at every step. An earlier version of this page said 99 to 60; those were addition mistakes.
 - **The save hooks have not been recorded catching a problem.** We don't claim they did.
 
 ## Property tests
@@ -83,7 +83,7 @@ The 2 finished fixture letters are not enough for a pass rate, and they were not
 
 ## Prior art
 
-The brief listed "An AI Easy Read tool already exists" as a risk, with the plan to "lead with the verified checks" (`docs/brief.md`, risk table). The risk came true. Swindon Borough Council's [Simply Readable](https://www.local.gov.uk/case-studies/swindon-borough-council-simply-readable-ai-easy-read-solution) is an open-source AI Easy Read generator on Amazon Bedrock, used by council staff to produce Easy Read documents. Its case study describes no automated check of the output. The README's "Prior art" section says how this project differs: it is for the person who received the letter, and every line goes through P1 to P10, with a P1 failure blocking the output.
+The brief listed "An AI Easy Read tool already exists" as a risk, with the plan to "lead with the verified checks" (`docs/brief.md`, risk table). The risk came true. Swindon Borough Council's [Simply Readable](https://www.local.gov.uk/case-studies/swindon-borough-council-simply-readable-ai-easy-read-solution) is an open-source AI Easy Read generator on Amazon Bedrock, which social workers use to produce Easy Read versions. Its case study (read again on 11 November 2026) describes no automated check of the output. The README's "Prior art" section says how this project differs: it is for the person who received the letter, and every line goes through P1 to P10, with a P1 failure blocking the output.
 
 ## What we didn't do
 

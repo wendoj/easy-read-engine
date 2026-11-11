@@ -21,7 +21,7 @@ This file and the JSON hold rule results and metadata only. No letter text, Easy
 
 ## Results
 
-Status: **passed** means all 10 rules passed. **flagged** means the output is shown with failing rules flagged after 3 tries. **blocked** means P1 failed after 3 tries. **error** means the letter stopped before a checked result.
+Status: **passed** means all 10 rules passed. **flagged** means the output is shown with failing rules flagged after 3 tries. **blocked** means P1 failed on all 3 tries. **error** means the letter stopped before a checked result.
 
 ### Public sample letters (3)
 

@@ -10,13 +10,13 @@ It is for adults with learning disabilities, low literacy or English as a second
 
 ## Prior art
 
-AI Easy Read tools already exist. Swindon Borough Council built [Simply Readable](https://www.local.gov.uk/case-studies/swindon-borough-council-simply-readable-ai-easy-read-solution), an AI Easy Read generator on Amazon Bedrock. According to the Local Government Association case study, it is open source and was co-designed with residents with learning disabilities. Council staff, such as social workers, use it to produce Easy Read documents in under 30 minutes. The case study puts the cost at about 1p per page, against about £120 per A4 page made by hand, and says it can translate into 75 languages. The case study does not describe any automated check of the output.
+AI Easy Read tools already exist. Swindon Borough Council built [Simply Readable](https://www.local.gov.uk/case-studies/swindon-borough-council-simply-readable-ai-easy-read-solution), an AI Easy Read generator on Amazon Bedrock. According to the Local Government Association case study (read again on 11 November 2026), it is open source, and the council worked with a group of residents with learning disabilities throughout its development. Social workers put in the information and get an Easy Read version in under 30 minutes. The case study puts the cost at about 1p per page, or 7 to 10p for a 5 to 10 page document, against about £120 per A4 page made by hand. It also says the tool can translate into 75 languages. The case study does not describe any automated check of the output: no rule checks, no check that key facts are kept, and no tracing of lines back to the source.
 
 Easy Read Engine solves a different part of the problem:
 
 - **Who it is for.** The person who received the letter, or their carer, rather than staff writing Easy Read documents.
 - **Every line is checked.** Rules P1 to P8 run in a checker with no model (`checker/src/checks/`), and 2 model judges check meaning (P9) and tone and advice (P10).
-- **Key facts block the output.** If a date, amount, reference number or other key fact is changed or missing after 3 tries, no lines are shown and export is turned off.
+- **Key facts block the output.** If no try keeps every date, amount, reference number and other key fact unchanged, no lines are shown and export is turned off.
 - **You can check it against the letter.** The original is shown side by side. Each line is traced to the sentence it came from, and key facts are highlighted in both columns.
 - **No advice.** P10 fails any line that tells the reader what to decide.
 - **The checker is tested.** Hypothesis and fast-check property tests, cases the checker must fail, and a mutation test (`checker/tests/`, `web/tests/`).
@@ -105,7 +105,7 @@ The project joins parts that don't usually work together. The model writes, and 
 How the checker gates the model:
 
 - Key facts are taken from the original before the model writes anything, so P1 compares the output with the original, never with itself.
-- If P1 still fails after 3 tries, or after a user edit, the output is blocked. No lines are shown, the failed key fact is named and export is turned off.
+- If P1 fails on all 3 tries, or after a user edit, the output is blocked. If the last try fails P1 but an earlier try passed it, the latest try that passed P1 is shown, with its own checks. No lines are shown, the failed key fact is named and export is turned off.
 - If any other rule still fails after 3 tries, the output is shown with that rule flagged.
 - If the advice check (P10) could not run, export is turned off.
 - If the checker service is down, nothing is shown (503).
@@ -208,7 +208,7 @@ Both guides say to involve people with learning disabilities and test with them 
 
 - **No letter text is stored or logged.** Letters are processed in memory. Logs hold only rule results, attempt counts, timings and the provider and model that answered. The only stored data is the pictogram image cache.
 - **The original letter is the official one.** It is shown next to every result, and every result and exported PDF says the Easy Read version is a simplified copy.
-- **Key facts must match.** If a key fact from the original is missing or changed after 3 tries, or after an edit, the output is blocked: no lines are shown, the failed key fact is named and export is turned off.
+- **Key facts must match.** If a key fact from the original is missing or changed on all 3 tries, or after an edit, the output is blocked: no lines are shown, the failed key fact is named and export is turned off.
 - **No advice.** The output says what the letter says. It never tells the reader what to decide. The P10 judge checks every line for advice.
 - Letter text is sent to an outside AI provider. The app tells users this and asks them not to upload letters with personal details.
 
