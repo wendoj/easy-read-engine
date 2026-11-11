@@ -90,13 +90,13 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - Property: `check_easy_read` always returns exactly one result for each of P1 to P8
   - _Requirements: 3.1, 6.1_
 
-- [-] 12. Build the FastAPI adapter and generated types
+- [x] 12. Build the FastAPI adapter and generated types
   - `checker/src/http_app.py` with routes `POST /analyse`, `POST /key-facts`, `POST /check`, `GET /symbols?q=` and `GET /health` (which reports whether spaCy is loaded)
   - Validate requests with Pydantic; never log request bodies
   - Script to export the OpenAPI schema and generate `web/src/types/checker.ts` with `openapi-typescript`
   - _Requirements: 3.1, 7.4_
 
-- [ ] 13. Build the MCP server
+- [-] 13. Build the MCP server
   - `checker/src/mcp_server.py` with the official Python MCP SDK over stdio, exposing tools `check_easy_read`, `extract_key_facts` and `find_symbol` that call the same functions as the HTTP routes
   - Add the local server entry to `.kiro/settings/mcp.json`
   - Make one sample call to each tool to confirm it responds

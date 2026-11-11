@@ -62,6 +62,8 @@ Each checker has its own file in `checker/src/checks/` and its own test file, `c
 | --- | --- |
 | `cd checker && uv run pytest` | All Hypothesis and checker tests |
 | `cd checker && uv run pytest tests/test_p2_sentence_length.py` | One checker (used by the on-save hook) |
+| `cd checker && uv run uvicorn http_app:app --app-dir src` | Checker HTTP service on port 8000 |
+| `cd web && npm run gen:checker-types` | Export the checker OpenAPI schema and regenerate `web/src/types/checker.ts` |
 | `cd web && npx vitest --run` | fast-check and unit tests (also `npm test`) |
 | `cd web && npm run fixtures` | 5 fixture letters through the full pipeline, all 10 checks |
 
