@@ -9,8 +9,9 @@ from collections.abc import Callable
 from checks import key_facts as _key_facts
 from checks import symbols as _symbols
 from checks.config import ACTION_SYNONYMS
-from checks.models import ActionSynonym, Analysis, CheckResult, KeyFact, Line, Rule, SymbolMatch
+from checks.models import ActionSynonym, Analysis, CheckResult, KeyFact, Line, LineFactSpan, Rule, SymbolMatch
 from checks.p1_key_facts import check_p1
+from checks.p1_key_facts import line_fact_spans as _line_fact_spans
 from checks.p2_sentence_length import check_p2
 from checks.p3_one_idea import check_p3
 from checks.p4_passive import check_p4
@@ -20,7 +21,15 @@ from checks.p7_abbreviations import check_p7
 from checks.p8_symbols import check_p8
 from checks.sentences import split_sentences
 
-__all__ = ["CHECKERS", "action_synonyms", "analyse", "check_easy_read", "extract_key_facts", "find_symbol"]
+__all__ = [
+    "CHECKERS",
+    "action_synonyms",
+    "analyse",
+    "check_easy_read",
+    "extract_key_facts",
+    "find_symbol",
+    "line_fact_spans",
+]
 
 Checker = Callable[[str, list[KeyFact], list[Line]], CheckResult]
 
@@ -64,6 +73,15 @@ def check_easy_read(original: str, key_facts: list[KeyFact], lines: list[Line]) 
             raise RuntimeError(f"checker for {rule} returned a result for {result.rule}")
         results.append(result)
     return results
+
+
+def line_fact_spans(key_facts: list[KeyFact], lines: list[Line]) -> list[LineFactSpan]:
+    """Where each key fact from the Original appears in the lines, for highlighting (R5.3).
+
+    Uses P1's extraction and normalisation, so the web app never normalises
+    values itself. `key_facts` must come from the Original.
+    """
+    return _line_fact_spans(key_facts, lines)
 
 
 def find_symbol(query: str, limit: int = 5) -> list[SymbolMatch]:

@@ -22,7 +22,7 @@ This module never logs, and `details` hold fact IDs and types, never values (R7.
 from dataclasses import dataclass
 
 from checks.key_facts import extract_key_facts
-from checks.models import CheckResult, KeyFact, KeyFactType, Line, Sentence
+from checks.models import CheckResult, KeyFact, KeyFactType, Line, LineFactSpan, Sentence
 
 _LINE_BREAK = "\n"
 
@@ -32,6 +32,8 @@ class _OutputFact:
     type: KeyFactType
     normalised: str
     line_ids: tuple[str, ...]
+    # (line ID, start, end) per covered line, offsets into that line's text.
+    spans: tuple[tuple[str, int, int], ...]
 
 
 def _key(fact: KeyFact | _OutputFact) -> tuple[str, str]:
@@ -53,8 +55,45 @@ def _output_facts(lines: list[Line]) -> list[_OutputFact]:
 
     out: list[_OutputFact] = []
     for fact in extract_key_facts(text, sentences):
-        covered = tuple(s.id for s in sentences if s.start < fact.end and fact.start < s.end)
-        out.append(_OutputFact(fact.type, fact.normalised, covered or (fact.sentence_id,)))
+        covering = [s for s in sentences if s.start < fact.end and fact.start < s.end]
+        covered = tuple(s.id for s in covering)
+        spans = tuple(
+            (s.id, max(fact.start, s.start) - s.start, min(fact.end, s.end) - s.start) for s in covering
+        )
+        out.append(_OutputFact(fact.type, fact.normalised, covered or (fact.sentence_id,), spans))
+    return out
+
+
+def line_fact_spans(key_facts: list[KeyFact], lines: list[Line]) -> list[LineFactSpan]:
+    """Where each key fact from the Original appears in the output lines.
+
+    Uses the same extraction and normalisation as P1, so a span is returned
+    exactly when P1 counts that output value as the fact. Values that match no
+    fact in the Original are left out. A fact that runs over a line break (an
+    address) gets one span per line.
+
+    When several facts in the Original share a normalised value, the span names
+    the one from the line's source sentence, or else the first in `key_facts`.
+    Spans are in line order, then by start offset.
+    """
+    by_key: dict[tuple[str, str], list[KeyFact]] = {}
+    for fact in key_facts:
+        by_key.setdefault(_key(fact), []).append(fact)
+    source = {line.id: line.source_sentence_id for line in lines}
+    order = {line.id: i for i, line in enumerate(lines)}
+
+    out: list[LineFactSpan] = []
+    for output in _output_facts(lines):
+        candidates = by_key.get(_key(output))
+        if not candidates:
+            continue
+        for line_id, start, end in output.spans:
+            if end <= start:
+                continue
+            near = [f for f in candidates if f.sentence_id == source.get(line_id)]
+            fact = (near or candidates)[0]
+            out.append(LineFactSpan(line_id=line_id, fact_id=fact.id, start=start, end=end))
+    out.sort(key=lambda s: (order[s.line_id], s.start, s.end))
     return out
 
 

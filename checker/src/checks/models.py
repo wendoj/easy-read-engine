@@ -56,6 +56,17 @@ class ActionSynonym(BaseModel):
     counts_as: str
 
 
+class LineFactSpan(BaseModel):
+    """Where a key fact from the Original appears in one output line, for
+    highlighting (R5.3). `start` and `end` are offsets into the line's text.
+    Holds IDs and offsets only, never the value."""
+
+    line_id: str
+    fact_id: str
+    start: int
+    end: int  # exclusive, so line.text[start:end] is the fact's text
+
+
 class CheckResult(BaseModel):
     rule: Rule
     passed: bool

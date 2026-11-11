@@ -161,6 +161,59 @@
         }
       }
     },
+    "/line-facts": {
+      "post": {
+        "summary": "Line Facts",
+        "description": "Where each key fact appears in the lines, matched by P1's normalised value (R5.3).",
+        "operationId": "line_facts_line_facts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LineFactsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LineFactSpan"
+                  },
+                  "type": "array",
+                  "title": "Response Line Facts Line Facts Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/symbols": {
       "get": {
         "summary": "Symbols",
@@ -577,6 +630,63 @@
           "symbol_id"
         ],
         "title": "Line"
+      },
+      "LineFactSpan": {
+        "properties": {
+          "line_id": {
+            "type": "string",
+            "title": "Line Id"
+          },
+          "fact_id": {
+            "type": "string",
+            "title": "Fact Id"
+          },
+          "start": {
+            "type": "integer",
+            "title": "Start"
+          },
+          "end": {
+            "type": "integer",
+            "title": "End"
+          }
+        },
+        "type": "object",
+        "required": [
+          "line_id",
+          "fact_id",
+          "start",
+          "end"
+        ],
+        "title": "LineFactSpan",
+        "description": "Where a key fact from the Original appears in one output line, for\nhighlighting (R5.3). `start` and `end` are offsets into the line's text.\nHolds IDs and offsets only, never the value."
+      },
+      "LineFactsRequest": {
+        "properties": {
+          "key_facts": {
+            "items": {
+              "$ref": "#/components/schemas/KeyFact"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Key Facts"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/Line"
+            },
+            "type": "array",
+            "maxItems": 400,
+            "title": "Lines"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key_facts",
+          "lines"
+        ],
+        "title": "LineFactsRequest",
+        "description": "`key_facts` must come from the Original, as for `/check`."
       },
       "Sentence": {
         "properties": {

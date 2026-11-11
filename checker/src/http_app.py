@@ -37,7 +37,7 @@ from checks.config import (
     MAX_SYMBOL_QUERY_CHARS,
     SPACY_MODEL,
 )
-from checks.models import ActionSynonym, Analysis, CheckResult, KeyFact, Line, SymbolMatch
+from checks.models import ActionSynonym, Analysis, CheckResult, KeyFact, Line, LineFactSpan, SymbolMatch
 from checks.p8_symbols import symbol_ids
 from checks.symbols import search_index
 from checks.sentences import get_nlp
@@ -67,6 +67,22 @@ class KeyFactsRequest(BaseModel):
     text: Original
 
 
+def _bound_lines_and_facts(lines: list[Line], key_facts: list[KeyFact]) -> None:
+    # `Line` and `KeyFact` are shared models with no size limits of their
+    # own, so the bounds for each route are applied here.
+    for line in lines:
+        if len(line.text) > MAX_LINE_CHARS:
+            raise ValueError("line text too long")
+        ids = [line.id, line.source_sentence_id, line.symbol_id or ""]
+        if any(len(i) > MAX_ID_CHARS for i in ids):
+            raise ValueError("line ID too long")
+    for fact in key_facts:
+        if len(fact.value) > MAX_ORIGINAL_CHARS or len(fact.normalised) > MAX_ORIGINAL_CHARS:
+            raise ValueError("key fact too long")
+        if len(fact.id) > MAX_ID_CHARS or len(fact.sentence_id) > MAX_ID_CHARS:
+            raise ValueError("key fact ID too long")
+
+
 class CheckRequest(BaseModel):
     """`key_facts` must come from the Original (`/analyse` or `/key-facts`),
     never from the output, so P1 compares the output with the Original (R2.4)."""
@@ -79,19 +95,21 @@ class CheckRequest(BaseModel):
 
     @model_validator(mode="after")
     def _bound_nested_sizes(self) -> "CheckRequest":
-        # `Line` and `KeyFact` are shared models with no size limits of their
-        # own, so the bounds for this route are applied here.
-        for line in self.lines:
-            if len(line.text) > MAX_LINE_CHARS:
-                raise ValueError("line text too long")
-            ids = [line.id, line.source_sentence_id, line.symbol_id or ""]
-            if any(len(i) > MAX_ID_CHARS for i in ids):
-                raise ValueError("line ID too long")
-        for fact in self.key_facts:
-            if len(fact.value) > MAX_ORIGINAL_CHARS or len(fact.normalised) > MAX_ORIGINAL_CHARS:
-                raise ValueError("key fact too long")
-            if len(fact.id) > MAX_ID_CHARS or len(fact.sentence_id) > MAX_ID_CHARS:
-                raise ValueError("key fact ID too long")
+        _bound_lines_and_facts(self.lines, self.key_facts)
+        return self
+
+
+class LineFactsRequest(BaseModel):
+    """`key_facts` must come from the Original, as for `/check`."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    key_facts: Annotated[list[KeyFact], Field(max_length=MAX_KEY_FACTS)]
+    lines: Annotated[list[Line], Field(max_length=MAX_LINES)]
+
+    @model_validator(mode="after")
+    def _bound_nested_sizes(self) -> "LineFactsRequest":
+        _bound_lines_and_facts(self.lines, self.key_facts)
         return self
 
 
@@ -265,6 +283,12 @@ def key_facts(body: KeyFactsRequest) -> list[KeyFact]:
 def check(body: CheckRequest) -> list[CheckResult]:
     """P1 to P8 for the lines, in rule order, one result per rule."""
     return checks.check_easy_read(body.original, body.key_facts, body.lines)
+
+
+@app.post("/line-facts", response_model=list[LineFactSpan], responses=_VALIDATION_RESPONSES)
+def line_facts(body: LineFactsRequest) -> list[LineFactSpan]:
+    """Where each key fact appears in the lines, matched by P1's normalised value (R5.3)."""
+    return checks.line_fact_spans(body.key_facts, body.lines)
 
 
 @app.get("/symbols", response_model=list[SymbolMatch], responses=_VALIDATION_RESPONSES)

@@ -97,6 +97,27 @@ def test_symbols_returns_list(client: TestClient) -> None:
     assert 1 <= len(res.json()) <= 3
 
 
+def test_line_facts_returns_spans_for_facts_in_lines(client: TestClient) -> None:
+    facts = client.post("/analyse", json={"original": ORIGINAL}).json()["key_facts"]
+    lines = _lines()
+    res = client.post("/line-facts", json={"key_facts": facts, "lines": lines})
+    assert res.status_code == 200
+    spans = res.json()
+    assert spans and all(set(s) == {"line_id", "fact_id", "start", "end"} for s in spans)
+    text = {line["id"]: line["text"] for line in lines}
+    values = {f["id"]: f["value"] for f in facts}
+    shown = {(s["line_id"], text[s["line_id"]][s["start"] : s["end"]]) for s in spans}
+    assert ("l2", "£45") in shown and ("l2", "1 April 2026") in shown
+    assert all(s["fact_id"] in values for s in spans)
+
+
+def test_line_facts_rejects_overlong_line_without_echoing_text(client: TestClient) -> None:
+    line = {"id": "l1", "text": SECRET + "a" * MAX_LINE_CHARS, "source_sentence_id": "s1", "symbol_id": None}
+    res = client.post("/line-facts", json={"key_facts": [], "lines": [line]})
+    assert res.status_code == 422
+    _assert_no_echo(res)
+
+
 def test_action_synonyms_lists_the_config_table(client: TestClient) -> None:
     res = client.get("/config/action-synonyms")
     assert res.status_code == 200
