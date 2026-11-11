@@ -14,7 +14,10 @@
  * - Task 24: `RuleReport` shows the pass count and opens the report; flagged lines name their failed rules.
  * - Task 25: `FactText` highlights key facts in both columns, one colour per fact (R5.3).
  *   Failed key facts in the Original get a red ring, also when blocked; task 27 builds on this.
- * - Task 26: Edit and "Undo edit" go in `LineRow`'s actions slot; edits replace the result in context.
+ * - Task 26: each line has an Edit button that opens an inline `Textarea`. Save sends every line
+ *   to `/api/check` and puts the checked result in context; "Undo edit" in the toolbar restores
+ *   the result before the last edit from memory (`src/ui/line-edit.ts`). A failed check keeps
+ *   the editor open with the draft, so the text isn't lost.
  * - Task 27: the full blocked state replaces `WithheldMessage`.
  * - Task 28: the Export button goes in the toolbar, disabled when blocked.
  */
@@ -23,7 +26,9 @@ import Link from "next/link";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { checkEdit } from "@/src/ui/api";
 import { ARASAAC_ATTRIBUTION_PARTS } from "@/src/symbols/attribution";
 import { useConversion } from "@/src/ui/conversion-context";
 import { lineMarkerLabel } from "@/src/ui/rule-report";
@@ -34,6 +39,17 @@ import {
   pieceClassName,
   pieceTitle,
 } from "@/src/ui/key-fact-highlight";
+import {
+  EDIT_PROBLEM_MESSAGES,
+  EMPTY_HISTORY,
+  type UndoHistory,
+  applyCheckResponse,
+  buildCheckRequest,
+  canUndo,
+  editProblem,
+  recordEdit,
+  undoEdit,
+} from "@/src/ui/line-edit";
 import { type LineRow as LineRowData, resultLayout, scrollTopToReveal } from "@/src/ui/result-layout";
 import { cn } from "cn";
 import { RuleReport } from "./rule-report";
@@ -163,17 +179,103 @@ function LineText({ pieces, styles }: { pieces: HighlightPiece[]; styles: Readon
   );
 }
 
+/** The open editor: the line being edited, its draft, and the state of its check. */
+interface EditState {
+  lineId: string;
+  draft: string;
+  saving: boolean;
+  error: string | null;
+}
+
+function LineEditor({
+  edit,
+  onDraft,
+  onSave,
+  onCancel,
+}: {
+  edit: EditState;
+  onDraft: (text: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
+}) {
+  const errorId = `edit-error-${edit.lineId}`;
+  return (
+    <form
+      className="flex flex-col gap-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSave();
+      }}
+    >
+      <Textarea
+        aria-label="Line text"
+        autoFocus
+        value={edit.draft}
+        disabled={edit.saving}
+        aria-invalid={edit.error !== null}
+        aria-describedby={edit.error !== null ? errorId : undefined}
+        onChange={(e) => onDraft(e.target.value)}
+        className="min-h-16 text-xl leading-snug md:text-xl"
+      />
+      {edit.error !== null && (
+        <Alert variant="destructive" id={errorId}>
+          <AlertDescription className="text-base text-destructive">{edit.error}</AlertDescription>
+        </Alert>
+      )}
+      <div className="flex gap-3">
+        <Button type="submit" size="lg" className="h-11 px-6 text-base" disabled={edit.saving}>
+          {edit.saving ? "Checking…" : "Save"}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="h-11 px-6 text-base"
+          disabled={edit.saving}
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 function LineRow({
   row,
   styles,
   selected,
   onSelect,
+  edit,
+  editDisabled,
+  onEdit,
+  onDraft,
+  onSave,
+  onCancel,
 }: {
   row: LineRowData;
   styles: ReadonlyMap<string, FactStyle>;
   selected: boolean;
   onSelect: (row: LineRowData) => void;
+  /** Set when this line's editor is open. */
+  edit: EditState | null;
+  /** True while any line is being edited, so only 1 draft is open at a time. */
+  editDisabled: boolean;
+  onEdit: (row: LineRowData) => void;
+  onDraft: (text: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
 }) {
+  if (edit !== null) {
+    return (
+      <li className="flex items-start gap-4">
+        <Picture src={row.symbolSrc} />
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <LineEditor edit={edit} onDraft={onDraft} onSave={onSave} onCancel={onCancel} />
+        </div>
+      </li>
+    );
+  }
   return (
     <li className="flex items-start gap-4">
       <Picture src={row.symbolSrc} />
@@ -198,7 +300,16 @@ function LineRow({
             </Badge>
           )}
         </button>
-        {/* Task 26: Edit and Undo edit go here. */}
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="h-11 w-fit px-6 text-base"
+          disabled={editDisabled}
+          onClick={() => onEdit(row)}
+        >
+          Edit<span className="sr-only"> this line</span>
+        </Button>
       </div>
     </li>
   );
@@ -250,7 +361,9 @@ function prefersReducedMotion(): boolean {
 }
 
 export function ResultView() {
-  const { result } = useConversion();
+  const { result, setResult } = useConversion();
+  const [edit, setEdit] = useState<EditState | null>(null);
+  const [history, setHistory] = useState<UndoHistory>(EMPTY_HISTORY);
   const layout = useMemo(() => (result ? resultLayout(result) : null), [result]);
   const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
   const originalRef = useRef<HTMLDivElement | null>(null);
@@ -279,6 +392,51 @@ export function ResultView() {
     if (next !== null && row.sourceSentenceId !== null) revealSentence(row.sourceSentenceId);
   };
 
+  const onEdit = (row: LineRowData) => {
+    if (edit !== null) return;
+    setEdit({ lineId: row.id, draft: row.text, saving: false, error: null });
+  };
+
+  const onDraft = (draft: string) => setEdit((e) => (e === null ? e : { ...e, draft, error: null }));
+
+  const onCancel = () => setEdit(null);
+
+  /** Checks the edit with `/api/check`. On any failure the editor stays open with the draft. */
+  const onSave = async () => {
+    if (edit === null || edit.saving || result === null) return;
+    const before = result;
+    const { lineId, draft } = edit;
+    const problem = editProblem(before.lines, lineId, draft);
+    if (problem === "unchanged" || problem === "no_line") {
+      setEdit(null);
+      return;
+    }
+    if (problem !== null) {
+      setEdit({ ...edit, error: EDIT_PROBLEM_MESSAGES[problem] });
+      return;
+    }
+    setEdit({ ...edit, saving: true, error: null });
+    const outcome = await checkEdit(buildCheckRequest(before, lineId, draft));
+    if (!outcome.ok) {
+      setEdit((e) => (e === null ? e : { ...e, saving: false, error: outcome.message }));
+      return;
+    }
+    const after = applyCheckResponse(before, outcome.response);
+    setHistory((h) => recordEdit(h, before, after));
+    setResult(after);
+    setEdit(null);
+  };
+
+  const undoAllowed = edit === null && canUndo(history, result);
+
+  /** Restores the result before the last edit exactly. It was checked already, so no server call. */
+  const onUndo = () => {
+    const undone = undoEdit(history, result);
+    if (undone === null) return;
+    setHistory(undone.history);
+    setResult(undone.result);
+  };
+
   if (!result || !layout) {
     return (
       <div className="flex flex-col gap-4">
@@ -296,6 +454,11 @@ export function ResultView() {
       <SafetyNotice text={result.notice} />
       <div className="flex flex-wrap items-center gap-3">
         <RuleReport input={result} synonyms={result.actionSynonyms} />
+        {undoAllowed && (
+          <Button type="button" variant="outline" size="lg" className="h-11 px-6 text-base" onClick={onUndo}>
+            Undo edit
+          </Button>
+        )}
         {/* Task 28: Export button, disabled when layout.withheld. */}
       </div>
       <div className="grid items-start gap-8 md:grid-cols-2">
@@ -326,6 +489,12 @@ export function ResultView() {
                   styles={layout.factStyles}
                   selected={row.id === selectedLineId}
                   onSelect={onSelect}
+                  edit={edit?.lineId === row.id ? edit : null}
+                  editDisabled={edit !== null}
+                  onEdit={onEdit}
+                  onDraft={onDraft}
+                  onSave={() => void onSave()}
+                  onCancel={onCancel}
                 />
               ))}
             </ul>

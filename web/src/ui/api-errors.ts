@@ -1,16 +1,17 @@
 /**
- * Plain messages for errors from `/api/extract` and `/api/convert`.
+ * Plain messages for errors from `/api/extract`, `/api/convert` and `/api/check`.
  *
  * Fixed messages come from the same tables the routes use. Messages that hold
  * numbers (the word limit, the rate-limit wait) come from the server. When the
  * body isn't one of ours (for example a proxy error page), the HTTP status
  * picks the message. Messages never include letter content.
  */
+import { CHECK_ERRORS } from "@/src/check/errors";
 import { CONVERT_ERRORS } from "@/src/convert/errors";
 import { EXTRACT_ERRORS } from "@/src/extract/errors";
 import { MAX_WORDS } from "@/src/convert/word-count";
 
-export type ApiRoute = "extract" | "convert";
+export type ApiRoute = "extract" | "convert" | "check";
 
 export const RATE_LIMITED_FALLBACK = "You have sent too many letters. Try again in a few minutes.";
 export const DAILY_LIMIT_FALLBACK = "Daily limit reached, try again tomorrow";
@@ -26,6 +27,7 @@ const SERVER_MESSAGE_CODES = new Set(["too_long", "rate_limited", "daily_limit"]
 const TABLES: Record<ApiRoute, Record<string, { status: number; message: string }>> = {
   extract: EXTRACT_ERRORS,
   convert: CONVERT_ERRORS,
+  check: CHECK_ERRORS,
 };
 
 const MAX_SERVER_MESSAGE = 300;

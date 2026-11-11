@@ -188,7 +188,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Use one colour per fact, matched across the Original and the Easy Read lines
   - _Requirements: 5.3_
 
-- [-] 26. Build editing and `/api/check`
+- [x] 26. Build editing and `/api/check`
   - Each line gets an Edit button; on save, call `/api/check` with `editedLineIds`, and update the report, pass count and status
   - The server re-runs P1 to P8 on all lines and judges only the edited lines; it never changes the user's text
   - The client keeps the previous lines for "Undo edit"
@@ -207,7 +207,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
 
 ### Polish and evidence
 
-- [~] 29. Add the recorded sample letters
+- [-] 29. Add the recorded sample letters
   - Record results for the public sample letters, labelled with the date and the model that answered, and store them in `web/data/samples/`
   - Add a "Try a sample letter" list to the input screen; re-run P1 to P8 through the checker when a sample loads
   - _Requirements: 3.1; design "Protecting the live quota"_

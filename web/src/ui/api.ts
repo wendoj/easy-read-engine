@@ -1,5 +1,5 @@
 /**
- * Browser calls to `/api/extract` and `/api/convert`. They return plain
+ * Browser calls to `/api/extract`, `/api/convert` and `/api/check`. They return plain
  * outcomes, never throw for HTTP errors, and never log or store letter text
  * (R7.4).
  */
@@ -12,6 +12,7 @@ import {
   readErrorBody,
 } from "./api-errors";
 import { parseConvertEvent } from "./convert-events";
+import { type CheckRequestBody, type CheckResponseBody, checkResponseSchema } from "./line-edit";
 import { readNdjson } from "./ndjson";
 
 type Fetch = typeof fetch;
@@ -57,6 +58,33 @@ export async function extractText(
     return { ok: false, error: null, message: GENERIC_MESSAGE };
   }
   return { ok: true, text: body.text, source: body.source };
+}
+
+export type CheckOutcome = { ok: true; response: CheckResponseBody } | ApiFailure;
+
+/** Re-checks the lines after an edit (R9.2). The body is sent as built, never logged. */
+export async function checkEdit(
+  body: CheckRequestBody,
+  options: { signal?: AbortSignal; fetch?: Fetch } = {},
+): Promise<CheckOutcome> {
+  let response: Response;
+  try {
+    response = await (options.fetch ?? fetch)("/api/check", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+      signal: options.signal,
+    });
+  } catch (err) {
+    return failure(err, NETWORK_MESSAGE);
+  }
+  const parsedBody = await readErrorBody(response);
+  if (!response.ok) {
+    return { ok: false, error: codeOf(parsedBody), message: errorMessage("check", response.status, parsedBody) };
+  }
+  const parsed = checkResponseSchema.safeParse(parsedBody);
+  if (!parsed.success) return { ok: false, error: null, message: GENERIC_MESSAGE };
+  return { ok: true, response: parsed.data };
 }
 
 /**

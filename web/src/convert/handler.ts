@@ -146,8 +146,8 @@ export function withRetryAfterOnce(model: PipelineModel, sleep: (ms: number) => 
   };
 }
 
-/** Read at most `limit` bytes of the body. Null when it is longer or can't be read. */
-async function readBody(request: Request, limit: number): Promise<string | null> {
+/** Read at most `limit` bytes of the body. Null when it is longer or can't be read. Also used by `/api/check`. */
+export async function readBody(request: Request, limit: number): Promise<string | null> {
   if (!request.body) return "";
   const reader = request.body.getReader();
   const chunks: Uint8Array[] = [];
