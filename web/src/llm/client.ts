@@ -2,10 +2,24 @@ import { z } from "zod";
 import { type ChainEntry, type ModelConfig, type Provider, type Role, providerBaseUrls } from "./config";
 import { type Transport, fetchTransport } from "./transport";
 
-/** Output cap for `gpt-oss-120b` on Bedrock and Groq. Reasoning tokens count against the cap. */
+/** Output cap for `gpt-oss-120b` on Groq. Reasoning tokens count against the cap. */
 export const GPT_OSS_MAX_TOKENS = 3000;
+/**
+ * Output cap for every model on Bedrock. Bedrock bills the tokens a reply
+ * uses, not the cap, and has no per-request budget like Groq's 8,000 tokens a
+ * minute, so the per-task caps (sized for the Groq fallback) don't apply.
+ * With them, long letters (about 1,000 words) cut the judge and regenerate
+ * replies off mid-JSON (`finish_reason: "length"`), which failed validation.
+ */
+export const BEDROCK_MAX_TOKENS = 8000;
 /** Per-request timeout. */
 export const DEFAULT_TIMEOUT_MS = 45_000;
+/**
+ * Per-request timeout on Bedrock. Replies up to `BEDROCK_MAX_TOKENS` on a
+ * ~1,000-word letter took 38 to 45 seconds when measured, so 45 seconds cut
+ * them off and pushed the request to Groq, whose smaller cap truncates again.
+ */
+export const BEDROCK_TIMEOUT_MS = 90_000;
 /** Longest `Retry-After` the caller should wait before giving up (design "Error Handling"). */
 export const MAX_RETRY_AFTER_MS = 20_000;
 
@@ -147,6 +161,7 @@ export function modelParams(role: Role, entry: ChainEntry, request: ChatRequest)
     params.reasoning_effort = "low";
     params.max_tokens = Math.min(request.maxTokens ?? GPT_OSS_MAX_TOKENS, GPT_OSS_MAX_TOKENS);
   }
+  if (entry.provider === "bedrock") params.max_tokens = BEDROCK_MAX_TOKENS;
   if (role === "judge" && entry.provider === "groq" && /qwen/i.test(entry.model)) {
     // Thinking off on Groq. The Bedrock judge (Qwen3 235B A22B Instruct 2507) has no thinking mode.
     params.reasoning_effort = "none";
@@ -182,7 +197,8 @@ function isAbort(err: unknown): boolean {
 export function createModelClient(options: ModelClientOptions): ModelClient {
   const { config } = options;
   const transport = options.transport ?? fetchTransport;
-  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const timeoutFor = (provider: Provider) =>
+    options.timeoutMs ?? (provider === "bedrock" ? BEDROCK_TIMEOUT_MS : DEFAULT_TIMEOUT_MS);
   const log = options.logger ?? defaultLogger;
   const now = options.now ?? (() => performance.now());
   const baseUrls = config.baseUrls ?? providerBaseUrls();
@@ -214,7 +230,7 @@ export function createModelClient(options: ModelClientOptions): ModelClient {
       }
 
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      const timer = setTimeout(() => controller.abort(), timeoutFor(entry.provider));
       let res;
       try {
         res = await transport({

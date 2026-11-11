@@ -11,6 +11,7 @@ import {
   ModelConfigError,
   ProviderChainError,
   ProviderRequestError,
+  BEDROCK_MAX_TOKENS,
   buildBody,
   createModelClient,
   loadModelConfig,
@@ -187,7 +188,7 @@ describe("config", () => {
 });
 
 describe("request settings", () => {
-  it("sets low reasoning effort and a max_tokens cap for gpt-oss-120b", () => {
+  it("sets low reasoning effort and a max_tokens cap for gpt-oss-120b on Groq", () => {
     const body = buildBody("rewrite", { provider: "groq", model: "openai/gpt-oss-120b" }, {
       ...REQUEST,
       maxTokens: 999_999,
@@ -197,8 +198,21 @@ describe("request settings", () => {
     expect(buildBody("rewrite", { provider: "groq", model: "openai/gpt-oss-120b" }, REQUEST).max_tokens).toBe(3000);
     expect(buildBody("rewrite", { provider: "bedrock", model: "openai.gpt-oss-120b-1:0" }, REQUEST)).toMatchObject({
       reasoning_effort: "low",
-      max_tokens: 3000,
+      max_tokens: BEDROCK_MAX_TOKENS,
     });
+  });
+
+  it("uses the Bedrock cap for every Bedrock model, whatever the task asks for", () => {
+    for (const maxTokens of [2000, 2500, 999_999]) {
+      const body = buildBody("judge", { provider: "bedrock", model: "qwen.qwen3-235b-a22b-2507-v1:0" }, {
+        ...REQUEST,
+        maxTokens,
+      });
+      expect(body.max_tokens).toBe(BEDROCK_MAX_TOKENS);
+    }
+    expect(
+      buildBody("judge", { provider: "groq", model: "qwen/qwen3.8-27b" }, { ...REQUEST, maxTokens: 2500 }).max_tokens,
+    ).toBe(2500);
   });
 
   it("turns off thinking for the Groq Qwen judge only", () => {
