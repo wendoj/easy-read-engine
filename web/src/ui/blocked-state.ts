@@ -6,8 +6,8 @@
  *   never logged (R7.4), and nothing here logs.
  * - `blockSource` says whether the block came from a user edit (offer "Undo
  *   edit") or from the conversion (offer "Start again").
- * - `canExport` is false whenever the result is blocked (R9.5). Task 28's
- *   Export button uses it.
+ * - `canExport` is false whenever the result is blocked (R9.5) or the judge
+ *   was unavailable, so P10 never ran. Task 28's Export button uses it.
  */
 import type { KeyFact } from "@/src/checker-client/schemas";
 import type { ConversionResult } from "@/src/pipeline/types";
@@ -51,10 +51,17 @@ export function blockSource(result: ConversionResult | null, history: UndoHistor
   return canUndo(history, result) ? "edit" : "conversion";
 }
 
-/** False when there is no result or it is blocked (R9.5). */
-export function canExport(result: Pick<ConversionResult, "status" | "lines"> | null): boolean {
-  return result !== null && result.status !== "blocked" && result.lines.length > 0;
+/**
+ * False when there is no result, it is blocked (R9.5), or the judge gave no
+ * answer. Without the judge, P10 (no advice) never ran on these lines, so
+ * the lines must not leave the screen as if they had been checked.
+ */
+export function canExport(result: Pick<ConversionResult, "status" | "lines" | "judgeAvailable"> | null): boolean {
+  return result !== null && result.status !== "blocked" && result.lines.length > 0 && result.judgeAvailable;
 }
+
+/** Shown next to the disabled Export button when the judge gave no answer. */
+export const NOT_JUDGED_EXPORT_MESSAGE = "You cannot save this yet, because the advice check did not run.";
 
 export const BLOCKED_HEADING = "Easy Read version not shown";
 

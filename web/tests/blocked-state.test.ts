@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import type { CheckResult, KeyFact, Line } from "@/src/checker-client/schemas";
 import { NOTICE, RULES } from "@/src/pipeline/decide";
 import type { ConversionResult } from "@/src/pipeline/types";
-import { blockSource, canExport, failedKeyFacts } from "@/src/ui/blocked-state";
+import { NOT_JUDGED_EXPORT_MESSAGE, blockSource, canExport, failedKeyFacts } from "@/src/ui/blocked-state";
 import { EMPTY_HISTORY, recordEdit } from "@/src/ui/line-edit";
 import { resultLayout } from "@/src/ui/result-layout";
 
@@ -88,6 +88,13 @@ describe("blockSource and canExport", () => {
   it("is 'conversion' when a new blocked result replaces an edited one", () => {
     const history = recordEdit(EMPTY_HISTORY, makeResult(), makeResult({ attempts: 2 }));
     expect(blockSource(blocked(["f1"]), history)).toBe("conversion");
+  });
+
+  it("refuses export when the judge gave no answer, because P10 never ran", () => {
+    expect(canExport(makeResult({ judgeAvailable: false }))).toBe(false);
+    expect(canExport(makeResult({ status: "flagged", judgeAvailable: false }))).toBe(false);
+    expect(canExport(makeResult({ status: "flagged" }))).toBe(true);
+    expect(NOT_JUDGED_EXPORT_MESSAGE).toBe("You cannot save this yet, because the advice check did not run.");
   });
 });
 

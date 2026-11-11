@@ -13,7 +13,9 @@
  * The client's `status` is never trusted (R9.5):
  * 1. Body size, JSON and zod: 413 or 400.
  * 2. A result the client itself calls blocked, or one with no lines: 409,
- *    with no checker call and no render.
+ *    with no checker call and no render. A result whose judge didn't answer
+ *    (`judgeAvailable` false, or a P9 or P10 "judge unavailable" detail):
+ *    409 `not_judged`, because P10 (no advice) never ran on its lines.
  * 3. Checker health: 503 if it's down.
  * 4. Shared rate limit (route "export", cost 3, no daily model cap): 429.
  * 5. Re-verify on the server: `analyse` the Original again and run P1 to P8 on
@@ -33,7 +35,7 @@
  */
 import { z } from "zod";
 import { MAX_CHECK_LINES, MAX_EDIT_LINE_CHARS, MAX_ID_CHARS } from "@/src/check/errors";
-import { mergeJudgeChecks } from "@/src/check/merge";
+import { judgeAvailableAfterMerge, mergeJudgeChecks } from "@/src/check/merge";
 import { CheckerUnavailable } from "@/src/checker-client/errors";
 import { type CheckResult, type KeyFact, type Line, type Sentence, checkResultSchema } from "@/src/checker-client/schemas";
 import { readBody } from "@/src/convert/handler";
@@ -186,6 +188,11 @@ export async function handleExport(request: Request, deps: ExportHandlerDeps): P
 
   // R9.5: the client's own "blocked" is enough to refuse; it is never enough to allow.
   if (body.status === "blocked" || lines.length === 0) return reject(failure("blocked"), counts);
+  // Safety: P10 (no advice) must have run. The client's flag and its P9 and P10 details must both say the judge answered.
+  const clientJudge = body.checks.filter((c) => c.rule === "P9" || c.rule === "P10");
+  if (!judgeAvailableAfterMerge(clientJudge, body.judgeAvailable)) {
+    return reject(failure("not_judged"), { ...counts, failedRules: ["P9", "P10"] });
+  }
 
   let checker: ExportRouteChecker;
   try {

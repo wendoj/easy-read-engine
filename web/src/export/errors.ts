@@ -7,6 +7,7 @@ export type ExportErrorCode =
   | "invalid_request"
   | "too_large"
   | "blocked"
+  | "not_judged"
   | "checker_unavailable"
   | "busy"
   | "export_unavailable"
@@ -29,6 +30,10 @@ export const EXPORT_ERRORS: Record<Exclude<ExportErrorCode, "rate_limited" | "da
   blocked: {
     status: 409,
     message: "This Easy Read version can't be exported, because a key fact in it doesn't match the letter.",
+  },
+  not_judged: {
+    status: 409,
+    message: "This Easy Read version can't be exported, because the advice check did not run. Convert the letter again.",
   },
   checker_unavailable: {
     status: 503,

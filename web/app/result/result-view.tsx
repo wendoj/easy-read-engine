@@ -21,7 +21,8 @@
  * - Task 27: `BlockedState` shows no lines, the failed key facts with their values from the
  *   Original, and "Undo edit" (block from an edit) or "Start again" (block from the conversion).
  *   Logic is in `src/ui/blocked-state.ts`.
- * - Task 28: "Export PDF" in the toolbar, enabled only when `canExport(result)` (R9.5). It posts the
+ * - Task 28: "Export PDF" in the toolbar, enabled only when `canExport(result)` (R9.5; also off, with a
+ *   fixed Alert, when the judge gave no answer so P10 never ran). It posts the
  *   result to `/api/export`, which checks P1 again, and saves the PDF from a Blob. Errors (409, 429,
  *   503) show in an Alert. "Print preview" opens `/print` with the same layout.
  * - Task 29: a result from a sample letter shows "Recorded on <date> with <model>" and says
@@ -47,6 +48,7 @@ import {
   FAILED_FACTS_HEADING,
   type FailedFact,
   NO_FAILED_FACTS_MESSAGE,
+  NOT_JUDGED_EXPORT_MESSAGE,
   blockSource,
   canExport,
   failedKeyFacts,
@@ -619,6 +621,13 @@ export function ResultView() {
           </Link>
         )}
       </motion.div>
+      {/* Safety: no export while P10 (no advice) hasn't run. Not dismissable. */}
+      {blocked === null && !result.judgeAvailable && (
+        <Alert role="status">
+          <FlagIcon />
+          <AlertDescription className="text-base text-foreground">{NOT_JUDGED_EXPORT_MESSAGE}</AlertDescription>
+        </Alert>
+      )}
       {exportError !== null && (
         <motion.div initial={STATUS_FADE.initial} animate={STATUS_FADE.animate} transition={STATUS_FADE.transition}>
           <Alert variant="destructive" role="alert">

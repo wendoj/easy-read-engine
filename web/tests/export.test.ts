@@ -9,6 +9,7 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { CheckerUnavailable } from "@/src/checker-client/errors";
 import type { CheckResult, KeyFact, Line, Sentence } from "@/src/checker-client/schemas";
+import { JUDGE_UNAVAILABLE } from "@/src/llm/judge";
 import {
   ChromiumUnavailable,
   type ExportHandlerDeps,
@@ -195,6 +196,32 @@ describe("/api/export", () => {
     const res = await handleExport(request(result({ status: "blocked" })), deps(seen));
     expect(res.status).toBe(409);
     expect(seen.renders).toHaveLength(0);
+  });
+
+  it("gives 409 not_judged without checking or rendering when the judge gave no answer", async () => {
+    const unavailable = (rule: "P9" | "P10"): CheckResult => ({
+      rule,
+      passed: false,
+      line_ids: LINES.map((l) => l.id),
+      failed_fact_ids: [],
+      details: LINES.map((l) => `${l.id} ${JUDGE_UNAVAILABLE}`),
+    });
+    const judgeDown = RULES.map((rule) => (rule === "P9" || rule === "P10" ? unavailable(rule) : pass(rule)));
+    for (const body of [
+      result({ status: "flagged", judgeAvailable: false, checks: judgeDown }),
+      // The client's flag is not trusted on its own: "judge unavailable" in P9 or P10 is enough to refuse.
+      result({ status: "flagged", judgeAvailable: true, checks: judgeDown }),
+    ]) {
+      const seen = newSeen();
+      const events: ExportLogEvent[] = [];
+      const res = await handleExport(request(body), deps(seen, { logger: (e) => events.push(e) }));
+      expect(res.status).toBe(409);
+      expect(await errorCode(res)).toBe("not_judged");
+      expect(seen.health).toBe(0);
+      expect(seen.checked).toBe(0);
+      expect(seen.renders).toHaveLength(0);
+      expect(events.map((e) => e.outcome)).toEqual(["not_judged"]);
+    }
   });
 
   it("gives 409 without rendering when P1 fails on the server, whatever the client says", async () => {
