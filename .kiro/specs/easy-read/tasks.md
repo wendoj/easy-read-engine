@@ -128,7 +128,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
     - at most 6 model requests, not counting JSON retries and fallbacks
   - _Requirements: 2.4, 2.5, 3.1 to 3.6, 6.1, 7.1_
 
-- [-] 17. Build `/api/convert` with streaming, the letter length limit and rate limits
+- [x] 17. Build `/api/convert` with streaming, the letter length limit and rate limits
   - Route handler with `runtime = "nodejs"`; validate the body with zod; reject letters over 1,500 words with a 400 before any model call
   - Stream newline-delimited JSON: progress events, then the final `ConversionResult`
   - Per-IP token bucket and a global daily cap shared with `/api/extract` and `/api/check`, returning the messages in design "Error Handling"
@@ -141,7 +141,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Check file type and size before any model call
   - _Requirements: 1.2, 1.3, 1.4_
 
-- [~] 19. Build the fixture script
+- [-] 19. Build the fixture script
   - `npm run fixtures`: convert the 5 fixture letters one at a time and run all 10 checks
   - For each letter, record pass or fail per rule, attempts, and the provider and model that answered; write a summary table to stdout and a JSON file to `fixtures/results/`
   - Add a `--all` flag for the 20-letter pass-rate run in task 31

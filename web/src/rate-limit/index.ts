@@ -1,26 +1,24 @@
 /**
- * Hook point for the shared limits on `/api/extract`, `/api/convert` and
- * `/api/check` (design "Protecting the live quota").
+ * Shared limits on `/api/extract`, `/api/convert` and `/api/check`
+ * (design "Protecting the live quota"). See `limiter.ts`.
  *
- * TODO(task 17): replace the body with the per-IP token bucket and the global
- * daily cap. Until then every request is allowed. Callers already handle the
- * `allowed: false` case, so only this file needs to change.
+ * `rateLimit` uses 1 limiter per server process. It is kept on `globalThis`
+ * so every route handler bundle, and module reloads in `next dev`, share the
+ * same buckets and daily count.
  */
+import { type RateLimiterInstance, createRateLimiter } from "./limiter";
+import type { RateLimiter } from "./types";
 
-export type LimitedRoute = "extract" | "convert" | "check";
+export * from "./types";
+export * from "./limiter";
+export * from "./token-bucket";
+export * from "./client-ip";
 
-export type RateLimitDecision =
-  | { allowed: true }
-  | {
-      allowed: false;
-      /** 429 for the per-IP limit, 503 for the daily cap. */
-      status: 429 | 503;
-      code: "rate_limited" | "daily_limit";
-      message: string;
-      retryAfterSeconds?: number;
-    };
+const SHARED = Symbol.for("easy-read.rate-limiter");
 
-export type RateLimiter = (request: Request, route: LimitedRoute) => Promise<RateLimitDecision>;
+function shared(): RateLimiterInstance {
+  const store = globalThis as unknown as Record<symbol, RateLimiterInstance | undefined>;
+  return (store[SHARED] ??= createRateLimiter());
+}
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const rateLimit: RateLimiter = async (_request, _route) => ({ allowed: true });
+export const rateLimit: RateLimiter = (request, route) => shared().limit(request, route);
