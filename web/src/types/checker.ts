@@ -67,6 +67,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/line-facts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Line Facts
+         * @description Where each key fact appears in the lines, matched by P1's normalised value (R5.3).
+         */
+        post: operations["line_facts_line_facts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/symbols": {
         parameters: {
             query?: never;
@@ -242,6 +262,32 @@ export interface components {
             /** Symbol Id */
             symbol_id: string | null;
         };
+        /**
+         * LineFactSpan
+         * @description Where a key fact from the Original appears in one output line, for
+         *     highlighting (R5.3). `start` and `end` are offsets into the line's text.
+         *     Holds IDs and offsets only, never the value.
+         */
+        LineFactSpan: {
+            /** Line Id */
+            line_id: string;
+            /** Fact Id */
+            fact_id: string;
+            /** Start */
+            start: number;
+            /** End */
+            end: number;
+        };
+        /**
+         * LineFactsRequest
+         * @description `key_facts` must come from the Original, as for `/check`.
+         */
+        LineFactsRequest: {
+            /** Key Facts */
+            key_facts: components["schemas"]["KeyFact"][];
+            /** Lines */
+            lines: components["schemas"]["Line"][];
+        };
         /** Sentence */
         Sentence: {
             /** Id */
@@ -392,6 +438,48 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CheckResult"][];
+                };
+            };
+            /** @description Request body too large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid request */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    line_facts_line_facts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LineFactsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LineFactSpan"][];
                 };
             };
             /** @description Request body too large */

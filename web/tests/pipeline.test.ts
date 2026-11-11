@@ -94,6 +94,8 @@ interface Recorder {
   judged: JudgeResult[];
   regenerateInputs: RegenerateInput[];
   modelCalls: { rewrite: number; regenerate: number; judge: number };
+  /** Line IDs sent to `lineFacts`, one entry per call. */
+  lineFactCalls: string[][];
 }
 
 function fakes(s: Scenario, opts: { failCheckOn?: number; failAnalyse?: boolean } = {}) {
@@ -103,6 +105,7 @@ function fakes(s: Scenario, opts: { failCheckOn?: number; failAnalyse?: boolean 
     judged: [],
     regenerateInputs: [],
     modelCalls: { rewrite: 0, regenerate: 0, judge: 0 },
+    lineFactCalls: [],
   };
   const planFor = (i: number) => s.plans[Math.min(i, s.plans.length - 1)];
 
@@ -129,6 +132,10 @@ function fakes(s: Scenario, opts: { failCheckOn?: number; failAnalyse?: boolean 
       }
       rec.checkResults.push(results);
       return results;
+    },
+    async lineFacts({ lines }) {
+      rec.lineFactCalls.push(lines.map((l) => l.id));
+      return lines.slice(0, 1).map((l) => ({ line_id: l.id, fact_id: "f1", start: 0, end: l.text.length }));
     },
     async symbols() {
       return [];
@@ -419,6 +426,9 @@ describe("convert: examples", () => {
     expect(result.judgeAvailable).toBe(true);
     expect(result.models.map((m) => m.task)).toEqual(["rewrite", "judge"]);
     expect(result.actionSynonyms).toEqual([{ word: "contact", counts_as: "phone" }]);
+    // Key-fact spans come from the checker once, for the final lines.
+    expect(rec.lineFactCalls).toEqual([["L1", "L2"]]);
+    expect(result.lineFacts).toEqual([{ line_id: "L1", fact_id: "f1", start: 0, end: 1 }]);
   });
 
   it("maps a missing fact to the lines from its source sentence", async () => {
@@ -460,6 +470,8 @@ describe("convert: examples", () => {
     expect(result.attempts).toBe(3);
     expect(rec.modelCalls.regenerate).toBe(2);
     expect(result.checks[0].failed_fact_ids).toEqual(["f1"]);
+    expect(result.lineFacts).toEqual([]);
+    expect(rec.lineFactCalls).toEqual([]);
     expect(result.notice).toBe(NOTICE);
     expect(result.original.text).toBe(originalOf(s));
   });

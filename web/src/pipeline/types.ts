@@ -1,7 +1,15 @@
 /**
  * Pipeline types (design "Pipeline orchestrator" and "Data Models").
  */
-import type { ActionSynonym, CheckResult, KeyFact, Line, Sentence, SymbolMatch } from "@/src/checker-client/schemas";
+import type {
+  ActionSynonym,
+  CheckResult,
+  KeyFact,
+  Line,
+  LineFactSpan,
+  Sentence,
+  SymbolMatch,
+} from "@/src/checker-client/schemas";
 import type {
   JudgePair,
   JudgeResult,
@@ -47,6 +55,12 @@ export type ConversionResult = {
    * checker/src/checks/config.py is the only copy.
    */
   actionSynonyms: ActionSynonym[];
+  /**
+   * Where each key fact appears in `lines`, for highlighting (R5.3). From the
+   * checker's `POST /line-facts`, which matches by P1's normalised values, so
+   * the web app never normalises values itself. Empty when blocked.
+   */
+  lineFacts: LineFactSpan[];
 };
 
 export type PipelineStage = "analysing" | "rewriting" | "checking" | "regenerating";
@@ -70,6 +84,8 @@ export interface PipelineModel {
 export interface PipelineChecker {
   analyse(original: string): Promise<{ sentences: Sentence[]; key_facts: KeyFact[] }>;
   check(request: { original: string; key_facts: KeyFact[]; lines: Line[] }): Promise<CheckResult[]>;
+  /** Key-fact spans in the final lines, for highlighting. Called once, only when lines are returned. */
+  lineFacts(request: { key_facts: KeyFact[]; lines: Line[] }): Promise<LineFactSpan[]>;
   /** `find_symbol`, best first. Used to pick a pictogram per line. */
   symbols(q: string, limit?: number): Promise<SymbolMatch[]>;
   /** P1's action synonym table, copied into the result for the rule report. */

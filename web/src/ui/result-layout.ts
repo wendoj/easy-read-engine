@@ -7,6 +7,14 @@
  */
 import type { Line, Sentence } from "@/src/checker-client/schemas";
 import type { ConversionResult, Rule, Status } from "@/src/pipeline/types";
+import {
+  type FactStyle,
+  type HighlightPiece,
+  type HighlightedSegment,
+  factStyles,
+  highlightSegments,
+  linePieces,
+} from "./key-fact-highlight";
 import { lineMarkers } from "./rule-report";
 
 /** A run of the Original: either a sentence from `analyse`, or text between sentences. */
@@ -23,7 +31,7 @@ export type OriginalSegment =
  * they are clamped to the text, and a span that overlaps an earlier one keeps
  * only the part after it. A span with nothing left is dropped.
  *
- * Task 25 splits sentence segments further at key-fact spans for highlighting.
+ * `highlightSegments` (key-fact-highlight.ts) splits these further at key-fact spans.
  */
 export function originalSegments(text: string, sentences: readonly Sentence[]): OriginalSegment[] {
   const length = text.length;
@@ -77,25 +85,34 @@ export interface LineRow {
   flagged: boolean;
   /** The failed rules that name this line, in rule order (task 24). */
   failedRules: Rule[];
+  /** The line text split at its key facts (task 25). Joining the piece texts gives `text`. */
+  pieces: HighlightPiece[];
 }
 
 export interface ResultLayout {
   status: Status;
   /** True when the output is blocked: no lines are shown (R2.5). Task 27 builds the full blocked state. */
   withheld: boolean;
-  segments: OriginalSegment[];
+  /** The Original split at sentences, then at key facts (task 25). */
+  segments: HighlightedSegment[];
   rows: LineRow[];
+  /** Colour, type label and failed flag per key fact ID, shared by both columns (R5.3). */
+  factStyles: Map<string, FactStyle>;
 }
 
 export function resultLayout(result: ConversionResult): ResultLayout {
   const { text, sentences } = result.original;
-  const segments = originalSegments(text, sentences);
+  const segments = highlightSegments(text, originalSegments(text, sentences), result.keyFacts);
+  const failedFactIds = result.checks.find((c) => c.rule === "P1")?.failed_fact_ids ?? [];
+  const styles = factStyles(result.keyFacts, failedFactIds);
   if (result.status === "blocked") {
     // The server sends no lines when blocked; never show any even if some arrive.
-    return { status: result.status, withheld: true, segments, rows: [] };
+    // The Original keeps its highlights, with failed facts marked.
+    return { status: result.status, withheld: true, segments, rows: [], factStyles: styles };
   }
   const markers = lineMarkers(result);
   const sentenceIds = new Set(sentences.map((s) => s.id));
+  const factIds = new Set(styles.keys());
   const rows = result.lines.map((line) => {
     const failedRules = markers.get(line.id) ?? [];
     return {
@@ -105,9 +122,10 @@ export function resultLayout(result: ConversionResult): ResultLayout {
       sourceSentenceId: sentenceIds.has(line.source_sentence_id) ? line.source_sentence_id : null,
       flagged: failedRules.length > 0,
       failedRules,
+      pieces: linePieces(line.id, line.text, result.lineFacts, factIds),
     };
   });
-  return { status: result.status, withheld: false, segments, rows };
+  return { status: result.status, withheld: false, segments, rows, factStyles: styles };
 }
 
 /**

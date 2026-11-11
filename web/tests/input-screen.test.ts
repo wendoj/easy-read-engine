@@ -61,6 +61,7 @@ const result: ConversionResult = {
   judgeAvailable: true,
   models: [],
   actionSynonyms: [],
+  lineFacts: [],
 };
 
 describe("NdjsonParser", () => {

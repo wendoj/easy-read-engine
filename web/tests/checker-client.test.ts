@@ -134,6 +134,19 @@ describe("routes", () => {
     expect(f.calls[0].url).toBe(`${BASE}/config/action-synonyms`);
     expect(f.calls[0].init.method).toBe("GET");
   });
+
+  it("lineFacts posts key facts and lines to /line-facts", async () => {
+    const spans = [{ line_id: "L1", fact_id: "k1", start: 13, end: 16 }];
+    const f = fakeFetch(() => json(200, spans));
+    const req = {
+      key_facts: [],
+      lines: [{ id: "L1", text: "You must pay £45.", source_sentence_id: "s1", symbol_id: null }],
+    };
+    expect(await createCheckerClient({ baseUrl: BASE, fetch: f.fetch }).lineFacts(req)).toEqual(spans);
+    expect(f.calls[0].url).toBe(`${BASE}/line-facts`);
+    expect(f.calls[0].init.method).toBe("POST");
+    expect(JSON.parse(f.calls[0].init.body as string)).toEqual(req);
+  });
 });
 
 describe("failures", () => {

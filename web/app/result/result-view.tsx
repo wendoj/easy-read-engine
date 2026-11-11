@@ -12,7 +12,8 @@
  * Seams for later tasks:
  * - Pictures load from `/symbols/<id>` (task 23); `ResultFooter` shows the ARASAAC attribution (R4.4).
  * - Task 24: `RuleReport` shows the pass count and opens the report; flagged lines name their failed rules.
- * - Task 25: key-fact highlighting goes in `OriginalSentence` and `LineText`.
+ * - Task 25: `FactText` highlights key facts in both columns, one colour per fact (R5.3).
+ *   Failed key facts in the Original get a red ring, also when blocked; task 27 builds on this.
  * - Task 26: Edit and "Undo edit" go in `LineRow`'s actions slot; edits replace the result in context.
  * - Task 27: the full blocked state replaces `WithheldMessage`.
  * - Task 28: the Export button goes in the toolbar, disabled when blocked.
@@ -27,11 +28,13 @@ import { ARASAAC_ATTRIBUTION_PARTS } from "@/src/symbols/attribution";
 import { useConversion } from "@/src/ui/conversion-context";
 import { lineMarkerLabel } from "@/src/ui/rule-report";
 import {
-  type LineRow as LineRowData,
-  type OriginalSegment,
-  resultLayout,
-  scrollTopToReveal,
-} from "@/src/ui/result-layout";
+  type FactStyle,
+  type HighlightPiece,
+  type HighlightedSegment,
+  pieceClassName,
+  pieceTitle,
+} from "@/src/ui/key-fact-highlight";
+import { type LineRow as LineRowData, resultLayout, scrollTopToReveal } from "@/src/ui/result-layout";
 import { cn } from "cn";
 import { RuleReport } from "./rule-report";
 
@@ -57,19 +60,54 @@ function SafetyNotice({ text }: { text: string }) {
   );
 }
 
-/** Task 25 adds key-fact highlights inside the sentence. */
-function OriginalSentence({ segment, selected }: { segment: OriginalSegment & { kind: "sentence" }; selected: boolean }) {
-  if (!selected) return <span>{segment.text}</span>;
-  return <mark className="rounded-sm bg-primary/15 text-foreground ring-2 ring-primary/40">{segment.text}</mark>;
+/**
+ * Text with key-fact highlights (R5.3). Each fact keeps its colour in both
+ * columns; the underline style and a type label mean colour is never the only
+ * signal. The label is screen-reader text after the fact and a tooltip.
+ */
+function FactText({ pieces, styles }: { pieces: HighlightPiece[]; styles: ReadonlyMap<string, FactStyle> }) {
+  return (
+    <>
+      {pieces.map((piece) => {
+        const className = pieceClassName(piece, styles);
+        if (className === null) return <span key={piece.start}>{piece.text}</span>;
+        const labels = piece.endingFactIds.flatMap((id) => styles.get(id)?.label ?? []);
+        return (
+          <span key={piece.start}>
+            <span className={className} title={pieceTitle(piece, styles)}>
+              {piece.text}
+            </span>
+            {labels.length > 0 && <span className="sr-only"> ({labels.join("; ")})</span>}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
+function OriginalSentence({
+  segment,
+  selected,
+  styles,
+}: {
+  segment: HighlightedSegment & { kind: "sentence" };
+  selected: boolean;
+  styles: ReadonlyMap<string, FactStyle>;
+}) {
+  const content = <FactText pieces={segment.pieces} styles={styles} />;
+  if (!selected) return <span>{content}</span>;
+  return <mark className="rounded-sm bg-primary/15 text-foreground ring-2 ring-primary/40">{content}</mark>;
 }
 
 function OriginalText({
   segments,
+  styles,
   selectedSentenceId,
   register,
   containerRef,
 }: {
-  segments: OriginalSegment[];
+  segments: HighlightedSegment[];
+  styles: ReadonlyMap<string, FactStyle>;
   selectedSentenceId: string | null;
   register: (sentenceId: string, el: HTMLElement | null) => void;
   containerRef: React.RefObject<HTMLDivElement | null>;
@@ -84,10 +122,16 @@ function OriginalText({
     >
       {segments.map((segment) =>
         segment.kind === "text" ? (
-          <span key={`t${segment.start}`}>{segment.text}</span>
+          <span key={`t${segment.start}`}>
+            <FactText pieces={segment.pieces} styles={styles} />
+          </span>
         ) : (
           <span key={`s${segment.start}`} ref={(el) => register(segment.sentenceId, el)}>
-            <OriginalSentence segment={segment} selected={segment.sentenceId === selectedSentenceId} />
+            <OriginalSentence
+              segment={segment}
+              selected={segment.sentenceId === selectedSentenceId}
+              styles={styles}
+            />
           </span>
         ),
       )}
@@ -111,17 +155,22 @@ function Picture({ src }: { src: string | null }) {
   );
 }
 
-/** Task 25 adds key-fact highlights. */
-function LineText({ text }: { text: string }) {
-  return <span>{text}</span>;
+function LineText({ pieces, styles }: { pieces: HighlightPiece[]; styles: ReadonlyMap<string, FactStyle> }) {
+  return (
+    <span>
+      <FactText pieces={pieces} styles={styles} />
+    </span>
+  );
 }
 
 function LineRow({
   row,
+  styles,
   selected,
   onSelect,
 }: {
   row: LineRowData;
+  styles: ReadonlyMap<string, FactStyle>;
   selected: boolean;
   onSelect: (row: LineRowData) => void;
 }) {
@@ -139,7 +188,7 @@ function LineRow({
             selected ? "border-primary bg-primary/10" : "border-transparent",
           )}
         >
-          <LineText text={row.text} />
+          <LineText pieces={row.pieces} styles={styles} />
           {row.flagged && (
             <Badge
               variant="destructive"
@@ -256,6 +305,7 @@ export function ResultView() {
           </h2>
           <OriginalText
             segments={layout.segments}
+            styles={layout.factStyles}
             selectedSentenceId={selectedSentenceId}
             register={register}
             containerRef={originalRef}
@@ -270,7 +320,13 @@ export function ResultView() {
           ) : (
             <ul className="flex flex-col gap-3">
               {layout.rows.map((row) => (
-                <LineRow key={row.id} row={row} selected={row.id === selectedLineId} onSelect={onSelect} />
+                <LineRow
+                  key={row.id}
+                  row={row}
+                  styles={layout.factStyles}
+                  selected={row.id === selectedLineId}
+                  onSelect={onSelect}
+                />
               ))}
             </ul>
           )}

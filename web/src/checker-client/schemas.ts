@@ -20,6 +20,8 @@ export type Health = Schemas["Health"];
 export type ValidationIssue = Schemas["ValidationIssue"];
 export type CheckRequest = Schemas["CheckRequest"];
 export type ActionSynonym = Schemas["ActionSynonym"];
+export type LineFactSpan = Schemas["LineFactSpan"];
+export type LineFactsRequest = Schemas["LineFactsRequest"];
 
 export const sentenceSchema = z.object({
   id: z.string(),
@@ -62,6 +64,14 @@ export const actionSynonymSchema = z.object({
   counts_as: z.string(),
 });
 
+/** Where a key fact from the Original appears in one line (`POST /line-facts`). Offsets into the line text. */
+export const lineFactSpanSchema = z.object({
+  line_id: z.string(),
+  fact_id: z.string(),
+  start: z.number().int(),
+  end: z.number().int(),
+});
+
 export const healthSchema = z.object({
   status: z.enum(["ok", "starting"]),
   spacy_loaded: z.boolean(),
@@ -90,6 +100,7 @@ export type _SchemaMatchesGenerated = [
   Assert<Exact<z.infer<typeof checkResultSchema>, CheckResult>>,
   Assert<Exact<z.infer<typeof symbolMatchSchema>, SymbolMatch>>,
   Assert<Exact<z.infer<typeof actionSynonymSchema>, ActionSynonym>>,
+  Assert<Exact<z.infer<typeof lineFactSpanSchema>, LineFactSpan>>,
   Assert<Exact<z.infer<typeof healthSchema>, Health>>,
   Assert<Exact<z.infer<typeof validationErrorSchema>["detail"][number], ValidationIssue>>,
 ];

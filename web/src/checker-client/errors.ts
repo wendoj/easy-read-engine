@@ -9,6 +9,7 @@ export type CheckerRoute =
   | "/analyse"
   | "/key-facts"
   | "/check"
+  | "/line-facts"
   | "/symbols"
   | "/config/action-synonyms"
   | "/health";

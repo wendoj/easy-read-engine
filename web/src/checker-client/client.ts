@@ -16,6 +16,8 @@ import {
   type CheckResult,
   type Health,
   type KeyFact,
+  type LineFactSpan,
+  type LineFactsRequest,
   type SymbolMatch,
   type ValidationIssue,
   actionSynonymSchema,
@@ -23,6 +25,7 @@ import {
   checkResultSchema,
   healthSchema,
   keyFactSchema,
+  lineFactSpanSchema,
   symbolMatchSchema,
   validationErrorSchema,
 } from "./schemas";
@@ -44,6 +47,8 @@ export interface CheckerClient {
   analyse(original: string): Promise<Analysis>;
   keyFacts(text: string): Promise<KeyFact[]>;
   check(request: CheckRequest): Promise<CheckResult[]>;
+  /** Where each key fact appears in the lines, matched by P1's normalised values (R5.3). */
+  lineFacts(request: LineFactsRequest): Promise<LineFactSpan[]>;
   symbols(q: string, limit?: number): Promise<SymbolMatch[]>;
   /** P1's action synonym table, for the rule report. */
   actionSynonyms(): Promise<ActionSynonym[]>;
@@ -132,6 +137,8 @@ export function createCheckerClient(options: CheckerClientOptions = {}): Checker
     keyFacts: (text) => request("/key-facts", { method: "POST", body: { text } }, keyFactSchema.array()),
     check: ({ original, key_facts, lines }) =>
       request("/check", { method: "POST", body: { original, key_facts, lines } }, checkResultSchema.array()),
+    lineFacts: ({ key_facts, lines }) =>
+      request("/line-facts", { method: "POST", body: { key_facts, lines } }, lineFactSpanSchema.array()),
     symbols: (q, limit) => {
       const query = new URLSearchParams({ q });
       if (limit !== undefined) query.set("limit", String(limit));

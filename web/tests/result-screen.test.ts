@@ -59,6 +59,7 @@ function result(overrides: Partial<ConversionResult> = {}): ConversionResult {
     judgeAvailable: true,
     models: [],
     actionSynonyms: [],
+    lineFacts: [],
     ...overrides,
   };
 }

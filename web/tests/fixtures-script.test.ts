@@ -48,6 +48,7 @@ function fakeResult(overrides: Partial<ConversionResult> = {}): ConversionResult
       { task: "regenerate", attempt: 1, provider: "groq", model: "openai/gpt-oss-120b" },
     ],
     actionSynonyms: [{ word: `${LEAK}contact`, counts_as: "phone" }],
+    lineFacts: [{ line_id: "L1", fact_id: "k1", start: 0, end: 5 }],
     ...overrides,
   };
 }

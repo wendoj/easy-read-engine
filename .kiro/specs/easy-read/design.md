@@ -253,6 +253,7 @@ def find_symbol(query: str, limit: int = 5) -> list[SymbolMatch]: ...
 | `POST /analyse` | `analyse` |
 | `POST /key-facts` | `extract_key_facts` |
 | `POST /check` | `check_easy_read` |
+| `POST /line-facts` | `line_fact_spans`: where each key fact appears in the lines, matched with P1's extraction and normalisation, for highlighting (R5.3). The web app never normalises values itself |
 | `GET /symbols?q=` | `find_symbol` |
 | `GET /health` | readiness, including spaCy model loaded |
 

@@ -142,5 +142,7 @@ export function decide(
     judgeAvailable: extras.judgeAvailable,
     models: extras.models,
     actionSynonyms: extras.actionSynonyms ?? [],
+    // Filled in by `convert` from the checker once the lines are final.
+    lineFacts: [],
   };
 }

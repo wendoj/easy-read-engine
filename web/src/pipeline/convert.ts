@@ -96,11 +96,17 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
     });
 
     if ((failed.size === 0 && missing.length === 0) || attempt === MAX_ATTEMPTS) {
-      const result = decide(original, sentences, keyFacts, plain, checks, attempt, {
+      const decided = decide(original, sentences, keyFacts, plain, checks, attempt, {
         judgeAvailable: judged.available,
         models,
         actionSynonyms,
       });
+      // Key-fact spans for highlighting (R5.3), from the checker so values are
+      // normalised in one place. A blocked result has no lines to highlight.
+      const result =
+        decided.lines.length > 0
+          ? { ...decided, lineFacts: await checker.lineFacts({ key_facts: keyFacts, lines: decided.lines }) }
+          : decided;
       log({
         msg: "pipeline_done",
         status: result.status,

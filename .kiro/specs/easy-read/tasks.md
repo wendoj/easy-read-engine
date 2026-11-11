@@ -184,11 +184,11 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Flagged state: failed rules in red, with a marker on the affected lines
   - _Requirements: 3.4, 6.1, 6.2, 6.3_
 
-- [-] 25. Highlight key facts in both columns
+- [x] 25. Highlight key facts in both columns
   - Use one colour per fact, matched across the Original and the Easy Read lines
   - _Requirements: 5.3_
 
-- [~] 26. Build editing and `/api/check`
+- [-] 26. Build editing and `/api/check`
   - Each line gets an Edit button; on save, call `/api/check` with `editedLineIds`, and update the report, pass count and status
   - The server re-runs P1 to P8 on all lines and judges only the edited lines; it never changes the user's text
   - The client keeps the previous lines for "Undo edit"
