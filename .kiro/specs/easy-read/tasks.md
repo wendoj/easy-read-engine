@@ -115,7 +115,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - fast-check property: a line with a failed advice verdict always fails P10
   - _Requirements: 3.6, 7.2, 7.3; P9, P10_
 
-- [~] 16. Build the pipeline orchestrator
+- [-] 16. Build the pipeline orchestrator
   - `web/src/pipeline/`: `convert` with `MAX_ATTEMPTS = 3`, `failingLineIds` and `decide`, following the code in design "Pipeline orchestrator"
   - Map a missing fact to the lines from its source sentence, or ask the regenerate prompt to add a line when there are none
   - Return no lines when `status` is `"blocked"`, and always include the R7.1 notice
@@ -135,7 +135,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Return 503 when the checker is unavailable or every provider in the chain fails
   - _Requirements: 1.6, 1.7, 3.1, 7.4_
 
-- [-] 18. Build text extraction with `/api/extract`
+- [x] 18. Build text extraction with `/api/extract`
   - Typed PDFs go through `pdfjs-dist`; a PDF with no text layer is treated as an image
   - Images go to the vision chain with `prompts/vision.md`; a handwritten page returns `error: "handwriting"`
   - Check file type and size before any model call

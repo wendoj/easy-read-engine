@@ -32,7 +32,8 @@ export interface StructuredSpec<T> {
   task: StructuredTask;
   role: Role;
   system: string;
-  user: string;
+  /** Plain text, or OpenAI content parts (text and `image_url`) for vision. */
+  user: string | unknown[];
   tool: ToolDefinition;
   schema: z.ZodType<T>;
   maxTokens: number;
