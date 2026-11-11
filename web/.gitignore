@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# day 1 spike raw model output (may hold letter text; never commit)
+/.spike-output/
