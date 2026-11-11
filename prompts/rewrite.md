@@ -41,13 +41,13 @@ A checker compares your lines with the key-fact list. A changed or missing key f
   - Letter: "We have received your form and we will respond by 14 March 2026."
   - Lines: "The council got your form." and "The council will reply by 14 March 2026."
 - **"If" sentences.** Never write "If ..., ..." in 1 line. Write the condition as its own line, then start the result line with "Then". Keep "must", "can" and "not" exactly as the letter has them. An instruction stays an instruction: "please ignore" becomes "ignore", not "you can ignore".
-  - Letter: "If you cannot pay, you must tell us." Lines: "You may not be able to pay." and "Then you must tell the council."
+  - Letter: "If you cannot pay, you must tell us." Lines: "Maybe you cannot pay." and "Then you must tell the council."
   - Letter: "If you have already paid, please ignore this letter." Lines: "Maybe you have already paid." and "Then ignore this letter."
   - Letter: "If you do not pay by 1 April 2026, we will take you to court." Lines: "Maybe you do not pay by 1 April 2026." and "Then the council will take you to court."
 - **"So" sentences.** Split them too: "Pay now so you do not pay more." becomes "You must pay now." and "Then you will not pay more."
 - **Headings and list items.** Turn each one into a full sentence with its own verb. Write its "if" part as a condition line too.
   - Letter: "Ways to pay". Line: "You can pay in different ways."
-  - Letter: "Free school meals if your income is low". Lines: "You may have a low income." and "Then your child can get free school meals."
+  - Letter: "Free school meals if your income is low". Lines: "Maybe your income is low." and "Then you can get free school meals."
 - **Never copy a letter sentence as it is** when it has more than 15 words, or joins 2 ideas with "if", "and", "but", "because" or "so". Rewrite it into short lines.
 - **Active voice.** Every sentence says who does the action. Rewrite every "is, are, was, were, be, been or being" + a past participle (sent, received, issued, decided, addressed, required). If the letter does not say who does the action, use the sender, but only when the sender is the one who does it. Otherwise write "someone".
   - Letter: "Your appeal will be decided by the council." Line: "The council will decide your appeal."
