@@ -4,26 +4,26 @@ import { cn } from "cn"
 import { Slot } from "radix-ui"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-full border bg-clip-padding text-base font-normal whitespace-nowrap transition-[color,background-color,border-color,opacity,scale] duration-150 ease-out outline-none select-none [-webkit-tap-highlight-color:transparent] disabled:pointer-events-none disabled:opacity-40 aria-invalid:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-full border bg-clip-padding text-lg font-semibold whitespace-nowrap transition-[color,background-color,border-color,opacity,scale] duration-150 ease-out outline-none select-none [-webkit-tap-highlight-color:transparent] disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground hover:opacity-80",
+        default: "border-transparent bg-primary text-primary-foreground hover:bg-[#0f3780]",
         outline:
-          "border-input bg-card hover:bg-wash aria-expanded:bg-wash",
+          "border-input bg-card text-foreground hover:bg-wash aria-expanded:bg-wash",
         tint: "border-border bg-tint hover:bg-tint-strong aria-expanded:bg-tint-strong",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost: "border-transparent hover:bg-tint aria-expanded:bg-tint",
         destructive:
           "border-destructive/30 bg-red-50 text-destructive hover:bg-red-100",
-        link: "border-transparent text-link underline underline-offset-4 hover:opacity-80",
+        link: "border-transparent text-link underline underline-offset-4 hover:decoration-2",
       },
       size: {
         default:
-          "h-11 gap-2 px-5 has-data-[icon=inline-end]:pr-[18px] has-data-[icon=inline-start]:pl-[18px]",
+          "h-12 gap-2 px-6 has-data-[icon=inline-end]:pr-[22px] has-data-[icon=inline-start]:pl-[22px] [&_svg:not([class*='size-'])]:size-5",
         xs: "h-9 gap-1 px-3.5 text-[15px] has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3 [&_svg:not([class*='size-'])]:size-3.5",
-        sm: "h-10 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3.5 has-data-[icon=inline-start]:pl-3.5",
+        sm: "h-12 gap-1.5 px-5 has-data-[icon=inline-end]:pr-3.5 has-data-[icon=inline-start]:pl-3.5",
         lg: "h-12 gap-2 px-6 has-data-[icon=inline-end]:pr-[22px] has-data-[icon=inline-start]:pl-[22px]",
         icon: "size-8",
         "icon-xs":

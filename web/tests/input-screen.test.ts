@@ -127,8 +127,14 @@ describe("convert events", () => {
 
   it("labels stages in plain words with the try number", () => {
     expect(progressLabel({ type: "progress", stage: "analysing", attempt: 1, maxAttempts: 3 })).toBe("Reading the letter");
+    expect(progressLabel({ type: "progress", stage: "checking", attempt: 1, maxAttempts: 3 })).toBe(
+      "Checking the Easy Read version",
+    );
+    expect(progressLabel({ type: "progress", stage: "regenerating", attempt: 2, maxAttempts: 3 })).toBe(
+      "Rewriting the lines that failed a check (try 2 of 3)",
+    );
     expect(progressLabel({ type: "progress", stage: "checking", attempt: 2, maxAttempts: 3 })).toBe(
-      "Checking the Easy Read version, try 2 of 3",
+      "Checking again (try 2 of 3)",
     );
   });
 

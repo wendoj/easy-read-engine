@@ -79,10 +79,14 @@ const STAGE_LABELS: Record<PipelineStage, string> = {
   regenerating: "Rewriting the lines that failed a check",
 };
 
-/** Plain status line, for example "Checking the Easy Read version, try 2 of 3". */
+/**
+ * Plain status line. The first try names the stage ("Checking the Easy Read
+ * version"); later tries say so, for example "Checking again (try 2 of 3)".
+ */
 export function progressLabel(event: ProgressEvent): string {
-  const label = STAGE_LABELS[event.stage];
-  return event.stage === "analysing" ? label : `${label}, try ${event.attempt} of ${event.maxAttempts}`;
+  if (event.stage === "analysing" || event.attempt <= 1) return STAGE_LABELS[event.stage];
+  const label = event.stage === "checking" ? "Checking again" : STAGE_LABELS[event.stage];
+  return `${label} (try ${event.attempt} of ${event.maxAttempts})`;
 }
 
 /**

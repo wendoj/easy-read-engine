@@ -1,24 +1,13 @@
 /**
- * Brand fonts. devin.ai uses NB International Pro (a paid typeface from
- * Neubau). Funnel Sans (SIL Open Font License) is the closest free match:
- * same width at 40px, tall x-height, single-storey g and similar numerals.
- * Set to Devin's metrics: weight 400, -0.03em tracking on headings.
+ * One typeface for the whole app: Atkinson Hyperlegible Next (SIL Open Font
+ * License), from the Braille Institute. It is drawn for low-vision readers:
+ * letters that look alike (I, l and 1; O and 0; b, d, p and q) have clearly
+ * different shapes. Easy Read guidance asks for a clear sans-serif font
+ * (Inclusion Europe "Information for all" 2.5, DH 2010 A3; README "Easy Read guidance").
  *
- * With an NB International Pro licence, put the files in `app/fonts/` and
- * swap `brandSans` for:
- *
- *   import localFont from "next/font/local";
- *   export const brandSans = localFont({
- *     src: [
- *       { path: "./fonts/NBInternationalPro-Regular.woff2", weight: "400" },
- *       { path: "./fonts/NBInternationalPro-Medium.woff2", weight: "500" },
- *     ],
- *     variable: "--font-brand-sans",
- *   });
+ * Variable font. The app uses weight 400 for text and 600 for headings and
+ * labels only. The print layout uses its own system fonts (src/export/print-document.ts).
  */
-import { Funnel_Sans, Geist_Mono } from "next/font/google";
+import { Atkinson_Hyperlegible_Next } from "next/font/google";
 
-export const brandSans = Funnel_Sans({ variable: "--font-brand-sans", subsets: ["latin"] });
-
-/** Devin sets its labels in Geist Mono. */
-export const brandMono = Geist_Mono({ variable: "--font-brand-mono", subsets: ["latin"] });
+export const brandSans = Atkinson_Hyperlegible_Next({ variable: "--font-brand-sans", subsets: ["latin"] });

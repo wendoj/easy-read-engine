@@ -77,6 +77,9 @@ export const MIN_FONT_PT = 16;
  * Print CSS for both renderers. Scoped to `.er-print` so it doesn't change the
  * rest of the app when the `/print` page shows it. `@page` applies only when
  * printing. Fonts: Arial or Liberation Sans if installed, else any sans-serif.
+ * Easy Read print conventions (README "Easy Read guidance"): 18pt text, 20pt
+ * lines, left-aligned, no italics or capitals, the picture left of each line,
+ * dark text on white, and borders dark enough to see when printed.
  */
 export const PRINT_CSS = `
 @page { size: A4; margin: 15mm 15mm 15mm 15mm; }
@@ -91,16 +94,17 @@ export const PRINT_CSS = `
   color: #111111;
   font-family: Arial, "Liberation Sans", Helvetica, sans-serif;
   font-size: 18pt;
-  line-height: 1.4;
+  line-height: 1.5;
+  text-align: left;
 }
 .er-print *, .er-print *::before, .er-print *::after { box-sizing: border-box; }
-.er-print .er-title { font-size: 26pt; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 6mm; }
+.er-print .er-title { font-size: 26pt; font-weight: 700; line-height: 1.2; margin: 0 0 6mm; }
 .er-print .er-notice {
   margin: 0 0 6mm;
   padding: 4mm 5mm;
-  background: #f8f8f8;
-  border: 1pt solid #e5e5e5;
-  border-radius: 4mm;
+  background: #fbfaf7;
+  border: 1.5pt solid #1a1a1a;
+  border-radius: 3mm;
   font-size: 18pt;
   font-weight: 700;
 }
@@ -111,8 +115,8 @@ export const PRINT_CSS = `
   display: flex;
   align-items: center;
   gap: 6mm;
-  padding: 4mm 0;
-  border-bottom: 0.5pt solid #e5e5e5;
+  padding: 5mm 0;
+  border-bottom: 0.75pt solid #8c877e;
   break-inside: avoid;
   page-break-inside: avoid;
 }
@@ -129,7 +133,7 @@ export const PRINT_CSS = `
 .er-print .er-footer {
   margin-top: 8mm;
   padding-top: 4mm;
-  border-top: 0.5pt solid #e5e5e5;
+  border-top: 0.75pt solid #8c877e;
   font-size: 16pt;
   break-inside: avoid;
   page-break-inside: avoid;
@@ -139,9 +143,8 @@ export const PRINT_CSS = `
 @media screen {
   .er-print {
     padding: 15mm;
-    border: 1px solid transparent;
+    border: 1px solid #8c877e;
     border-radius: 4px;
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06), 0 8px 14px -3px rgb(0 0 0 / 0.06);
   }
 }
 @media print {

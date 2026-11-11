@@ -17,7 +17,7 @@ import { cn } from "cn";
 
 function ResultBadge({ row }: { row: RuleRow }) {
   return (
-    <Badge variant={row.passed ? "secondary" : "destructive"} className="label-mono h-7 px-2.5">
+    <Badge variant={row.passed ? "secondary" : "destructive"} className="h-9 px-3 text-lg font-semibold">
       {row.resultLabel}
     </Badge>
   );
@@ -37,7 +37,7 @@ function Reasons({ row }: { row: RuleRow }) {
 
 function RulesTable({ rows }: { rows: RuleRow[] }) {
   return (
-    <Table className="text-base">
+    <Table className="text-lg">
       <TableHeader>
         <TableRow>
           <TableHead>Check</TableHead>
@@ -49,7 +49,7 @@ function RulesTable({ rows }: { rows: RuleRow[] }) {
       <TableBody>
         {rows.map((row) => (
           <TableRow key={row.rule} className={cn(!row.passed && "bg-destructive/5 text-destructive")}>
-            <TableCell className="align-top font-medium whitespace-normal">
+            <TableCell className="align-top font-semibold whitespace-normal">
               {row.rule}. {row.name}
             </TableCell>
             <TableCell className="align-top">
@@ -71,13 +71,13 @@ function RulesTable({ rows }: { rows: RuleRow[] }) {
 function SynonymTable({ synonyms }: { synonyms: ActionSynonym[] }) {
   return (
     <section aria-labelledby="synonyms-heading" className="flex flex-col gap-2">
-      <h3 id="synonyms-heading" className="text-[22px] leading-[1.25] font-medium tracking-[-0.01em]">
+      <h3 id="synonyms-heading" className="text-[22px] leading-tight font-semibold">
         Words P1 counts as the same action
       </h3>
       {synonyms.length === 0 ? (
         <p className="text-muted-foreground">None</p>
       ) : (
-        <Table className="text-base">
+        <Table className="text-lg">
           <TableHeader>
             <TableRow>
               <TableHead>Word</TableHead>
@@ -105,7 +105,7 @@ export function RuleReport({ input, synonyms }: { input: ReportInput; synonyms: 
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant={allPassed ? "outline" : "destructive"} >
+        <Button variant={allPassed ? "outline" : "destructive"}>
           {count.label}
         </Button>
       </SheetTrigger>
@@ -115,7 +115,7 @@ export function RuleReport({ input, synonyms }: { input: ReportInput; synonyms: 
         className="w-full gap-6 overflow-y-auto overscroll-contain bg-background data-[side=right]:w-full data-[side=right]:sm:max-w-3xl sm:rounded-l-[20px]"
       >
         <SheetHeader className="pr-12">
-          <SheetTitle className="text-[28px] leading-[1.2] font-normal tracking-[-0.02em]">Check report</SheetTitle>
+          <SheetTitle className="text-[28px] leading-tight font-semibold">Check report</SheetTitle>
         </SheetHeader>
         <div className="flex flex-col gap-8 px-4 pb-6">
           <RulesTable rows={rows} />

@@ -6,8 +6,20 @@
  * picture to the left of each line. Selecting a line highlights the sentence
  * it came from. The safety notice is always at the top and can't be closed.
  *
- * The result comes from `useConversion()`. It is never stored, so after a
- * reload there is nothing to show (R7.4).
+ * The result comes from `useConversion()`. It is never stored (R7.4: no
+ * localStorage, sessionStorage, IndexedDB, cookies or server cache hold
+ * letter text), so a reload loses it. What a reload shows instead
+ * (`src/ui/result-url.ts`):
+ * - A sample letter has its ID in the URL (`/result?sample=<id>`). Sample
+ *   text is public, so the screen loads the sample again from `/api/sample`.
+ * - The user's own letter: a plain "Your Easy Read version is gone" message
+ *   and "Start again". While a user-letter result is on screen, the browser
+ *   asks before a reload or closing the tab (`beforeunload`).
+ *
+ * Layout: Original left, Easy Read right on wide screens, with the Easy Read
+ * column wider as the main reading column. On narrow screens they stack,
+ * Original first (it is always shown, safety.md), with a skip link to the
+ * Easy Read version.
  *
  * Seams for later tasks:
  * - Pictures load from `/symbols/<id>` (task 23); `ResultFooter` shows the ARASAAC attribution (R4.4).
@@ -21,17 +33,18 @@
  * - Task 27: `BlockedState` shows no lines, the failed key facts with their values from the
  *   Original, and "Undo edit" (block from an edit) or "Start again" (block from the conversion).
  *   Logic is in `src/ui/blocked-state.ts`.
- * - Task 28: "Export PDF" in the toolbar, enabled only when `canExport(result)` (R9.5; also off, with a
+ * - Task 28: "Download PDF" in the toolbar, enabled only when `canExport(result)` (R9.5; also off, with a
  *   fixed Alert, when the judge gave no answer so P10 never ran). It posts the
  *   result to `/api/export`, which checks P1 again, and saves the PDF from a Blob. Errors (409, 429,
- *   503) show in an Alert. "Print preview" opens `/print` with the same layout.
+ *   503) show in an Alert. "Print" opens `/print` with the same layout.
  * - Task 29: a result from a sample letter shows "Recorded on <date> with <model>" and says
  *   that P1 to P8 ran again and P9 and P10 are from the recording.
  */
 import { Info, LoaderCircle, Pencil } from "lucide-react";
-import { AnimatePresence, type Variants, motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FlagIcon, ProblemIcon } from "@/components/status-icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -40,7 +53,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RECORDED_CHECKS_NOTE, type SampleInfo, recordedLabel } from "@/src/samples/sample";
 import { EXPORT_FILENAME } from "@/src/export/errors";
-import { checkEdit, exportPdf } from "@/src/ui/api";
+import { checkEdit, exportPdf, loadSample } from "@/src/ui/api";
 import {
   BLOCKED_HEADING,
   BLOCKED_MESSAGES,
@@ -75,22 +88,20 @@ import {
   recordEdit,
   undoEdit,
 } from "@/src/ui/line-edit";
-import { STAGGER, STATUS_FADE, enterVariants, lineEnterVariants } from "@/src/ui/motion";
+import { statusFade } from "@/src/ui/motion";
+import { GONE_HEADING, GONE_MESSAGE, SAMPLE_LOADING_MESSAGE, parseSampleId } from "@/src/ui/result-url";
 import { type LineRow as LineRowData, resultLayout, scrollTopToReveal } from "@/src/ui/result-layout";
 import { cn } from "cn";
 import { RuleReport } from "./rule-report";
 
-const PICTURE_SIZE = 64;
+const PICTURE_SIZE = 80;
 
-const SECTION_HEADING = "text-[28px] leading-[1.2] font-normal tracking-[-0.02em]";
+const SECTION_HEADING = "text-[28px] leading-tight font-semibold";
 
-/** Passes "hidden"/"visible" down to the lines, which set their own delays. */
-const LINES_PARENT = { hidden: {}, visible: {} };
-
-function BackLink() {
+function StartAgainLink() {
   return (
-    <Link href="/" className={buttonVariants({ variant: "outline", className: "w-fit" })}>
-      Convert another letter
+    <Link href="/" className={buttonVariants({ className: "w-fit" })}>
+      Start again
     </Link>
   );
 }
@@ -98,9 +109,9 @@ function BackLink() {
 /** R7.1. No close button, by design. */
 function SafetyNotice({ text }: { text: string }) {
   return (
-    <Alert role="note" className="border-border bg-card">
-      <Info aria-hidden strokeWidth={1.5} absoluteStrokeWidth />
-      <AlertDescription className="text-base text-foreground">{text}</AlertDescription>
+    <Alert role="note" className="border-2 border-primary bg-accent-tint">
+      <Info aria-hidden strokeWidth={2} absoluteStrokeWidth />
+      <AlertDescription className="text-lg font-semibold text-foreground">{text}</AlertDescription>
     </Alert>
   );
 }
@@ -141,7 +152,7 @@ function OriginalSentence({
 }) {
   const content = <FactText pieces={segment.pieces} styles={styles} />;
   if (!selected) return <span>{content}</span>;
-  return <mark className="rounded-sm bg-accent-tint text-foreground ring-2 ring-accent-blue/60">{content}</mark>;
+  return <mark className="rounded-sm bg-accent-tint text-foreground ring-2 ring-primary">{content}</mark>;
 }
 
 function OriginalText({
@@ -163,7 +174,7 @@ function OriginalText({
       role="region"
       aria-labelledby="original-heading"
       tabIndex={0}
-      className="max-h-[45vh] overflow-y-auto overscroll-contain p-5 focus-visible:outline-offset-[-2px] text-lg leading-relaxed whitespace-pre-wrap md:max-h-[calc(100vh-10rem)]"
+      className="max-h-[50vh] overflow-y-auto overscroll-contain p-5 text-lg leading-normal whitespace-pre-wrap focus-visible:outline-offset-[-3px] lg:max-h-[calc(100vh-8rem)]"
     >
       {segments.map((segment) =>
         segment.kind === "text" ? (
@@ -186,8 +197,9 @@ function OriginalText({
 
 function Picture({ src }: { src: string | null }) {
   // Empty slot when there is no picture, so every line starts at the same place.
-  if (src === null) return <div aria-hidden className="size-16 shrink-0 rounded-lg bg-wash" />;
-  // The symbols route caches the PNG already, so skip the optimiser. The line text carries the meaning, so alt is empty.
+  if (src === null) return <div aria-hidden className="size-20 shrink-0 rounded-lg bg-wash" />;
+  // The symbols route caches the PNG already, so skip the optimiser. Alt is empty because the
+  // picture shows the line next to it: a screen reader would read the same thing twice.
   return (
     <Image
       src={src}
@@ -195,7 +207,7 @@ function Picture({ src }: { src: string | null }) {
       width={PICTURE_SIZE}
       height={PICTURE_SIZE}
       unoptimized
-      className="size-16 shrink-0 rounded-lg bg-white object-contain outline outline-1 -outline-offset-1 outline-black/10"
+      className="size-20 shrink-0 rounded-lg border border-border bg-white object-contain"
     />
   );
 }
@@ -227,7 +239,9 @@ function LineEditor({
   onSave: () => void;
   onCancel: () => void;
 }) {
+  const reduce = useReducedMotion() ?? false;
   const errorId = `edit-error-${edit.lineId}`;
+  const fieldId = `edit-field-${edit.lineId}`;
   return (
     <form
       className="flex flex-col gap-3"
@@ -236,21 +250,24 @@ function LineEditor({
         onSave();
       }}
     >
+      <label htmlFor={fieldId} className="text-lg font-semibold">
+        Change the words in this line
+      </label>
       <Textarea
-        aria-label="Line text"
+        id={fieldId}
         autoFocus
         value={edit.draft}
         disabled={edit.saving}
         aria-invalid={edit.error !== null}
         aria-describedby={edit.error !== null ? errorId : undefined}
         onChange={(e) => onDraft(e.target.value)}
-        className="min-h-16 text-[22px] leading-[1.4]"
+        className="min-h-24 text-2xl leading-normal"
       />
       {edit.error !== null && (
-        <motion.div initial={STATUS_FADE.initial} animate={STATUS_FADE.animate} transition={STATUS_FADE.transition}>
+        <motion.div {...statusFade(reduce)}>
           <Alert variant="destructive" id={errorId}>
             <ProblemIcon />
-            <AlertDescription className="text-base text-destructive">{edit.error}</AlertDescription>
+            <AlertDescription className="text-lg text-destructive">{edit.error}</AlertDescription>
           </Alert>
         </motion.div>
       )}
@@ -260,7 +277,7 @@ function LineEditor({
         </Button>
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           disabled={edit.saving}
           onClick={onCancel}
         >
@@ -282,7 +299,6 @@ function LineRow({
   onDraft,
   onSave,
   onCancel,
-  variants,
 }: {
   row: LineRowData;
   styles: ReadonlyMap<string, FactStyle>;
@@ -296,63 +312,51 @@ function LineRow({
   onDraft: (text: string) => void;
   onSave: () => void;
   onCancel: () => void;
-  /** First-load cascade variants for this line. */
-  variants?: Variants;
 }) {
   if (edit !== null) {
     return (
-      // Same element type as the read-only row, so opening the editor doesn't remount (and replay) the line.
-      <motion.li variants={variants} className="flex items-start gap-4 bg-wash p-4">
+      <li className="flex items-start gap-4 bg-wash p-4 sm:gap-6 sm:p-6">
         <Picture src={row.symbolSrc} />
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <LineEditor edit={edit} onDraft={onDraft} onSave={onSave} onCancel={onCancel} />
         </div>
-      </motion.li>
+      </li>
     );
   }
   return (
-    <motion.li variants={variants} className="flex items-start gap-4 p-4">
+    <li className="flex items-start gap-4 p-4 sm:gap-6 sm:p-6">
       <Picture src={row.symbolSrc} />
-      <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
+      <div className="flex min-w-0 flex-1 flex-col items-start gap-3">
         <button
           type="button"
           aria-pressed={selected}
           onClick={() => onSelect(row)}
           className={cn(
-            "min-h-16 w-full rounded-xl border px-3 py-2.5 text-left text-[22px] leading-[1.4] transition-[background-color,border-color] duration-150",
+            "min-h-20 w-full rounded-xl border-2 px-3 py-3 text-left text-2xl leading-normal",
             "[-webkit-tap-highlight-color:transparent] hover:bg-tint",
-            selected ? "border-accent-blue bg-accent-tint hover:bg-accent-tint" : "border-transparent",
+            selected ? "border-primary bg-accent-tint hover:bg-accent-tint" : "border-transparent",
           )}
         >
           <LineText pieces={row.pieces} styles={styles} />
-          {/* initial={false}: a line flagged on load shows at once; one flagged after an edit fades in. */}
-          <AnimatePresence initial={false}>
-            {row.flagged && (
-              <motion.span key="flag" className="inline" {...STATUS_FADE}>
-                <Badge
-                  variant="destructive"
-                  className="label-mono ml-3 h-auto min-h-7 border-destructive/30 bg-red-50 px-2.5 align-middle whitespace-normal normal-case [&>svg]:size-3.5!"
-                >
-                  <FlagIcon />
-                  {lineMarkerLabel(row.failedRules)}
-                </Badge>
-              </motion.span>
-            )}
-          </AnimatePresence>
+          {/* The failed rule in words with an icon, never colour alone. Shown at once, never animated. */}
+          {row.flagged && (
+            <span className="mt-2 block">
+              <Badge
+                variant="destructive"
+                className="h-auto min-h-9 border-destructive bg-red-50 px-3 py-1 text-lg font-semibold whitespace-normal text-destructive [&>svg]:size-5!"
+              >
+                <FlagIcon />
+                {lineMarkerLabel(row.failedRules)}
+              </Badge>
+            </span>
+          )}
         </button>
-        <Button
-          type="button"
-          variant="tint"
-          size="sm"
-          className="ml-1.5"
-          disabled={editDisabled}
-          onClick={() => onEdit(row)}
-        >
-          <Pencil aria-hidden strokeWidth={1.5} absoluteStrokeWidth data-icon="inline-start" />
-          Edit<span className="sr-only"> this line</span>
+        <Button type="button" variant="outline" disabled={editDisabled} onClick={() => onEdit(row)}>
+          <Pencil aria-hidden strokeWidth={2} absoluteStrokeWidth data-icon="inline-start" />
+          Change this line
         </Button>
       </div>
-    </motion.li>
+    </li>
   );
 }
 
@@ -378,14 +382,14 @@ function BlockedState({
     if (source === "edit") undoRef.current?.focus();
   }, [source]);
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-transparent bg-card p-5 shadow-window">
-      <Alert variant="destructive" role="alert">
+    <div className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-5 sm:p-6">
+      <Alert variant="destructive" role="alert" className="border-2 border-destructive">
         <ProblemIcon strong className="translate-y-1!" />
-        <AlertTitle className="text-lg font-medium">{BLOCKED_HEADING}</AlertTitle>
-        <AlertDescription className="text-base text-destructive">{BLOCKED_MESSAGES[source]}</AlertDescription>
+        <AlertTitle className="text-xl font-semibold">{BLOCKED_HEADING}</AlertTitle>
+        <AlertDescription className="text-lg text-destructive">{BLOCKED_MESSAGES[source]}</AlertDescription>
       </Alert>
       <section aria-labelledby="failed-facts-heading" className="flex flex-col gap-3">
-        <h3 id="failed-facts-heading" className="text-[22px] leading-[1.25] font-medium tracking-[-0.01em]">
+        <h3 id="failed-facts-heading" className="text-[22px] leading-tight font-semibold">
           {FAILED_FACTS_HEADING}
         </h3>
         {failedFacts.length === 0 ? (
@@ -396,7 +400,7 @@ function BlockedState({
               const style = styles.get(fact.id);
               return (
                 <li key={fact.id} className="text-lg leading-relaxed">
-                  <span className="font-medium">{capitalise(fact.typeLabel)}: </span>
+                  <span className="font-semibold">{capitalise(fact.typeLabel)}: </span>
                   <span className={style ? factClassName(style) : undefined}>{fact.value}</span>
                 </li>
               );
@@ -425,7 +429,7 @@ function capitalise(text: string): string {
 /** R4.4: the ARASAAC attribution, worded as in checker/data/LICENSE-pictograms.md. */
 function SymbolAttribution() {
   return (
-    <p className="text-base text-muted-foreground">
+    <p className="text-lg text-muted-foreground">
       {ARASAAC_ATTRIBUTION_PARTS.map((part) =>
         part.href ? (
           <a
@@ -433,7 +437,7 @@ function SymbolAttribution() {
             href={part.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-link underline underline-offset-4 hover:opacity-80"
+            className="text-link underline underline-offset-4 hover:decoration-2"
           >
             {part.text}
           </a>
@@ -474,23 +478,85 @@ function prefersReducedMotion(): boolean {
 function SampleLabel({ sample }: { sample: SampleInfo }) {
   return (
     <div className="flex flex-col gap-1">
-      <p className="font-medium">{recordedLabel(sample)}</p>
-      <p className="text-base text-muted-foreground">{RECORDED_CHECKS_NOTE}</p>
+      <p className="font-semibold">{recordedLabel(sample)}</p>
+      <p className="text-lg text-muted-foreground">{RECORDED_CHECKS_NOTE}</p>
     </div>
   );
 }
 
+/**
+ * No result in memory: after a reload, in a new tab, or before any
+ * conversion. A sample's ID in the URL loads it again; a user's letter is
+ * gone, because letters are never stored (R7.4).
+ */
+function NoResult({ sampleId, error }: { sampleId: string | null; error: string | null }) {
+  if (sampleId !== null && error === null) {
+    return (
+      <p role="status" className="flex items-center gap-3 text-xl font-semibold">
+        <LoaderCircle aria-hidden className="size-6 motion-safe:animate-spin" />
+        {SAMPLE_LOADING_MESSAGE}
+      </p>
+    );
+  }
+  if (error !== null) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Alert variant="destructive" role="alert">
+          <ProblemIcon />
+          <AlertDescription className="text-lg text-destructive">{error}</AlertDescription>
+        </Alert>
+        <StartAgainLink />
+      </div>
+    );
+  }
+  return (
+    <section
+      aria-labelledby="gone-heading"
+      className="flex max-w-[720px] flex-col gap-4 rounded-2xl border border-border bg-card p-6"
+    >
+      <h2 id="gone-heading" className={SECTION_HEADING}>
+        {GONE_HEADING}
+      </h2>
+      <p className="text-xl leading-normal">{GONE_MESSAGE}</p>
+      <StartAgainLink />
+    </section>
+  );
+}
+
 export function ResultView() {
-  const { result, sample, setResult } = useConversion();
+  const sampleId = parseSampleId(useSearchParams().get("sample"));
+  const { result, sample, setResult, startResult } = useConversion();
   const reduceMotion = useReducedMotion() ?? false;
   const [edit, setEdit] = useState<EditState | null>(null);
   const [history, setHistory] = useState<UndoHistory>(EMPTY_HISTORY);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [reloadError, setReloadError] = useState<string | null>(null);
   const layout = useMemo(() => (result ? resultLayout(result) : null), [result]);
   const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
   const originalRef = useRef<HTMLDivElement | null>(null);
   const sentenceEls = useRef(new Map<string, HTMLElement>());
+
+  // After a reload of a sample result, load the public sample again. It makes no model call.
+  const reloadSampleId = result === null ? sampleId : null;
+  useEffect(() => {
+    if (reloadSampleId === null) return;
+    const controller = new AbortController();
+    void loadSample(reloadSampleId, { signal: controller.signal }).then((outcome) => {
+      if (outcome.ok) startResult(outcome.result, outcome.sample);
+      else if (!outcome.aborted) setReloadError(outcome.message);
+    });
+    return () => controller.abort();
+  }, [reloadSampleId, startResult]);
+
+  // The user's own letter can't come back after a reload, so the browser asks first.
+  const userLetterShown = result !== null && sample === null;
+  useEffect(() => {
+    if (!userLetterShown) return;
+    const onBeforeUnload = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [userLetterShown]);
 
   const register = useCallback((sentenceId: string, el: HTMLElement | null) => {
     if (el) sentenceEls.current.set(sentenceId, el);
@@ -577,32 +643,23 @@ export function ResultView() {
     setExportError(null);
   };
 
-  if (!result || !layout) {
-    return (
-      <div className="flex flex-col gap-4">
-        <p>There is no Easy Read version to show. Letters aren&apos;t saved, so convert the letter again.</p>
-        <BackLink />
-      </div>
-    );
-  }
+  if (!result || !layout) return <NoResult sampleId={sampleId} error={reloadError} />;
 
   const selectedRow = layout.rows.find((r) => r.id === selectedLineId) ?? null;
   const selectedSentenceId = selectedRow?.sourceSentenceId ?? null;
-  const chunk = enterVariants(reduceMotion);
 
-  // Staged entrance on first load only: toolbar, Easy Read column, footer,
-  // 100ms apart. The safety notice and the Original never move, so they are
-  // readable at once. Edits change `result` but don't remount this, so the
-  // entrance doesn't run again.
+  // Nothing enters or moves on load. Only a status that appears later (an
+  // export error, the blocked state after an edit) fades in, and not under
+  // reduced motion.
   return (
-    <motion.div className="flex flex-col gap-6" initial="hidden" animate="visible" variants={STAGGER}>
+    <div className="flex flex-col gap-6">
       <SafetyNotice text={result.notice} />
       {sample !== null && <SampleLabel sample={sample} />}
-      <motion.div variants={chunk} className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         <RuleReport input={result} synonyms={result.actionSynonyms} />
         {/* When blocked, "Undo edit" is in the blocked state instead. */}
         {undoAllowed && blocked === null && (
-          <Button type="button" variant="ghost" onClick={onUndo}>
+          <Button type="button" variant="outline" onClick={onUndo}>
             Undo edit
           </Button>
         )}
@@ -613,67 +670,59 @@ export function ResultView() {
           onClick={() => void onExport()}
         >
           {exporting && <LoaderCircle aria-hidden data-icon="inline-start" className="motion-safe:animate-spin" />}
-          {exporting ? "Making the PDF…" : "Export PDF"}
+          {exporting ? "Making the PDF…" : "Download PDF"}
         </Button>
         {exportAllowed && edit === null && (
           <Link href="/print" className={buttonVariants({ variant: "outline" })}>
-            Print preview
+            Print
           </Link>
         )}
-      </motion.div>
+      </div>
       {/* Safety: no export while P10 (no advice) hasn't run. Not dismissable. */}
       {blocked === null && !result.judgeAvailable && (
-        <Alert role="status">
+        <Alert role="status" className="border-input">
           <FlagIcon />
-          <AlertDescription className="text-base text-foreground">{NOT_JUDGED_EXPORT_MESSAGE}</AlertDescription>
+          <AlertDescription className="text-lg text-foreground">{NOT_JUDGED_EXPORT_MESSAGE}</AlertDescription>
         </Alert>
       )}
       {exportError !== null && (
-        <motion.div initial={STATUS_FADE.initial} animate={STATUS_FADE.animate} transition={STATUS_FADE.transition}>
+        <motion.div {...statusFade(reduceMotion)}>
           <Alert variant="destructive" role="alert">
             <ProblemIcon />
-            <AlertDescription className="text-base text-destructive">{exportError}</AlertDescription>
+            <AlertDescription className="text-lg text-destructive">{exportError}</AlertDescription>
           </Alert>
         </motion.div>
       )}
-      <div className="grid items-start gap-6 md:grid-cols-2">
-        <section aria-labelledby="original-heading" className="flex flex-col gap-3 md:sticky md:top-6">
+      {/* Narrow screens stack the columns, Original first, so this skips to the Easy Read version. */}
+      <a href="#easy-read-heading" className={buttonVariants({ variant: "outline", className: "w-fit lg:hidden" })}>
+        Go to the Easy Read version
+      </a>
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <section aria-labelledby="original-heading" className="flex min-w-0 flex-col gap-3 lg:sticky lg:top-6">
           <h2 id="original-heading" className={SECTION_HEADING}>
             Original
           </h2>
-          <div className="overflow-hidden rounded-2xl border border-transparent bg-card shadow-window">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
             <OriginalText
-            segments={layout.segments}
-            styles={layout.factStyles}
-            selectedSentenceId={selectedSentenceId}
-            register={register}
+              segments={layout.segments}
+              styles={layout.factStyles}
+              selectedSentenceId={selectedSentenceId}
+              register={register}
               containerRef={originalRef}
             />
           </div>
         </section>
-        {/* A blocked result is shown at once, with no entrance (the reader must see why). */}
-        <motion.section
-          variants={layout.withheld ? undefined : chunk}
-          aria-labelledby="easy-read-heading"
-          className="flex min-w-0 flex-col gap-3"
-        >
-          <h2 id="easy-read-heading" className={SECTION_HEADING}>
+        <section aria-labelledby="easy-read-heading" className="flex min-w-0 flex-col gap-3">
+          <h2 id="easy-read-heading" tabIndex={-1} className={cn(SECTION_HEADING, "scroll-mt-6")}>
             Easy Read
           </h2>
           {/*
-            Lines and the blocked state swap after an edit, with no slide and
-            no exit. A conversion that was blocked from the start shows at
-            once (the reader must see why); one blocked by an edit fades in.
-            The lines cascade in on first load, 40ms apart, first 8 only; they
-            inherit "hidden"/"visible" from the staged entrance.
+            A conversion that was blocked from the start shows at once (the
+            reader must see why); one blocked by an edit fades in. The lines
+            never animate.
           */}
           {layout.withheld ? (
-            <motion.div
-              key="blocked"
-              initial={blocked === "edit" ? STATUS_FADE.initial : false}
-              animate={STATUS_FADE.animate}
-              transition={STATUS_FADE.transition}
-            >
+            <motion.div key="blocked" {...statusFade(reduceMotion || blocked !== "edit")}>
               <BlockedState
                 source={blocked ?? "conversion"}
                 failedFacts={failedFacts}
@@ -682,12 +731,8 @@ export function ResultView() {
               />
             </motion.div>
           ) : (
-            <motion.ul
-              key="lines"
-              variants={LINES_PARENT}
-              className="divide-y divide-border overflow-hidden rounded-2xl border border-transparent bg-card shadow-window"
-            >
-              {layout.rows.map((row, index) => (
+            <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+              {layout.rows.map((row) => (
                 <LineRow
                   key={row.id}
                   row={row}
@@ -700,16 +745,13 @@ export function ResultView() {
                   onDraft={onDraft}
                   onSave={() => void onSave()}
                   onCancel={onCancel}
-                  variants={lineEnterVariants(reduceMotion, index)}
                 />
               ))}
-            </motion.ul>
+            </ul>
           )}
-        </motion.section>
+        </section>
       </div>
-      <motion.div variants={chunk}>
-        <ResultFooter />
-      </motion.div>
-    </motion.div>
+      <ResultFooter />
+    </div>
   );
 }

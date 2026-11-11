@@ -6,8 +6,9 @@
  * The result holds the letter text, so it lives only in React state in this
  * provider, which wraps the app in the root layout. It is never written to
  * localStorage, sessionStorage, cookies, the URL or the server (R7.4). A
- * client navigation keeps it; a reload or a new tab loses it, and the result
- * screen then sends the user back to the input screen.
+ * client navigation keeps it; a reload or a new tab loses it. The result
+ * screen then loads a public sample again from its ID in the URL, or says the
+ * user's letter is gone (src/ui/result-url.ts).
  *
  * `sample` is set when the result came from a recorded sample letter (task
  * 29), so the result screen can show when and with which model it was

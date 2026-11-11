@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { ConversionProvider } from "@/src/ui/conversion-context";
-import { brandMono, brandSans } from "./fonts";
+import { brandSans } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,11 +11,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${brandSans.variable} ${brandMono.variable} h-full antialiased`}>
+    <html lang="en" className={`${brandSans.variable} h-full`}>
       <body className="flex min-h-full flex-col">
         <SiteHeader />
-        {/* Devin's frame: a 1160px column with hairline rails on both sides. */}
-        <div className="mx-auto flex w-full max-w-[1160px] flex-1 flex-col border-border sm:border-x print:max-w-none print:border-0">
+        <div className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col print:max-w-none">
           <ConversionProvider>{children}</ConversionProvider>
         </div>
       </body>

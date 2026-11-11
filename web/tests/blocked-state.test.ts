@@ -8,7 +8,16 @@ import type { CheckResult, KeyFact, Line } from "@/src/checker-client/schemas";
 import { NOTICE, RULES } from "@/src/pipeline/decide";
 import type { ConversionResult } from "@/src/pipeline/types";
 import { NOT_JUDGED_EXPORT_MESSAGE, blockSource, canExport, failedKeyFacts } from "@/src/ui/blocked-state";
-import { EMPTY_HISTORY, recordEdit } from "@/src/ui/line-edit";
+import {
+  type CheckResponseBody,
+  EMPTY_HISTORY,
+  applyCheckResponse,
+  buildCheckRequest,
+  canUndo,
+  editProblem,
+  recordEdit,
+  undoEdit,
+} from "@/src/ui/line-edit";
 import { resultLayout } from "@/src/ui/result-layout";
 
 const ORIGINAL = "Pay £45 by 14 March 2026. Call 0300 123 4567.";
@@ -125,5 +134,52 @@ describe("blocked-state properties", () => {
         expect(new Set(list)).toEqual(known);
       }),
     );
+  });
+});
+
+/**
+ * The demo moment: change the date in a line, and the checked result comes
+ * back blocked. The /api/check route turns a P1 failure into "blocked"
+ * (check-route.test.ts); this covers what the screen does with it.
+ */
+describe("editing a line to change a date", () => {
+  const DATED: Line[] = [{ id: "L1", text: "You need to pay £45 by 14 March 2026.", source_sentence_id: "s1", symbol_id: null }];
+
+  it("blocks the output, names the date and offers Undo edit", () => {
+    const before = makeResult({ lines: DATED });
+    const draft = "You need to pay £45 by 15 March 2026.";
+    expect(editProblem(before.lines, "L1", draft)).toBeNull();
+
+    const request = buildCheckRequest(before, "L1", draft);
+    expect(request.original).toBe(ORIGINAL);
+    expect(request.lines[0].text).toBe(draft);
+    expect(request.editedLineIds).toEqual(["L1"]);
+
+    // What /api/check returns when P1 can't find 14 March 2026 unchanged.
+    const response: CheckResponseBody = {
+      status: "blocked",
+      checks: checks(["f2"]),
+      lines: [],
+      lineFacts: [],
+      sentences: before.original.sentences,
+      keyFacts: FACTS,
+      judgeAvailable: true,
+      models: [],
+    };
+    const after = applyCheckResponse(before, response);
+    const history = recordEdit(EMPTY_HISTORY, before, after);
+
+    expect(after.lines).toEqual([]);
+    expect(resultLayout(after).withheld).toBe(true);
+    expect(resultLayout(after).rows).toEqual([]);
+    expect(canExport(after)).toBe(false);
+    expect(blockSource(after, history)).toBe("edit");
+    expect(failedKeyFacts(after).map((f) => f.value)).toEqual(["14 March 2026"]);
+    expect(after.original.text).toBe(ORIGINAL);
+
+    expect(canUndo(history, after)).toBe(true);
+    const undone = undoEdit(history, after);
+    expect(undone?.result).toBe(before);
+    expect(canExport(undone!.result)).toBe(true);
   });
 });

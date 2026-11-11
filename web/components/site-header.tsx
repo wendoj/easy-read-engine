@@ -1,9 +1,11 @@
 "use client";
 /**
- * Top bar, after devin.ai: mark and wordmark, text links in pills, and a
- * black pill on the right. Not sticky, so it doesn't take space while reading
- * a long result. Hidden when printing.
+ * Top bar: mark and name, and a way back to the start on the result and
+ * print screens. No other links: every screen has one job.
+ * Not sticky, so it doesn't take space while reading a long result. Hidden
+ * when printing.
  */
+import { RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useId } from "react";
@@ -35,39 +37,22 @@ export function Mark({ className }: { className?: string }) {
   );
 }
 
-const NAV_LINK =
-  "hidden rounded-full px-3 py-1.5 text-[15px] leading-[1.4] transition-[background-color] duration-150 hover:bg-tint sm:inline-flex";
-
 export function SiteHeader() {
   const pathname = usePathname();
-  const home = pathname === "/";
+  const away = pathname === "/result" || pathname === "/print";
   return (
-    <header className="print:hidden">
-      {home && (
-        <div className="mx-auto w-full max-w-[1160px] px-4 pt-2.5">
-          <p className="er-banner rounded-md px-4 py-1.5 text-center text-[15px] leading-[1.4]">
-            We never save your letter. Close the page and the text is gone.
-          </p>
-        </div>
-      )}
-      <div className="mx-auto flex h-16 w-full max-w-[1160px] items-center gap-6 px-4">
-        <Link href="/" className="flex items-center gap-1.5 rounded-md text-[22px] tracking-[-0.03em]">
-          <Mark className="size-6" />
+    <header className="border-b border-border bg-card print:hidden">
+      <div className="mx-auto flex min-h-[72px] w-full max-w-[1200px] items-center gap-6 px-4 py-3">
+        <Link href="/" className="flex min-h-12 items-center gap-3 rounded-md text-[22px] font-semibold">
+          <Mark className="size-8 text-primary" />
           Easy Read
         </Link>
-        <nav aria-label="Main" className="flex items-center gap-1">
-          <Link href="/#how" className={NAV_LINK}>
-            How it works
+        {away ? (
+          <Link href="/" className={buttonVariants({ variant: "outline", className: "ml-auto" })}>
+            <RotateCcw aria-hidden strokeWidth={1.5} absoluteStrokeWidth data-icon="inline-start" />
+            New letter
           </Link>
-          <Link href="/#letter" className={NAV_LINK}>
-            Samples
-          </Link>
-        </nav>
-        <div className="ml-auto">
-          <Link href={home ? "#letter" : "/"} className={buttonVariants({ size: "xs" })}>
-            {home ? "Convert a letter" : "New letter"}
-          </Link>
-        </div>
+        ) : null}
       </div>
     </header>
   );
