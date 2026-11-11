@@ -162,7 +162,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Show the progress events from the `/api/convert` stream
   - _Requirements: 1.1 to 1.7, 7.5_
 
-- [-] 22. Build the side-by-side result screen
+- [x] 22. Build the side-by-side result screen
   - `web/app/result/page.tsx`: the Original on the left; Easy Read lines on the right, with a picture to the left of each line
   - Selecting a line highlights its source sentence using the spans from `analyse`
   - Show the safety notice at the top, with no way to dismiss it
@@ -217,7 +217,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Mark the test as needing a model, so it runs with the fixture job and not on every save
   - _Requirements: correctness properties, property-based testing items 1 and 2_
 
-- [~] 31. Run the pass-rate measurement
+- [-] 31. Run the pass-rate measurement
   - Run `npm run fixtures -- --all` on the 20 public sample letters and save the results table to `docs/pass-rates.md`
   - _Requirements: none; evidence for the write-up_
 
