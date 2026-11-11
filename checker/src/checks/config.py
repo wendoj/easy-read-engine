@@ -60,3 +60,14 @@ ABBREVIATION_LINK_WORDS: frozenset[str] = frozenset(
 # P8 and find_symbol: the committed ARASAAC index, built by
 # scripts/build_symbol_index.py (design "Symbols").
 SYMBOL_INDEX_PATH = Path(__file__).resolve().parents[2] / "data" / "symbols.json"
+
+# HTTP adapter request bounds. The web app rejects letters over 1,500 words
+# (R1.7); these limits leave a margin above that and stop oversized requests
+# before any parsing work.
+MAX_ORIGINAL_CHARS = 20_000
+MAX_LINES = 400
+MAX_LINE_CHARS = 1_000
+MAX_KEY_FACTS = 1_000
+MAX_ID_CHARS = 64
+MAX_SYMBOL_QUERY_CHARS = 200
+MAX_SYMBOL_LIMIT = 20

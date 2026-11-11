@@ -1,0 +1,633 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Easy Read checker",
+    "description": "Deterministic Easy Read checks: sentences, key facts, P1 to P8 and the symbol index.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/analyse": {
+      "post": {
+        "summary": "Analyse",
+        "description": "Sentences of the Original, with spans, and its key facts.",
+        "operationId": "analyse_analyse_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Analysis"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/key-facts": {
+      "post": {
+        "summary": "Key Facts",
+        "description": "Key facts in `text`, with spans and normalised values.",
+        "operationId": "key_facts_key_facts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeyFactsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/KeyFact"
+                  },
+                  "type": "array",
+                  "title": "Response Key Facts Key Facts Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/check": {
+      "post": {
+        "summary": "Check",
+        "description": "P1 to P8 for the lines, in rule order, one result per rule.",
+        "operationId": "check_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CheckResult"
+                  },
+                  "type": "array",
+                  "title": "Response Check Check Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/symbols": {
+      "get": {
+        "summary": "Symbols",
+        "description": "Pictograms for `q`, best first.",
+        "operationId": "symbols_symbols_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "title": "Q"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "default": 5,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SymbolMatch"
+                  },
+                  "title": "Response Symbols Symbols Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "description": "Ready when the spaCy model and the symbol index are loaded.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalyseRequest": {
+        "properties": {
+          "original": {
+            "type": "string",
+            "maxLength": 20000,
+            "title": "Original"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "original"
+        ],
+        "title": "AnalyseRequest"
+      },
+      "Analysis": {
+        "properties": {
+          "sentences": {
+            "items": {
+              "$ref": "#/components/schemas/Sentence"
+            },
+            "type": "array",
+            "title": "Sentences"
+          },
+          "key_facts": {
+            "items": {
+              "$ref": "#/components/schemas/KeyFact"
+            },
+            "type": "array",
+            "title": "Key Facts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sentences",
+          "key_facts"
+        ],
+        "title": "Analysis",
+        "description": "What `analyse` returns: the Original's sentences and its key facts."
+      },
+      "CheckRequest": {
+        "properties": {
+          "original": {
+            "type": "string",
+            "maxLength": 20000,
+            "title": "Original"
+          },
+          "key_facts": {
+            "items": {
+              "$ref": "#/components/schemas/KeyFact"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Key Facts"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/Line"
+            },
+            "type": "array",
+            "maxItems": 400,
+            "title": "Lines"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "original",
+          "key_facts",
+          "lines"
+        ],
+        "title": "CheckRequest",
+        "description": "`key_facts` must come from the Original (`/analyse` or `/key-facts`),\nnever from the output, so P1 compares the output with the Original (R2.4)."
+      },
+      "CheckResult": {
+        "properties": {
+          "rule": {
+            "type": "string",
+            "enum": [
+              "P1",
+              "P2",
+              "P3",
+              "P4",
+              "P5",
+              "P6",
+              "P7",
+              "P8",
+              "P9",
+              "P10"
+            ],
+            "title": "Rule"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "line_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Line Ids"
+          },
+          "failed_fact_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Failed Fact Ids"
+          },
+          "details": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rule",
+          "passed",
+          "line_ids",
+          "failed_fact_ids",
+          "details"
+        ],
+        "title": "CheckResult"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "ErrorResponse"
+      },
+      "Health": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "starting"
+            ],
+            "title": "Status"
+          },
+          "spacy_loaded": {
+            "type": "boolean",
+            "title": "Spacy Loaded"
+          },
+          "spacy_model": {
+            "type": "string",
+            "title": "Spacy Model"
+          },
+          "symbol_index_loaded": {
+            "type": "boolean",
+            "title": "Symbol Index Loaded"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "spacy_loaded",
+          "spacy_model",
+          "symbol_index_loaded"
+        ],
+        "title": "Health"
+      },
+      "KeyFact": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "date",
+              "time",
+              "money",
+              "reference",
+              "phone",
+              "address",
+              "action"
+            ],
+            "title": "Type"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "normalised": {
+            "type": "string",
+            "title": "Normalised"
+          },
+          "start": {
+            "type": "integer",
+            "title": "Start"
+          },
+          "end": {
+            "type": "integer",
+            "title": "End"
+          },
+          "sentence_id": {
+            "type": "string",
+            "title": "Sentence Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "value",
+          "normalised",
+          "start",
+          "end",
+          "sentence_id"
+        ],
+        "title": "KeyFact"
+      },
+      "KeyFactsRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 20000,
+            "title": "Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "KeyFactsRequest"
+      },
+      "Line": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "source_sentence_id": {
+            "type": "string",
+            "title": "Source Sentence Id"
+          },
+          "symbol_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Symbol Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "text",
+          "source_sentence_id",
+          "symbol_id"
+        ],
+        "title": "Line"
+      },
+      "Sentence": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "start": {
+            "type": "integer",
+            "title": "Start"
+          },
+          "end": {
+            "type": "integer",
+            "title": "End"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "text",
+          "start",
+          "end"
+        ],
+        "title": "Sentence"
+      },
+      "SymbolMatch": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "score"
+        ],
+        "title": "SymbolMatch",
+        "description": "One `find_symbol` result: a pictogram ID from the symbol index and its rank score."
+      },
+      "ValidationErrorResponse": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationIssue"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "ValidationErrorResponse"
+      },
+      "ValidationIssue": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Loc"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "type"
+        ],
+        "title": "ValidationIssue",
+        "description": "One invalid field: where it is and what kind of error it is. Never the\nsubmitted value or a message that could quote it."
+      }
+    }
+  }
+}

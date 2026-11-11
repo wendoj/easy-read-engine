@@ -18,6 +18,7 @@ dependencies = [
 dev = [
     "pytest>=8.3",
     "hypothesis>=6.120",
+    "httpx>=0.28",
 ]
 
 [tool.uv]
