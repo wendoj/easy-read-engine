@@ -153,3 +153,47 @@ def test_action_key_fact_words_are_still_checked() -> None:
 
 def test_no_lines_pass() -> None:
     assert check_p5("", [], []).passed
+
+
+def _p5_passes(text: str) -> bool:
+    return check_p5("", [], [Line(id="L1", text=text, source_sentence_id="s1", symbol_id=None)]).passed
+
+
+def test_short_forms_names_and_labels_pass() -> None:
+    """Regression: curly-apostrophe short forms ("you’ll"), names spaCy didn't
+    tag, "Band A" and "e‑mail" (non-breaking hyphen) failed P5 in the samples."""
+    for text in [
+        "Think you’ll miss more payments?",
+        "You don’t have to pay.",
+        "You’re in Property Band A.",
+        "Call StepChange or National Debtline for free help.",
+        "Send us an e‑mail.",
+    ]:
+        assert _p5_passes(text), text
+
+
+def test_hard_words_still_fail() -> None:
+    for text in ["The appellant has made an appeal.", "You have arrears."]:
+        assert not _p5_passes(text), text
+
+
+def test_hyphen_compounds_names_and_bill_words_pass() -> None:
+    """Regression: "cross‑examine" (U+2011), "StepChange" starting a sentence and
+    everyday bill words failed P5 on the recorded samples."""
+    for text in [
+        "You can cross‑examine the council.",
+        "StepChange can help you for free.",
+        "PayPoint is in many shops.",
+        "This is a reminder.",
+        "The deadline is 1 April 2026.",
+        "Your payment is overdue.",
+        "Take the barcode to the shop.",
+        "Go paperless.",
+        "Read the booklet.",
+    ]:
+        assert _p5_passes(text), text
+
+
+def test_hard_hyphen_compounds_and_capitalised_words_still_fail() -> None:
+    for text in ["There is a pre‑inquiry call.", "Arrears are high.", "Instalments are due."]:
+        assert not _p5_passes(text), text

@@ -1,13 +1,22 @@
 # Everyday words that UK letters use and the NGSL 1.2 lists leave out.
 # One lemma per line, lower case. Keep this list short: every word here is a
 # word P5 accepts without an explanation. See README.md.
+# barcode, booklet, deadline, overdue, paperless and reminder were added after
+# they failed P5 on the recorded sample letters (November 2026). Each is printed
+# on everyday bills and payment slips, not only official letters.
 app
+barcode
+booklet
 cheque
+deadline
 debit
 dentist
 internet
 landlord
+overdue
+paperless
 password
 pharmacy
 postcode
+reminder
 wheelchair

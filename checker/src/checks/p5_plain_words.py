@@ -10,10 +10,16 @@ it is used. A word token passes if any of these is true:
   (an address's street name, for example). Actions are excluded because their
   wording is meant to change, and P1 already compares them by lemma
 - it is part of a name: a spaCy entity labelled `NAME_ENTITY_LABELS`
-  ("Manchester City Council", "Citizens Advice")
+  ("Manchester City Council", "Citizens Advice"), a capitalised proper
+  noun that doesn't start its sentence, or a word with a capital inside it
+  ("StepChange", "PayPoint")
+- it is a single capital letter used as a label ("Band A")
 - it is a web or email address
 - it is an abbreviation in capitals; P7 checks those
 - it has been defined on first use (below)
+- it is joined by hyphens from common words. spaCy splits "cross-examine" at
+  an ASCII hyphen but not at a non-breaking one (U+2011), so this treats both
+  the same. "pre‑inquiry" still fails: "pre" is not a word on the list
 
 Defined on first use. A sentence whose main verb is "mean" or "be" defines
 the words in its subject: "**Your rent** is the money you pay to live in your
@@ -25,8 +31,9 @@ Known limits: any "X is a <noun> ..." sentence counts as a definition, even
 one that explains little ("Your liability is a problem."). The words of the
 definition itself are checked like any other words.
 
-Punctuation, symbols and spaces are not words. Clitics ("'s", "n't", "'ll")
-are checked by lemma.
+Punctuation, symbols and spaces are not words. Short forms ("'ll", "n't",
+"'re", "'ve", with straight or curly apostrophes) are checked as the word they
+stand for.
 
 This module never logs, and `details` hold line IDs and counts, never text (R7.4).
 """
@@ -44,7 +51,12 @@ from checks.sentences import get_nlp
 
 WORDLIST_DIR = Path(__file__).parent / "wordlist"
 _WORD = re.compile(r"[^\W\d_]+")
-_APOSTROPHES = str.maketrans({"’": "'", "‘": "'"})
+# Curly apostrophes, and the non-breaking hyphen (U+2011) models often write
+# in "e‑mail" and "pre‑inquiry".
+_APOSTROPHES = str.maketrans({"’": "'", "‘": "'", "\u2011": "-", "\u2010": "-"})
+# Short forms and the word each stands for. spaCy leaves some of them, most
+# often with a curly apostrophe ("you’ll", "don’t"), as their own lemma.
+_CONTRACTIONS = {"'ll": "will", "n't": "not", "'re": "be", "'ve": "have", "'d": "would", "'m": "be"}
 # The possessive "'s" keeps "'s" as its lemma.
 _CLITICS = frozenset({"'s", "'"})
 # What can follow "means" in a definition: "X means the money ...", "X means you ...".
@@ -75,7 +87,20 @@ def _key_fact_words(key_facts: list[KeyFact]) -> frozenset[str]:
 
 
 def _forms(token: Token) -> set[str]:
-    return {token.lemma_.lower().translate(_APOSTROPHES), token.lower_.translate(_APOSTROPHES)}
+    forms = {token.lemma_.lower().translate(_APOSTROPHES), token.lower_.translate(_APOSTROPHES)}
+    return forms | {_CONTRACTIONS[f] for f in forms if f in _CONTRACTIONS}
+
+
+def _common_parts(token: Token, words: frozenset[str]) -> bool:
+    """Whether a hyphenated token is made only of common words.
+
+    spaCy splits "cross-examine" at an ASCII hyphen and checks each part, but
+    keeps "cross‑examine" (non-breaking hyphen, U+2011) as 1 token. This checks
+    that token's parts the same way.
+    """
+    text = token.lower_.translate(_APOSTROPHES)
+    parts = [p for p in text.split("-") if p]
+    return "-" in text and bool(parts) and all(p in words for p in parts)
 
 
 def _needs_checking(token: Token, fact_words: frozenset[str]) -> bool:
@@ -89,6 +114,19 @@ def _needs_checking(token: Token, fact_words: frozenset[str]) -> bool:
     if abbreviation_of(token) is not None:
         return False
     if token.ent_type_ in NAME_ENTITY_LABELS:
+        return False
+    # A name spaCy didn't tag as an entity ("StepChange", "PayPoint"): a
+    # capitalised proper noun that doesn't start the sentence, or a word with
+    # a capital inside it, which can start one ("StepChange can help.").
+    if token.pos_ == "PROPN" and token.text[:1].isupper() and not token.is_sent_start:
+        return False
+    if token.is_alpha and token.text[:1].isupper() and any(c.isupper() for c in token.text[1:]) and any(
+        c.islower() for c in token.text
+    ):
+        return False
+    # A single capital letter used as a label: "Band A", "Form B".
+    letters = [c for c in token.text if c.isalpha()]
+    if len(letters) == 1 and letters[0].isupper():
         return False
     if token.lower_ in fact_words:
         return False
@@ -138,7 +176,7 @@ def check_p5(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
                 if not _needs_checking(token, fact_words):
                     continue
                 forms = _forms(token)
-                if forms & words or forms & defined or forms & _CLITICS:
+                if forms & words or forms & defined or forms & _CLITICS or _common_parts(token, words):
                     continue
                 hard += 1
         if hard:
