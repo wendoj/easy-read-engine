@@ -434,7 +434,7 @@ When `status` is `"blocked"`, the server returns no lines. The client cannot sho
 | Checker service down or timing out | 503; no output shown, because unchecked output must never reach the reader |
 | Model call fails or returns invalid JSON | Retry the call once; if it fails again, return 502. This does not use up one of the 3 tries |
 | Judge (P9 or P10) fails to answer | That rule is marked failed with reason "judge unavailable", so it is flagged, not hidden |
-| P1 fails after 3 tries | `status: "blocked"`, no lines returned |
+| P1 fails on all 3 tries | `status: "blocked"`, no lines returned |
 | Other rule fails after 3 tries | `status: "flagged"`, lines returned with rule failures |
 | Export fails | 500 with a message; the on-screen result stays usable |
 | Export requested while blocked | 409; the button is disabled in the UI anyway (R9.5) |

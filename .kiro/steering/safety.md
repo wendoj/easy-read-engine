@@ -23,7 +23,8 @@ These rules apply to code, prompts, tests, fixtures and logs. They come from Req
 - Key facts are dates, times, money amounts, reference numbers, phone numbers, addresses and required actions.
 - Extract key facts from the Original before conversion. P1 compares the output with the Original, never with the model's own output.
 - Every key fact must appear in the output with an identical normalised value. Don't round, reformat into a different value, or "fix" a number.
-- If P1 fails after 3 tries, or after a user edit, block the output: return no lines, show which key fact failed, and disable export.
+- If no try passes P1 (all 3 tries fail it), or P1 fails after a user edit, block the output: return no lines, show which key fact failed, and disable export.
+- If the last try fails P1 but an earlier try passed it, show the latest try that passed P1, with that try's own checks. Never show a try that failed P1, and never mix lines or checks from different tries.
 - Never hide a failed rule. If any other rule still fails after 3 tries, show the output with that rule flagged.
 - Highlight key facts in both columns so the reader can check them.
 - Never show output that hasn't been checked. If the checker service is down, return 503.
