@@ -14,8 +14,9 @@
  * 1. Body size, JSON and zod: 413 or 400.
  * 2. A result the client itself calls blocked, or one with no lines: 409,
  *    with no checker call and no render. A result whose judge didn't answer
- *    (`judgeAvailable` false, or a P9 or P10 "judge unavailable" detail):
- *    409 `not_judged`, because P10 (no advice) never ran on its lines.
+ *    (`judgeAvailable` false, a P9 or P10 "judge unavailable" detail, or no
+ *    P9 or P10 result at all): 409 `not_judged`, because P10 (no advice)
+ *    never ran on its lines.
  * 3. Checker health: 503 if it's down.
  * 4. Shared rate limit (route "export", cost 3, no daily model cap): 429.
  * 5. Re-verify on the server: `analyse` the Original again and run P1 to P8 on
@@ -188,9 +189,11 @@ export async function handleExport(request: Request, deps: ExportHandlerDeps): P
 
   // R9.5: the client's own "blocked" is enough to refuse; it is never enough to allow.
   if (body.status === "blocked" || lines.length === 0) return reject(failure("blocked"), counts);
-  // Safety: P10 (no advice) must have run. The client's flag and its P9 and P10 details must both say the judge answered.
+  // Safety: P10 (no advice) must have run. The client's flag and its P9 and P10 details must both say the judge
+  // answered, and both rules must be present: a missing judge result is never turned into a pass.
   const clientJudge = body.checks.filter((c) => c.rule === "P9" || c.rule === "P10");
-  if (!judgeAvailableAfterMerge(clientJudge, body.judgeAvailable)) {
+  const judgeRulesPresent = clientJudge.some((c) => c.rule === "P9") && clientJudge.some((c) => c.rule === "P10");
+  if (!judgeRulesPresent || !judgeAvailableAfterMerge(clientJudge, body.judgeAvailable)) {
     return reject(failure("not_judged"), { ...counts, failedRules: ["P9", "P10"] });
   }
 

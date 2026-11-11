@@ -211,6 +211,9 @@ describe("/api/export", () => {
       result({ status: "flagged", judgeAvailable: false, checks: judgeDown }),
       // The client's flag is not trusted on its own: "judge unavailable" in P9 or P10 is enough to refuse.
       result({ status: "flagged", judgeAvailable: true, checks: judgeDown }),
+      // A missing P9 or P10 result is never turned into a pass.
+      result({ status: "passed", judgeAvailable: true, checks: RULES.filter((r) => r !== "P10").map(pass) }),
+      result({ status: "passed", judgeAvailable: true, checks: RULES.filter((r) => r !== "P9" && r !== "P10").map(pass) }),
     ]) {
       const seen = newSeen();
       const events: ExportLogEvent[] = [];
