@@ -69,3 +69,52 @@ def test_empty_and_whitespace_text_gives_no_sentences() -> None:
 
 def test_spacy_model_is_loaded_once() -> None:
     assert get_nlp() is get_nlp()
+
+
+def test_layout_lines_are_separate_sentences() -> None:
+    """Regression: PDF letters put labels, table cells and headings on their
+    own lines with no full stop. spaCy joined them into one "sentence", so the
+    key-fact extractor found actions like "Pay ... Notice" across table cells
+    that no rewrite could keep (P1 blocked every council tax sample)."""
+    text = (
+        "Date of Issue:\nProperty Band\nContact us:  example.gov.uk/contact\n"
+        "Or phone: 01842 756577\nMore than 90% of residents pay on time."
+    )
+    assert [s.text for s in split_sentences(text)] == [
+        "Date of Issue:",
+        "Property Band",
+        "Contact us:  example.gov.uk/contact",
+        "Or phone: 01842 756577",
+        "More than 90% of residents pay on time.",
+    ]
+
+
+def test_wrapped_prose_stays_one_sentence() -> None:
+    text = (
+        "If you have paid your Council Tax, and there is nothing left to pay for the year, please ignore this\n"
+        "reminder. You may also want to seek advice from organisations like Citizens Advice or the\n"
+        "Money Advice Service. Moving home and people moving into or out of your home are likely to affect your Council\n"
+        "Tax bill."
+    )
+    assert [s.text for s in split_sentences(text)] == [
+        "If you have paid your Council Tax, and there is nothing left to pay for the year, please ignore this\nreminder.",
+        "You may also want to seek advice from organisations like Citizens Advice or the\nMoney Advice Service.",
+        "Moving home and people moving into or out of your home are likely to affect your Council\nTax bill.",
+    ]
+
+
+def test_bullets_headings_and_web_addresses_start_new_sentences() -> None:
+    text = (
+        "Missed council tax payment\nWe can help.\n"
+        "Check your account\n• Tell us about any changes\n• Claim Council Tax Support\n"
+        "Pay online at www.example.gov.uk/pay\nCredit or debit card"
+    )
+    assert [s.text for s in split_sentences(text)] == [
+        "Missed council tax payment",
+        "We can help.",
+        "Check your account",
+        "• Tell us about any changes",
+        "• Claim Council Tax Support",
+        "Pay online at www.example.gov.uk/pay",
+        "Credit or debit card",
+    ]
