@@ -559,6 +559,21 @@ describe("convert: examples", () => {
     expect(result.checks.every((c) => c.passed)).toBe(true);
   });
 
+  it("uses the one judge retry on try 3 when the judge is down on try 1 with other failures and on try 2 alone", async () => {
+    const s = scenarioOf({
+      drafts: [draft("a", "s1"), draft("b", "s2")],
+      plans: [{ ...pass, judgeAvailable: false, rules: { P2: [0] } }, { ...pass, judgeAvailable: false }, pass],
+    });
+    const { result, rec } = await runOf(s);
+    // Try 1 regenerates for P2. Try 2 has nothing else failing, so the judge is asked once more on try 3.
+    expect(rec.modelCalls.regenerate).toBe(1);
+    expect(rec.modelCalls.judge).toBe(3);
+    expect(rec.checked[2]).toEqual(rec.checked[1]);
+    expect(result.attempts).toBe(3);
+    expect(result.status).toBe("passed");
+    expect(result.judgeAvailable).toBe(true);
+  });
+
   it("flags P9 and P10 with judgeAvailable false when the judge is unavailable on every try", async () => {
     const s = scenarioOf({ plans: [{ ...pass, judgeAvailable: false, rules: { P2: [0] } }, { ...pass, judgeAvailable: false }] });
     const { result, rec } = await runOf(s);
