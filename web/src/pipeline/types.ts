@@ -127,6 +127,13 @@ export type PipelineLogEvent =
       msg: "pipeline_line_facts_failed";
       attempt: number;
       error: string;
+    }
+  | {
+      /** The last try failed P1, so the latest try that passed P1 (`attempt`) is the result. */
+      msg: "pipeline_kept_earlier_try";
+      attempt: number;
+      /** The last try made. */
+      of: number;
     };
 
 export type PipelineLogger = (event: PipelineLogEvent) => void;

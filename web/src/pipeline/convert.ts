@@ -10,6 +10,12 @@
  * - A model error from the first rewrite (`ModelOutputError`,
  *   `ProviderChainError`) is not caught either: there is no checked result yet.
  *
+ * Which try is the result: the last one, unless it fails P1 and an earlier
+ * try passed P1. Then the latest try that passed P1 is the result instead.
+ * Regenerating other lines can break a key fact that an earlier try kept,
+ * and blocking would hide a checked output that kept every key fact (R3.5
+ * blocks only when P1 "still fails"). `attempts` still counts every try.
+ *
  * When a later step fails after a try was checked, that checked try is the
  * result, decided by `decide()` exactly as if it were the last try (so a
  * failing rule is still flagged, and P1 still blocks):
@@ -81,6 +87,8 @@ interface CheckedTry {
   judgeAvailable: boolean;
 }
 
+const passesP1 = (t: CheckedTry) => t.checks.find((c) => c.rule === "P1")?.passed === true;
+
 export async function convert(original: string, deps: PipelineDeps): Promise<ConversionResult> {
   const { model, checker } = deps;
   const log = deps.logger ?? defaultLogger;
@@ -97,9 +105,17 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
   ]);
   const sourceText = new Map(sentences.map((s) => [s.id, s.text]));
 
-  /** The result for a checked try, with key-fact spans when they can be had. */
-  const finish = async (done: CheckedTry): Promise<ConversionResult> => {
-    const decided = decide(original, sentences, keyFacts, done.lines, done.checks, done.attempt, {
+  /** The latest checked try that passed P1, if any. */
+  let lastP1Pass: CheckedTry | null = null;
+
+  /**
+   * The result after the try `last`, with key-fact spans when they can be
+   * had. See the header for which try that is.
+   */
+  const finish = async (last: CheckedTry): Promise<ConversionResult> => {
+    const done = !passesP1(last) && lastP1Pass !== null ? lastP1Pass : last;
+    if (done !== last) log({ msg: "pipeline_kept_earlier_try", attempt: done.attempt, of: last.attempt });
+    const decided = decide(original, sentences, keyFacts, done.lines, done.checks, last.attempt, {
       judgeAvailable: done.judgeAvailable,
       models,
       actionSynonyms,
@@ -117,7 +133,7 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
     log({
       msg: "pipeline_done",
       status: result.status,
-      attempts: done.attempt,
+      attempts: last.attempt,
       judgeAvailable: done.judgeAvailable,
       failedRules: result.checks.filter((c) => !c.passed).map((c) => c.rule),
       models,
@@ -145,6 +161,7 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
     }
     const checks: CheckResult[] = completeChecks([...ruleChecks.filter((c) => c.rule !== "P9" && c.rule !== "P10"), ...judged.checks]);
     const done: CheckedTry = { lines: plain, checks, attempt, judgeAvailable: judged.available };
+    if (passesP1(done)) lastP1Pass = done;
 
     const ctx = { lines: plain, keyFacts, judgeAvailable: judged.available };
     const failed = failingLineIds(checks, ctx);

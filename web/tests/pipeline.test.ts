@@ -288,9 +288,22 @@ async function run(s: Scenario, opts: FakeOptions = {}) {
   return { result, logs, events, rec: f.rec };
 }
 
-/** Rule results the fakes gave on the last try. */
-function lastTry(rec: Recorder): CheckResult[] {
-  return [...rec.checkResults[rec.checkResults.length - 1], ...rec.judged[rec.judged.length - 1].checks];
+/** Rule results the fakes gave on try `k` (0-based). */
+function tryChecks(rec: Recorder, k: number): CheckResult[] {
+  return [...rec.checkResults[k], ...rec.judged[k].checks];
+}
+
+const p1Passed = (checks: CheckResult[]) => checks.find((c) => c.rule === "P1")!.passed;
+
+/**
+ * The try the result comes from (0-based): the last one, unless it failed P1
+ * and an earlier try passed P1, then the latest try that passed P1.
+ */
+function resultTry(rec: Recorder): number {
+  const last = rec.checkResults.length - 1;
+  if (p1Passed(tryChecks(rec, last))) return last;
+  for (let k = last - 1; k >= 0; k--) if (p1Passed(tryChecks(rec, k))) return k;
+  return last;
 }
 
 const RUNS = { numRuns: 300 };
@@ -312,35 +325,54 @@ describe("convert: fast-check properties", () => {
     );
   });
 
-  it("P1 failing on the last try gives blocked and no lines", async () => {
+  it("P1 failing on every try gives blocked and no lines", async () => {
     // **Validates: Requirements 2.4, 2.5, 3.5**
     await fc.assert(
       fc.asyncProperty(scenario, async (s) => {
         const { result, rec } = await run(s);
-        const p1 = lastTry(rec).find((c) => c.rule === "P1")!;
-        if (!p1.passed) {
+        const everyTryFailed = rec.checkResults.every((_, k) => !p1Passed(tryChecks(rec, k)));
+        if (everyTryFailed) {
           expect(result.status).toBe("blocked");
           expect(result.lines).toEqual([]);
         }
-        if (result.status === "blocked") expect(p1.passed).toBe(false);
+        if (result.status === "blocked") expect(everyTryFailed).toBe(true);
       }),
       RUNS,
     );
   });
 
-  it("other rules failing on the last try give flagged, with every failed rule in checks", async () => {
+  it("a last try that breaks P1 gives back the latest try that kept every key fact", async () => {
+    // **Validates: Requirements 2.4, 3.4, 3.5** (a try is shown only with its own checks)
+    await fc.assert(
+      fc.asyncProperty(scenario, async (s) => {
+        const { result, rec, logs } = await run(s);
+        const k = resultTry(rec);
+        const kept = k !== rec.checkResults.length - 1;
+        expect(result.attempts).toBe(rec.checked.length);
+        expect(result.checks).toEqual(completeChecks(tryChecks(rec, k)));
+        if (kept) {
+          expect(result.status).not.toBe("blocked");
+          expect(result.lines).toEqual(rec.checked[k]);
+        }
+        expect(logs.filter((l) => l.msg === "pipeline_kept_earlier_try")).toHaveLength(kept ? 1 : 0);
+      }),
+      RUNS,
+    );
+  });
+
+  it("other rules failing on the result's try give flagged, with every failed rule in checks", async () => {
     // **Validates: Requirements 3.4, 3.6, 6.1**
     await fc.assert(
       fc.asyncProperty(scenario, async (s) => {
         const { result, rec } = await run(s);
-        const last = lastTry(rec);
-        const failed = last.filter((c) => !c.passed).map((c) => c.rule);
+        const k = resultTry(rec);
+        const failed = tryChecks(rec, k).filter((c) => !c.passed).map((c) => c.rule);
         for (const rule of failed) {
           expect(result.checks.find((c) => c.rule === rule)?.passed).toBe(false);
         }
         if (failed.length > 0 && !failed.includes("P1")) {
           expect(result.status).toBe("flagged");
-          expect(result.lines).toEqual(rec.checked[rec.checked.length - 1]);
+          expect(result.lines).toEqual(rec.checked[k]);
         }
         if (failed.length === 0) expect(result.status).toBe("passed");
       }),
@@ -402,7 +434,7 @@ describe("convert: fast-check properties", () => {
     );
   });
 
-  it("a regenerate failure at any try returns the last checked try, decided as usual", async () => {
+  it("a regenerate failure at any try returns the result's checked try, decided as usual", async () => {
     // **Validates: Requirements 2.5, 3.4, 3.5, 3.6** (a model error never throws a checked result away)
     const error = fc.constantFrom<() => Error>(
       () => new ModelOutputError("regenerate", 2, ["lines"]),
@@ -411,11 +443,12 @@ describe("convert: fast-check properties", () => {
     await fc.assert(
       fc.asyncProperty(scenario, fc.integer({ min: 1, max: MAX_ATTEMPTS - 1 }), error, async (s, failOn, makeError) => {
         const { result, rec, logs } = await run(s, { failRegenerateOn: failOn, regenerateError: makeError() });
-        const last = completeChecks(lastTry(rec));
+        const k = resultTry(rec);
+        const chosen = completeChecks(tryChecks(rec, k));
         expect(result.attempts).toBe(rec.checked.length);
-        expect(result.status).toBe(statusOf(last));
-        expect(result.checks).toEqual(last);
-        expect(result.lines).toEqual(result.status === "blocked" ? [] : rec.checked[rec.checked.length - 1]);
+        expect(result.status).toBe(statusOf(chosen));
+        expect(result.checks).toEqual(chosen);
+        expect(result.lines).toEqual(result.status === "blocked" ? [] : rec.checked[k]);
         const stopped = logs.filter((l) => l.msg === "pipeline_regenerate_failed");
         expect(stopped).toHaveLength(rec.modelCalls.regenerate >= failOn ? 1 : 0);
         expect(JSON.stringify(logs)).not.toContain("zq");

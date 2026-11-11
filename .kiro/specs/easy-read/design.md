@@ -459,8 +459,9 @@ When `status` is `"blocked"`, the server returns no lines. The client cannot sho
 The model and checker are replaced with fakes so the tests cover only the orchestration logic.
 
 - For any sequence of check results, the pipeline makes no more than 3 tries.
-- If P1 fails on the last try, `status` is `"blocked"` and `lines` is empty.
-- If only rules other than P1 fail on the last try, `status` is `"flagged"`, and every failed rule appears in `checks` with `passed: false`.
+- The result comes from the last try, unless that try fails P1 and an earlier try passed P1. Then it comes from the latest try that passed P1, with that try's own checks. `attempts` still counts every try.
+- If P1 fails on every try, `status` is `"blocked"` and `lines` is empty.
+- If only rules other than P1 fail on the result's try, `status` is `"flagged"`, and every failed rule appears in `checks` with `passed: false`.
 - Regeneration changes only the lines that failed; other lines keep their ID and text.
 - `checks` always contains all 10 rules.
 - Every result includes the R7 notice.
