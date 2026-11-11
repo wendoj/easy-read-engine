@@ -39,6 +39,29 @@ def test_letter_splits_into_sentences_with_offsets() -> None:
         assert text[s.start : s.end] == s.text
 
 
+def test_phone_number_stays_inside_one_sentence() -> None:
+    """Regression: spaCy split "0300 020 0040." into "0300 020" and "0040."
+    (found by the P1 property, task 5, during task 23)."""
+    text = (
+        "The council made this decision on 1 January 2020. "
+        "Please call the council on 0300 020 0040. "
+        "You must pay £1 by 1 January 2020."
+    )
+    assert [s.text for s in split_sentences(text)] == [
+        "The council made this decision on 1 January 2020.",
+        "Please call the council on 0300 020 0040.",
+        "You must pay £1 by 1 January 2020.",
+    ]
+
+
+def test_full_stop_after_a_number_still_ends_the_sentence() -> None:
+    text = "You must pay by 2026. 0300 123 4567 is the phone number."
+    assert [s.text for s in split_sentences(text)] == [
+        "You must pay by 2026.",
+        "0300 123 4567 is the phone number.",
+    ]
+
+
 def test_empty_and_whitespace_text_gives_no_sentences() -> None:
     assert split_sentences("") == []
     assert split_sentences("  \n\n\t ") == []
