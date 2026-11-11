@@ -68,6 +68,45 @@ def split_payment_actions(draw: st.DrawFn) -> tuple[str, str, str]:
 
 
 @st.composite
+def two_payment_swaps(draw: st.DrawFn) -> tuple[str, list[str], list[str]]:
+    """One sentence with 2 payments, its faithful lines and lines that swap a value.
+
+    Returns (Original sentence, faithful lines, swapped lines). The swapped
+    lines exchange the amounts or the dates between the 2 payments. The lines
+    are either one line per payment or a P3 split of each payment over 2 lines.
+    """
+    m1, m2 = draw(st.lists(money, min_size=2, max_size=2, unique_by=_money_key))
+    d1, d2 = draw(st.lists(dates, min_size=2, max_size=2, unique_by=_date_key))
+    original = f"You must pay {m1} by {d1} and you must pay {m2} by {d2}."
+    swap_money = draw(st.booleans())
+    s1, s2 = ((m2, d1), (m1, d2)) if swap_money else ((m1, d2), (m2, d1))
+    if draw(st.booleans()):
+        def lines(a: tuple[str, str], b: tuple[str, str]) -> list[str]:
+            return [f"You must pay {a[0]} by {a[1]}.", f"You must pay {b[0]} by {b[1]}."]
+    else:
+        def lines(a: tuple[str, str], b: tuple[str, str]) -> list[str]:
+            return [f"You must pay {a[0]}.", f"Pay it by {a[1]}.",
+                    f"You must pay {b[0]}.", f"Pay it by {b[1]}."]  # fmt: skip
+    return original, lines((m1, d1), (m2, d2)), lines(s1, s2)
+
+
+def _money_key(text: str) -> str:
+    """Amounts that normalise to the same value count as equal."""
+    pounds, _, pence = text.lstrip("£").replace(",", "").partition(".")
+    return f"{int(pounds)}.{int(pence or 0):02d}"
+
+
+def _date_key(text: str) -> tuple[int, int, int]:
+    """Dates in either generated format count as equal when the day is the same."""
+    if "/" in text:
+        day, month, year = (int(p) for p in text.split("/"))
+    else:
+        d, m, y = text.split()
+        day, month, year = int(d), MONTHS.index(m) + 1, int(y)
+    return year, month, day
+
+
+@st.composite
 def asked_actions(draw: st.DrawFn) -> tuple[str, str]:
     """A passive "You are asked to V the O." and its active form with a named sender."""
     verb = draw(st.sampled_from(ACTION_VERBS))

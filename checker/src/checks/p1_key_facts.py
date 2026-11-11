@@ -20,6 +20,12 @@ of the same type (R2.3, R2.6):
   April 2026." to meet P3. Pronoun objects ("it", "them", "this", "that") are
   ignored on both sides. Dropping the action, negating it or changing its verb
   to a word that is not a listed synonym still fails.
+  Each date and amount stays tied to its own action. Within a group, the
+  actions with the same verb phrase are split into units in line order, and a
+  new unit starts when an action repeats a value type or object. A unit must
+  carry the Original action's own values, and lines that belong to a sibling
+  unit are not searched. So when one sentence holds 2 payments, swapping their
+  amounts or dates between the lines fails.
 
 The lines are joined with line breaks and extracted as one text, with one
 "sentence" per line. Facts never run across a line break, except an address,
@@ -146,26 +152,84 @@ class _Matcher:
         sources = {self._source.get(i) for i in line_ids}
         return set(line_ids) | {line.id for line in self._lines if line.source_sentence_id in sources}
 
+    def _units(self, phrase: str, group: set[str]) -> list[list[int]]:
+        """Split the group's actions with `phrase` into units, in line order.
+
+        A unit is one action, which may be split over lines. A new unit starts
+        at an action that repeats a value type or an object the current unit
+        already has, so "You must pay £45." and "Pay it by 1 April 2026." form
+        one unit, while "Pay £45 by 1 May 2026." and "Pay £20 by 1 April 2026."
+        form two. This keeps each date and amount tied to its own action.
+        """
+        order = {line.id: n for n, line in enumerate(self._lines)}
+        members = sorted(
+            (
+                i
+                for i, a in self._actions.items()
+                if a.phrase == phrase and group.intersection(self._output[i].line_ids)
+            ),
+            key=lambda i: min(order[x] for x in self._output[i].line_ids),
+        )
+        units: list[list[int]] = []
+        kinds: set[str] = set()
+        has_objects = False
+        for i in members:
+            action = self._actions[i]
+            own = {kind for kind, _ in action.facts}
+            if not units or own & kinds or (action.objects and has_objects):
+                units.append([])
+                kinds, has_objects = set(), False
+            units[-1].append(i)
+            kinds |= own
+            has_objects = has_objects or bool(action.objects)
+        return units
+
+    def _unit_matches(self, original: _Action, unit: list[int], group: set[str]) -> bool:
+        """Whether a unit shows the Original action.
+
+        The unit's lines and the group's lines that hold no action with this
+        phrase are searched for objects and values. A value type that an action
+        in the unit carries must match one of the unit's own values, so a value
+        from a sibling action can't stand in for it.
+        """
+        others = {
+            x
+            for i, a in self._actions.items()
+            if a.phrase == original.phrase and i not in unit
+            for x in self._output[i].line_ids
+        }
+        own_lines = {x for i in unit for x in self._output[i].line_ids}
+        lines = own_lines | (group - others)
+        nouns: set[str] = set()
+        for line_id in lines:
+            nouns |= self._line_nouns().get(line_id, frozenset())
+        if not original.objects <= nouns:
+            return False
+        own_facts = [f for i in unit for f in self._actions[i].facts]
+        free = [o for o in self._output if o.type != "action" and lines.intersection(o.line_ids)]
+        for kind, value in original.facts:
+            carried = [v for k, v in own_facts if k == kind]
+            if carried:
+                if not any(_value_matches(kind, value, v) for v in carried):
+                    return False
+            elif not any(o.type == kind and _value_matches(kind, value, o.normalised) for o in free):
+                return False
+        return True
+
     def _action_matches(self, original: _Action) -> list[int]:
         found: list[int] = []
+        seen: set[int] = set()
         for i, action in self._actions.items():
-            if action.phrase != original.phrase:
+            if action.phrase != original.phrase or i in seen:
                 continue
             group = self._group(self._output[i].line_ids)
-            nouns: set[str] = set()
-            for line_id in group:
-                nouns |= self._line_nouns().get(line_id, frozenset())
-            if not original.objects <= nouns:
-                continue
-            in_group = [
-                o for o in self._output if o.type != "action" and group.intersection(o.line_ids)
-            ]
-            if all(
-                any(o.type == kind and _value_matches(kind, value, o.normalised) for o in in_group)
-                for kind, value in original.facts
-            ):
-                found.append(i)
-        return found
+            for unit in self._units(original.phrase, group):
+                if i not in unit:
+                    continue
+                seen.update(unit)
+                if self._unit_matches(original, unit, group):
+                    found.extend(unit)
+        return sorted(set(found))
 
     def matches(self, fact: KeyFact) -> list[int]:
         """Indices of the output facts that show `fact`. Empty means missing or changed."""

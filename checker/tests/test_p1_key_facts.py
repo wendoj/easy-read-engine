@@ -1,6 +1,13 @@
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
-from strategies import FACT_VALUES, MONTHS, asked_actions, day_months, split_payment_actions
+from strategies import (
+    FACT_VALUES,
+    MONTHS,
+    asked_actions,
+    day_months,
+    split_payment_actions,
+    two_payment_swaps,
+)
 
 from checks.key_facts import extract_key_facts
 from checks.models import CheckResult, KeyFact, Line, Sentence
@@ -123,6 +130,29 @@ def test_action_split_over_two_lines_from_one_sentence_passes(
     lines = [_line("l1", first, source), _line("l2", second, source)]
     result = check_p1(original, facts, lines)
     assert result.passed, result.details
+
+
+@settings(max_examples=40, deadline=None)
+@given(two_payment_swaps())
+def test_swapping_values_between_two_actions_in_one_sentence_fails(
+    case: tuple[str, list[str], list[str]],
+) -> None:
+    """Each value stays tied to its action. **Validates: Requirements 2.3, 2.5; P1, P3**"""
+    original, faithful, swapped = case
+    sentences, facts = _analyse(original)
+    actions = [f for f in facts if f.type == "action"]
+    assert len(actions) == 2
+    source = sentences[0].id
+
+    def run(texts: list[str]) -> CheckResult:
+        lines = [_line(f"l{i}", t, source) for i, t in enumerate(texts, start=1)]
+        return check_p1(original, facts, lines)
+
+    kept = run(faithful)
+    assert kept.passed, kept.details
+    result = run(swapped)
+    assert not result.passed
+    assert {a.id for a in actions} <= set(result.failed_fact_ids)
 
 
 @settings(max_examples=40, deadline=None)
@@ -273,6 +303,17 @@ def test_split_action_with_a_changed_date_fails() -> None:
     action = next(f for f in facts if f.type == "action")
     date = next(f for f in facts if f.type == "date")
     assert {action.id, date.id} <= set(result.failed_fact_ids)
+
+
+def test_dates_swapped_between_two_payments_fail() -> None:
+    # Reproduced in review v1: this passed when values were looked up anywhere
+    # in the source sentence's lines.
+    facts, result = _p1(
+        "You must pay £45 by 1 April 2026 and you must pay £20 by 1 May 2026.",
+        ["You must pay £45 by 1 May 2026.", "You must pay £20 by 1 April 2026."],
+    )
+    assert not result.passed
+    assert {f.id for f in facts if f.type == "action"} <= set(result.failed_fact_ids)
 
 
 def test_dropped_or_changed_action_verb_fails() -> None:
