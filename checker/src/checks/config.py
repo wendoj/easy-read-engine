@@ -3,6 +3,11 @@
 # Must match the wheel pinned in pyproject.toml (en_core_web_sm 3.8.0).
 SPACY_MODEL = "en_core_web_sm"
 
+# P2: the most words a sentence may have. A starting value to tune against
+# real Easy Read documents, not a published limit. See p2_sentence_length.py
+# for how words are counted.
+MAX_SENTENCE_WORDS = 15
+
 # Key-fact actions, version 1 (design "Key-fact extraction and normalisation").
 # Common Easy Read swaps for a required action's verb. Keys are spaCy lemmas,
 # with phrasal verbs written as "verb particle". Kept short on purpose, and
