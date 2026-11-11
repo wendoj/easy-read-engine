@@ -322,19 +322,38 @@ describe("regenerate", () => {
 const pass = { verdict: "pass" as const, reason: "" };
 const fail = (reason: string) => ({ verdict: "fail" as const, reason });
 const JUDGE_PROMPT = parsePrompt("## System\nJUDGE\n## User\n{{pairs}}");
-const pairs = lines.map((l) => ({ lineId: l.id, source: sentences.find((s) => s.id === l.source_sentence_id)!.text, line: l.text }));
+const pairs = lines.map((l) => ({
+  lineId: l.id,
+  sourceSentenceId: l.source_sentence_id,
+  source: sentences.find((s) => s.id === l.source_sentence_id)!.text,
+  line: l.text,
+}));
 
 describe("judge", () => {
   it("shows each line the other lines split from the same sentence", () => {
     const { user } = buildJudgeMessages(JUDGE_PROMPT, [
-      { lineId: "L1", source: "Pay £45 and send the form.", line: "You must pay £45." },
-      { lineId: "L2", source: "Pay £45 and send the form.", line: "You must send the form." },
-      { lineId: "L3", source: "Call us.", line: "Call the council." },
+      { lineId: "L1", sourceSentenceId: "s1", source: "Pay £45 and send the form.", line: "You must pay £45." },
+      { lineId: "L2", sourceSentenceId: "s1", source: "Pay £45 and send the form.", line: "You must send the form." },
+      { lineId: "L3", sourceSentenceId: "s2", source: "Call us.", line: "Call the council." },
     ]);
     const blocks = user.split("\n\n");
     expect(blocks[0]).toContain("Other lines from this sentence: L2: You must send the form.");
     expect(blocks[1]).toContain("Other lines from this sentence: L1: You must pay £45.");
     expect(blocks[2]).not.toContain("Other lines");
+  });
+
+  it("does not share siblings between 2 sentences with the same text", () => {
+    // Regression: siblings were grouped by sentence text, so a repeated
+    // sentence showed the other copy's lines as its own.
+    const { user } = buildJudgeMessages(JUDGE_PROMPT, [
+      { lineId: "L1", sourceSentenceId: "s1", source: "Call us.", line: "Call the council." },
+      { lineId: "L2", sourceSentenceId: "s4", source: "Call us.", line: "Phone the council." },
+      { lineId: "L3", sourceSentenceId: "s4", source: "Call us.", line: "The council is open on Monday." },
+    ]);
+    const blocks = user.split("\n\n");
+    expect(blocks[0]).not.toContain("Other lines");
+    expect(blocks[1]).toContain("Other lines from this sentence: L3: The council is open on Monday.");
+    expect(blocks[1]).not.toContain("L1:");
   });
 
   it("returns P9 and P10 with the failing line IDs", async () => {

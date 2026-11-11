@@ -74,7 +74,12 @@ export function modelFromClient(client: ModelClient, options: LlmCallOptions = {
 }
 
 function judgePairs(lines: readonly WorkingLine[], sourceText: ReadonlyMap<string, string>): JudgePair[] {
-  return lines.map((l) => ({ lineId: l.id, source: sourceText.get(l.source_sentence_id) ?? "", line: l.text }));
+  return lines.map((l) => ({
+    lineId: l.id,
+    sourceSentenceId: l.source_sentence_id,
+    source: sourceText.get(l.source_sentence_id) ?? "",
+    line: l.text,
+  }));
 }
 
 const errorName = (err: unknown) => (err instanceof Error ? err.name : "unknown");

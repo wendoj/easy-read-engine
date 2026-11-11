@@ -20,6 +20,8 @@ export const JUDGE_UNAVAILABLE = "judge unavailable";
 
 export interface JudgePair {
   lineId: string;
+  /** ID of the line's source sentence. Sibling lines are grouped by this, not by text. */
+  sourceSentenceId: string;
   /** Source sentence text from the Original. */
   source: string;
   /** Easy Read line text. */
@@ -156,13 +158,14 @@ export function judgeUnavailableResults(lineIds: readonly string[]): [CheckResul
  * One block per line. A long sentence is split over several lines (P3), so
  * each block also lists the other lines from the same source sentence. The
  * judge failed lines for leaving out what a sibling line says, because it
- * couldn't see the siblings.
+ * couldn't see the siblings. Siblings are grouped by sentence ID, so 2
+ * sentences with the same text don't share siblings.
  */
 export function buildJudgeMessages(prompt: PromptTemplate, pairs: readonly JudgePair[]): { system: string; user: string } {
-  const bySource = new Map<string, JudgePair[]>();
-  for (const p of pairs) bySource.set(p.source, [...(bySource.get(p.source) ?? []), p]);
+  const bySentence = new Map<string, JudgePair[]>();
+  for (const p of pairs) bySentence.set(p.sourceSentenceId, [...(bySentence.get(p.sourceSentenceId) ?? []), p]);
   const blocks = pairs.map((p) => {
-    const others = (bySource.get(p.source) ?? []).filter((o) => o.lineId !== p.lineId);
+    const others = (bySentence.get(p.sourceSentenceId) ?? []).filter((o) => o.lineId !== p.lineId);
     return [
       `Line ${p.lineId}`,
       `Source: ${oneLine(p.source)}`,

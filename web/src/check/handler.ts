@@ -269,7 +269,12 @@ export async function handleCheck(request: Request, deps: CheckHandlerDeps): Pro
     const edited = new Set(editedLineIds);
     const pairs: JudgePair[] = lines
       .filter((l) => edited.has(l.id))
-      .map((l) => ({ lineId: l.id, source: sourceText.get(l.source_sentence_id) ?? "", line: l.text }));
+      .map((l) => ({
+        lineId: l.id,
+        sourceSentenceId: l.source_sentence_id,
+        source: sourceText.get(l.source_sentence_id) ?? "",
+        line: l.text,
+      }));
     const judged = await model.judge(pairs); // P9-P10, edited lines only
 
     const carried = new Set(lines.map((l) => l.id).filter((id) => !edited.has(id)));
