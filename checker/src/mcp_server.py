@@ -41,6 +41,7 @@ from checks.config import (
 )
 from checks.models import CheckResult, KeyFact, Line, SymbolMatch
 from checks.p8_symbols import symbol_ids
+from checks.symbols import search_index
 from checks.sentences import get_nlp
 from http_app import CheckRequest
 
@@ -122,6 +123,7 @@ def main() -> None:
     with contextlib.redirect_stdout(sys.stderr):
         get_nlp()
         symbol_ids()
+        search_index()
     mcp.run("stdio")
 
 

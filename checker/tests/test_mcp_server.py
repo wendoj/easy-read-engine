@@ -17,7 +17,7 @@ from mcp.client.stdio import StdioServerParameters
 
 import checks
 from checks.config import MAX_ORIGINAL_CHARS
-from checks.models import CheckResult, KeyFact, Line
+from checks.models import CheckResult, KeyFact, Line, SymbolMatch
 
 CHECKER_DIR = Path(__file__).resolve().parents[1]
 RULES = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"]
@@ -96,8 +96,8 @@ def test_check_easy_read_returns_p1_to_p8(session: dict[str, Any]) -> None:
 
 
 def test_find_symbol_returns_a_list(session: dict[str, Any]) -> None:
-    # Stub until task 23: no matches, so no picture.
-    assert _payload(session["symbols"]) == []
+    matches = [SymbolMatch.model_validate(m) for m in _payload(session["symbols"])]
+    assert matches and matches == checks.find_symbol("pay", 3)
 
 
 @pytest.mark.parametrize("call", ["too_long_original", "too_long_line", "bad_limit"])

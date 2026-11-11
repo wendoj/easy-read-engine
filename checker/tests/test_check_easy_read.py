@@ -101,9 +101,11 @@ def test_extract_key_facts_matches_module_function() -> None:
     assert extract_key_facts(_ORIGINAL) == extract_with_sentences(_ORIGINAL)
 
 
-def test_find_symbol_stub_returns_no_matches() -> None:
-    assert find_symbol("doctor") == []
-    assert find_symbol("pay money", limit=1) == []
+def test_find_symbol_is_the_symbol_search() -> None:
+    # Ranking is tested in test_symbols.py; this checks the public entry point.
+    assert 1 <= len(find_symbol("doctor")) <= 5
+    assert len(find_symbol("pay money", limit=1)) == 1
+    assert find_symbol("the") == []
 
 
 # --- synthetic letter generator ----------------------------------------------

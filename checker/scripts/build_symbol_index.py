@@ -10,7 +10,8 @@ IDs are strings, because `Line.symbol_id` is `str | None`. `lemmas` are the
 spaCy lemmas (pinned model, see config.SPACY_MODEL) of the words in the
 keywords and plurals, lower case, with punctuation and stop words removed
 (stop words are kept when a keyword has nothing else). `find_symbol` ranks by
-lemma overlap with these.
+lemma overlap with these, and lemmatises queries with the same helper
+(`checks.symbols.phrase_lemmas`).
 
 The catalogue is held in memory only. The script writes nothing but the
 processed index. The index is committed, so the app never calls the ARASAAC
@@ -23,7 +24,7 @@ import sys
 import urllib.request
 from pathlib import Path
 
-from checks.sentences import get_nlp
+from checks.symbols import index_lemmas
 
 CATALOGUE_URL = "https://api.arasaac.org/v1/pictograms/all/en"
 OUTPUT = Path(__file__).resolve().parents[1] / "data" / "symbols.json"
@@ -49,15 +50,6 @@ def _unique(items: list[str]) -> list[str]:
     return out
 
 
-def _lemmas(phrases: list[str]) -> list[str]:
-    lemmas: list[str] = []
-    for doc in get_nlp().pipe(phrases, disable=["parser", "ner"]):
-        words = [t for t in doc if not (t.is_punct or t.is_space)]
-        content = [t for t in words if not t.is_stop] or words
-        lemmas.extend(t.lemma_.lower() for t in content)
-    return _unique(lemmas)
-
-
 def build_entry(pictogram: dict) -> dict:
     keywords = _unique([k.get("keyword", "").strip() for k in pictogram.get("keywords", [])])
     plurals = _unique([k.get("plural", "").strip() for k in pictogram.get("keywords", [])])
@@ -65,7 +57,7 @@ def build_entry(pictogram: dict) -> dict:
         "id": str(pictogram["_id"]),
         "keywords": keywords,
         "plurals": plurals,
-        "lemmas": _lemmas(keywords + plurals),
+        "lemmas": index_lemmas(keywords + plurals),
         "categories": _unique(pictogram.get("categories", [])),
         "tags": _unique(pictogram.get("tags", [])),
         "set": SET_NAME,

@@ -39,6 +39,7 @@ from checks.config import (
 )
 from checks.models import Analysis, CheckResult, KeyFact, Line, SymbolMatch
 from checks.p8_symbols import symbol_ids
+from checks.symbols import search_index
 from checks.sentences import get_nlp
 
 logger = logging.getLogger("checker.http")
@@ -219,6 +220,7 @@ async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Load the spaCy model and the symbol index once, before serving.
     get_nlp()
     symbol_ids()
+    search_index()
     yield
 
 

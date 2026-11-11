@@ -7,6 +7,7 @@ or stores letter text (R7.4).
 from collections.abc import Callable
 
 from checks import key_facts as _key_facts
+from checks import symbols as _symbols
 from checks.models import Analysis, CheckResult, KeyFact, Line, Rule, SymbolMatch
 from checks.p1_key_facts import check_p1
 from checks.p2_sentence_length import check_p2
@@ -65,10 +66,10 @@ def check_easy_read(original: str, key_facts: list[KeyFact], lines: list[Line]) 
 
 
 def find_symbol(query: str, limit: int = 5) -> list[SymbolMatch]:
-    """Pictograms for `query`, best first, at most `limit`.
+    """Pictograms from the symbol index for `query`, best first, at most `limit`.
 
-    Stub until task 23: it returns no matches, so every line gets
-    `symbol_id: None` and no picture (R4.2).
+    Ranked by lemma overlap with keywords, plurals and tags, with a bonus for
+    an exact keyword match (see `checks.symbols`). An empty list means no
+    picture fits (R4.2). Every ID is in the index (R4.3, P8).
     """
-    del query, limit
-    return []
+    return _symbols.find_symbol(query, limit)

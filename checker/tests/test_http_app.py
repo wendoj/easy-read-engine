@@ -5,6 +5,7 @@ import logging
 import pytest
 from fastapi.testclient import TestClient
 
+import checks
 from checks.config import MAX_LINE_CHARS, MAX_LINES, MAX_ORIGINAL_CHARS, MAX_SYMBOL_QUERY_CHARS
 from http_app import MAX_BODY_BYTES, _StripQueryFilter, app
 
@@ -92,7 +93,8 @@ def test_check_reports_p1_failure_for_changed_amount(client: TestClient) -> None
 def test_symbols_returns_list(client: TestClient) -> None:
     res = client.get("/symbols", params={"q": "pay", "limit": 3})
     assert res.status_code == 200
-    assert res.json() == []  # find_symbol is a stub until task 23
+    assert res.json() == [m.model_dump() for m in checks.find_symbol("pay", 3)]
+    assert 1 <= len(res.json()) <= 3
 
 
 # --- invalid and oversized input ---------------------------------------------
