@@ -8,6 +8,19 @@ Every Easy Read line is checked against a fixed set of rules (P1 to P10) before 
 
 It is for adults with learning disabilities, low literacy or English as a second language, and for the carers and support workers who read letters with them (`docs/brief.md`). The Easy Read version says what the letter says. It never tells the reader what to do.
 
+## Prior art
+
+AI Easy Read tools already exist. Swindon Borough Council built [Simply Readable](https://www.local.gov.uk/case-studies/swindon-borough-council-simply-readable-ai-easy-read-solution), an AI Easy Read generator on Amazon Bedrock. According to the Local Government Association case study, it is open source and was co-designed with residents with learning disabilities. Council staff, such as social workers, use it to produce Easy Read documents in under 30 minutes. The case study puts the cost at about 1p per page, against about £120 per A4 page made by hand, and says it can translate into 75 languages. The case study does not describe any automated check of the output.
+
+Easy Read Engine solves a different part of the problem:
+
+- **Who it is for.** The person who received the letter, or their carer, rather than staff writing Easy Read documents.
+- **Every line is checked.** Rules P1 to P8 run in a checker with no model (`checker/src/checks/`), and 2 model judges check meaning (P9) and tone and advice (P10).
+- **Key facts block the output.** If a date, amount, reference number or other key fact is changed or missing after 3 tries, no lines are shown and export is turned off.
+- **You can check it against the letter.** The original is shown side by side. Each line is traced to the sentence it came from, and key facts are highlighted in both columns.
+- **No advice.** P10 fails any line that tells the reader what to decide.
+- **The checker is tested.** Hypothesis and fast-check property tests, cases the checker must fail, and a mutation test (`checker/tests/`, `web/tests/`).
+
 ## Setup
 
 You need:
@@ -189,7 +202,7 @@ These points apply to the screens and the PDF, not to the line checks:
 
 ### Testing with readers
 
-Both guides say to involve people with learning disabilities and test with them (IE 1.5, DH section 4 and A9). This hasn't been done yet. No output has been reviewed by someone who uses or makes Easy Read.
+Both guides say to involve people with learning disabilities and test with them (IE 1.5, DH section 4 and A9). An Easy Read checker tried the app and told us it was easy to use and helped a lot. That was 1 informal check, not testing with readers, which hasn't been done yet.
 
 ## Safety
 
@@ -209,5 +222,5 @@ Both guides say to involve people with learning disabilities and test with them 
 
 - [docs/day1-results.md](docs/day1-results.md): day 1 spike results.
 - [docs/pass-rates.md](docs/pass-rates.md): the fixture run is partial (8 letters). Groq returned rate-limit errors on 22 of 67 requests, every rewrite from the OpenRouter Nemotron fallback was invalid, and the OpenRouter judge fallback returned 404.
-- No sample letters are recorded yet, because the providers failed during recording. The sample list on the input screen is hidden until `npm run record-samples` succeeds.
+- The 3 public sample letters were recorded on Bedrock on 11 November 2026 (`web/data/samples/`). Each ended flagged after 3 tries: P1 passed, and P3, P5 and P7 still failed on some lines in all 3. The 8-letter fixture run on Bedrock (spec task 35) is still to do.
 - [docs/deploy.md](docs/deploy.md): the Chromium sandbox is turned off for PDF export in the container. The live deploy is still pending.

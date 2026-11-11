@@ -1,6 +1,6 @@
 # How Kiro was used
 
-This write-up covers the spec, steering, hooks, MCP server, Power and custom agent in `.kiro/` and `power-easy-read/`. Every number has its source next to it: a file in this repository or a git commit. Commit counts are up to commit `f4c748f`, the last commit before this write-up.
+This write-up covers the spec, steering, hooks, MCP server, Power and custom agent in `.kiro/` and `power-easy-read/`. Every number has its source next to it: a file in this repository or a git commit. Commit counts are up to commit `f4c748f`, the last commit before this write-up. Later notes also cite commits after it, up to `40faaee`.
 
 ## Spec
 
@@ -12,7 +12,7 @@ The spec in `.kiro/specs/easy-read/` came first. It was committed at 01:03 UTC o
 | Correctness properties | 10 rules, P1 to P10. 8 are checked without a model | `requirements.md`, "Correctness Properties" |
 | Design | 511 lines | `design.md` |
 | Tasks | 36 implementation tasks, 35 done. Task 35 (re-run the fixtures on Bedrock) is open | `tasks.md` |
-| Non-coding checklist | 10 items, 1 done (the 3 public sample letters) | `tasks.md`, "Non-coding checklist" |
+| Non-coding checklist | 10 items, 2 done (the 3 public sample letters, and showing an output to an Easy Read checker) | `tasks.md`, "Non-coding checklist" |
 
 Each task was built and committed on its own. 48 of the 66 commits name a spec task in the message body (`git log`).
 
@@ -46,7 +46,10 @@ What the git history shows about them:
 
 - **The commit hook was fixed once.** Its first version led to 7 commits that only marked a task done (`1de56c3` to `6eaebc5`, tasks 1 to 12). Commit `4e1f4dc` changed the hook to put the task status in the same commit as the code. No status-only commits came after it.
 - **The property guard has its own tests.** Task 20 added `checker/scripts/check_property_tests.py` (280 lines) and `checker/tests/test_check_property_tests.py` (219 lines) (`git show --stat 9d2da5c`).
-- **No commit records the save hooks or the property guard catching a problem.** We don't claim they did.
+- **The property guard caught a test change once.** The pipeline's P1 behaviour changed so that it keeps the latest try that passed P1 when the last try breaks it. `checker/scripts/check_property_tests.py`, which the `check-property-tests.json` hook runs, then reported 3 renamed fast-check properties in `web/tests/pipeline.test.ts`. They were reviewed and kept as renamed properties, each still using `fc.assert` for the same requirement, and a new property was added for the kept try. The body of commit `03c6c1b` records this.
+- **The prompt-save hook has no recorded before and after.** The prompt changes in `7d0fccc` and `7d8335d` have not been through a live fixture run yet, so we don't claim a result for them.
+- **Recorded samples can be re-checked offline.** `checker/scripts/recheck_samples.py` (`55f32dd`) runs P1 to P8 on the recorded sample lines with the current checker and prints only rule IDs and counts. After the P3 and P5 fixes in `68cb6b3` and `9214a3f`, failing lines across the 3 recorded samples went from 99 to 60, with no new recording.
+- **The save hooks have not been recorded catching a problem.** We don't claim they did.
 
 ## Property tests
 
@@ -74,10 +77,15 @@ The brief planned to compare "the first day of vibe-coded prompts with the spec-
 | Day 1 spike, first draft of `prompts/rewrite.md`, 3 runs | P1, P2, P4 only | 5 invented | No output passed all 3 rules in any run. gpt-oss-120b passed P1 on 3, 4 and 4 letters | `docs/day1-results.md` |
 | Day 1 spike, public letters, 1 run | P1, P2, P4 only | 3 public | No output passed all 3 rules. P1 passed on 0 letters | `docs/day1-results.md` |
 | Fixture run, final prompts, Groq chain | All 10 | 8 (3 public, 5 invented) | 2 letters finished, both flagged. P1, P2, P3, P4, P6 and P8 passed on both. 6 letters ended with a provider or model-output error | `docs/pass-rates.md` |
+| Sample recording, Bedrock chain, 11 November 2026 | All 10 | 3 public | All 3 flagged after 3 tries. P1 passed on all 3. P3, P5 and P7 failed on some lines in all 3 | `web/data/samples/`, `40faaee` |
 
-The 2 finished letters are not enough for a pass rate, and they were not the letters that lost key facts on day 1. A full run on the Bedrock chain is spec task 35, still open.
+The 2 finished fixture letters are not enough for a pass rate, and they were not the letters that lost key facts on day 1. The 3 recorded samples are the first Bedrock results. A full fixture run on the Bedrock chain is spec task 35, still open.
+
+## Prior art
+
+The brief listed "An AI Easy Read tool already exists" as a risk, with the plan to "lead with the verified checks" (`docs/brief.md`, risk table). The risk came true. Swindon Borough Council's [Simply Readable](https://www.local.gov.uk/case-studies/swindon-borough-council-simply-readable-ai-easy-read-solution) is an open-source AI Easy Read generator on Amazon Bedrock, used by council staff to produce Easy Read documents. Its case study describes no automated check of the output. The README's "Prior art" section says how this project differs: it is for the person who received the letter, and every line goes through P1 to P10, with a P1 failure blocking the output.
 
 ## What we didn't do
 
-- No output has been shown to someone who uses or makes Easy Read (`tasks.md`, non-coding checklist).
+- No formal testing with readers. An Easy Read checker tried the app and told us it was easy to use and helped a lot. That was 1 informal check (`tasks.md`, non-coding checklist, "Show one output to someone who uses or makes Easy Read"). Feedback from 3 to 5 people, with quotes, is still open there.
 - The 20-letter pass-rate run planned in the brief has not happened. The partial run had 8 letters (`docs/pass-rates.md`).

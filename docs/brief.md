@@ -176,7 +176,7 @@ The biggest risk is a changed fact reaching a reader, so P1 blocks output rather
 | Meaning drifts without breaking any rule | Output looks fine but says something different | P9 judge per line; line-to-source highlighting so a reader can check |
 | Symbol licence forbids this use | Pictures must be removed late | Pick the library on day 1 and record its licence in the README |
 | Real letters contain personal data | Privacy and demo problems | Use only public sample letters and invented ones; process in memory, store nothing |
-| An AI Easy Read tool already exists | Lower innovation score | Search before day 1; if one exists, lead with the verified checks, which it is unlikely to have |
+| An AI Easy Read tool already exists | Lower innovation score | Search before day 1; if one exists, lead with the verified checks, which it is unlikely to have. **Happened:** Swindon Borough Council's Simply Readable; the README's "Prior art" section names it and states what differs |
 | Judges see a text wrapper | Low design and impact scores | Polished side-by-side view, the rule report, and real feedback quotes |
 
 **Open questions**

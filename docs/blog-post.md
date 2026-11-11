@@ -35,6 +35,12 @@ Key facts are taken from the original before the model writes anything. Then the
 
 You can edit any line. Change a date and the checker runs again: P1 fails and the output is blocked until you undo the edit.
 
+## What was already out there
+
+AI Easy Read tools already exist. Swindon Borough Council built [Simply Readable](https://www.local.gov.uk/case-studies/swindon-borough-council-simply-readable-ai-easy-read-solution) on Amazon Bedrock. The Local Government Association case study says it is open source and was co-designed with residents with learning disabilities. Staff such as social workers use it to make Easy Read documents in under 30 minutes, at about 1p per page against about £120 per A4 page by hand, in 75 languages. The case study does not describe an automated check of the output.
+
+Easy Read Engine is for the other end of the letter: the person who received it, or their carer. Its focus is checking. Every line goes through rules P1 to P8 with no model and 2 model judges. A changed or missing date, amount or reference blocks the output. The original sits next to the Easy Read version, each line is traced to its source sentence, and key facts are highlighted in both. P10 fails any line that gives advice. Property tests check the checker itself.
+
 ## Stitched together
 
 This is a Frankenstein project. It joins a language model (Amazon Bedrock in London, Groq as a fallback), spaCy dependency parsing, the ARASAAC pictogram library, property tests with Hypothesis and fast-check, and headless Chromium for PDF export. The model writes. The deterministic parts decide what the reader sees.
@@ -47,8 +53,8 @@ The checker is also an MCP server, and a Kiro Power packages it with the rules, 
 
 ## Where it stands
 
-The results so far are partial. In a run of 8 fixture letters on free-tier providers, 2 finished and both were flagged, and 6 stopped on provider errors. A full run on Bedrock is next. No output has been reviewed by an Easy Read reader or writer yet, and both guides say that testing with readers matters.
+The results so far are partial. The 3 public sample letters were recorded on Bedrock on 11 November 2026, and each ended flagged after 3 tries: every key fact passed P1, and some lines still broke other rules (`web/data/samples/`). An earlier run of 8 fixture letters on free-tier providers finished 2, both flagged, and 6 stopped on provider errors (`docs/pass-rates.md`). The 8-letter run on Bedrock is next.
 
-[Add a quote from an Easy Read reviewer here]
+An Easy Read checker tried the app and told us it was easy to use and helped a lot. That is 1 informal check. It is not testing with readers, which both guides say matters and which hasn't been done yet.
 
-[Add the live URL and the repository link here]
+[Add the live URL and the repository link here. Missing: the app is not deployed yet, and the repository link depends on it being public]
