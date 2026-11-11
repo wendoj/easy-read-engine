@@ -37,6 +37,8 @@ The script runs each public sample letter through the real pipeline, one at a ti
 
 All 3 public sample letters were recorded on 11 November 2026, each flagged (P1 passed, some other rules flagged).
 
+A re-record after the P3/P5 checker fixes, the judge's sibling-line context and the worked examples in `prompts/rewrite.md` and `prompts/regenerate.md` cut failing lines across the 3 letters from 190 to 103. Most of what remains is "If …, …" lines (P3), passives (P4) and legal words such as "representations" and "determine" (P5).
+
 Earlier runs failed in two ways:
 
 - `model_output_invalid`: the judge and regenerate replies on long letters hit their `max_tokens` cap (`finish_reason: "length"`) and were cut off mid-JSON. Bedrock requests now use `BEDROCK_MAX_TOKENS` and `BEDROCK_TIMEOUT_MS` (`src/llm/client.ts`).

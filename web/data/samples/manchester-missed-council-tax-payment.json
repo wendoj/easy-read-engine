@@ -2,7 +2,7 @@
   "id": "manchester-missed-council-tax-payment",
   "label": "Missed Council Tax payment (Manchester)",
   "source": "manchester-missed-council-tax-payment.pdf",
-  "recordedAt": "2026-11-11T22:22:57.013Z",
+  "recordedAt": "2026-11-11T23:17:58.092Z",
   "models": [
     "bedrock:openai.gpt-oss-120b-1:0",
     "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
@@ -1669,702 +1669,456 @@
     "lines": [
       {
         "id": "L1",
-        "text": "You missed a council tax payment.",
+        "text": "This letter is from the council.",
         "source_sentence_id": "s1",
-        "symbol_id": "35449"
+        "symbol_id": "6963"
       },
       {
         "id": "L2",
-        "text": "The council can help.",
-        "source_sentence_id": "s2",
-        "symbol_id": "4570"
-      },
-      {
-        "id": "L3",
-        "text": "You can call 0161 234 5002.",
-        "source_sentence_id": "s3",
-        "symbol_id": "2791"
-      },
-      {
-        "id": "L4",
-        "text": "Did you pay in the last few days?",
-        "source_sentence_id": "s4",
-        "symbol_id": "32488"
-      },
-      {
-        "id": "L5",
-        "text": "Thank you, please ignore this.",
-        "source_sentence_id": "s5",
-        "symbol_id": null
-      },
-      {
-        "id": "L6",
-        "text": "Website: www.manchester.gov.uk/counciltax.",
-        "source_sentence_id": "s6",
-        "symbol_id": "2487"
-      },
-      {
-        "id": "L7",
-        "text": "Phone: 0161 234 5002.",
-        "source_sentence_id": "s7",
-        "symbol_id": "2791"
-      },
-      {
-        "id": "L8",
-        "text": "Address: PO BOX 3, Manchester, M15 5BA.",
-        "source_sentence_id": "s8",
-        "symbol_id": "30231"
-      },
-      {
-        "id": "L9",
-        "text": "Date: 8 July 2023.",
-        "source_sentence_id": "s9",
-        "symbol_id": "32488"
-      },
-      {
-        "id": "L10",
-        "text": "Account reference 5xxxxxxxx.",
-        "source_sentence_id": "s10",
-        "symbol_id": null
-      },
-      {
-        "id": "L11",
-        "text": "Bill number 23/2.",
-        "source_sentence_id": "s11",
-        "symbol_id": "5995"
-      },
-      {
-        "id": "L12",
-        "text": "Property Band A.",
-        "source_sentence_id": "s12",
-        "symbol_id": "2317"
-      },
-      {
-        "id": "L13",
-        "text": "It looks like you missed a council tax payment.",
+        "text": "You missed a council tax payment.",
         "source_sentence_id": "s13",
         "symbol_id": "35449"
       },
       {
-        "id": "L14",
-        "text": "You need to pay £181.62 by 15 July if possible.",
+        "id": "L3",
+        "text": "You need to pay £181.62 by 15 July.",
         "source_sentence_id": "s14",
         "symbol_id": "4630"
       },
       {
-        "id": "L15",
+        "id": "L4",
         "text": "Please pay online now if you can.",
         "source_sentence_id": "s15",
         "symbol_id": "2487"
       },
       {
-        "id": "L113",
+        "id": "L72",
         "text": "Details are on the back.",
         "source_sentence_id": "s15",
-        "symbol_id": null
+        "symbol_id": "2398"
       },
       {
-        "id": "L16",
-        "text": "If you can’t pay, there are many ways we can help.",
+        "id": "L5",
+        "text": "If you can’t pay, we can help.",
         "source_sentence_id": "s16",
         "symbol_id": "4570"
       },
       {
-        "id": "L17",
-        "text": "Think you’ll miss more payments?",
+        "id": "L6",
+        "text": "Think you’ll miss more payments.",
         "source_sentence_id": "s17",
         "symbol_id": "7217"
       },
       {
-        "id": "L18",
-        "text": "Here is your current payment arrangement.",
-        "source_sentence_id": "s18",
-        "symbol_id": "2398"
-      },
-      {
-        "id": "L19",
-        "text": "If you think you’ll miss more payments, please contact us now.",
+        "id": "L7",
+        "text": "Please contact us now.",
         "source_sentence_id": "s19",
         "symbol_id": "2791"
       },
       {
-        "id": "L20",
-        "text": "We could make this arrangement work for you with:",
-        "source_sentence_id": "s20",
-        "symbol_id": null
-      },
-      {
-        "id": "L21",
-        "text": "Payments spread over more months.",
+        "id": "L8",
+        "text": "You may spread payments over more months.",
         "source_sentence_id": "s21",
         "symbol_id": "32488"
       },
       {
-        "id": "L22",
+        "id": "L9",
         "text": "Council Tax Support claims if your income is low.",
         "source_sentence_id": "s22",
-        "symbol_id": "35449"
-      },
-      {
-        "id": "L23",
-        "text": "Money off your bill if you qualify.",
-        "source_sentence_id": "s23",
         "symbol_id": "4630"
       },
       {
-        "id": "L24",
+        "id": "L10",
+        "text": "Money off your bill if you qualify.",
+        "source_sentence_id": "s23",
+        "symbol_id": "5995"
+      },
+      {
+        "id": "L11",
         "text": "Extra help for severe, unusual hardship.",
         "source_sentence_id": "s24",
         "symbol_id": "4570"
       },
       {
-        "id": "L25",
-        "text": "Vulnerable people’s support – let us know that’s you.",
+        "id": "L12",
+        "text": "Vulnerable people’s support – just let us know that’s you.",
         "source_sentence_id": "s25",
-        "symbol_id": "39622"
+        "symbol_id": "34557"
       },
       {
-        "id": "L26",
+        "id": "L13",
         "text": "Why not pay by Direct Debit.",
         "source_sentence_id": "s26",
         "symbol_id": null
       },
       {
-        "id": "L27",
-        "text": "It means you won’t forget in future.",
-        "source_sentence_id": "s27",
-        "symbol_id": null
-      },
-      {
-        "id": "L114",
-        "text": "You can pick a payment date that suits you.",
+        "id": "L14",
+        "text": "Direct Debit means you won’t forget in future.",
         "source_sentence_id": "s27",
         "symbol_id": "32488"
       },
       {
-        "id": "L115",
-        "text": "Choose the 7th, 15th, 21st or 28th of the month.",
+        "id": "L73",
+        "text": "You can pick a payment date – 7th, 15th, 21st or 28th.",
         "source_sentence_id": "s27",
-        "symbol_id": "11227"
+        "symbol_id": "34799"
       },
       {
-        "id": "L28",
-        "text": "If you think your bill is wrong, please tell us.",
+        "id": "L15",
+        "text": "If you think your bill is wrong, then please tell us.",
         "source_sentence_id": "s28",
-        "symbol_id": "5995"
+        "symbol_id": "6963"
       },
       {
-        "id": "L116",
-        "text": "We will update your bill.",
+        "id": "L74",
+        "text": "We’ll update your bill.",
         "source_sentence_id": "s28",
         "symbol_id": null
       },
       {
-        "id": "L29",
+        "id": "L16",
         "text": "Contact us now.",
         "source_sentence_id": "s29",
         "symbol_id": "2791"
       },
       {
-        "id": "L30",
-        "text": "Our number’s above – details on the back.",
-        "source_sentence_id": "s30",
-        "symbol_id": "2791"
+        "id": "L17",
+        "text": "You need to act now.",
+        "source_sentence_id": "s31",
+        "symbol_id": "7229"
       },
       {
-        "id": "L31",
-        "text": "You need to act now so you don’t have to pay the whole year’s bill and summons costs.",
+        "id": "L75",
+        "text": "Then you won’t have to pay the whole year’s bill and summons costs.",
         "source_sentence_id": "s31",
         "symbol_id": "5995"
       },
       {
-        "id": "L32",
-        "text": "How to pay.",
-        "source_sentence_id": "s33",
-        "symbol_id": "2398"
-      },
-      {
-        "id": "L33",
+        "id": "L18",
         "text": "Please pay by direct debit if you can at www.manchester.gov.uk/directdebit.",
         "source_sentence_id": "s34",
         "symbol_id": "2487"
       },
       {
-        "id": "L34",
-        "text": "Credit or debit card.",
+        "id": "L19",
+        "text": "Pay by credit or debit card at www.manchester.gov.uk/counciltax.",
         "source_sentence_id": "s35",
         "symbol_id": "17208"
       },
       {
-        "id": "L35",
-        "text": "By phone 24/7 on 0161 234 5006.",
+        "id": "L20",
+        "text": "Pay by phone 24/7 on 0161 234 5006.",
         "source_sentence_id": "s37",
         "symbol_id": "2791"
       },
       {
-        "id": "L36",
-        "text": "Post Office or PayPoint – take this with you and use the barcode to pay.",
+        "id": "L21",
+        "text": "Pay at Post Office or PayPoint using the barcode.",
         "source_sentence_id": "s38",
         "symbol_id": "10320"
       },
       {
-        "id": "L37",
+        "id": "L22",
         "text": "Help yourself.",
         "source_sentence_id": "s39",
         "symbol_id": null
       },
       {
-        "id": "L38",
-        "text": "It’s easy to sort out your council tax online:",
-        "source_sentence_id": "s40",
-        "symbol_id": "2487"
-      },
-      {
-        "id": "L39",
+        "id": "L23",
         "text": "Apply for money off your bill.",
         "source_sentence_id": "s41",
         "symbol_id": null
       },
       {
-        "id": "L40",
+        "id": "L24",
         "text": "Check your account.",
         "source_sentence_id": "s42",
         "symbol_id": "2487"
       },
       {
-        "id": "L41",
+        "id": "L25",
         "text": "Tell us about any changes.",
         "source_sentence_id": "s43",
-        "symbol_id": "2398"
+        "symbol_id": "2791"
       },
       {
-        "id": "L42",
+        "id": "L26",
         "text": "Change your payment amounts.",
         "source_sentence_id": "s45",
+        "symbol_id": "32488"
+      },
+      {
+        "id": "L27",
+        "text": "Claim Council Tax Support.",
+        "source_sentence_id": "s46",
         "symbol_id": "4630"
       },
       {
-        "id": "L43",
-        "text": "Claim Council Tax Support.",
-        "source_sentence_id": "s46",
-        "symbol_id": "30008"
-      },
-      {
-        "id": "L44",
+        "id": "L28",
         "text": "Get your bill by e‑mail.",
         "source_sentence_id": "s47",
         "symbol_id": "27355"
       },
       {
-        "id": "L45",
+        "id": "L29",
         "text": "Need help with council tax.",
         "source_sentence_id": "s50",
         "symbol_id": "4570"
       },
       {
-        "id": "L46",
-        "text": "We can find a solution together.",
-        "source_sentence_id": "s51",
-        "symbol_id": "15262"
-      },
-      {
-        "id": "L47",
-        "text": "Call 0161 234 5002, 9am—6pm, Monday—Friday.",
+        "id": "L30",
+        "text": "Call 0161 234 5002 between 9am and 6pm, Monday to Friday.",
         "source_sentence_id": "s52",
         "symbol_id": "2791"
       },
       {
-        "id": "L48",
-        "text": "See your options online, scan here.",
+        "id": "L31",
+        "text": "See your options online, scan here:",
         "source_sentence_id": "s53",
-        "symbol_id": "2487"
+        "symbol_id": "27323"
       },
       {
-        "id": "L49",
+        "id": "L32",
         "text": "Help yourself online.",
         "source_sentence_id": "s54",
         "symbol_id": "2487"
       },
       {
-        "id": "L50",
+        "id": "L33",
         "text": "Spread your payments over more months – fill in the form at www.manchester.gov.uk/xxxxx.",
         "source_sentence_id": "s55",
         "symbol_id": "9173"
       },
       {
-        "id": "L51",
+        "id": "L34",
         "text": "Claim Council Tax support for low incomes.",
         "source_sentence_id": "s56",
-        "symbol_id": "30008"
+        "symbol_id": "4630"
       },
       {
-        "id": "L52",
-        "text": "See if you qualify and claim: www.manchester.gov.",
+        "id": "L35",
+        "text": "See if you qualify and claim at www.manchester.gov.",
         "source_sentence_id": "s57",
         "symbol_id": null
       },
       {
-        "id": "L53",
-        "text": "Get help now so you are not liable for extra costs.",
+        "id": "L36",
+        "text": "Get help now so you’re not liable for extra costs.",
         "source_sentence_id": "s59",
         "symbol_id": "4570"
       },
       {
-        "id": "L54",
-        "text": "Struggling with the cost of living.",
+        "id": "L37",
+        "text": "Struggling with the cost of living?",
         "source_sentence_id": "s60",
         "symbol_id": "4630"
       },
       {
-        "id": "L55",
-        "text": "We recommend free, independent money advice, as well as talking to us.",
-        "source_sentence_id": "s61",
+        "id": "L38",
+        "text": "Citizen’s Advice Manchester can help with debt advice and benefit claims.",
+        "source_sentence_id": "s62",
         "symbol_id": null
       },
       {
-        "id": "L56",
-        "text": "Citizen’s Advice Manchester – phone 0808 278 7800 and 0808 164 4406.",
+        "id": "L39",
+        "text": "Call 0808 278 7800 or 0808 164 4406.",
         "source_sentence_id": "s63",
         "symbol_id": "2791"
       },
       {
-        "id": "L57",
-        "text": "Money Adviser Network – phone 0800 138 7777.",
+        "id": "L40",
+        "text": "Money Adviser Network gives free, independent government‑funded debt advice.",
+        "source_sentence_id": "s64",
+        "symbol_id": null
+      },
+      {
+        "id": "L41",
+        "text": "Call 0800 138 7777.",
         "source_sentence_id": "s65",
         "symbol_id": "2791"
       },
       {
-        "id": "L58",
-        "text": "StepChange Debt Charity – phone 0800 138 1111.",
+        "id": "L42",
+        "text": "StepChange Debt Charity can help you deal with debt and get back on track.",
+        "source_sentence_id": "s66",
+        "symbol_id": "36508"
+      },
+      {
+        "id": "L43",
+        "text": "Call 0800 138 1111.",
         "source_sentence_id": "s67",
         "symbol_id": "2791"
       },
       {
-        "id": "L59",
-        "text": "National Debtline – phone 0808 808 4000.",
+        "id": "L44",
+        "text": "National Debtline – 0808 808 4000.",
         "source_sentence_id": "s68",
         "symbol_id": "2791"
       },
       {
-        "id": "L60",
-        "text": "Missed Council Tax Payment.",
-        "source_sentence_id": "s70",
-        "symbol_id": "35449"
-      },
-      {
-        "id": "L61",
-        "text": "Second reminder.",
-        "source_sentence_id": "s71",
+        "id": "L45",
+        "text": "Website: www.nationaldebtline.org.",
+        "source_sentence_id": "s69",
         "symbol_id": null
       },
       {
-        "id": "L62",
-        "text": "We can help.",
-        "source_sentence_id": "s72",
-        "symbol_id": "4570"
-      },
-      {
-        "id": "L63",
+        "id": "L46",
         "text": "Call 0161 234 5002.",
         "source_sentence_id": "s73",
         "symbol_id": "2791"
       },
       {
-        "id": "L64",
-        "text": "Paid in the last few days?",
-        "source_sentence_id": "s74",
-        "symbol_id": "32488"
-      },
-      {
-        "id": "L65",
+        "id": "L47",
         "text": "Thank you, please ignore this.",
         "source_sentence_id": "s75",
         "symbol_id": null
       },
       {
-        "id": "L66",
-        "text": "Website: www.manchester.gov.uk/counciltax.",
-        "source_sentence_id": "s76",
-        "symbol_id": "2487"
-      },
-      {
-        "id": "L67",
-        "text": "Phone: 0161 234 5002.",
-        "source_sentence_id": "s77",
-        "symbol_id": "2791"
-      },
-      {
-        "id": "L68",
-        "text": "Address: PO BOX 3, Manchester, M15 5BA.",
+        "id": "L48",
+        "text": "PO BOX 3, Manchester, M15 5BA.",
         "source_sentence_id": "s78",
         "symbol_id": "30231"
       },
       {
-        "id": "L69",
+        "id": "L49",
         "text": "Date: 8 July 2023.",
         "source_sentence_id": "s79",
         "symbol_id": "32488"
       },
       {
-        "id": "L70",
+        "id": "L50",
         "text": "Account reference 5xxxxxxxx.",
         "source_sentence_id": "s80",
         "symbol_id": null
       },
       {
-        "id": "L71",
-        "text": "Bill number 23/2.",
-        "source_sentence_id": "s81",
-        "symbol_id": "5995"
-      },
-      {
-        "id": "L72",
-        "text": "Property Band A.",
-        "source_sentence_id": "s82",
-        "symbol_id": "2317"
-      },
-      {
-        "id": "L73",
-        "text": "It looks like you’ve missed another council tax payment, and we want to help.",
-        "source_sentence_id": "s83",
-        "symbol_id": "35449"
-      },
-      {
-        "id": "L74",
+        "id": "L51",
         "text": "You should pay if you can – details on the back.",
         "source_sentence_id": "s84",
-        "symbol_id": null
+        "symbol_id": "2398"
       },
       {
-        "id": "L75",
-        "text": "If you can’t, call us on the number above to chat about ways to sort out what you owe.",
+        "id": "L52",
+        "text": "If you can’t, call us on the number above.",
         "source_sentence_id": "s85",
         "symbol_id": "2791"
       },
       {
-        "id": "L76",
-        "text": "Here is your current payment arrangement.",
-        "source_sentence_id": "s86",
-        "symbol_id": "2398"
-      },
-      {
-        "id": "L77",
-        "text": "If it looks like you’ll miss more payments, contact us now.",
+        "id": "L53",
+        "text": "Contact us now.",
         "source_sentence_id": "s87",
         "symbol_id": "2791"
       },
       {
-        "id": "L78",
-        "text": "There are many ways we can help.",
-        "source_sentence_id": "s88",
-        "symbol_id": "4570"
-      },
-      {
-        "id": "L79",
+        "id": "L54",
         "text": "Why not pay by Direct Debit – you can pick a payment date that suits you – choose the 7th, 15th, 21st or 28th of the month.",
         "source_sentence_id": "s95",
-        "symbol_id": "11227"
+        "symbol_id": "32488"
       },
       {
-        "id": "L80",
-        "text": "Contact us now.",
-        "source_sentence_id": "s96",
-        "symbol_id": "2791"
+        "id": "L55",
+        "text": "You need to act now.",
+        "source_sentence_id": "s98",
+        "symbol_id": "7229"
       },
       {
-        "id": "L81",
-        "text": "You need to act now so you don’t have to pay the whole year’s bill and summons costs.",
+        "id": "L76",
+        "text": "Then you won’t have to pay the whole year’s bill and summons costs.",
         "source_sentence_id": "s98",
         "symbol_id": "5995"
       },
       {
-        "id": "L82",
-        "text": "Struggling to pay?",
-        "source_sentence_id": "s100",
-        "symbol_id": "4630"
-      },
-      {
-        "id": "L83",
+        "id": "L56",
         "text": "Tell us now – we can find a solution together.",
         "source_sentence_id": "s101",
-        "symbol_id": null
+        "symbol_id": "27465"
       },
       {
-        "id": "L84",
-        "text": "Call 0161 234 5002, 9am—6pm, Monday—Friday.",
+        "id": "L57",
+        "text": "Call 0161 234 5002, 9am–6pm, Monday–Friday.",
         "source_sentence_id": "s102",
         "symbol_id": "2791"
       },
       {
-        "id": "L85",
+        "id": "L58",
         "text": "Change your payment plan.",
         "source_sentence_id": "s104",
-        "symbol_id": null
+        "symbol_id": "32488"
       },
       {
-        "id": "L86",
+        "id": "L59",
         "text": "Check if you’re due benefits.",
         "source_sentence_id": "s105",
-        "symbol_id": null
+        "symbol_id": "35733"
       },
       {
-        "id": "L87",
+        "id": "L60",
         "text": "Get money off if you qualify – and extra help even if you don’t.",
         "source_sentence_id": "s106",
         "symbol_id": "4630"
       },
       {
-        "id": "L88",
+        "id": "L61",
         "text": "Take a ‘breathing space’ from paying off any previous years’ arrears.",
         "source_sentence_id": "s107",
-        "symbol_id": "25074"
+        "symbol_id": null
       },
       {
-        "id": "L89",
+        "id": "L62",
         "text": "Give extra help for severe, unusual hardship.",
         "source_sentence_id": "s108",
         "symbol_id": "4570"
       },
       {
-        "id": "L90",
+        "id": "L63",
         "text": "Offer special support if you’re vulnerable.",
         "source_sentence_id": "s109",
         "symbol_id": "30008"
       },
       {
-        "id": "L91",
+        "id": "L64",
         "text": "Get help now so you won’t owe the whole year’s bill and summons costs.",
         "source_sentence_id": "s110",
         "symbol_id": "4570"
       },
       {
-        "id": "L92",
-        "text": "See your options online: scan here.",
-        "source_sentence_id": "s111",
-        "symbol_id": "2487"
-      },
-      {
-        "id": "L93",
-        "text": "Help yourself online.",
-        "source_sentence_id": "s112",
-        "symbol_id": "2487"
-      },
-      {
-        "id": "L94",
-        "text": "Spread your payments over more months – fill in the form at www.manchester.gov.uk/xxxxx.",
-        "source_sentence_id": "s113",
-        "symbol_id": "9173"
-      },
-      {
-        "id": "L95",
-        "text": "Claim Council Tax support for low incomes.",
-        "source_sentence_id": "s114",
-        "symbol_id": "30008"
-      },
-      {
-        "id": "L96",
-        "text": "See if you qualify and claim: www.manchester.gov.",
-        "source_sentence_id": "s115",
-        "symbol_id": null
-      },
-      {
-        "id": "L97",
-        "text": "If you think your bill is wrong, please tell us.",
-        "source_sentence_id": "s116",
-        "symbol_id": "5995"
-      },
-      {
-        "id": "L117",
-        "text": "We will update your bill.",
-        "source_sentence_id": "s116",
-        "symbol_id": null
-      },
-      {
-        "id": "L98",
-        "text": "Get help now so you are not liable for extra costs.",
-        "source_sentence_id": "s117",
-        "symbol_id": "4570"
-      },
-      {
-        "id": "L99",
-        "text": "Struggling with the cost of living.",
-        "source_sentence_id": "s118",
-        "symbol_id": "4630"
-      },
-      {
-        "id": "L100",
-        "text": "We recommend free, independent money advice, as well as talking to us.",
-        "source_sentence_id": "s119",
-        "symbol_id": null
-      },
-      {
-        "id": "L101",
-        "text": "Citizen’s Advice Manchester – phone 0808 278 7800 and 0808 164 4406.",
-        "source_sentence_id": "s121",
-        "symbol_id": "2791"
-      },
-      {
-        "id": "L102",
-        "text": "Money Adviser Network – phone 0800 138 7777.",
-        "source_sentence_id": "s123",
-        "symbol_id": "2791"
-      },
-      {
-        "id": "L103",
-        "text": "StepChange Debt Charity – phone 0800 138 1111.",
-        "source_sentence_id": "s125",
-        "symbol_id": "2791"
-      },
-      {
-        "id": "L104",
-        "text": "National Debtline – phone 0808 808 4000.",
-        "source_sentence_id": "s126",
-        "symbol_id": "2791"
-      },
-      {
-        "id": "L105",
+        "id": "L65",
         "text": "Please pay by direct debit if you can at www.manchester.gov.uk/directdebit.",
         "source_sentence_id": "s130",
         "symbol_id": "2487"
       },
       {
-        "id": "L106",
-        "text": "By phone 24/7 on 0161 234 5006.",
-        "source_sentence_id": "s133",
-        "symbol_id": "2791"
-      },
-      {
-        "id": "L107",
+        "id": "L66",
         "text": "Help yourself.",
         "source_sentence_id": "s135",
         "symbol_id": null
       },
       {
-        "id": "L108",
+        "id": "L67",
         "text": "Apply for money off your bill.",
         "source_sentence_id": "s137",
         "symbol_id": null
       },
       {
-        "id": "L109",
+        "id": "L68",
         "text": "Check your account.",
         "source_sentence_id": "s138",
         "symbol_id": "2487"
       },
       {
-        "id": "L110",
+        "id": "L69",
         "text": "Tell us about any changes.",
         "source_sentence_id": "s139",
-        "symbol_id": "2398"
+        "symbol_id": "2791"
       },
       {
-        "id": "L111",
+        "id": "L70",
         "text": "Change your payment amounts.",
         "source_sentence_id": "s141",
-        "symbol_id": "4630"
+        "symbol_id": "32488"
       },
       {
-        "id": "L112",
+        "id": "L71",
         "text": "Get your bill by e‑mail.",
         "source_sentence_id": "s143",
         "symbol_id": "27355"
@@ -2382,86 +2136,54 @@
         "rule": "P2",
         "passed": false,
         "line_ids": [
-          "L31",
-          "L75",
-          "L79",
-          "L81"
+          "L54"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L31 has a sentence of 18 words (limit 15)",
-          "L75 has a sentence of 19 words (limit 15)",
-          "L79 has a sentence of 25 words (limit 15)",
-          "L81 has a sentence of 18 words (limit 15)"
+          "L54 has a sentence of 25 words (limit 15)"
         ]
       },
       {
         "rule": "P3",
         "passed": false,
         "line_ids": [
-          "L13",
+          "L4",
+          "L5",
+          "L9",
+          "L10",
+          "L12",
           "L15",
-          "L16",
-          "L17",
-          "L19",
-          "L20",
-          "L22",
-          "L23",
-          "L25",
-          "L28",
-          "L31",
-          "L33",
+          "L18",
+          "L35",
           "L36",
+          "L51",
           "L52",
-          "L53",
-          "L73",
-          "L74",
-          "L75",
-          "L77",
-          "L79",
-          "L81",
-          "L83",
-          "L86",
-          "L87",
-          "L90",
-          "L91",
-          "L96",
-          "L97",
-          "L98",
-          "L105"
+          "L56",
+          "L59",
+          "L60",
+          "L63",
+          "L64",
+          "L65"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L13 has a sentence with 2 main clauses (limit 1)",
-          "L15 has a sentence with 2 main clauses (limit 1)",
-          "L16 has a sentence with 2 main clauses (limit 1)",
-          "L17 has a sentence with 2 main clauses (limit 1)",
-          "L19 has a sentence with 3 main clauses (limit 1)",
-          "L20 has a sentence with 2 main clauses (limit 1)",
-          "L22 has a sentence with 2 main clauses (limit 1)",
-          "L23 has a sentence with 2 main clauses (limit 1)",
-          "L25 has a sentence with 3 main clauses (limit 1)",
-          "L28 has a sentence with 3 main clauses (limit 1)",
-          "L31 has a sentence with 2 main clauses (limit 1)",
-          "L33 has a sentence with 2 main clauses (limit 1)",
+          "L4 has a sentence with 2 main clauses (limit 1)",
+          "L5 has a sentence with 2 main clauses (limit 1)",
+          "L9 has a sentence with 2 main clauses (limit 1)",
+          "L10 has a sentence with 2 main clauses (limit 1)",
+          "L12 has a sentence with 2 main clauses (limit 1)",
+          "L15 has a sentence with 3 main clauses (limit 1)",
+          "L18 has a sentence with 2 main clauses (limit 1)",
+          "L35 has a sentence with 2 main clauses (limit 1)",
           "L36 has a sentence with 2 main clauses (limit 1)",
+          "L51 has a sentence with 2 main clauses (limit 1)",
           "L52 has a sentence with 2 main clauses (limit 1)",
-          "L53 has a sentence with 2 main clauses (limit 1)",
-          "L73 has a sentence with 3 main clauses (limit 1)",
-          "L74 has a sentence with 2 main clauses (limit 1)",
-          "L75 has a sentence with 3 main clauses (limit 1)",
-          "L77 has a sentence with 3 main clauses (limit 1)",
-          "L79 has a sentence with 2 main clauses (limit 1)",
-          "L81 has a sentence with 2 main clauses (limit 1)",
-          "L83 has a sentence with 2 main clauses (limit 1)",
-          "L86 has a sentence with 2 main clauses (limit 1)",
-          "L87 has a sentence with 3 main clauses (limit 1)",
-          "L90 has a sentence with 2 main clauses (limit 1)",
-          "L91 has a sentence with 2 main clauses (limit 1)",
-          "L96 has a sentence with 2 main clauses (limit 1)",
-          "L97 has a sentence with 3 main clauses (limit 1)",
-          "L98 has a sentence with 2 main clauses (limit 1)",
-          "L105 has a sentence with 2 main clauses (limit 1)"
+          "L56 has a sentence with 2 main clauses (limit 1)",
+          "L59 has a sentence with 2 main clauses (limit 1)",
+          "L60 has a sentence with 3 main clauses (limit 1)",
+          "L63 has a sentence with 2 main clauses (limit 1)",
+          "L64 has a sentence with 2 main clauses (limit 1)",
+          "L65 has a sentence with 2 main clauses (limit 1)"
         ]
       },
       {
@@ -2475,67 +2197,33 @@
         "rule": "P5",
         "passed": false,
         "line_ids": [
+          "L11",
           "L12",
-          "L17",
-          "L19",
-          "L24",
-          "L25",
-          "L31",
-          "L36",
-          "L44",
-          "L53",
-          "L56",
-          "L58",
-          "L59",
-          "L61",
-          "L72",
-          "L73",
           "L75",
-          "L77",
-          "L81",
-          "L86",
-          "L87",
-          "L88",
-          "L89",
-          "L90",
-          "L91",
-          "L98",
-          "L101",
-          "L103",
-          "L104",
-          "L112"
+          "L21",
+          "L36",
+          "L40",
+          "L42",
+          "L76",
+          "L61",
+          "L62",
+          "L63",
+          "L64"
         ],
         "failed_fact_ids": [],
         "details": [
+          "L11 has 1 words that are not common and not explained",
           "L12 has 1 words that are not common and not explained",
-          "L17 has 1 words that are not common and not explained",
-          "L19 has 1 words that are not common and not explained",
-          "L24 has 1 words that are not common and not explained",
-          "L25 has 1 words that are not common and not explained",
-          "L31 has 1 words that are not common and not explained",
-          "L36 has 1 words that are not common and not explained",
-          "L44 has 1 words that are not common and not explained",
-          "L53 has 1 words that are not common and not explained",
-          "L56 has 1 words that are not common and not explained",
-          "L58 has 1 words that are not common and not explained",
-          "L59 has 1 words that are not common and not explained",
-          "L61 has 1 words that are not common and not explained",
-          "L72 has 1 words that are not common and not explained",
-          "L73 has 1 words that are not common and not explained",
           "L75 has 1 words that are not common and not explained",
-          "L77 has 1 words that are not common and not explained",
-          "L81 has 1 words that are not common and not explained",
-          "L86 has 1 words that are not common and not explained",
-          "L87 has 1 words that are not common and not explained",
-          "L88 has 1 words that are not common and not explained",
-          "L89 has 1 words that are not common and not explained",
-          "L90 has 2 words that are not common and not explained",
-          "L91 has 1 words that are not common and not explained",
-          "L98 has 1 words that are not common and not explained",
-          "L101 has 1 words that are not common and not explained",
-          "L103 has 1 words that are not common and not explained",
-          "L104 has 1 words that are not common and not explained",
-          "L112 has 1 words that are not common and not explained"
+          "L21 has 1 words that are not common and not explained",
+          "L36 has 1 words that are not common and not explained",
+          "L40 has 1 words that are not common and not explained",
+          "L42 has 1 words that are not common and not explained",
+          "L76 has 1 words that are not common and not explained",
+          "L61 has 1 words that are not common and not explained",
+          "L62 has 1 words that are not common and not explained",
+          "L63 has 1 words that are not common and not explained",
+          "L64 has 1 words that are not common and not explained"
         ]
       },
       {
@@ -2549,13 +2237,11 @@
         "rule": "P7",
         "passed": false,
         "line_ids": [
-          "L8",
-          "L68"
+          "L48"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L8 has 2 abbreviations that are not explained",
-          "L68 has 2 abbreviations that are not explained"
+          "L48 has 2 abbreviations that are not explained"
         ]
       },
       {
@@ -2569,56 +2255,34 @@
         "rule": "P9",
         "passed": false,
         "line_ids": [
-          "L113",
-          "L27",
-          "L114",
-          "L115",
-          "L28",
-          "L116",
-          "L56",
-          "L57",
-          "L58",
-          "L59",
-          "L75",
-          "L97",
-          "L117",
-          "L101",
-          "L102",
-          "L103",
-          "L104"
+          "L1",
+          "L7",
+          "L8",
+          "L38",
+          "L51",
+          "L52",
+          "L53"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L113 meaning: Leaves out 'please pay online now if you can'.",
-          "L27 meaning: Leaves out 'you can pick a payment date'.",
-          "L114 meaning: Leaves out 'you won’t forget in future'.",
-          "L115 meaning: Leaves out 'you won’t forget' and 'pick a date'.",
-          "L28 meaning: Leaves out 'things have changed' and 'we’ll update'.",
-          "L116 meaning: Leaves out 'if you think your bill is wrong'.",
-          "L56 meaning: Adds 'Citizen’s Advice Manchester' not in source.",
-          "L57 meaning: Adds 'Money Adviser Network' not in source.",
-          "L58 meaning: Adds 'StepChange Debt Charity' not in source.",
-          "L59 meaning: Adds 'National Debtline' not in source.",
-          "L75 meaning: Leaves out 'which is' and the amount owed.",
-          "L97 meaning: Leaves out 'things have changed' and 'we’ll update'.",
-          "L117 meaning: Leaves out 'if you think your bill is wrong'.",
-          "L101 meaning: Adds 'Citizen’s Advice Manchester' not in source.",
-          "L102 meaning: Adds 'Money Adviser Network' not in source.",
-          "L103 meaning: Adds 'StepChange Debt Charity' not in source.",
-          "L104 meaning: Adds 'National Debtline' not in source."
+          "L1 meaning: Source is a heading, not a full sentence about the letter's origin.",
+          "L7 meaning: Misses condition 'if it looks like you’ll miss more payments'.",
+          "L8 meaning: Changes 'payments spread over more months' to 'you may spread', adding uncertainty.",
+          "L38 meaning: Changes 'will help' to 'can help', reducing certainty.",
+          "L51 meaning: Changes 'please' to 'you should', which is more directive.",
+          "L52 meaning: Misses 'to chat about ways to sort out what you owe'.",
+          "L53 meaning: Misses condition 'if it looks like you’ll miss more payments'."
         ]
       },
       {
         "rule": "P10",
         "passed": false,
         "line_ids": [
-          "L55",
-          "L100"
+          "L12"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L55 advice: Tells the reader to get advice, but the sentence only recommends.",
-          "L100 advice: Tells the reader to get advice, but the sentence only recommends."
+          "L12 tone: Uses 'just let us know', which is dismissive."
         ]
       }
     ],
@@ -2744,522 +2408,426 @@
     "lineFacts": [
       {
         "line_id": "L3",
-        "fact_id": "k2",
-        "start": 13,
-        "end": 26
-      },
-      {
-        "line_id": "L5",
-        "fact_id": "k3",
-        "start": 11,
-        "end": 29
-      },
-      {
-        "line_id": "L7",
-        "fact_id": "k4",
-        "start": 7,
-        "end": 20
-      },
-      {
-        "line_id": "L8",
-        "fact_id": "k5",
-        "start": 31,
-        "end": 38
-      },
-      {
-        "line_id": "L9",
-        "fact_id": "k6",
-        "start": 6,
-        "end": 17
-      },
-      {
-        "line_id": "L10",
-        "fact_id": "k7",
-        "start": 18,
-        "end": 27
-      },
-      {
-        "line_id": "L14",
         "fact_id": "k8",
         "start": 9,
         "end": 34
       },
       {
-        "line_id": "L14",
+        "line_id": "L3",
         "fact_id": "k9",
         "start": 16,
         "end": 23
       },
       {
-        "line_id": "L14",
+        "line_id": "L3",
         "fact_id": "k10",
         "start": 27,
         "end": 34
       },
       {
-        "line_id": "L15",
+        "line_id": "L4",
         "fact_id": "k11",
         "start": 0,
         "end": 21
       },
       {
-        "line_id": "L17",
+        "line_id": "L6",
         "fact_id": "k12",
         "start": 0,
         "end": 31
       },
       {
-        "line_id": "L19",
+        "line_id": "L7",
         "fact_id": "k13",
-        "start": 40,
-        "end": 61
+        "start": 0,
+        "end": 21
       },
       {
-        "line_id": "L26",
+        "line_id": "L13",
         "fact_id": "k14",
         "start": 0,
         "end": 27
       },
       {
-        "line_id": "L115",
-        "fact_id": "k15",
-        "start": 0,
-        "end": 47
-      },
-      {
-        "line_id": "L115",
-        "fact_id": "k16",
-        "start": 22,
-        "end": 47
-      },
-      {
-        "line_id": "L28",
+        "line_id": "L15",
         "fact_id": "k17",
         "start": 33,
-        "end": 47
+        "end": 52
       },
       {
-        "line_id": "L29",
+        "line_id": "L16",
         "fact_id": "k18",
         "start": 0,
         "end": 14
       },
       {
-        "line_id": "L31",
+        "line_id": "L17",
         "fact_id": "k19",
         "start": 9,
         "end": 19
       },
       {
-        "line_id": "L31",
+        "line_id": "L75",
         "fact_id": "k20",
-        "start": 38,
-        "end": 84
+        "start": 20,
+        "end": 66
       },
       {
-        "line_id": "L33",
+        "line_id": "L18",
         "fact_id": "k21",
         "start": 0,
         "end": 74
       },
       {
-        "line_id": "L35",
+        "line_id": "L19",
+        "fact_id": "k21",
+        "start": 0,
+        "end": 63
+      },
+      {
+        "line_id": "L20",
+        "fact_id": "k21",
+        "start": 0,
+        "end": 34
+      },
+      {
+        "line_id": "L20",
         "fact_id": "k22",
-        "start": 17,
+        "start": 21,
+        "end": 34
+      },
+      {
+        "line_id": "L21",
+        "fact_id": "k21",
+        "start": 0,
         "end": 30
       },
       {
-        "line_id": "L37",
+        "line_id": "L22",
         "fact_id": "k23",
         "start": 0,
         "end": 13
       },
       {
-        "line_id": "L39",
+        "line_id": "L23",
         "fact_id": "k24",
         "start": 0,
         "end": 29
       },
       {
-        "line_id": "L40",
+        "line_id": "L24",
         "fact_id": "k25",
         "start": 0,
         "end": 18
       },
       {
-        "line_id": "L41",
+        "line_id": "L25",
         "fact_id": "k26",
         "start": 0,
         "end": 25
       },
       {
-        "line_id": "L42",
+        "line_id": "L26",
         "fact_id": "k27",
         "start": 0,
         "end": 27
       },
       {
-        "line_id": "L44",
+        "line_id": "L28",
         "fact_id": "k28",
         "start": 0,
         "end": 23
       },
       {
-        "line_id": "L45",
+        "line_id": "L29",
         "fact_id": "k29",
         "start": 0,
         "end": 26
       },
       {
-        "line_id": "L47",
+        "line_id": "L30",
         "fact_id": "k1",
         "start": 0,
-        "end": 42
+        "end": 56
       },
       {
-        "line_id": "L47",
+        "line_id": "L30",
         "fact_id": "k30",
         "start": 5,
         "end": 18
       },
       {
-        "line_id": "L47",
+        "line_id": "L30",
         "fact_id": "k31",
-        "start": 20,
-        "end": 23
+        "start": 27,
+        "end": 30
       },
       {
-        "line_id": "L47",
+        "line_id": "L30",
         "fact_id": "k32",
-        "start": 24,
-        "end": 27
+        "start": 35,
+        "end": 38
       },
       {
-        "line_id": "L47",
-        "fact_id": "k33",
-        "start": 36,
-        "end": 42
-      },
-      {
-        "line_id": "L48",
+        "line_id": "L31",
         "fact_id": "k34",
         "start": 0,
         "end": 23
       },
       {
-        "line_id": "L49",
+        "line_id": "L32",
         "fact_id": "k35",
         "start": 0,
         "end": 20
       },
       {
-        "line_id": "L52",
+        "line_id": "L35",
         "fact_id": "k36",
         "start": 0,
         "end": 3
       },
       {
-        "line_id": "L53",
+        "line_id": "L36",
         "fact_id": "k38",
         "start": 0,
         "end": 12
       },
       {
-        "line_id": "L56",
+        "line_id": "L39",
+        "fact_id": "k1",
+        "start": 0,
+        "end": 35
+      },
+      {
+        "line_id": "L39",
         "fact_id": "k39",
-        "start": 36,
-        "end": 49
+        "start": 5,
+        "end": 18
       },
       {
-        "line_id": "L56",
+        "line_id": "L39",
         "fact_id": "k40",
-        "start": 54,
-        "end": 67
+        "start": 22,
+        "end": 35
       },
       {
-        "line_id": "L57",
+        "line_id": "L41",
+        "fact_id": "k1",
+        "start": 0,
+        "end": 18
+      },
+      {
+        "line_id": "L41",
         "fact_id": "k41",
-        "start": 30,
-        "end": 43
+        "start": 5,
+        "end": 18
       },
       {
-        "line_id": "L58",
+        "line_id": "L43",
+        "fact_id": "k1",
+        "start": 0,
+        "end": 18
+      },
+      {
+        "line_id": "L43",
         "fact_id": "k42",
-        "start": 32,
-        "end": 45
+        "start": 5,
+        "end": 18
       },
       {
-        "line_id": "L59",
+        "line_id": "L44",
         "fact_id": "k43",
-        "start": 26,
-        "end": 39
+        "start": 20,
+        "end": 33
       },
       {
-        "line_id": "L63",
+        "line_id": "L46",
         "fact_id": "k44",
         "start": 0,
         "end": 18
       },
       {
-        "line_id": "L63",
+        "line_id": "L46",
         "fact_id": "k45",
         "start": 5,
         "end": 18
       },
       {
-        "line_id": "L65",
+        "line_id": "L47",
         "fact_id": "k46",
         "start": 11,
         "end": 29
       },
       {
-        "line_id": "L67",
-        "fact_id": "k47",
-        "start": 7,
-        "end": 20
-      },
-      {
-        "line_id": "L68",
+        "line_id": "L48",
         "fact_id": "k48",
-        "start": 31,
-        "end": 38
+        "start": 22,
+        "end": 29
       },
       {
-        "line_id": "L69",
+        "line_id": "L49",
         "fact_id": "k49",
         "start": 6,
         "end": 17
       },
       {
-        "line_id": "L70",
+        "line_id": "L50",
         "fact_id": "k50",
         "start": 18,
         "end": 27
       },
       {
-        "line_id": "L74",
+        "line_id": "L51",
         "fact_id": "k51",
         "start": 0,
         "end": 47
       },
       {
-        "line_id": "L75",
+        "line_id": "L52",
         "fact_id": "k52",
         "start": 14,
         "end": 41
       },
       {
-        "line_id": "L77",
+        "line_id": "L53",
         "fact_id": "k53",
-        "start": 44,
-        "end": 58
+        "start": 0,
+        "end": 14
       },
       {
-        "line_id": "L79",
+        "line_id": "L54",
         "fact_id": "k54",
         "start": 0,
         "end": 122
       },
       {
-        "line_id": "L79",
+        "line_id": "L54",
         "fact_id": "k55",
         "start": 97,
         "end": 122
       },
       {
-        "line_id": "L80",
-        "fact_id": "k56",
-        "start": 0,
-        "end": 14
-      },
-      {
-        "line_id": "L81",
+        "line_id": "L55",
         "fact_id": "k57",
         "start": 9,
         "end": 19
       },
       {
-        "line_id": "L81",
+        "line_id": "L76",
         "fact_id": "k58",
-        "start": 38,
-        "end": 84
+        "start": 20,
+        "end": 66
       },
       {
-        "line_id": "L83",
+        "line_id": "L56",
         "fact_id": "k59",
         "start": 0,
         "end": 45
       },
       {
-        "line_id": "L84",
+        "line_id": "L57",
         "fact_id": "k60",
         "start": 0,
         "end": 42
       },
       {
-        "line_id": "L84",
+        "line_id": "L57",
         "fact_id": "k61",
         "start": 5,
         "end": 18
       },
       {
-        "line_id": "L84",
+        "line_id": "L57",
         "fact_id": "k62",
         "start": 20,
         "end": 23
       },
       {
-        "line_id": "L84",
+        "line_id": "L57",
         "fact_id": "k63",
         "start": 24,
         "end": 27
       },
       {
-        "line_id": "L84",
+        "line_id": "L57",
         "fact_id": "k64",
         "start": 36,
         "end": 42
       },
       {
-        "line_id": "L85",
+        "line_id": "L58",
         "fact_id": "k65",
         "start": 0,
         "end": 24
       },
       {
-        "line_id": "L86",
+        "line_id": "L59",
         "fact_id": "k66",
         "start": 0,
         "end": 5
       },
       {
-        "line_id": "L88",
+        "line_id": "L61",
         "fact_id": "k67",
         "start": 0,
         "end": 68
       },
       {
-        "line_id": "L89",
+        "line_id": "L62",
         "fact_id": "k68",
         "start": 0,
         "end": 44
       },
       {
-        "line_id": "L90",
+        "line_id": "L63",
         "fact_id": "k69",
         "start": 0,
         "end": 21
       },
       {
-        "line_id": "L91",
+        "line_id": "L64",
         "fact_id": "k70",
         "start": 0,
         "end": 12
       },
       {
-        "line_id": "L92",
-        "fact_id": "k71",
-        "start": 0,
-        "end": 34
-      },
-      {
-        "line_id": "L93",
-        "fact_id": "k72",
-        "start": 0,
-        "end": 20
-      },
-      {
-        "line_id": "L96",
-        "fact_id": "k73",
-        "start": 0,
-        "end": 3
-      },
-      {
-        "line_id": "L97",
-        "fact_id": "k74",
-        "start": 33,
-        "end": 47
-      },
-      {
-        "line_id": "L98",
-        "fact_id": "k75",
-        "start": 0,
-        "end": 12
-      },
-      {
-        "line_id": "L101",
-        "fact_id": "k76",
-        "start": 36,
-        "end": 49
-      },
-      {
-        "line_id": "L101",
-        "fact_id": "k77",
-        "start": 54,
-        "end": 67
-      },
-      {
-        "line_id": "L102",
-        "fact_id": "k78",
-        "start": 30,
-        "end": 43
-      },
-      {
-        "line_id": "L103",
-        "fact_id": "k79",
-        "start": 32,
-        "end": 45
-      },
-      {
-        "line_id": "L104",
-        "fact_id": "k80",
-        "start": 26,
-        "end": 39
-      },
-      {
-        "line_id": "L105",
+        "line_id": "L65",
         "fact_id": "k81",
         "start": 0,
         "end": 74
       },
       {
-        "line_id": "L106",
-        "fact_id": "k82",
-        "start": 17,
-        "end": 30
-      },
-      {
-        "line_id": "L107",
+        "line_id": "L66",
         "fact_id": "k83",
         "start": 0,
         "end": 13
       },
       {
-        "line_id": "L108",
+        "line_id": "L67",
         "fact_id": "k84",
         "start": 0,
         "end": 29
       },
       {
-        "line_id": "L109",
+        "line_id": "L68",
         "fact_id": "k85",
         "start": 0,
         "end": 18
       },
       {
-        "line_id": "L110",
+        "line_id": "L69",
         "fact_id": "k86",
         "start": 0,
         "end": 25
       },
       {
-        "line_id": "L111",
+        "line_id": "L70",
         "fact_id": "k87",
         "start": 0,
         "end": 27
       },
       {
-        "line_id": "L112",
+        "line_id": "L71",
         "fact_id": "k88",
         "start": 0,
         "end": 23
