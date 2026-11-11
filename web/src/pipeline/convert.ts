@@ -70,7 +70,7 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
   for (let attempt = 1; ; attempt++) {
     const tryStarted = now();
     progress("checking", attempt);
-    lines = await attachSymbols(lines); // step 6
+    lines = await attachSymbols(lines, checker); // step 6
     const plain = toLines(lines);
     const ruleChecks = await checker.check({ original, key_facts: keyFacts, lines: plain }); // step 7, P1-P8
     const judged = await model.judge(judgePairs(lines, sourceText)); // step 8, P9-P10

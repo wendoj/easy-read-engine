@@ -73,6 +73,9 @@ function fakeChecker(calls: Calls, opts: { down?: boolean } = {}): ConvertChecke
       calls.check += 1;
       return (["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"] as const).map(pass);
     },
+    async symbols() {
+      return [];
+    },
   };
 }
 

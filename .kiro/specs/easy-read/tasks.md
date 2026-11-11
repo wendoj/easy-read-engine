@@ -168,7 +168,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Show the safety notice at the top, with no way to dismiss it
   - _Requirements: 5.1, 5.2, 7.1_
 
-- [-] 23. Implement pictogram search and the image cache
+- [x] 23. Implement pictogram search and the image cache
   - `find_symbol`: rank by lemma overlap with keywords, plurals and tags, with a bonus for an exact keyword match, and return a score
   - `attachSymbols` in the pipeline: take the top match only above the threshold, otherwise `null`
   - Route `web/app/symbols/[id]/route.ts`: fetch the PNG from ARASAAC on first use, cache it in the `symbol-cache` directory, and serve later requests from the cache
@@ -178,7 +178,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
 
 ### Report and export
 
-- [~] 24. Build the rule report and pass count
+- [-] 24. Build the rule report and pass count
   - Pass count at the top ("10 of 10 checks passed"); selecting it opens the report panel
   - The report lists each rule, its result, the lines it applied to, and its reasons; it also lists the action synonym table used by P1
   - Flagged state: failed rules in red, with a marker on the affected lines

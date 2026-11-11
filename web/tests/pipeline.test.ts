@@ -130,6 +130,9 @@ function fakes(s: Scenario, opts: { failCheckOn?: number; failAnalyse?: boolean 
       rec.checkResults.push(results);
       return results;
     },
+    async symbols() {
+      return [];
+    },
   };
 
   let splitAt = 0;

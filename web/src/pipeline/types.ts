@@ -1,7 +1,7 @@
 /**
  * Pipeline types (design "Pipeline orchestrator" and "Data Models").
  */
-import type { CheckResult, KeyFact, Line, Sentence } from "@/src/checker-client/schemas";
+import type { CheckResult, KeyFact, Line, Sentence, SymbolMatch } from "@/src/checker-client/schemas";
 import type {
   JudgePair,
   JudgeResult,
@@ -64,6 +64,8 @@ export interface PipelineModel {
 export interface PipelineChecker {
   analyse(original: string): Promise<{ sentences: Sentence[]; key_facts: KeyFact[] }>;
   check(request: { original: string; key_facts: KeyFact[]; lines: Line[] }): Promise<CheckResult[]>;
+  /** `find_symbol`, best first. Used to pick a pictogram per line. */
+  symbols(q: string, limit?: number): Promise<SymbolMatch[]>;
 }
 
 /**

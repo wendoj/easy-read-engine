@@ -10,7 +10,7 @@
  * reload there is nothing to show (R7.4).
  *
  * Seams for later tasks:
- * - Task 23: pictures load from `/symbols/<id>`; the ARASAAC attribution goes in `ResultFooter`.
+ * - Pictures load from `/symbols/<id>` (task 23); `ResultFooter` shows the ARASAAC attribution (R4.4).
  * - Task 24: the pass count and report panel replace `StatusBadge`; flagged rows get rule details.
  * - Task 25: key-fact highlighting goes in `OriginalSentence` and `LineText`.
  * - Task 26: Edit and "Undo edit" go in `LineRow`'s actions slot; edits replace the result in context.
@@ -24,6 +24,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import type { Status } from "@/src/pipeline/types";
+import { ARASAAC_ATTRIBUTION_PARTS } from "@/src/symbols/attribution";
 import { useConversion } from "@/src/ui/conversion-context";
 import {
   type LineRow as LineRowData,
@@ -169,10 +170,33 @@ function WithheldMessage() {
   );
 }
 
-/** Task 23 adds the ARASAAC attribution here. */
+/** R4.4: the ARASAAC attribution, worded as in checker/data/LICENSE-pictograms.md. */
+function SymbolAttribution() {
+  return (
+    <p className="text-base text-muted-foreground">
+      {ARASAAC_ATTRIBUTION_PARTS.map((part) =>
+        part.href ? (
+          <a
+            key={part.text}
+            href={part.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-4 hover:text-foreground"
+          >
+            {part.text}
+          </a>
+        ) : (
+          <span key={part.text}>{part.text}</span>
+        ),
+      )}
+    </p>
+  );
+}
+
 function ResultFooter() {
   return (
     <footer className="flex flex-col gap-4 border-t pt-6">
+      <SymbolAttribution />
       <BackLink />
     </footer>
   );
