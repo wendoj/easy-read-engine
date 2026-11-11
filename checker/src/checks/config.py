@@ -1,5 +1,7 @@
 """Checker configuration. Pinned values keep test results reproducible."""
 
+from pathlib import Path
+
 # Must match the wheel pinned in pyproject.toml (en_core_web_sm 3.8.0).
 SPACY_MODEL = "en_core_web_sm"
 
@@ -54,3 +56,7 @@ MIN_ABBREVIATION_LETTERS = 2
 ABBREVIATION_LINK_WORDS: frozenset[str] = frozenset(
     {"a", "an", "and", "&", "for", "in", "of", "on", "the", "to"}
 )
+
+# P8 and find_symbol: the committed ARASAAC index, built by
+# scripts/build_symbol_index.py (design "Symbols").
+SYMBOL_INDEX_PATH = Path(__file__).resolve().parents[2] / "data" / "symbols.json"
