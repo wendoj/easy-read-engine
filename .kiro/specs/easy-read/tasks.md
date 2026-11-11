@@ -221,7 +221,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Run `npm run fixtures -- --all` on the 20 public sample letters and save the results table to `docs/pass-rates.md`
   - _Requirements: none; evidence for the write-up_
 
-- [-] 32. Containerise and deploy
+- [x] 32. Containerise and deploy
   - `checker/Dockerfile`: Python slim image with the spaCy model installed at build time, and a health check on `/health`
   - `web/Dockerfile`: Next.js `output: "standalone"` with Chromium and its system libraries
   - `docker-compose.yml`:
@@ -235,7 +235,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
 
 ### Ship
 
-- [~] 33. Write the README and licence notes
+- [-] 33. Write the README and licence notes
   - Cover setup, test commands, the architecture summary, the model providers and their free limits, and the Easy Read guidance source
   - State that the code is MIT and the pictograms are CC BY-NC-SA, with the full ARASAAC attribution
   - Confirm `.kiro/` (specs, steering, hooks, MCP config) is committed

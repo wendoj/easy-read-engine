@@ -1,0 +1,59 @@
+# Production stack for Dokploy (design "Deployment", task 32).
+# Dokploy's Traefik routes easyread.wendyji.com to web:3000, so no port is
+# published here. For local testing, docker-compose.override.yml publishes
+# web on localhost:3000 (`docker compose up` picks it up automatically).
+#
+# Secrets come from the environment at deploy time (Dokploy environment
+# variables, or a local .env). They are never baked into the images.
+
+services:
+  checker:
+    build:
+      context: ./checker
+    restart: unless-stopped
+    # Internal only: no ports, no domain. Reachable as http://checker:8000.
+    expose:
+      - "8000"
+    mem_limit: 1g
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    networks:
+      - internal
+
+  web:
+    build:
+      context: ./web
+      additional_contexts:
+        prompts: ./prompts
+    restart: unless-stopped
+    depends_on:
+      checker:
+        condition: service_healthy
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      APP_ENV: production
+      CHECKER_URL: http://checker:8000
+      CHROMIUM_PATH: /usr/bin/chromium
+      SYMBOL_CACHE_DIR: /data/symbol-cache
+    expose:
+      - "3000"
+    volumes:
+      - symbol-cache:/data/symbol-cache
+    mem_limit: 2g
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+    networks:
+      - internal
+
+networks:
+  internal: {}
+
+volumes:
+  # ARASAAC pictogram PNGs only. Never letter content (R7.4).
+  symbol-cache: {}
