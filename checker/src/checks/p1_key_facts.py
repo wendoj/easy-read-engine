@@ -24,8 +24,10 @@ of the same type (R2.3, R2.6):
   actions with the same verb phrase are split into units in line order, and a
   new unit starts when an action repeats a value type or object. A unit must
   carry the Original action's own values, and lines that belong to a sibling
-  unit are not searched. So when one sentence holds 2 payments, swapping their
-  amounts or dates between the lines fails.
+  unit are not searched. A line in the group with no action of that phrase
+  ("The deadline is 1 May 2026.") belongs to the nearest unit before it, or
+  to every unit if it comes before the first one. So when one sentence holds
+  2 payments, swapping their amounts or dates between the lines fails.
 
 The lines are joined with line breaks and extracted as one text, with one
 "sentence" per line. Facts never run across a line break, except an address,
@@ -54,6 +56,10 @@ _PRONOUNS = frozenset({"it", "them", "this", "that", "these", "those"})
 _NOUN_POS = frozenset({"NOUN", "PROPN"})
 _DATE_NO_YEAR = re.compile(r"--\d{2}-\d{2}")
 _DATE_FULL = re.compile(r"\d{4}-\d{2}-\d{2}")
+# A year on its own. spaCy tags "2018" as a date in some sentences and not in
+# others ("the Data Protection Act 2018"), so the output also counts any year
+# that no other fact covers.
+_YEAR = re.compile(r"(?<![\d.,/:-])(?:19|20)\d{2}(?![\d.,/:-]\d)")
 
 
 @dataclass(frozen=True)
@@ -86,8 +92,24 @@ def _output_facts(lines: list[Line]) -> list[_OutputFact]:
         offset += len(line.text) + len(_LINE_BREAK)
     text = _LINE_BREAK.join(line.text for line in lines)
 
+    facts = extract_key_facts(text, sentences, permissive_actions=True)
+    covered = [(f.start, f.end) for f in facts if f.type != "action"]
+    for m in _YEAR.finditer(text):
+        if not any(start < m.end() and m.start() < end for start, end in covered):
+            facts.append(
+                KeyFact(
+                    id="year",
+                    type="date",
+                    value=m.group(),
+                    normalised=m.group(),
+                    start=m.start(),
+                    end=m.end(),
+                    sentence_id=next(s.id for s in sentences if s.start <= m.start() < s.end + 1),
+                )
+            )
+
     out: list[_OutputFact] = []
-    for fact in extract_key_facts(text, sentences):
+    for fact in facts:
         covering = [s for s in sentences if s.start < fact.end and fact.start < s.end]
         covered = tuple(s.id for s in covering)
         spans = tuple(
@@ -184,22 +206,37 @@ class _Matcher:
             has_objects = has_objects or bool(action.objects)
         return units
 
-    def _unit_matches(self, original: _Action, unit: list[int], group: set[str]) -> bool:
-        """Whether a unit shows the Original action.
+    def _unit_lines(self, unit: list[int], units: list[list[int]], group: set[str]) -> set[str]:
+        """The lines a unit searches for objects and values.
 
-        The unit's lines and the group's lines that hold no action with this
-        phrase are searched for objects and values. A value type that an action
-        in the unit carries must match one of the unit's own values, so a value
-        from a sibling action can't stand in for it.
+        These are the unit's own action lines, plus each group line with no
+        action of this phrase that comes after the unit's action lines and
+        before the next unit's ("You must pay £45." then "The deadline is 1
+        April 2026."). Such lines before the first action are shared by every
+        unit, so with one unit the whole group is searched.
         """
-        others = {
-            x
-            for i, a in self._actions.items()
-            if a.phrase == original.phrase and i not in unit
-            for x in self._output[i].line_ids
-        }
-        own_lines = {x for i in unit for x in self._output[i].line_ids}
-        lines = own_lines | (group - others)
+        order = {line.id: n for n, line in enumerate(self._lines)}
+        owner: dict[str, int] = {}
+        for n, u in enumerate(units):
+            for i in u:
+                for line_id in self._output[i].line_ids:
+                    owner[line_id] = n
+        index = units.index(unit)
+        lines = {line_id for line_id, n in owner.items() if n == index}
+        action_lines = sorted(owner, key=order.__getitem__)
+        for line_id in group - owner.keys():
+            earlier = [x for x in action_lines if order[x] < order[line_id]]
+            if not earlier or owner[earlier[-1]] == index:
+                lines.add(line_id)
+        return lines
+
+    def _unit_matches(self, original: _Action, lines: set[str], unit: list[int]) -> bool:
+        """Whether a unit, searching `lines`, shows the Original action.
+
+        A value type that an action in the unit carries must match one of the
+        unit's own values, so a value from a sibling action can't stand in for
+        it. Other values are looked for anywhere in `lines`.
+        """
         nouns: set[str] = set()
         for line_id in lines:
             nouns |= self._line_nouns().get(line_id, frozenset())
@@ -223,11 +260,12 @@ class _Matcher:
             if action.phrase != original.phrase or i in seen:
                 continue
             group = self._group(self._output[i].line_ids)
-            for unit in self._units(original.phrase, group):
+            units = self._units(original.phrase, group)
+            for unit in units:
                 if i not in unit:
                     continue
                 seen.update(unit)
-                if self._unit_matches(original, unit, group):
+                if self._unit_matches(original, self._unit_lines(unit, units, group), unit):
                     found.extend(unit)
         return sorted(set(found))
 

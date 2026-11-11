@@ -316,6 +316,33 @@ def test_dates_swapped_between_two_payments_fail() -> None:
     assert {f.id for f in facts if f.type == "action"} <= set(result.failed_fact_ids)
 
 
+def test_deadlines_swapped_on_statement_lines_fail() -> None:
+    # Reproduced in review v2: a date on a line with no action was shared by
+    # both payments, so swapping the deadline statements passed.
+    original = "You must pay £45 by 1 April 2026 and you must pay £20 by 1 May 2026."
+    facts, result = _p1(
+        original,
+        ["You must pay £45.", "The deadline is 1 May 2026.",
+         "You must pay £20.", "The deadline is 1 April 2026."],  # fmt: skip
+    )
+    assert not result.passed
+    assert {f.id for f in facts if f.type == "action"} <= set(result.failed_fact_ids)
+    _, kept = _p1(
+        original,
+        ["You must pay £45.", "The deadline is 1 April 2026.",
+         "You must pay £20.", "The deadline is 1 May 2026."],  # fmt: skip
+    )
+    assert kept.passed, kept.details
+
+
+def test_statement_line_before_a_single_action_still_counts() -> None:
+    _, result = _p1(
+        "Send the form back by 14 March 2026.",
+        ["The form is due on 14 March 2026.", "Send it back by then."],
+    )
+    assert result.passed, result.details
+
+
 def test_dropped_or_changed_action_verb_fails() -> None:
     facts, dropped = _p1("Send the form back by 14 March 2026.", ["The form is due on 14 March 2026."])
     action = next(f for f in facts if f.type == "action")
