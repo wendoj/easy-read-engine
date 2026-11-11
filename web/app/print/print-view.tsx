@@ -3,11 +3,13 @@
  * `/print` preview (task 28): the print layout for the result on screen, so
  * it can be checked in a browser and printed from there. The result comes
  * from `useConversion()` and is never stored, so after a reload there is
- * nothing to show (R7.4); the page says so and offers "Start again". A blocked result has no lines and shows no layout
+ * nothing to show (R7.4); the page says so and offers "Start again". While a
+ * user-letter result is shown, the browser asks before a reload, as on
+ * `/result`. A blocked result has no lines and shows no layout
  * (R9.5).
  */
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { printDocument } from "@/src/export/print-document";
 import { canExport } from "@/src/ui/blocked-state";
@@ -18,6 +20,15 @@ import { PrintSheet } from "./print-sheet";
 export function PrintView() {
   const { result, sample } = useConversion();
   const doc = useMemo(() => (result && canExport(result) ? printDocument(result) : null), [result]);
+
+  // The print view shows the user's own letter too, which can't come back after a reload.
+  const userLetterShown = result !== null && sample === null;
+  useEffect(() => {
+    if (!userLetterShown) return;
+    const onBeforeUnload = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [userLetterShown]);
 
   if (doc === null) {
     return (

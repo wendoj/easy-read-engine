@@ -39,7 +39,7 @@ fileMatchPattern: ["web/app/**/*.tsx", "web/components/**/*.tsx"]
 - Narrow screens (under 1024px): the columns stack, Original first, with a "Go to the Easy Read version" link above them. Easy Read guidance says "Do not write in columns" (IE 2.27), but safety.md requires the Original on every result screen so the reader or a supporter can check it, so it stays, with the Easy Read version easy to reach.
 - Use one colour per key fact, the same in both columns, plus an underline style per fact type, so colour is never the only cue.
 - A flagged line shows the failed rule in words with a flag icon. The blocked state keeps the Original and lists the key facts that did not match.
-- Reload: results are never stored (R7.4). A sample letter keeps its ID in the URL (`/result?sample=<id>`) and loads again. The user's own letter shows "Your Easy Read version is gone" and "Start again", and the browser asks before a reload while it is on screen.
+- Reload: results are never stored (R7.4). A sample letter keeps its ID in the URL (`/result?sample=<id>`) and loads again. The user's own letter shows "Your Easy Read version is gone" and "Start again", and the browser asks before a reload while it is on screen, on `/result` and on `/print`.
 - Print layout uses at least 16pt (18pt text, 20pt lines), a picture left of each line, the R7.1 notice at the top and the ARASAAC attribution in the footer.
 - Show the ARASAAC attribution in the result screen footer and the PDF footer.
 
