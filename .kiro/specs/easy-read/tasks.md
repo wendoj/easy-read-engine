@@ -104,11 +104,11 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
 
 ## Day 3: pipeline
 
-- [-] 14. Build the checker client
+- [x] 14. Build the checker client
   - `web/src/checker-client/`: a typed `fetch` wrapper using the generated types, with the base URL from `CHECKER_URL`, a request timeout, and a `CheckerUnavailable` error
   - _Requirements: 3.1_
 
-- [ ] 15. Write the prompts and the model calls for rewrite, regenerate and judge
+- [-] 15. Write the prompts and the model calls for rewrite, regenerate and judge
   - Prompt files in `prompts/`: `rewrite.md`, `regenerate.md`, `judge.md` (P9, P10 tone and P10 advice in one call) and `vision.md` (handwriting check, then text)
   - `rewrite` and `regenerate` return lines with `text`, `sourceSentenceId` and `symbolQuery`; `judge` returns, for each line, a verdict and a reason for meaning, tone and advice
   - Request JSON through a tool definition, validate it with zod, and retry once on invalid JSON
