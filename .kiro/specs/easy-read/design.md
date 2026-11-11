@@ -272,10 +272,10 @@ Each checker is a function `(original, key_facts, lines) -> CheckResult` and has
 
 | Rule | Approach | Line IDs reported |
 | --- | --- | --- |
-| P1 | Extract key facts from the output lines with the same extractor as the Original. Compare the normalised sets. Missing or changed facts fail | Lines holding a changed value, or lines mapped to the source sentence of a missing fact |
+| P1 | Extract key facts from the output lines with the same extractor as the Original. Match each Original fact by normalised value (an Original date with no year also matches the same day and month with a year added). Actions match by verb phrase, with objects and dates or amounts allowed on other lines from the same source sentence (see below). Missing or changed facts fail | Lines holding a changed value, or lines mapped to the source sentence of a missing fact |
 | P2 | spaCy sentence split per line; count word tokens (no punctuation); fail if over 15 | Lines over the limit |
-| P3 | Count main verb clauses: `ROOT` plus `conj` verbs attached to it, and `ccomp`/`advcl` heads. Fail if more than 1 | Lines with more than one clause |
-| P4 | Look for `auxpass` or `nsubjpass` dependencies | Lines with passive voice |
+| P3 | Count main verb clauses: `ROOT` plus `conj` verbs attached to it, and `ccomp`/`advcl` heads with their own subject. Not counted: "to" verbs, and the `ccomp` after a reporting verb (`REPORTING_VERBS`) whose subject is the letter, a named sender or "it" ("The letter says you must pay £45."). Fail if more than 1 | Lines with more than one clause |
+| P4 | Look for `auxpass` or `nsubjpass` dependencies. Statal passives after "you" with a following "to" and no agent pass (`STATAL_PARTICIPLES`: "You are entitled to ...", "You are required to ...") | Lines with passive voice |
 | P5 | Every lemma is in the common-word list, is a number, is a key-fact token, or is defined on first use ("X means ...", "X is ...") | Lines with undefined uncommon words |
 | P6 | spaCy `like_num` tokens that are alphabetic ("twenty", "three") | Lines with spelled-out numbers |
 | P7 | Every all-caps token of 2 or more letters is followed on first use by an expansion in brackets, or follows its expansion | Lines with unexplained abbreviations |
@@ -289,15 +289,24 @@ The 15-word limit, the clause count and the word list are config values, as the 
 
 | Type | Detection | Normalised value |
 | --- | --- | --- |
-| date | NER `DATE` plus UK date regexes | ISO date `2026-03-01`; relative dates ("within 14 days") keep the number and unit |
+| date | NER `DATE` plus UK date regexes | ISO date `2026-03-01`; a date with no year keeps month and day (`--03-01`); relative dates ("within 14 days") keep the number and unit |
 | time | NER `TIME` plus regex | 24-hour `HH:MM` |
 | money | NER `MONEY` plus `£` regex | Integer pence and currency |
 | reference | Regex for letter-and-digit codes, near words like "reference", "ref", "claim number" | Upper case, spaces removed |
 | phone | UK phone regex | Digits only, `+44` turned into `0` |
 | address | NER `GPE`/`FAC` plus UK postcode regex | Postcode upper case without spaces, plus the first address line in lower case |
-| action | Imperatives and "you must / you need to / please" clauses, from the dependency parse | Verb lemma plus object noun lemmas, plus any date or money inside the clause |
+| action | Imperatives, "please" clauses, "you must / you need to" (also after "The letter says"), and "you are asked / required / expected to" with its active form "The council asks you to", from the dependency parse | Verb lemma plus object noun lemmas, plus any date or money inside the clause |
 
-Actions are the weak point. An Easy Read rewrite changes the wording of an action by design, so an exact-text match would always fail. Version 1 compares the verb lemma, the object lemmas, and any date or amount inside the action (R2.6). Phrasal verbs ("fill in", "send back") are kept as one lemma, and a small synonym table maps common Easy Read swaps ("contact" to "phone", "submit" to "send"). The table is kept short and listed in the rule report, so no one is surprised by what it accepts.
+Actions are the weak point. An Easy Read rewrite changes the wording of an action by design, so an exact-text match would always fail. Version 1 compares the verb lemma, the object lemmas, and any date or amount inside the action (R2.6). Phrasal verbs ("fill in", "send back") are kept as one lemma, and a small synonym table maps common Easy Read swaps ("contact" to "phone", "submit" to "send", "make a payment" to "pay"). A "verb object" entry uses up the object. The table is kept short and listed in the rule report, so no one is surprised by what it accepts.
+
+P1 matches an action so the other rules can be met without failing it:
+
+- The output must have an action with the same verb phrase (after the synonym table, with "not" kept). Dropping the action, negating it or swapping the verb for a word not in the table fails.
+- The rest of the action may sit on other lines from the same source sentence. Every object noun of the Original action must appear as a noun in that group of lines, and every date or amount inside it must appear there with a matching value. So "Pay £45 by 1 April 2026." can become "You must pay £45." and "Pay it by 1 April 2026." to meet P3.
+- Pronoun objects ("it", "them", "this", "that") are ignored on both sides.
+- Dates and amounts are still separate key facts, checked on their own as before.
+
+Dates: an Original date with no year (`--03-01`) also matches an output date with the same day and month and a year added (`2026-03-01`). The reverse fails, so the Original's year is never dropped. Highlights (`line_fact_spans`) use the same matching as P1.
 
 #### Planned expansion for actions
 

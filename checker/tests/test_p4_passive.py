@@ -66,3 +66,28 @@ def test_only_passive_lines_are_reported() -> None:
 
 def test_no_lines_pass() -> None:
     assert check_p4("", [], []).passed
+
+
+def test_statal_passives_after_you_pass() -> None:
+    """**Validates: Requirements 3.1; P4**"""
+    lines = _lines([
+        "You are entitled to Housing Benefit.",
+        "You are required to pay £45.",
+        "You are allowed to bring a friend.",
+        "You are expected to come to the meeting.",
+        "You are supposed to reply by 1 March 2026.",
+    ])  # fmt: skip
+    result = check_p4("", [], lines)
+    assert result.passed, result.details
+
+
+def test_statal_participles_still_fail_as_real_passives() -> None:
+    """Checker-must-fail cases. **Validates: Requirements 3.1; P4**"""
+    lines = _lines([
+        "A letter will be sent to you.",
+        "The form was sent.",
+        "You are asked to send the form.",
+        "Your payment is required.",
+        "You are allowed by the council to stay.",
+    ])  # fmt: skip
+    assert check_p4("", [], lines).line_ids == ["l1", "l2", "l3", "l4", "l5"]

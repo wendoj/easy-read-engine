@@ -322,3 +322,44 @@ def test_negated_action_differs() -> None:
 def test_non_actions_are_ignored() -> None:
     assert _normalised("Thank you for your letter.", "action") == []
     assert _normalised("The council got your form.", "action") == []
+
+
+def test_active_request_extracts_the_same_action_as_the_passive() -> None:
+    passive = _normalised("You are asked to send the form.", "action")
+    assert passive == ["send|form|"]
+    assert _normalised("The council asks you to send the form.", "action") == passive
+    required = _normalised("You are required to pay £45.", "action")
+    assert required == ["pay||money=GBP 4500"]
+    assert _normalised("The council requires you to pay £45.", "action") == required
+    assert _normalised("We expect you to sign the form.", "action") == ["sign|form|"]
+
+
+def test_letter_says_you_must_extracts_the_action() -> None:
+    assert _normalised("The letter says you must pay £45 by 1 April 2026.", "action") == _normalised(
+        "You must pay £45 by 1 April 2026.", "action"
+    )
+
+
+def test_verb_and_object_synonym_uses_up_the_object() -> None:
+    assert _normalised("Make a payment of £45.", "action") == ["pay||money=GBP 4500"]
+    assert _normalised("Make an application for a bus pass.", "action") == ["apply||"]
+    # "make" with another object is not a payment.
+    assert _normalised("Make a copy of the form.", "action") == ["make|copy|"]
+
+
+def test_new_single_word_synonyms() -> None:
+    assert _normalised("Please attend the meeting.", "action") == ["go|meeting|"]
+    assert _normalised("Please respond by 1 March 2026.", "action") == _normalised(
+        "Please reply by 1 March 2026.", "action"
+    )
+    assert _normalised("Please request a new form.", "action") == ["ask|form|"]
+
+
+def test_synonym_targets_are_never_swapped_again() -> None:
+    from checks.config import ACTION_SYNONYMS
+
+    assert not set(ACTION_SYNONYMS.values()) & set(ACTION_SYNONYMS)
+
+
+def test_date_without_a_year_keeps_month_and_day() -> None:
+    assert _normalised("Reply by 1 March.", "date") == ["--03-01"]

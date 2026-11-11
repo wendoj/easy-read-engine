@@ -12,8 +12,11 @@ MAX_SENTENCE_WORDS = 15
 
 # Key-fact actions, version 1 (design "Key-fact extraction and normalisation").
 # Common Easy Read swaps for a required action's verb. Keys are spaCy lemmas,
-# with phrasal verbs written as "verb particle". Kept short on purpose, and
-# listed in the rule report, so no one is surprised by what P1 accepts.
+# with phrasal verbs written as "verb particle". A key can also be a verb and
+# its object ("make a payment"): the object is used up by the swap, so "Make a
+# payment of £45" and "Pay £45" give the same action. Swaps don't chain. Kept
+# short on purpose, with only clear same-meaning pairs, and listed in the rule
+# report, so no one is surprised by what P1 accepts.
 ACTION_SYNONYMS: dict[str, str] = {
     "contact": "phone",
     "call": "phone",
@@ -26,6 +29,14 @@ ACTION_SYNONYMS: dict[str, str] = {
     "provide": "give",
     "inform": "tell",
     "notify": "tell",
+    "make a payment": "pay",
+    "make an application": "apply",
+    "respond": "reply",
+    "write back": "reply",
+    "attend": "go",
+    "request": "ask",
+    "obtain": "get",
+    "retain": "keep",
 }
 
 # Verb lemmas that look like imperatives in letters but ask for no action
@@ -35,6 +46,19 @@ NON_ACTION_VERBS: frozenset[str] = frozenset({"thank", "note", "find"})
 # P3: the most main verb clauses a sentence may have. See p3_one_idea.py for
 # what counts as a clause.
 MAX_CLAUSES_PER_SENTENCE = 1
+# P3: reporting verbs. "The letter says you must pay £45." is one idea (what
+# the letter says), so the clause after one of these verbs is not counted when
+# the subject is the letter, a named sender or "it". Easy Read rules list this
+# wording as the allowed way to report what a letter asks.
+REPORTING_VERBS: frozenset[str] = frozenset({"say", "tell", "show", "mean", "think", "know"})
+
+# P4: past participles that read as adjectives after "you are ... to" ("You
+# are entitled to Housing Benefit.", "You are required to pay."). They describe
+# the reader's state, not an action done to them, and have no plain active
+# form, so P4 lets them pass when there is no "by ..." agent. Lemmas.
+STATAL_PARTICIPLES: frozenset[str] = frozenset(
+    {"entitle", "require", "allow", "suppose", "expect"}
+)
 
 # P5: common-word list files in checks/wordlist/ (sources and licences in its
 # README.md). A word passes if its lemma or its written form is in any of them.

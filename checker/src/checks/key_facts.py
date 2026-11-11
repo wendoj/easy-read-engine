@@ -414,11 +414,18 @@ def _xcomp_verb(tok: Token) -> Token | None:
     return next((c for c in tok.children if c.dep_ == "xcomp" and c.pos_ == "VERB"), None)
 
 
+def _has_you_object(tok: Token) -> bool:
+    return any(c.dep_ in ("dobj", "obj") and c.lower_ == "you" for c in tok.children)
+
+
 def _action_verb(tok: Token) -> Token | None:
     """The verb of a required action headed at `tok`, if there is one.
 
     Covers imperatives ("Send the form"), "please" clauses, "you must / you
-    should" clauses, "you need to / you have to" and "you are required to".
+    should" clauses (also inside "The letter says you must ..."), "you need to /
+    you have to", "you are required / asked / expected to" and their active
+    forms "The council asks / requires / expects you to". The passive and the
+    active form give the same action, so a P4 rewrite keeps P1 passing.
     """
     children = list(tok.children)
     if tok.tag_ == "VB":
@@ -434,8 +441,24 @@ def _action_verb(tok: Token) -> Token | None:
             return tok
     if tok.lemma_.lower() in ("need", "have") and _has_you_subject(tok):
         return _xcomp_verb(tok)
-    if tok.lemma_.lower() in ("require", "ask", "expect") and _has_you_subject(tok, ("nsubjpass",)):
+    if tok.lemma_.lower() in ("require", "ask", "expect") and (
+        _has_you_subject(tok, ("nsubjpass",)) or _has_you_object(tok)
+    ):
         return _xcomp_verb(tok)
+    if tok.lemma_.lower() in ("require", "ask", "expect"):
+        # "The council expects you to sign": the small model often parses
+        # "you to sign" as a ccomp with "you" as its subject.
+        return next(
+            (
+                c
+                for c in tok.children
+                if c.dep_ == "ccomp"
+                and c.tag_ == "VB"
+                and _has_you_subject(c)
+                and any(g.dep_ == "aux" and g.lower_ == "to" for g in c.children)
+            ),
+            None,
+        )
     return None
 
 
@@ -462,6 +485,29 @@ def _action_span(verb: Token) -> tuple[int, int]:
     return tokens[0].idx, tokens[-1].idx + len(tokens[-1])
 
 
+def _strip_articles(phrase: str) -> str:
+    return " ".join(w for w in phrase.split() if w not in ("a", "an", "the"))
+
+
+# ACTION_SYNONYMS keys without articles: "make a payment" is looked up as
+# "make payment", the verb lemma followed by its object lemma.
+_SYNONYMS = {_strip_articles(word): target for word, target in ACTION_SYNONYMS.items()}
+
+
+def _apply_synonyms(phrase: str, objects: list[str]) -> tuple[str, list[str]]:
+    """Swap a verb phrase for its ACTION_SYNONYMS target.
+
+    A "verb object" entry ("make a payment") is tried first and uses up the
+    object, so "Make a payment" and "Pay" give the same action. Swaps don't
+    chain: a target is never looked up again.
+    """
+    for obj in objects:
+        target = _SYNONYMS.get(f"{phrase} {obj}")
+        if target is not None:
+            return target, [o for o in objects if o != obj]
+    return _SYNONYMS.get(phrase, phrase), objects
+
+
 def _action_candidates(
     docs: list[tuple[int, Doc]], facts: list[_Candidate]
 ) -> list[_Candidate]:
@@ -484,9 +530,6 @@ def _action_candidates(
                 if c.dep_ == "prt" or (c.dep_ == "advmod" and c.lower_ in _PARTICLES and c.i > verb.i)
             ]
             phrase = " ".join([lemma, *particles])
-            phrase = ACTION_SYNONYMS.get(phrase, phrase)
-            if any(c.dep_ == "neg" for c in verb.children):
-                phrase = f"not {phrase}"
 
             start, end = _action_span(verb)
             start, end = start + offset, end + offset
@@ -500,6 +543,9 @@ def _action_candidates(
             object_lemmas = sorted(
                 {o.lemma_.lower() for o in objects if o.pos_ in ("NOUN", "PROPN") and not in_fact(o)}
             )
+            phrase, object_lemmas = _apply_synonyms(phrase, object_lemmas)
+            if any(c.dep_ == "neg" for c in verb.children):
+                phrase = f"not {phrase}"
             fact_values = sorted(
                 f"{f.type}={f.normalised}" for f in inside if f.type in _ACTION_FACT_TYPES
             )

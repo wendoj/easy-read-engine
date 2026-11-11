@@ -42,6 +42,49 @@ times = st.sampled_from(["9am", "10:30am", "2pm", "14:30", "11.15am"])
 FACT_VALUES = {"money": money, "date": dates, "reference": references, "phone": phones,
                "time": times}  # fmt: skip
 
+# --- required actions --------------------------------------------------------
+
+# Verbs and objects for "You are asked to V the O." and its active form. Each
+# verb parses as a verb with "the O" as its object in both forms.
+ACTION_VERBS = ["send", "sign", "check", "return", "complete", "bring", "post", "keep"]
+ACTION_OBJECTS = ["form", "letter", "bill", "card", "application", "payment slip"]
+SENDERS = ["council", "office", "bank", "doctor", "landlord", "team"]
+
+
+@st.composite
+def split_payment_actions(draw: st.DrawFn) -> tuple[str, str, str]:
+    """A required payment with an amount and a date, and a two-line split of it.
+
+    Returns (Original sentence, first line, second line). The split is the
+    kind of rewrite P3 asks for: the amount on one line, the date on the next.
+    """
+    amount, when = draw(money), draw(dates)
+    original = draw(st.sampled_from([
+        "You must pay {m} by {d}.", "Please pay {m} by {d}.", "You need to pay {m} by {d}.",
+    ])).format(m=amount, d=when)  # fmt: skip
+    first = draw(st.sampled_from(["You must pay {m}.", "You need to pay {m}."])).format(m=amount)
+    second = draw(st.sampled_from(["Pay it by {d}.", "You must pay it by {d}."])).format(d=when)
+    return original, first, second
+
+
+@st.composite
+def asked_actions(draw: st.DrawFn) -> tuple[str, str]:
+    """A passive "You are asked to V the O." and its active form with a named sender."""
+    verb = draw(st.sampled_from(ACTION_VERBS))
+    obj = draw(st.sampled_from(ACTION_OBJECTS))
+    sender = draw(st.sampled_from(SENDERS))
+    asking = draw(st.sampled_from([("asked", "asks"), ("required", "requires")]))
+    return (
+        f"You are {asking[0]} to {verb} the {obj}.",
+        f"The {sender} {asking[1]} you to {verb} the {obj}.",
+    )
+
+
+@st.composite
+def day_months(draw: st.DrawFn) -> tuple[int, int]:
+    """A (day, month) that exists in every year: day 1 to 28."""
+    return draw(st.integers(min_value=1, max_value=28)), draw(st.integers(min_value=1, max_value=12))
+
 # --- passive sentences and their active forms ---------------------------------
 
 # (base, past tense, past participle, -ing form)

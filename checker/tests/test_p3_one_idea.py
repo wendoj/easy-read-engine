@@ -131,5 +131,40 @@ def test_need_to_passes() -> None:
     assert check_p3("", [], _lines(["You need to pay £45."])).passed
 
 
+def test_letter_says_you_must_pay_passes() -> None:
+    """Allowed wording from the Easy Read rules. **Validates: Requirements 3.1; P3**"""
+    lines = _lines([
+        "The letter says you must pay £45 by 1 April 2026.",
+        "The council says you can ask for a review.",
+        "It says you must send the form.",
+        "The letter tells you that you must pay.",
+    ])  # fmt: skip
+    result = check_p3("", [], lines)
+    assert result.passed, result.details
+
+
+def test_reporting_verb_with_a_second_idea_still_fails() -> None:
+    """Checker-must-fail cases. **Validates: Requirements 3.1; P3**"""
+    lines = _lines([
+        "The letter says you must pay because you missed a payment.",
+        "The letter says you must pay £45 and you must send the form.",
+        "We have received your form and we will respond by 14 March 2026.",
+        "You must pay because you missed a payment.",
+    ])  # fmt: skip
+    assert check_p3("", [], lines).line_ids == ["l1", "l2", "l3", "l4"]
+
+
+def test_active_request_with_a_to_verb_passes() -> None:
+    """The active rewrite P4 asks for must not fail P3."""
+    lines = _lines(["The council expects you to sign the form.", "The council asks you to send the form."])
+    result = check_p3("", [], lines)
+    assert result.passed, result.details
+
+
+def test_reported_clause_after_a_pronoun_subject_still_counts() -> None:
+    # Only the letter, a named sender or "it" can report: "you think" is a second idea.
+    assert not check_p3("", [], _lines(["You think you must pay £45."])).passed
+
+
 def test_no_lines_pass() -> None:
     assert check_p3("", [], []).passed

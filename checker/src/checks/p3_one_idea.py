@@ -14,7 +14,16 @@ What counts as a main verb clause:
 
 A `ccomp` or `advcl` with no subject of its own is not counted. These are
 mostly "to" clauses that finish the main idea ("the money you pay **to live**
-in your home"), and counting them would fail plain one-idea sentences.
+in your home"), and counting them would fail plain one-idea sentences. A "to"
+verb is not counted even when the parse gives it a subject ("The council
+expects **you to sign** the form").
+
+A `ccomp` after a reporting verb (`REPORTING_VERBS`: "say", "tell", ...) is not
+counted either when the root's subject is a noun ("the letter", "the
+council") or "it". "The letter says you must pay £45." is one idea: what the
+letter says. Verbs joined to that `ccomp` by "and" still count, and so does
+any `advcl`, so "The letter says you must pay because you missed a payment."
+still fails.
 
 Known limit: the small model sometimes tags a sentence-initial verb as a noun
 ("Phone the council ..."). The root still counts as 1 clause, so this only
@@ -23,26 +32,56 @@ matters when a later clause is also mislabelled.
 This module never logs, and `details` hold line IDs and counts, never text (R7.4).
 """
 
-from spacy.tokens import Span
+from spacy.tokens import Span, Token
 
-from checks.config import MAX_CLAUSES_PER_SENTENCE
+from checks.config import MAX_CLAUSES_PER_SENTENCE, REPORTING_VERBS
 from checks.models import CheckResult, KeyFact, Line
 from checks.sentences import get_nlp
 
 _VERB_POS = frozenset({"VERB", "AUX"})
 _CLAUSE_DEPS = frozenset({"ccomp", "advcl"})
 _SUBJECT_DEPS = frozenset({"nsubj", "nsubjpass", "csubj", "csubjpass", "expl"})
+_NOUN_POS = frozenset({"NOUN", "PROPN"})
+
+
+def _is_reporting(root: Token) -> bool:
+    """Whether `root` is a reporting verb whose subject is a noun or "it"."""
+    if root.lemma_.lower() not in REPORTING_VERBS:
+        return False
+    return any(
+        c.dep_ == "nsubj" and (c.pos_ in _NOUN_POS or c.lower_ == "it") for c in root.children
+    )
+
+
+def _is_infinitive(verb: Token) -> bool:
+    """A "to" verb such as "sign" in "The council expects you to sign the form".
+
+    The small model sometimes gives such a verb "you" as its own subject, but
+    it finishes the main idea, so it is not counted as a clause.
+    """
+    return verb.tag_ == "VB" and any(c.dep_ == "aux" and c.lower_ == "to" for c in verb.children)
 
 
 def count_clauses(sent: Span) -> int:
     """Number of main verb clauses in one parsed sentence, as defined above."""
     root = sent.root
+    reporting = _is_reporting(root)
+    reported = None
     count = 1
     for token in sent:
         if token.dep_ == "conj" and token.head == root and token.pos_ in _VERB_POS:
             count += 1
         elif token.dep_ in _CLAUSE_DEPS and any(c.dep_ in _SUBJECT_DEPS for c in token.children):
-            count += 1
+            if _is_infinitive(token):
+                continue
+            if reporting and reported is None and token.dep_ == "ccomp" and token.head == root:
+                reported = token
+            else:
+                count += 1
+    if reported is not None:
+        count += sum(
+            1 for t in reported.children if t.dep_ == "conj" and t.pos_ in _VERB_POS
+        )
     return count
 
 

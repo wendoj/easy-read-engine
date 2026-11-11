@@ -27,6 +27,8 @@ Other layout rules:
 - One idea per Line. Each Line keeps the ID of the sentence in the Original it came from.
 - Speak to the reader as "you". Name the sender ("The council", "Your doctor"), not "we" without a name.
 - Keep dates, times, amounts, reference numbers, phone numbers and addresses exactly as they appear. See `safety.md`.
+- A required action may be split over lines from the same source sentence ("You must pay £45." then "Pay it by 1 April 2026."). P1 still finds it. A year may be added to a date that has none, but never dropped.
+- P3 counts "The letter says you must ..." as one idea. P4 allows "You are entitled to ...", "You are required to ...", "You are allowed to ...", "You are expected to ..." and "You are supposed to ...". Other passives, such as "You are asked to ...", still fail: write "The council asks you to ...".
 
 ## Tone (P10)
 
