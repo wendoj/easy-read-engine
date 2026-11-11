@@ -11,7 +11,7 @@
  *
  * Seams for later tasks:
  * - Pictures load from `/symbols/<id>` (task 23); `ResultFooter` shows the ARASAAC attribution (R4.4).
- * - Task 24: the pass count and report panel replace `StatusBadge`; flagged rows get rule details.
+ * - Task 24: `RuleReport` shows the pass count and opens the report; flagged lines name their failed rules.
  * - Task 25: key-fact highlighting goes in `OriginalSentence` and `LineText`.
  * - Task 26: Edit and "Undo edit" go in `LineRow`'s actions slot; edits replace the result in context.
  * - Task 27: the full blocked state replaces `WithheldMessage`.
@@ -23,9 +23,9 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import type { Status } from "@/src/pipeline/types";
 import { ARASAAC_ATTRIBUTION_PARTS } from "@/src/symbols/attribution";
 import { useConversion } from "@/src/ui/conversion-context";
+import { lineMarkerLabel } from "@/src/ui/rule-report";
 import {
   type LineRow as LineRowData,
   type OriginalSegment,
@@ -33,6 +33,7 @@ import {
   scrollTopToReveal,
 } from "@/src/ui/result-layout";
 import { cn } from "cn";
+import { RuleReport } from "./rule-report";
 
 const PICTURE_SIZE = 64;
 
@@ -53,16 +54,6 @@ function SafetyNotice({ text }: { text: string }) {
     <Alert role="note">
       <AlertDescription className="text-base text-foreground">{text}</AlertDescription>
     </Alert>
-  );
-}
-
-/** Task 24 replaces this with the pass count that opens the report. */
-function StatusBadge({ status }: { status: Status }) {
-  const label = { passed: "All checks passed", flagged: "Some checks failed", blocked: "Withheld" }[status];
-  return (
-    <Badge variant={status === "passed" ? "secondary" : "destructive"} className="h-7 px-3 text-sm">
-      {label}
-    </Badge>
   );
 }
 
@@ -150,8 +141,11 @@ function LineRow({
         >
           <LineText text={row.text} />
           {row.flagged && (
-            <Badge variant="destructive" className="ml-3 h-6 px-2 align-middle text-sm">
-              Failed a check
+            <Badge
+              variant="destructive"
+              className="ml-3 h-auto min-h-6 px-2 align-middle text-sm whitespace-normal"
+            >
+              {lineMarkerLabel(row.failedRules)}
             </Badge>
           )}
         </button>
@@ -252,7 +246,7 @@ export function ResultView() {
     <div className="flex flex-col gap-6">
       <SafetyNotice text={result.notice} />
       <div className="flex flex-wrap items-center gap-3">
-        <StatusBadge status={layout.status} />
+        <RuleReport input={result} synonyms={result.actionSynonyms} />
         {/* Task 28: Export button, disabled when layout.withheld. */}
       </div>
       <div className="grid items-start gap-8 md:grid-cols-2">

@@ -19,6 +19,7 @@ export type SymbolMatch = Schemas["SymbolMatch"];
 export type Health = Schemas["Health"];
 export type ValidationIssue = Schemas["ValidationIssue"];
 export type CheckRequest = Schemas["CheckRequest"];
+export type ActionSynonym = Schemas["ActionSynonym"];
 
 export const sentenceSchema = z.object({
   id: z.string(),
@@ -55,6 +56,12 @@ export const symbolMatchSchema = z.object({
   score: z.number(),
 });
 
+/** One entry of P1's action synonym table (`ACTION_SYNONYMS` in checker/src/checks/config.py). */
+export const actionSynonymSchema = z.object({
+  word: z.string(),
+  counts_as: z.string(),
+});
+
 export const healthSchema = z.object({
   status: z.enum(["ok", "starting"]),
   spacy_loaded: z.boolean(),
@@ -82,6 +89,7 @@ export type _SchemaMatchesGenerated = [
   Assert<Exact<z.infer<typeof analysisSchema>, Analysis>>,
   Assert<Exact<z.infer<typeof checkResultSchema>, CheckResult>>,
   Assert<Exact<z.infer<typeof symbolMatchSchema>, SymbolMatch>>,
+  Assert<Exact<z.infer<typeof actionSynonymSchema>, ActionSynonym>>,
   Assert<Exact<z.infer<typeof healthSchema>, Health>>,
   Assert<Exact<z.infer<typeof validationErrorSchema>["detail"][number], ValidationIssue>>,
 ];

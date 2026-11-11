@@ -1,7 +1,7 @@
 /**
  * Pipeline types (design "Pipeline orchestrator" and "Data Models").
  */
-import type { CheckResult, KeyFact, Line, Sentence, SymbolMatch } from "@/src/checker-client/schemas";
+import type { ActionSynonym, CheckResult, KeyFact, Line, Sentence, SymbolMatch } from "@/src/checker-client/schemas";
 import type {
   JudgePair,
   JudgeResult,
@@ -41,6 +41,12 @@ export type ConversionResult = {
   judgeAvailable: boolean;
   /** Provider and model for each model call that answered. */
   models: ModelUse[];
+  /**
+   * The verb swaps P1 accepted in required actions, listed in the rule report.
+   * From the checker's `GET /config/action-synonyms`; `ACTION_SYNONYMS` in
+   * checker/src/checks/config.py is the only copy.
+   */
+  actionSynonyms: ActionSynonym[];
 };
 
 export type PipelineStage = "analysing" | "rewriting" | "checking" | "regenerating";
@@ -66,6 +72,8 @@ export interface PipelineChecker {
   check(request: { original: string; key_facts: KeyFact[]; lines: Line[] }): Promise<CheckResult[]>;
   /** `find_symbol`, best first. Used to pick a pictogram per line. */
   symbols(q: string, limit?: number): Promise<SymbolMatch[]>;
+  /** P1's action synonym table, copied into the result for the rule report. */
+  actionSynonyms(): Promise<ActionSynonym[]>;
 }
 
 /**

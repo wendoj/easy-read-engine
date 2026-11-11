@@ -4,7 +4,7 @@
  * only zod schemas and types.
  */
 import { z } from "zod";
-import { checkResultSchema, keyFactSchema, sentenceSchema } from "@/src/checker-client/schemas";
+import { actionSynonymSchema, checkResultSchema, keyFactSchema, sentenceSchema } from "@/src/checker-client/schemas";
 import type { ConvertEvent } from "@/src/convert/handler";
 import type { ConversionResult, PipelineStage, ProgressEvent } from "@/src/pipeline/types";
 
@@ -41,6 +41,7 @@ export const conversionResultSchema = z.object({
       model: z.string(),
     }),
   ),
+  actionSynonyms: z.array(actionSynonymSchema),
 });
 
 const resultSchema = z.object({ type: z.literal("result"), result: conversionResultSchema });

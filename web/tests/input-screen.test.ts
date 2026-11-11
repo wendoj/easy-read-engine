@@ -60,6 +60,7 @@ const result: ConversionResult = {
   notice: "This is a simplified version. The original letter is the official one.",
   judgeAvailable: true,
   models: [],
+  actionSynonyms: [],
 };
 
 describe("NdjsonParser", () => {

@@ -5,7 +5,13 @@
  */
 import type { ValidationIssue } from "./schemas";
 
-export type CheckerRoute = "/analyse" | "/key-facts" | "/check" | "/symbols" | "/health";
+export type CheckerRoute =
+  | "/analyse"
+  | "/key-facts"
+  | "/check"
+  | "/symbols"
+  | "/config/action-synonyms"
+  | "/health";
 
 export type UnavailableReason = "network" | "timeout" | "server_error" | "invalid_response";
 

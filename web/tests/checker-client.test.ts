@@ -126,6 +126,14 @@ describe("routes", () => {
     expect(f.calls[0].url).toBe(`${BASE}/health`);
     expect(f.calls[0].init.method).toBe("GET");
   });
+
+  it("actionSynonyms gets /config/action-synonyms", async () => {
+    const table = [{ word: "contact", counts_as: "phone" }];
+    const f = fakeFetch(() => json(200, table));
+    expect(await createCheckerClient({ baseUrl: BASE, fetch: f.fetch }).actionSynonyms()).toEqual(table);
+    expect(f.calls[0].url).toBe(`${BASE}/config/action-synonyms`);
+    expect(f.calls[0].init.method).toBe("GET");
+  });
 });
 
 describe("failures", () => {

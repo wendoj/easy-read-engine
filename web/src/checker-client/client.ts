@@ -10,6 +10,7 @@
 import type { z } from "zod";
 import { type CheckerRoute, CheckerRequestError, CheckerUnavailable } from "./errors";
 import {
+  type ActionSynonym,
   type Analysis,
   type CheckRequest,
   type CheckResult,
@@ -17,6 +18,7 @@ import {
   type KeyFact,
   type SymbolMatch,
   type ValidationIssue,
+  actionSynonymSchema,
   analysisSchema,
   checkResultSchema,
   healthSchema,
@@ -43,6 +45,8 @@ export interface CheckerClient {
   keyFacts(text: string): Promise<KeyFact[]>;
   check(request: CheckRequest): Promise<CheckResult[]>;
   symbols(q: string, limit?: number): Promise<SymbolMatch[]>;
+  /** P1's action synonym table, for the rule report. */
+  actionSynonyms(): Promise<ActionSynonym[]>;
   health(): Promise<Health>;
 }
 
@@ -133,6 +137,7 @@ export function createCheckerClient(options: CheckerClientOptions = {}): Checker
       if (limit !== undefined) query.set("limit", String(limit));
       return request("/symbols", { method: "GET", query }, symbolMatchSchema.array());
     },
+    actionSynonyms: () => request("/config/action-synonyms", { method: "GET" }, actionSynonymSchema.array()),
     health: () => request("/health", { method: "GET" }, healthSchema),
   };
 }

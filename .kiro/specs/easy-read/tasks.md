@@ -178,13 +178,13 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
 
 ### Report and export
 
-- [-] 24. Build the rule report and pass count
+- [x] 24. Build the rule report and pass count
   - Pass count at the top ("10 of 10 checks passed"); selecting it opens the report panel
   - The report lists each rule, its result, the lines it applied to, and its reasons; it also lists the action synonym table used by P1
   - Flagged state: failed rules in red, with a marker on the affected lines
   - _Requirements: 3.4, 6.1, 6.2, 6.3_
 
-- [~] 25. Highlight key facts in both columns
+- [-] 25. Highlight key facts in both columns
   - Use one colour per fact, matched across the Original and the Easy Read lines
   - _Requirements: 5.3_
 

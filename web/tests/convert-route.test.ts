@@ -76,6 +76,9 @@ function fakeChecker(calls: Calls, opts: { down?: boolean } = {}): ConvertChecke
     async symbols() {
       return [];
     },
+    async actionSynonyms() {
+      return [{ word: "contact", counts_as: "phone" }];
+    },
   };
 }
 

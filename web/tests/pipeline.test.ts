@@ -133,6 +133,9 @@ function fakes(s: Scenario, opts: { failCheckOn?: number; failAnalyse?: boolean 
     async symbols() {
       return [];
     },
+    async actionSynonyms() {
+      return [{ word: "contact", counts_as: "phone" }];
+    },
   };
 
   let splitAt = 0;
@@ -415,6 +418,7 @@ describe("convert: examples", () => {
     ]);
     expect(result.judgeAvailable).toBe(true);
     expect(result.models.map((m) => m.task)).toEqual(["rewrite", "judge"]);
+    expect(result.actionSynonyms).toEqual([{ word: "contact", counts_as: "phone" }]);
   });
 
   it("maps a missing fact to the lines from its source sentence", async () => {

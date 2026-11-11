@@ -58,7 +58,10 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
   const models: ModelUse[] = [];
 
   progress("analysing", 1);
-  const { sentences, key_facts: keyFacts } = await checker.analyse(original); // step 4
+  const [{ sentences, key_facts: keyFacts }, actionSynonyms] = await Promise.all([
+    checker.analyse(original), // step 4
+    checker.actionSynonyms(), // for the rule report
+  ]);
   const sourceText = new Map(sentences.map((s) => [s.id, s.text]));
 
   progress("rewriting", 1);
@@ -96,6 +99,7 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
       const result = decide(original, sentences, keyFacts, plain, checks, attempt, {
         judgeAvailable: judged.available,
         models,
+        actionSynonyms,
       });
       log({
         msg: "pipeline_done",

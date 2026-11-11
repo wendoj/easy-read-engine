@@ -6,7 +6,8 @@
  * shown exactly as confirmed (R1.6). Nothing here rewrites the Original.
  */
 import type { Line, Sentence } from "@/src/checker-client/schemas";
-import type { ConversionResult, Status } from "@/src/pipeline/types";
+import type { ConversionResult, Rule, Status } from "@/src/pipeline/types";
+import { lineMarkers } from "./rule-report";
 
 /** A run of the Original: either a sentence from `analyse`, or text between sentences. */
 export type OriginalSegment =
@@ -72,8 +73,10 @@ export interface LineRow {
   symbolSrc: string | null;
   /** Null when the source sentence isn't in the Original; selecting the line then highlights nothing. */
   sourceSentenceId: string | null;
-  /** True when a failed rule names this line. Task 24 adds which rules. */
+  /** True when a failed rule names this line. */
   flagged: boolean;
+  /** The failed rules that name this line, in rule order (task 24). */
+  failedRules: Rule[];
 }
 
 export interface ResultLayout {
@@ -91,15 +94,19 @@ export function resultLayout(result: ConversionResult): ResultLayout {
     // The server sends no lines when blocked; never show any even if some arrive.
     return { status: result.status, withheld: true, segments, rows: [] };
   }
-  const flaggedIds = new Set(result.checks.filter((c) => !c.passed).flatMap((c) => c.line_ids));
+  const markers = lineMarkers(result);
   const sentenceIds = new Set(sentences.map((s) => s.id));
-  const rows = result.lines.map((line) => ({
-    id: line.id,
-    text: line.text,
-    symbolSrc: line.symbol_id === null ? null : symbolSrc(line.symbol_id),
-    sourceSentenceId: sentenceIds.has(line.source_sentence_id) ? line.source_sentence_id : null,
-    flagged: flaggedIds.has(line.id),
-  }));
+  const rows = result.lines.map((line) => {
+    const failedRules = markers.get(line.id) ?? [];
+    return {
+      id: line.id,
+      text: line.text,
+      symbolSrc: line.symbol_id === null ? null : symbolSrc(line.symbol_id),
+      sourceSentenceId: sentenceIds.has(line.source_sentence_id) ? line.source_sentence_id : null,
+      flagged: failedRules.length > 0,
+      failedRules,
+    };
+  });
   return { status: result.status, withheld: false, segments, rows };
 }
 

@@ -2,7 +2,7 @@
  * Pure decisions for the pipeline: which lines to regenerate, which key facts
  * need a new line, and the final status (design "Pipeline orchestrator").
  */
-import type { CheckResult, KeyFact, Line, Sentence } from "@/src/checker-client/schemas";
+import type { ActionSynonym, CheckResult, KeyFact, Line, Sentence } from "@/src/checker-client/schemas";
 import type { ConversionResult, ModelUse, Rule, Status } from "./types";
 
 export const MAX_ATTEMPTS = 3;
@@ -113,6 +113,7 @@ export function statusOf(checks: readonly CheckResult[]): Status {
 export interface DecideExtras {
   judgeAvailable: boolean;
   models: ModelUse[];
+  actionSynonyms?: ActionSynonym[];
 }
 
 /**
@@ -140,5 +141,6 @@ export function decide(
     notice: NOTICE,
     judgeAvailable: extras.judgeAvailable,
     models: extras.models,
+    actionSynonyms: extras.actionSynonyms ?? [],
   };
 }
