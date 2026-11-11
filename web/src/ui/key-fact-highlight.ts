@@ -223,7 +223,11 @@ export function factStyles(keyFacts: readonly KeyFact[], failedFactIds: readonly
 export function pieceClassName(piece: HighlightPiece, styles: ReadonlyMap<string, FactStyle>): string | null {
   const id = piece.factIds.at(-1);
   const style = id === undefined ? undefined : styles.get(id);
-  if (!style) return null;
+  return style ? factClassName(style) : null;
+}
+
+/** Tailwind classes for one fact's highlight. The blocked state's failed-fact list uses it too (task 27). */
+export function factClassName(style: FactStyle): string {
   const base = `rounded-sm underline decoration-2 underline-offset-4 ${FACT_PALETTE[style.colour % FACT_PALETTE.length]} ${FACT_TYPE_UNDERLINE[style.type]}`;
   return style.failed ? `${base} font-semibold ring-2 ring-destructive` : base;
 }

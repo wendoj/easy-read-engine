@@ -18,20 +18,32 @@
  *   to `/api/check` and puts the checked result in context; "Undo edit" in the toolbar restores
  *   the result before the last edit from memory (`src/ui/line-edit.ts`). A failed check keeps
  *   the editor open with the draft, so the text isn't lost.
- * - Task 27: the full blocked state replaces `WithheldMessage`.
- * - Task 28: the Export button goes in the toolbar, disabled when blocked.
+ * - Task 27: `BlockedState` shows no lines, the failed key facts with their values from the
+ *   Original, and "Undo edit" (block from an edit) or "Start again" (block from the conversion).
+ *   Logic is in `src/ui/blocked-state.ts`.
+ * - Task 28: the Export button goes in the toolbar, enabled only when `canExport(result)`.
  * - Task 29: a result from a sample letter shows "Recorded on <date> with <model>" and says
  *   that P1 to P8 ran again and P9 and P10 are from the recording.
  */
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useMemo, useRef, useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RECORDED_CHECKS_NOTE, type SampleInfo, recordedLabel } from "@/src/samples/sample";
 import { checkEdit } from "@/src/ui/api";
+import {
+  BLOCKED_HEADING,
+  BLOCKED_MESSAGES,
+  type BlockSource,
+  FAILED_FACTS_HEADING,
+  type FailedFact,
+  NO_FAILED_FACTS_MESSAGE,
+  blockSource,
+  failedKeyFacts,
+} from "@/src/ui/blocked-state";
 import { ARASAAC_ATTRIBUTION_PARTS } from "@/src/symbols/attribution";
 import { useConversion } from "@/src/ui/conversion-context";
 import { lineMarkerLabel } from "@/src/ui/rule-report";
@@ -39,6 +51,7 @@ import {
   type FactStyle,
   type HighlightPiece,
   type HighlightedSegment,
+  factClassName,
   pieceClassName,
   pieceTitle,
 } from "@/src/ui/key-fact-highlight";
@@ -58,9 +71,6 @@ import { cn } from "cn";
 import { RuleReport } from "./rule-report";
 
 const PICTURE_SIZE = 64;
-
-export const WITHHELD_MESSAGE =
-  "The Easy Read version was withheld because a key fact did not match the letter.";
 
 function BackLink() {
   return (
@@ -318,13 +328,69 @@ function LineRow({
   );
 }
 
-/** Task 27 replaces this with the full blocked state. */
-function WithheldMessage() {
+/**
+ * Task 27 (R2.5, R9.3, R9.5): no lines, the key facts that failed with their
+ * values from the Original, and one way forward. The Alert has role="alert",
+ * so the message is read out once when it appears.
+ */
+function BlockedState({
+  source,
+  failedFacts,
+  styles,
+  onUndo,
+}: {
+  source: BlockSource;
+  failedFacts: FailedFact[];
+  styles: ReadonlyMap<string, FactStyle>;
+  onUndo: () => void;
+}) {
+  const undoRef = useRef<HTMLButtonElement>(null);
+  // After a blocked edit the editor is gone, so put focus on the way back.
+  useEffect(() => {
+    if (source === "edit") undoRef.current?.focus();
+  }, [source]);
   return (
-    <Alert variant="destructive">
-      <AlertDescription className="text-base text-destructive">{WITHHELD_MESSAGE}</AlertDescription>
-    </Alert>
+    <div className="flex flex-col gap-4">
+      <Alert variant="destructive" role="alert">
+        <AlertTitle className="text-lg font-semibold">{BLOCKED_HEADING}</AlertTitle>
+        <AlertDescription className="text-base text-destructive">{BLOCKED_MESSAGES[source]}</AlertDescription>
+      </Alert>
+      <section aria-labelledby="failed-facts-heading" className="flex flex-col gap-3">
+        <h3 id="failed-facts-heading" className="text-xl font-semibold">
+          {FAILED_FACTS_HEADING}
+        </h3>
+        {failedFacts.length === 0 ? (
+          <p className="text-lg">{NO_FAILED_FACTS_MESSAGE}</p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {failedFacts.map((fact) => {
+              const style = styles.get(fact.id);
+              return (
+                <li key={fact.id} className="text-lg leading-relaxed">
+                  <span className="font-medium">{capitalise(fact.typeLabel)}: </span>
+                  <span className={style ? factClassName(style) : undefined}>{fact.value}</span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+      {source === "edit" ? (
+        <Button ref={undoRef} type="button" size="lg" className="h-11 w-fit px-6 text-base" onClick={onUndo}>
+          Undo edit
+        </Button>
+      ) : (
+        // The input screen is kept on navigation, so the confirmed text is still there.
+        <Link href="/" className={buttonVariants({ size: "lg", className: "h-11 w-fit px-6 text-base" })}>
+          Start again
+        </Link>
+      )}
+    </div>
   );
+}
+
+function capitalise(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /** R4.4: the ARASAAC attribution, worded as in checker/data/LICENSE-pictograms.md. */
@@ -441,6 +507,8 @@ export function ResultView() {
   };
 
   const undoAllowed = edit === null && canUndo(history, result);
+  const blocked = blockSource(result, history);
+  const failedFacts = useMemo(() => (result ? failedKeyFacts(result) : []), [result]);
 
   /** Restores the result before the last edit exactly. It was checked already, so no server call. */
   const onUndo = () => {
@@ -468,12 +536,13 @@ export function ResultView() {
       {sample !== null && <SampleLabel sample={sample} />}
       <div className="flex flex-wrap items-center gap-3">
         <RuleReport input={result} synonyms={result.actionSynonyms} />
-        {undoAllowed && (
+        {/* When blocked, "Undo edit" is in the blocked state instead. */}
+        {undoAllowed && blocked === null && (
           <Button type="button" variant="outline" size="lg" className="h-11 px-6 text-base" onClick={onUndo}>
             Undo edit
           </Button>
         )}
-        {/* Task 28: Export button, disabled when layout.withheld. */}
+        {/* Task 28: Export button, disabled unless canExport(result) (src/ui/blocked-state.ts, R9.5). */}
       </div>
       <div className="grid items-start gap-8 md:grid-cols-2">
         <section aria-labelledby="original-heading" className="flex flex-col gap-3 md:sticky md:top-4">
@@ -493,7 +562,12 @@ export function ResultView() {
             Easy Read
           </h2>
           {layout.withheld ? (
-            <WithheldMessage />
+            <BlockedState
+              source={blocked ?? "conversion"}
+              failedFacts={failedFacts}
+              styles={layout.factStyles}
+              onUndo={onUndo}
+            />
           ) : (
             <ul className="flex flex-col gap-3">
               {layout.rows.map((row) => (

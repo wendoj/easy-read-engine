@@ -195,12 +195,12 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - fast-check properties: `/api/check` never changes the user's text, calls the judge only for edited lines, and returns `"blocked"` whenever P1 fails
   - _Requirements: 9.1 to 9.4_
 
-- [-] 27. Build the blocked state
+- [x] 27. Build the blocked state
   - Show the Original, the failed key facts with their original values, and a message that the output was withheld
   - Offer "Undo edit" when the block came from an edit; disable Export
   - _Requirements: 2.5, 9.3, 9.5_
 
-- [~] 28. Build the print layout and `/api/export`
+- [-] 28. Build the print layout and `/api/export`
   - `web/app/print/page.tsx`: A4, text of at least 16pt, picture column on the left, one line per row, the safety notice at the top of page 1, and the ARASAAC attribution and licence in the footer
   - `/api/export`: render the print page in headless Chromium and return the PDF; run up to 2 exports at once and queue the rest; return 409 when the result is blocked
   - _Requirements: 4.4, 7.1, 8.1, 8.2, 8.3, 9.5_
