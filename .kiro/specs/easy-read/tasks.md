@@ -1,12 +1,12 @@
 # Implementation Plan
 
-Tasks follow the day plan in `docs/brief.md`. Each day ends with something that runs. Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Correctness Properties, and section names to `design.md`.
+## Overview
 
-Non-coding work (reviews, decisions, video, posts) is listed separately at the end, so it is not mistaken for an implementation task.
+Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Correctness Properties, and section names to `design.md`.
 
-Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI".
+## Tasks
 
-## Day 1: go/no-go
+### Setup and go/no-go
 
 - [x] 1. Scaffold the repository
   - Create the folder layout from design "Folder layout": `web/`, `checker/`, `prompts/`, `fixtures/letters/`
@@ -58,7 +58,7 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - fast-check properties: for any pattern of provider failures, entries are tried in order, nothing is called after a success, and no `gemini:` entry is called in production mode
   - _Requirements: 7.5 (supports); design "Model provider"_
 
-- [x] 8. Write the day 1 spike script and record results
+- [x] 8. Write the spike script and record results
   - `fixtures/letters/`: add 3 public sample council letters (supplied by you) and 2 invented letters with no real personal data
   - First draft of `prompts/rewrite.md` using the steering rules
   - `web/scripts/spike.ts`: run each letter through each rewrite candidate; score the output with P1, P2 and P4 through a small CLI wrapper in `checker/`; record tokens per request and time taken
@@ -67,7 +67,7 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - Write the results to `docs/day1-results.md`: pass counts per model, tokens per request against the design's 4,000 and 3,000 estimates, Qwen vision result, ARASAAC endpoint, and coverage
   - _Requirements: supports the go/no-go decision; design Open Questions 1 and 2_
 
-## Day 2: checkers
+### Checkers
 
 - [x] 9. Implement P3, P5, P6 and P7 with their tests
   - P3: count main verb clauses (`ROOT`, `conj` verbs on the root, and `ccomp`/`advcl` heads); fail if more than 1
@@ -102,20 +102,20 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - Make one sample call to each tool to confirm it responds
   - _Requirements: design "Checker service"_
 
-## Day 3: pipeline
+### Pipeline
 
 - [x] 14. Build the checker client
   - `web/src/checker-client/`: a typed `fetch` wrapper using the generated types, with the base URL from `CHECKER_URL`, a request timeout, and a `CheckerUnavailable` error
   - _Requirements: 3.1_
 
-- [-] 15. Write the prompts and the model calls for rewrite, regenerate and judge
+- [x] 15. Write the prompts and the model calls for rewrite, regenerate and judge
   - Prompt files in `prompts/`: `rewrite.md`, `regenerate.md`, `judge.md` (P9, P10 tone and P10 advice in one call) and `vision.md` (handwriting check, then text)
   - `rewrite` and `regenerate` return lines with `text`, `sourceSentenceId` and `symbolQuery`; `judge` returns, for each line, a verdict and a reason for meaning, tone and advice
   - Request JSON through a tool definition, validate it with zod, and retry once on invalid JSON
   - fast-check property: a line with a failed advice verdict always fails P10
   - _Requirements: 3.6, 7.2, 7.3; P9, P10_
 
-- [ ] 16. Build the pipeline orchestrator
+- [~] 16. Build the pipeline orchestrator
   - `web/src/pipeline/`: `convert` with `MAX_ATTEMPTS = 3`, `failingLineIds` and `decide`, following the code in design "Pipeline orchestrator"
   - Map a missing fact to the lines from its source sentence, or ask the regenerate prompt to add a line when there are none
   - Return no lines when `status` is `"blocked"`, and always include the R7.1 notice
@@ -128,47 +128,47 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
     - at most 6 model requests, not counting JSON retries and fallbacks
   - _Requirements: 2.4, 2.5, 3.1 to 3.6, 6.1, 7.1_
 
-- [ ] 17. Build `/api/convert` with streaming, the letter length limit and rate limits
+- [~] 17. Build `/api/convert` with streaming, the letter length limit and rate limits
   - Route handler with `runtime = "nodejs"`; validate the body with zod; reject letters over 1,500 words with a 400 before any model call
   - Stream newline-delimited JSON: progress events, then the final `ConversionResult`
   - Per-IP token bucket and a global daily cap shared with `/api/extract` and `/api/check`, returning the messages in design "Error Handling"
   - Return 503 when the checker is unavailable or every provider in the chain fails
   - _Requirements: 1.6, 1.7, 3.1, 7.4_
 
-- [ ] 18. Build text extraction with `/api/extract`
+- [-] 18. Build text extraction with `/api/extract`
   - Typed PDFs go through `pdfjs-dist`; a PDF with no text layer is treated as an image
   - Images go to the vision chain with `prompts/vision.md`; a handwritten page returns `error: "handwriting"`
   - Check file type and size before any model call
   - _Requirements: 1.2, 1.3, 1.4_
 
-- [ ] 19. Build the fixture script
+- [~] 19. Build the fixture script
   - `npm run fixtures`: convert the 5 fixture letters one at a time and run all 10 checks
   - For each letter, record pass or fail per rule, attempts, and the provider and model that answered; write a summary table to stdout and a JSON file to `fixtures/results/`
-  - Add a `--all` flag for the 20-letter pass-rate run on day 6
+  - Add a `--all` flag for the 20-letter pass-rate run in task 31
   - _Requirements: 3.1, 6.1_
 
-- [ ] 20. Set up the three Kiro hooks
+- [~] 20. Set up the three Kiro hooks
   - Create them with the hook tool, not by hand
   - On save in `checker/src/checks/`: run the matching test file for that checker
   - On save in `prompts/`: run `npm run fixtures`
   - After a task is marked done: fail if any property test is skipped, marked xfail, or deleted compared with the last commit. Kiro has no "before done" trigger, so this uses PostTaskExec
   - _Requirements: brief "Kiro setup"_
 
-## Day 4: pictures and layout
+### Pictures and layout
 
-- [ ] 21. Build the input screen
+- [~] 21. Build the input screen
   - `web/app/page.tsx`: paste box, file upload, and an editable confirm step with a word count against the 1,500-word limit
   - Show the R7.5 notice above the Convert button; show the handwriting message from R1.4
   - Show the progress events from the `/api/convert` stream
   - _Requirements: 1.1 to 1.7, 7.5_
 
-- [ ] 22. Build the side-by-side result screen
+- [~] 22. Build the side-by-side result screen
   - `web/app/result/page.tsx`: the Original on the left; Easy Read lines on the right, with a picture to the left of each line
   - Selecting a line highlights its source sentence using the spans from `analyse`
   - Show the safety notice at the top, with no way to dismiss it
   - _Requirements: 5.1, 5.2, 7.1_
 
-- [ ] 23. Implement pictogram search and the image cache
+- [~] 23. Implement pictogram search and the image cache
   - `find_symbol`: rank by lemma overlap with keywords, plurals and tags, with a bonus for an exact keyword match, and return a score
   - `attachSymbols` in the pipeline: take the top match only above the threshold, otherwise `null`
   - Route `web/app/symbols/[id]/route.ts`: fetch the PNG from ARASAAC on first use, cache it in the `symbol-cache` directory, and serve later requests from the cache
@@ -176,52 +176,52 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - Hypothesis property: `find_symbol` returns only IDs that exist in the index
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-## Day 5: report and export
+### Report and export
 
-- [ ] 24. Build the rule report and pass count
+- [~] 24. Build the rule report and pass count
   - Pass count at the top ("10 of 10 checks passed"); selecting it opens the report panel
   - The report lists each rule, its result, the lines it applied to, and its reasons; it also lists the action synonym table used by P1
   - Flagged state: failed rules in red, with a marker on the affected lines
   - _Requirements: 3.4, 6.1, 6.2, 6.3_
 
-- [ ] 25. Highlight key facts in both columns
+- [~] 25. Highlight key facts in both columns
   - Use one colour per fact, matched across the Original and the Easy Read lines
   - _Requirements: 5.3_
 
-- [ ] 26. Build editing and `/api/check`
+- [~] 26. Build editing and `/api/check`
   - Each line gets an Edit button; on save, call `/api/check` with `editedLineIds`, and update the report, pass count and status
   - The server re-runs P1 to P8 on all lines and judges only the edited lines; it never changes the user's text
   - The client keeps the previous lines for "Undo edit"
   - fast-check properties: `/api/check` never changes the user's text, calls the judge only for edited lines, and returns `"blocked"` whenever P1 fails
   - _Requirements: 9.1 to 9.4_
 
-- [ ] 27. Build the blocked state
+- [~] 27. Build the blocked state
   - Show the Original, the failed key facts with their original values, and a message that the output was withheld
   - Offer "Undo edit" when the block came from an edit; disable Export
   - _Requirements: 2.5, 9.3, 9.5_
 
-- [ ] 28. Build the print layout and `/api/export`
+- [~] 28. Build the print layout and `/api/export`
   - `web/app/print/page.tsx`: A4, text of at least 16pt, picture column on the left, one line per row, the safety notice at the top of page 1, and the ARASAAC attribution and licence in the footer
   - `/api/export`: render the print page in headless Chromium and return the PDF; run up to 2 exports at once and queue the rest; return 409 when the result is blocked
   - _Requirements: 4.4, 7.1, 8.1, 8.2, 8.3, 9.5_
 
-## Day 6: polish and evidence
+### Polish and evidence
 
-- [ ] 29. Add the recorded sample letters
+- [~] 29. Add the recorded sample letters
   - Record results for the public sample letters, labelled with the date and the model that answered, and store them in `web/data/samples/`
   - Add a "Try a sample letter" list to the input screen; re-run P1 to P8 through the checker when a sample loads
   - _Requirements: 3.1; design "Protecting the live quota"_
 
-- [ ] 30. Add the pipeline property test
+- [~] 30. Add the pipeline property test
   - Use the strategy from task 11 to send synthetic letters through the full pipeline; every output must satisfy P1 to P8
   - Mark the test as needing a model, so it runs with the fixture job and not on every save
   - _Requirements: correctness properties, property-based testing items 1 and 2_
 
-- [ ] 31. Run the pass-rate measurement
+- [~] 31. Run the pass-rate measurement
   - Run `npm run fixtures -- --all` on the 20 public sample letters and save the results table to `docs/pass-rates.md`
   - _Requirements: none; evidence for the write-up_
 
-- [ ] 32. Containerise and deploy
+- [~] 32. Containerise and deploy
   - `checker/Dockerfile`: Python slim image with the spaCy model installed at build time, and a health check on `/health`
   - `web/Dockerfile`: Next.js `output: "standalone"` with Chromium and its system libraries
   - `docker-compose.yml`:
@@ -233,23 +233,55 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - Smoke test on the live URL: convert a sample letter, export a PDF, and confirm the start-up check rejects a `gemini:` entry in production
   - _Requirements: 7.4; design "Deployment"_
 
-## Day 7: ship
+### Ship
 
-- [ ] 33. Write the README and licence notes
+- [~] 33. Write the README and licence notes
   - Cover setup, test commands, the architecture summary, the model providers and their free limits, and the Easy Read guidance source
   - State that the code is MIT and the pictograms are CC BY-NC-SA, with the full ARASAAC attribution
   - Confirm `.kiro/` (specs, steering, hooks, MCP config) is committed
   - _Requirements: 4.4_
 
-## Non-coding checklist (you)
+## Notes
 
-- [ ] Day 1: provide 3 public sample council letters for `fixtures/letters/`
-- [ ] Day 1: show one output to someone who uses or makes Easy Read
-- [ ] Day 1: **go/no-go decision.** Go if at least 7 of the 10 properties are automatic and the output is judged usable; record it in `docs/day1-results.md`
-- [ ] Day 1: choose the official Easy Read guidance and add it to the steering doc
-- [ ] Day 6: design pass on the main screen
-- [ ] Day 6: get feedback from 3 to 5 people, including on the ARASAAC pictures, and capture quotes
-- [ ] Day 7: test the live URL end to end
-- [ ] Day 7: record the demo video (under 3 minutes)
-- [ ] Day 7: write the Kiro usage write-up
-- [ ] Day 7: social post with #KiroweenHackathon26
+- Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI".
+- Non-coding work (reviews, decisions, video, posts) is listed below, separate from the implementation tasks, so it is not mistaken for one.
+
+### Non-coding checklist (you)
+
+- [~] Provide 3 public sample council letters for `fixtures/letters/`
+- [~] Show one output to someone who uses or makes Easy Read
+- [~] **Go/no-go decision.** Go if at least 7 of the 10 properties are automatic and the output is judged usable; record it in `docs/day1-results.md`
+- [~] Choose the official Easy Read guidance and add it to the steering doc
+- [~] Design pass on the main screen
+- [~] Get feedback from 3 to 5 people, including on the ARASAAC pictures, and capture quotes
+- [~] Test the live URL end to end
+- [~] Record the demo video (under 3 minutes)
+- [~] Write the Kiro usage write-up
+- [~] Social post with #KiroweenHackathon26
+
+## Task Dependency Graph
+
+Each wave depends only on tasks in earlier waves. Main dependencies: sentences (3) feed every checker; the spike (8) confirms the ARASAAC endpoint for 10 and drafts the rewrite prompt for 15; the orchestrator (16) needs the checker client (14) and the model calls (15); the result screen (22) comes before every report, editing and export task.
+
+```json
+{
+  "waves": [
+    { "id": 0, "tasks": ["1"] },
+    { "id": 1, "tasks": ["2", "3", "7"] },
+    { "id": 2, "tasks": ["4", "6"] },
+    { "id": 3, "tasks": ["5", "9"] },
+    { "id": 4, "tasks": ["8"] },
+    { "id": 5, "tasks": ["10", "15"] },
+    { "id": 6, "tasks": ["11", "18"] },
+    { "id": 7, "tasks": ["12", "13"] },
+    { "id": 8, "tasks": ["14"] },
+    { "id": 9, "tasks": ["16"] },
+    { "id": 10, "tasks": ["17", "19", "30"] },
+    { "id": 11, "tasks": ["20", "21", "22", "31"] },
+    { "id": 12, "tasks": ["23", "24", "25", "26", "29"] },
+    { "id": 13, "tasks": ["27", "28"] },
+    { "id": 14, "tasks": ["32"] },
+    { "id": 15, "tasks": ["33"] }
+  ]
+}
+```
