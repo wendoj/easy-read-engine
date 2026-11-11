@@ -33,6 +33,7 @@ import { classifyError, withRetryAfterOnce } from "../src/convert/handler";
 import { letterLengthProblem } from "../src/convert/word-count";
 import { extractPdfText } from "../src/extract/pdf";
 import { type ModelConfig, createModelClient, loadModelConfig } from "../src/llm";
+import { ModelOutputError } from "../src/llm/structured";
 import { convert, modelFromClient } from "../src/pipeline";
 import { type SampleFile, modelsOf, sampleFileSchema } from "../src/samples/sample";
 
@@ -131,6 +132,8 @@ async function recordOnce(
     if (err instanceof CheckerUnavailable) throw err;
     const code = classifyError(err).error;
     console.log(`  error: ${code} (${err instanceof Error ? err.name : "unknown"}), ${requests.ok}/${requests.total} model requests ok`);
+    // Field paths and zod codes only, never model output or letter text.
+    if (err instanceof ModelOutputError) console.log(`  ${err.task} output was invalid: ${err.issues.join("; ")}`);
     return { ok: false, reason: `error ${code}` };
   }
 }
