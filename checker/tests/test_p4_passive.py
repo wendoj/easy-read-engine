@@ -1,5 +1,6 @@
 from hypothesis import given, settings
 from hypothesis import strategies as st
+from strategies import passive_active_pairs as _pairs
 
 from checks.models import Line
 from checks.p4_passive import check_p4
@@ -7,49 +8,6 @@ from checks.p4_passive import check_p4
 # All text here is invented. No real letters or personal data.
 
 # --- generators --------------------------------------------------------------
-
-# (base, past tense, past participle, -ing form)
-_VERBS = [
-    ("send", "sent", "sent", "sending"),
-    ("check", "checked", "checked", "checking"),
-    ("receive", "received", "received", "receiving"),
-    ("review", "reviewed", "reviewed", "reviewing"),
-    ("approve", "approved", "approved", "approving"),
-    ("cancel", "cancelled", "cancelled", "cancelling"),
-    ("pay", "paid", "paid", "paying"),
-    ("post", "posted", "posted", "posting"),
-    ("change", "changed", "changed", "changing"),
-    ("close", "closed", "closed", "closing"),
-    ("refuse", "refused", "refused", "refusing"),
-    ("process", "processed", "processed", "processing"),
-    ("sign", "signed", "signed", "signing"),
-]
-_OBJECTS = ["letter", "form", "claim", "payment", "account", "application", "bill", "request"]
-_AGENTS = ["council", "office", "team", "bank", "doctor", "landlord"]
-
-# (passive form, its active form). Each pair says the same thing.
-_TEMPLATES = [
-    ("The {o} was {pp} by the {a}.", "The {a} {past} the {o}."),
-    ("Your {o} will be {pp} by the {a}.", "The {a} will {base} your {o}."),
-    ("Your {o} has been {pp} by the {a}.", "The {a} has {pp} your {o}."),
-    ("Your {o} is being {pp} by the {a}.", "The {a} is {ing} your {o}."),
-    ("Your {o} was {pp}.", "The {a} {past} your {o}."),
-]
-# With no agent, en_core_web_sm reads "closed" as an adjective (see p4_passive.py).
-_AGENTLESS = 4
-_ADJECTIVE_LIKE = {"close"}
-
-
-@st.composite
-def _pairs(draw: st.DrawFn) -> tuple[str, str]:
-    """A passive sentence and its active form."""
-    index = draw(st.integers(min_value=0, max_value=len(_TEMPLATES) - 1))
-    verbs = [v for v in _VERBS if index != _AGENTLESS or v[0] not in _ADJECTIVE_LIKE]
-    base, past, pp, ing = draw(st.sampled_from(verbs))
-    slots = {"o": draw(st.sampled_from(_OBJECTS)), "a": draw(st.sampled_from(_AGENTS)),
-             "base": base, "past": past, "pp": pp, "ing": ing}  # fmt: skip
-    passive, active = _TEMPLATES[index]
-    return passive.format(**slots), active.format(**slots)
 
 
 def _lines(texts: list[str]) -> list[Line]:

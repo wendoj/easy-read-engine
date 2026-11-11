@@ -35,6 +35,20 @@ class Line(BaseModel):
     symbol_id: str | None
 
 
+class Analysis(BaseModel):
+    """What `analyse` returns: the Original's sentences and its key facts."""
+
+    sentences: list[Sentence]
+    key_facts: list[KeyFact]
+
+
+class SymbolMatch(BaseModel):
+    """One `find_symbol` result: a pictogram ID from the symbol index and its rank score."""
+
+    id: str
+    score: float
+
+
 class CheckResult(BaseModel):
     rule: Rule
     passed: bool

@@ -1,7 +1,6 @@
-from datetime import date
-
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
+from strategies import FACT_VALUES
 
 from checks.key_facts import extract_key_facts
 from checks.models import KeyFact, Line, Sentence
@@ -10,32 +9,7 @@ from checks.sentences import split_sentences
 
 # All text here is invented. No real letters or personal data.
 
-_MONTHS = ["January", "February", "March", "April", "May", "June", "July",
-           "August", "September", "October", "November", "December"]  # fmt: skip
-
 # --- generators --------------------------------------------------------------
-
-_dates = st.dates(min_value=date(2020, 1, 1), max_value=date(2035, 12, 31)).flatmap(
-    lambda d: st.sampled_from(
-        [f"{d.day} {_MONTHS[d.month - 1]} {d.year}", f"{d.day:02d}/{d.month:02d}/{d.year}"]
-    )
-)
-_money = st.builds(
-    lambda pounds, pence: f"£{pounds:,}" + (f".{pence:02d}" if pence is not None else ""),
-    st.integers(min_value=1, max_value=99_999),
-    st.none() | st.integers(min_value=0, max_value=99),
-)
-_references = st.builds(
-    lambda letters, digits: f"{letters}{digits}",
-    st.text(alphabet="ABCDEFGHJKLMNPRSTUVWXYZ", min_size=2, max_size=2),
-    st.integers(min_value=100_000, max_value=999_999),
-)
-_phones = st.builds(
-    lambda area, rest: f"{area} {rest[:3]} {rest[3:]}",
-    st.sampled_from(["0300", "0800", "0161", "0113"]),
-    st.integers(min_value=0, max_value=9_999_999).map(lambda n: f"{n:07d}"),
-)
-_times = st.sampled_from(["9am", "10:30am", "2pm", "14:30", "11.15am"])
 
 _SENTENCES = [
     ("You must pay {money} by {date}.", ("money", "date")),
@@ -47,8 +21,7 @@ _SENTENCES = [
     ("Please send the form back within 14 days.", ()),
     ("The council looked at your claim again.", ()),
 ]
-_SLOTS = {"money": _money, "date": _dates, "reference": _references, "phone": _phones,
-          "time": _times}  # fmt: skip
+_SLOTS = FACT_VALUES
 
 
 @st.composite
