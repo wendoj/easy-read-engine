@@ -1,0 +1,275 @@
+import { z } from "zod";
+import {
+  type AppEnv,
+  type ChainEntry,
+  type ModelConfig,
+  type Provider,
+  type Role,
+  ModelConfigError,
+  PROVIDERS,
+  assertProductionSafe,
+} from "./config";
+import { type Transport, fetchTransport } from "./transport";
+
+/** Output cap for `gpt-oss-120b`. Reasoning tokens count against Groq's limits. */
+export const GPT_OSS_MAX_TOKENS = 3000;
+/** Per-request timeout. Free models can be slow. */
+export const DEFAULT_TIMEOUT_MS = 45_000;
+/** Longest `Retry-After` the caller should wait before giving up (design "Error Handling"). */
+export const MAX_RETRY_AFTER_MS = 20_000;
+
+export interface ChatMessage {
+  role: "system" | "user" | "assistant" | "tool";
+  // String, or OpenAI content parts (text and image_url) for vision.
+  content: string | unknown[] | null;
+  [key: string]: unknown;
+}
+
+export interface ChatRequest {
+  messages: ChatMessage[];
+  tools?: unknown[];
+  tool_choice?: unknown;
+  temperature?: number;
+  maxTokens?: number;
+}
+
+const responseSchema = z.object({
+  choices: z
+    .array(
+      z.object({
+        message: z.object({
+          content: z.string().nullable().optional(),
+          tool_calls: z.array(z.unknown()).optional(),
+        }).passthrough(),
+        finish_reason: z.string().nullable().optional(),
+      }),
+    )
+    .min(1),
+  usage: z
+    .object({
+      prompt_tokens: z.number().optional(),
+      completion_tokens: z.number().optional(),
+      total_tokens: z.number().optional(),
+    })
+    .passthrough()
+    .optional(),
+});
+
+export type ChatResponseMessage = z.infer<typeof responseSchema>["choices"][number]["message"];
+export type Usage = NonNullable<z.infer<typeof responseSchema>["usage"]>;
+
+export type AttemptOutcome =
+  | "ok"
+  | "rate_limited"
+  | "server_error"
+  | "timeout"
+  | "network_error"
+  | "missing_key"
+  | "client_error"
+  | "bad_response";
+
+export interface AttemptRecord {
+  provider: Provider;
+  model: string;
+  outcome: AttemptOutcome;
+  status?: number;
+  ms: number;
+}
+
+export interface ChatResult {
+  message: ChatResponseMessage;
+  finishReason: string | null;
+  usage?: Usage;
+  /** The entry that answered. */
+  provider: Provider;
+  model: string;
+  attempts: AttemptRecord[];
+}
+
+/** Every entry in the chain failed with a 429, a 5xx, a timeout or a network error. */
+export class ProviderChainError extends Error {
+  constructor(
+    readonly role: Role,
+    readonly attempts: AttemptRecord[],
+    /** Shortest `Retry-After` seen, capped at MAX_RETRY_AFTER_MS. */
+    readonly retryAfterMs: number | undefined,
+  ) {
+    super(`All ${attempts.length} model providers for role "${role}" failed`);
+    this.name = "ProviderChainError";
+  }
+}
+
+/** A provider rejected the request (4xx other than 429) or sent a malformed reply. Not retried. */
+export class ProviderRequestError extends Error {
+  constructor(
+    readonly role: Role,
+    readonly attempt: AttemptRecord,
+    readonly attempts: AttemptRecord[],
+  ) {
+    super(
+      `Model provider ${attempt.provider}:${attempt.model} failed (${attempt.outcome}${
+        attempt.status ? ` ${attempt.status}` : ""
+      })`,
+    );
+    this.name = "ProviderRequestError";
+  }
+}
+
+/** Log event. Holds no prompt, letter text, model output or keys. */
+export interface ModelLogEvent {
+  role: Role;
+  provider: Provider;
+  model: string;
+  outcome: AttemptOutcome;
+  status?: number;
+  ms: number;
+}
+
+export type ModelLogger = (event: ModelLogEvent) => void;
+
+const defaultLogger: ModelLogger = (event) => {
+  console.info(JSON.stringify({ msg: "model_call", ...event }));
+};
+
+export interface ModelClientOptions {
+  config: ModelConfig;
+  transport?: Transport;
+  timeoutMs?: number;
+  logger?: ModelLogger;
+  now?: () => number;
+}
+
+export interface ModelClient {
+  chat(role: Role, request: ChatRequest): Promise<ChatResult>;
+}
+
+/** Model-specific request settings from design "Model provider". */
+export function modelParams(role: Role, entry: ChainEntry, request: ChatRequest): Record<string, unknown> {
+  const params: Record<string, unknown> = {};
+  if (request.maxTokens !== undefined) params.max_tokens = request.maxTokens;
+  if (/gpt-oss-120b/i.test(entry.model)) {
+    params.reasoning_effort = "low";
+    params.max_tokens = Math.min(request.maxTokens ?? GPT_OSS_MAX_TOKENS, GPT_OSS_MAX_TOKENS);
+  }
+  if (role === "judge" && /qwen/i.test(entry.model)) {
+    // Thinking off. Groq uses reasoning_effort "none"; OpenRouter uses its reasoning object.
+    if (entry.provider === "groq") params.reasoning_effort = "none";
+    else params.reasoning = { enabled: false };
+  }
+  return params;
+}
+
+export function buildBody(role: Role, entry: ChainEntry, request: ChatRequest): Record<string, unknown> {
+  const body: Record<string, unknown> = { model: entry.model, messages: request.messages };
+  if (request.tools !== undefined) body.tools = request.tools;
+  if (request.tool_choice !== undefined) body.tool_choice = request.tool_choice;
+  if (request.temperature !== undefined) body.temperature = request.temperature;
+  return { ...body, ...modelParams(role, entry, request) };
+}
+
+/** Parse `Retry-After` as seconds or an HTTP date. */
+export function parseRetryAfter(value: string | undefined, nowMs: number = Date.now()): number | undefined {
+  if (!value) return undefined;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1000;
+  const date = Date.parse(value);
+  if (Number.isNaN(date)) return undefined;
+  return Math.max(0, date - nowMs);
+}
+
+function isAbort(err: unknown): boolean {
+  return err instanceof Error && (err.name === "AbortError" || err.name === "TimeoutError");
+}
+
+export function createModelClient(options: ModelClientOptions): ModelClient {
+  const { config } = options;
+  const transport = options.transport ?? fetchTransport;
+  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const log = options.logger ?? defaultLogger;
+  const now = options.now ?? (() => performance.now());
+  assertProductionSafe(config);
+
+  async function chat(role: Role, request: ChatRequest): Promise<ChatResult> {
+    const chain = config.chains[role];
+    const attempts: AttemptRecord[] = [];
+    let retryAfterMs: number | undefined;
+
+    const record = (entry: ChainEntry, outcome: AttemptOutcome, start: number, status?: number) => {
+      const attempt: AttemptRecord = {
+        provider: entry.provider,
+        model: entry.model,
+        outcome,
+        ms: Math.round(now() - start),
+        ...(status !== undefined ? { status } : {}),
+      };
+      attempts.push(attempt);
+      log({ role, ...attempt });
+      return attempt;
+    };
+
+    for (const entry of chain) {
+      assertEntryAllowed(config.appEnv, entry);
+      const start = now();
+      const key = config.keys[entry.provider];
+      if (!key) {
+        record(entry, "missing_key", start);
+        continue;
+      }
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      let res;
+      try {
+        res = await transport({
+          url: `${PROVIDERS[entry.provider].baseUrl}/chat/completions`,
+          headers: { authorization: `Bearer ${key}` },
+          body: buildBody(role, entry, request),
+          signal: controller.signal,
+        });
+      } catch (err) {
+        record(entry, isAbort(err) || controller.signal.aborted ? "timeout" : "network_error", start);
+        continue;
+      } finally {
+        clearTimeout(timer);
+      }
+
+      if (res.status === 429 || res.status >= 500) {
+        record(entry, res.status === 429 ? "rate_limited" : "server_error", start, res.status);
+        const wait = parseRetryAfter(res.headers["retry-after"]);
+        if (wait !== undefined) {
+          retryAfterMs = Math.min(retryAfterMs ?? Infinity, wait, MAX_RETRY_AFTER_MS);
+        }
+        continue;
+      }
+      if (res.status < 200 || res.status >= 300) {
+        const attempt = record(entry, "client_error", start, res.status);
+        throw new ProviderRequestError(role, attempt, attempts);
+      }
+      const parsed = responseSchema.safeParse(res.json);
+      if (!parsed.success) {
+        const attempt = record(entry, "bad_response", start, res.status);
+        throw new ProviderRequestError(role, attempt, attempts);
+      }
+      record(entry, "ok", start, res.status);
+      const choice = parsed.data.choices[0];
+      return {
+        message: choice.message,
+        finishReason: choice.finish_reason ?? null,
+        usage: parsed.data.usage,
+        provider: entry.provider,
+        model: entry.model,
+        attempts,
+      };
+    }
+    throw new ProviderChainError(role, attempts, retryAfterMs);
+  }
+
+  return { chat };
+}
+
+/** Second guard at call time: never call Gemini in production, even if config was built by hand. */
+function assertEntryAllowed(appEnv: AppEnv, entry: ChainEntry): void {
+  if (appEnv === "production" && entry.provider === "gemini") {
+    throw new ModelConfigError("gemini: entries are not allowed when APP_ENV=production");
+  }
+}
