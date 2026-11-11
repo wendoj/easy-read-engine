@@ -1,0 +1,212 @@
+{
+  "kind": "easy-read-fixture-run",
+  "version": 1,
+  "startedAt": "2026-11-11T15:00:48.310Z",
+  "finishedAt": "2026-11-11T15:04:11.708Z",
+  "set": "default",
+  "lettersDir": "fixtures/letters",
+  "appEnv": "development",
+  "chains": {
+    "rewrite": [
+      "groq:openai/gpt-oss-120b",
+      "openrouter:nvidia/nemotron-3-ultra-550b-a55b:free"
+    ],
+    "judge": [
+      "groq:qwen/qwen3.8-27b",
+      "openrouter:thinkingmachines/inkling-small:free"
+    ],
+    "vision": [
+      "groq:qwen/qwen3.8-27b",
+      "openrouter:nvidia/nemotron-3.5-super-vl:free"
+    ]
+  },
+  "letters": [
+    {
+      "letter": "invented-care-assessment.txt",
+      "source": "txt",
+      "ms": 15352,
+      "requests": {
+        "total": 9,
+        "ok": 5,
+        "outcomes": {
+          "ok": 5,
+          "rate_limited": 3,
+          "client_error": 1
+        }
+      },
+      "error": "model_output_invalid"
+    },
+    {
+      "letter": "invented-council-tax-reminder.txt",
+      "source": "txt",
+      "ms": 15002,
+      "requests": {
+        "total": 6,
+        "ok": 4,
+        "outcomes": {
+          "ok": 4,
+          "rate_limited": 2
+        }
+      },
+      "error": "model_output_invalid"
+    },
+    {
+      "letter": "invented-housing-benefit-change.txt",
+      "source": "txt",
+      "ms": 33678,
+      "requests": {
+        "total": 7,
+        "ok": 3,
+        "outcomes": {
+          "ok": 3,
+          "rate_limited": 3,
+          "client_error": 1
+        }
+      },
+      "error": "model_output_invalid"
+    },
+    {
+      "letter": "invented-parking-penalty.txt",
+      "source": "txt",
+      "ms": 31947,
+      "requests": {
+        "total": 10,
+        "ok": 5,
+        "outcomes": {
+          "ok": 5,
+          "rate_limited": 3,
+          "client_error": 2
+        }
+      },
+      "status": "flagged",
+      "attempts": 3,
+      "judgeAvailable": false,
+      "sentenceCount": 14,
+      "keyFactCount": 15,
+      "lineCount": 21,
+      "rules": {
+        "P1": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P2": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P3": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P4": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P5": {
+          "passed": false,
+          "failingLines": 2,
+          "failedFacts": 0
+        },
+        "P6": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P7": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P8": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P9": {
+          "passed": false,
+          "failingLines": 21,
+          "failedFacts": 0
+        },
+        "P10": {
+          "passed": false,
+          "failingLines": 21,
+          "failedFacts": 0
+        }
+      },
+      "failedRules": [
+        "P3",
+        "P5",
+        "P9",
+        "P10"
+      ],
+      "models": [
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "groq",
+          "model": "qwen/qwen3.8-27b"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 1,
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 2,
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b"
+        }
+      ],
+      "answeredBy": [
+        "groq:openai/gpt-oss-120b",
+        "groq:qwen/qwen3.8-27b"
+      ]
+    },
+    {
+      "letter": "invented-repair-appointment.txt",
+      "source": "txt",
+      "ms": 47410,
+      "requests": {
+        "total": 4,
+        "ok": 1,
+        "outcomes": {
+          "rate_limited": 2,
+          "ok": 1,
+          "bad_response": 1
+        }
+      },
+      "error": "model_output_invalid"
+    }
+  ],
+  "totals": {
+    "letters": 5,
+    "finished": 1,
+    "errors": 4,
+    "passed": 0,
+    "flagged": 1,
+    "blocked": 0,
+    "rulePasses": {
+      "P1": 1,
+      "P2": 1,
+      "P3": 0,
+      "P4": 1,
+      "P5": 0,
+      "P6": 1,
+      "P7": 1,
+      "P8": 1,
+      "P9": 0,
+      "P10": 0
+    }
+  }
+}
