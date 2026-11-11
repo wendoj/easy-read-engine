@@ -1,5 +1,5 @@
 /**
- * Day 1 spike (task 8). Measures, for the invented fixture letters:
+ * Day 1 spike (task 8). Measures, for the fixture letters:
  * - P1, P2 and P4 pass counts per rewrite candidate (scored by checker/scripts/score.py)
  * - tokens and time per rewrite request
  * - whether Groq's qwen/qwen3.8-27b accepts an image (one generated test image)
@@ -7,6 +7,8 @@
  * - pictogram coverage: does an ARASAAC search for each line's symbolQuery match?
  *
  * Run with `npm run spike` (loads ../.env). Optional flags:
+ *   --set=invented|public|all  which fixture letters to run (default invented;
+ *                         public means every .txt not starting with "invented-")
  *   --letter=<substring>  only letters whose file name contains it
  *   --model=<substring>   only candidates whose entry contains it
  *   --skip-vision  --skip-arasaac
@@ -469,7 +471,13 @@ async function main() {
     console.log(`  ${c.provider}:${c.model}  key present: ${keys[PROVIDERS[c.provider].keyEnv]}`);
   }
 
-  let letters = (await readdir(LETTERS_DIR)).filter((f) => f.startsWith("invented-") && f.endsWith(".txt")).sort();
+  const set = option("set") ?? "invented";
+  if (!["invented", "public", "all"].includes(set)) throw new Error(`--set must be invented, public or all (got ${set})`);
+  let letters = (await readdir(LETTERS_DIR))
+    .filter((f) => f.endsWith(".txt"))
+    .filter((f) => set === "all" || (set === "invented") === f.startsWith("invented-"))
+    .sort();
+  console.log(`Letter set: ${set} (${letters.length} letters)`);
   const letterFilter = option("letter");
   if (letterFilter) letters = letters.filter((f) => f.includes(letterFilter));
   const prompt = await loadPrompt();
