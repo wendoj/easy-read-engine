@@ -115,7 +115,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - fast-check property: a line with a failed advice verdict always fails P10
   - _Requirements: 3.6, 7.2, 7.3; P9, P10_
 
-- [-] 16. Build the pipeline orchestrator
+- [x] 16. Build the pipeline orchestrator
   - `web/src/pipeline/`: `convert` with `MAX_ATTEMPTS = 3`, `failingLineIds` and `decide`, following the code in design "Pipeline orchestrator"
   - Map a missing fact to the lines from its source sentence, or ask the regenerate prompt to add a line when there are none
   - Return no lines when `status` is `"blocked"`, and always include the R7.1 notice
@@ -128,7 +128,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
     - at most 6 model requests, not counting JSON retries and fallbacks
   - _Requirements: 2.4, 2.5, 3.1 to 3.6, 6.1, 7.1_
 
-- [~] 17. Build `/api/convert` with streaming, the letter length limit and rate limits
+- [-] 17. Build `/api/convert` with streaming, the letter length limit and rate limits
   - Route handler with `runtime = "nodejs"`; validate the body with zod; reject letters over 1,500 words with a 400 before any model call
   - Stream newline-delimited JSON: progress events, then the final `ConversionResult`
   - Per-IP token bucket and a global daily cap shared with `/api/extract` and `/api/check`, returning the messages in design "Error Handling"
