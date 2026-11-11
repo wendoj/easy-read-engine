@@ -8,7 +8,7 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
 
 ## Day 1: go/no-go
 
-- [-] 1. Scaffold the repository
+- [x] 1. Scaffold the repository
   - Create the folder layout from design "Folder layout": `web/`, `checker/`, `prompts/`, `fixtures/letters/`
   - `checker/`: Python project managed with uv (`pyproject.toml`), dependencies FastAPI, Pydantic, spaCy with a pinned `en_core_web_sm` version, `mcp`, pytest and Hypothesis
   - `web/`: Next.js App Router app in TypeScript, with Tailwind CSS, zod, Vitest and fast-check; run `npx shadcn@latest init` and add the components listed in design "UI"
@@ -16,7 +16,7 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - Confirm `cd checker && pytest` and `cd web && npx vitest --run` both run, with no tests yet
   - _Requirements: none directly; supports all
 
-- [~] 2. Write the steering documents
+- [x] 2. Write the steering documents
   - `.kiro/steering/easy-read-rules.md`: the Easy Read rules in plain language, matching P2 to P8 and the P10 rubric (respectful tone, no advice)
   - `.kiro/steering/safety.md`: never give advice, always keep and show the original, flag numbers, never log letter text
   - `.kiro/steering/tech.md`: stack, folder layout and the test commands from design "Commands"
@@ -24,26 +24,26 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - Leave a placeholder for the official Easy Read guidance source, which is still an open question
   - _Requirements: 3.1, 7.2, 7.3, 7.4_
 
-- [~] 3. Define the checker data models and sentence splitting
+- [x] 3. Define the checker data models and sentence splitting
   - Pydantic models `Sentence`, `KeyFact`, `Line` and `CheckResult` from design "Data Models"
   - `checks/sentences.py`: split the Original into sentences with IDs and character offsets using spaCy, loaded once
   - Hypothesis property: for any generated text, the sentence spans are in order, don't overlap, and slicing the text by each span returns that sentence's text
   - _Requirements: 2.2, 5.2_
 
-- [~] 4. Implement key-fact extraction and normalisation
+- [x] 4. Implement key-fact extraction and normalisation
   - `checks/key_facts.py`: detection and normalised values for date, time, money, reference, phone, address and action, following the table in design "Key-fact extraction and normalisation"
   - Version 1 actions: verb lemma, object lemmas, and any date or money inside the action; phrasal verbs kept as one lemma; a short synonym table kept in config
   - Hypothesis round-trip properties: a generated date, amount, reference or phone number placed in text is extracted with the same normalised value; different formats of the same value give the same normalised value
   - _Requirements: 2.1, 2.2, 2.6_
 
-- [~] 5. Implement P1 and its tests
+- [x] 5. Implement P1 and its tests
   - `checks/p1_key_facts.py`: extract facts from the output lines with the same extractor, compare normalised sets, and report failing line IDs and `failed_fact_ids` as in design "Checkers"
   - Hypothesis property: output that contains every fact unchanged passes P1
   - Mutation test: change one digit of one date or amount in a passing output, and P1 must fail and name that fact
   - Test that a missing fact fails and maps to the lines from that fact's source sentence
   - _Requirements: 2.3, 2.4, 2.5, 2.6; P1_
 
-- [~] 6. Implement P2 and P4 and their tests
+- [-] 6. Implement P2 and P4 and their tests
   - `checks/p2_sentence_length.py`: fail any sentence over 15 words, with the limit in config
   - `checks/p4_passive.py`: fail on `auxpass` or `nsubjpass`
   - Hypothesis properties: any generated sentence of 16 or more words fails P2, and any of 15 or fewer passes; generated passive sentences fail P4 and their active forms pass

@@ -11,6 +11,16 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358528964
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359242879
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359479766
       }
     ],
     "2. Write the steering documents": [
@@ -18,6 +28,21 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519214
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359484758
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359493773
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359615053
       }
     ],
     "3. Define the checker data models and sentence splitting": [
@@ -25,6 +50,21 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519254
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359484812
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359617997
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359718755
       }
     ],
     "4. Implement key-fact extraction and normalisation": [
@@ -32,6 +72,21 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519301
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359484857
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359723442
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794360505623
       }
     ],
     "5. Implement P1 and its tests": [
@@ -39,6 +94,21 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519352
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359484911
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794360509080
+      },
+      {
+        "executionId": "5a9d8df3-8ad2-4732-a934-a3b9c761e379",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794360909143
       }
     ],
     "6. Implement P2 and P4 and their tests": [
@@ -46,6 +116,16 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519400
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359484944
+      },
+      {
+        "executionId": "5a9d8df3-8ad2-4732-a934-a3b9c761e379",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794360917204
       }
     ],
     "7. Build the model client with the provider chain": [
@@ -53,6 +133,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519470
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359484978
       }
     ],
     "8. Write the day 1 spike script and record results": [
@@ -60,6 +145,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519505
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485010
       }
     ],
     "9. Implement P3, P5, P6 and P7 with their tests": [
@@ -67,6 +157,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519542
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485045
       }
     ],
     "10. Build the ARASAAC pictogram index and P8": [
@@ -74,6 +169,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519585
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485076
       }
     ],
     "11. Add `check_easy_read` and the synthetic letter generator": [
@@ -81,6 +181,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519625
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485111
       }
     ],
     "12. Build the FastAPI adapter and generated types": [
@@ -88,6 +193,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519670
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485175
       }
     ],
     "13. Build the MCP server": [
@@ -95,6 +205,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519717
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485211
       }
     ],
     "14. Build the checker client": [
@@ -102,6 +217,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519764
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485244
       }
     ],
     "15. Write the prompts and the model calls for rewrite, regenerate and judge": [
@@ -109,6 +229,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519804
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485288
       }
     ],
     "16. Build the pipeline orchestrator": [
@@ -116,6 +241,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519838
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485328
       }
     ],
     "17. Build `/api/convert` with streaming, the letter length limit and rate limits": [
@@ -123,6 +253,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519876
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485362
       }
     ],
     "18. Build text extraction with `/api/extract`": [
@@ -130,6 +265,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519919
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485409
       }
     ],
     "19. Build the fixture script": [
@@ -137,6 +277,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358519975
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485444
       }
     ],
     "20. Set up the three Kiro hooks": [
@@ -144,6 +289,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520052
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485478
       }
     ],
     "21. Build the input screen": [
@@ -151,6 +301,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520102
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485512
       }
     ],
     "22. Build the side-by-side result screen": [
@@ -158,6 +313,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520151
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485559
       }
     ],
     "23. Implement pictogram search and the image cache": [
@@ -165,6 +325,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520201
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485594
       }
     ],
     "24. Build the rule report and pass count": [
@@ -172,6 +337,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520235
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485641
       }
     ],
     "25. Highlight key facts in both columns": [
@@ -179,6 +349,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520283
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485725
       }
     ],
     "26. Build editing and `/api/check`": [
@@ -186,6 +361,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520333
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485762
       }
     ],
     "27. Build the blocked state": [
@@ -193,6 +373,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520386
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485804
       }
     ],
     "28. Build the print layout and `/api/export`": [
@@ -200,6 +385,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520420
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485843
       }
     ],
     "29. Add the recorded sample letters": [
@@ -207,6 +397,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520454
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485879
       }
     ],
     "30. Add the pipeline property test": [
@@ -214,6 +409,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520487
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485924
       }
     ],
     "31. Run the pass-rate measurement": [
@@ -221,6 +421,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520520
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359485961
       }
     ],
     "32. Containerise and deploy": [
@@ -228,6 +433,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520573
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359486009
       }
     ],
     "33. Write the README and licence notes": [
@@ -235,6 +445,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520633
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359486045
       }
     ],
     "Day 1: provide 3 public sample council letters for `fixtures/letters/`": [
@@ -242,6 +457,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520683
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359486082
       }
     ],
     "Day 1: show one output to someone who uses or makes Easy Read": [
@@ -249,6 +469,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520735
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359486125
       }
     ],
     "Day 1: **go/no-go decision.** Go if at least 7 of the 10 properties are automatic and the output is judged usable; record it in `docs/day1-results.md`": [
@@ -256,6 +481,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520776
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359486193
       }
     ],
     "Day 1: choose the official Easy Read guidance and add it to the steering doc": [
@@ -263,6 +493,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520819
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359486241
       }
     ],
     "Day 6: design pass on the main screen": [
@@ -270,6 +505,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520854
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359486278
       }
     ],
     "Day 6: get feedback from 3 to 5 people, including on the ARASAAC pictures, and capture quotes": [
@@ -277,6 +517,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520886
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359486311
       }
     ],
     "Day 7: test the live URL end to end": [
@@ -284,6 +529,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520921
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359486360
       }
     ],
     "Day 7: record the demo video (under 3 minutes)": [
@@ -291,6 +541,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358520959
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359486399
       }
     ],
     "Day 7: write the Kiro usage write-up": [
@@ -298,6 +553,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358521000
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359486440
       }
     ],
     "Day 7: social post with #KiroweenHackathon26": [
@@ -305,6 +565,11 @@
         "executionId": "8a2aa359-3154-47e6-9fc5-ad8bdb808b54",
         "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
         "timestamp": 1794358521040
+      },
+      {
+        "executionId": "720bdb79-d93f-407f-b155-082995f23260",
+        "chatSessionId": "sess_4216a30a-15a1-4c0a-950c-0e514aff95b4",
+        "timestamp": 1794359486479
       }
     ]
   }
