@@ -58,7 +58,7 @@ Every UI task (21 to 29) uses the shadcn components and copy rules in design "UI
   - fast-check properties: for any pattern of provider failures, entries are tried in order, nothing is called after a success, and no `gemini:` entry is called in production mode
   - _Requirements: 7.5 (supports); design "Model provider"_
 
-- [-] 8. Write the day 1 spike script and record results
+- [x] 8. Write the day 1 spike script and record results
   - `fixtures/letters/`: add 3 public sample council letters (supplied by you) and 2 invented letters with no real personal data
   - First draft of `prompts/rewrite.md` using the steering rules
   - `web/scripts/spike.ts`: run each letter through each rewrite candidate; score the output with P1, P2 and P4 through a small CLI wrapper in `checker/`; record tokens per request and time taken
