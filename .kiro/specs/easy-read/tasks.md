@@ -156,13 +156,13 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
 
 ### Pictures and layout
 
-- [-] 21. Build the input screen
+- [x] 21. Build the input screen
   - `web/app/page.tsx`: paste box, file upload, and an editable confirm step with a word count against the 1,500-word limit
   - Show the R7.5 notice above the Convert button; show the handwriting message from R1.4
   - Show the progress events from the `/api/convert` stream
   - _Requirements: 1.1 to 1.7, 7.5_
 
-- [~] 22. Build the side-by-side result screen
+- [-] 22. Build the side-by-side result screen
   - `web/app/result/page.tsx`: the Original on the left; Easy Read lines on the right, with a picture to the left of each line
   - Selecting a line highlights its source sentence using the spans from `analyse`
   - Show the safety notice at the top, with no way to dismiss it
