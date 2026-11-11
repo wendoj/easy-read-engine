@@ -377,3 +377,15 @@ def test_glued_pdf_text_is_not_an_action() -> None:
     text = "Do it online at example.gov.uk/billsmake the switch today."
     phrases = [f.normalised.split("|")[0] for f in extract_key_facts(text) if f.type == "action"]
     assert all(p.replace(" ", "").replace("-", "").isalpha() for p in phrases)
+
+
+def test_action_stops_where_a_joined_verb_clause_starts() -> None:
+    """Regression: spaCy attached "4 April 2034" to the first "pay", after the
+    "and you must pay £5" clause, so the first action held both dates and P1
+    failed lines that kept each date with its own amount."""
+    text = "You must pay £1 by 1 January 2020 and you must pay £5 by 4 April 2034."
+    actions = [f.normalised for f in extract_key_facts(text) if f.type == "action"]
+    assert actions == [
+        "pay||date=2020-01-01,money=GBP 100",
+        "pay||date=2034-04-04,money=GBP 500",
+    ]

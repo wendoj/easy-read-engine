@@ -483,12 +483,41 @@ def _conj_verbs(verb: Token) -> list[Token]:
 
 
 def _action_span(verb: Token) -> tuple[int, int]:
-    """Character span of the action clause, without joined verbs or "if" clauses."""
+    """Character span of the action clause, without joined verbs or "if" clauses.
+
+    The span also stops where a joined verb clause starts ("and you must pay
+    ..."). spaCy sometimes attaches words after that clause, such as a date,
+    to the first verb, or parses them as their own root. Those words belong to
+    the joined verb's action, so a joined verb's span runs to the next joined
+    clause or the end of the sentence.
+    """
     excluded: set[int] = set()
+    joined_verb = any(c.dep_ == "conj" and c.pos_ in ("VERB", "AUX") for c in verb.children)
+    cut = None
     for c in verb.children:
         if c.dep_ in ("conj", "cc", "advcl") or (c.dep_ == "punct" and c.i > verb.i):
             excluded.update(t.i for t in c.subtree)
-    tokens = [t for t in verb.subtree if t.i not in excluded and not t.is_punct]
+        if joined_verb and c.dep_ in ("conj", "cc") and c.i > verb.i:
+            cut = c.left_edge.i if cut is None else min(cut, c.left_edge.i)
+    tokens = [
+        t
+        for t in verb.subtree
+        if t.i not in excluded and not t.is_punct and (cut is None or t.i < cut)
+    ]
+    if verb.dep_ == "conj" and verb.pos_ in ("VERB", "AUX"):
+        # The joined clause runs to the next joined clause or the end of the
+        # sentence. Trailing words may hang off the first verb or form their
+        # own spaCy root ("by 20 April 2034").
+        later = [
+            c.left_edge.i
+            for c in verb.head.children
+            if c.dep_ in ("conj", "cc") and c.i > verb.right_edge.i
+        ]
+        # Each doc holds 1 checker sentence, so the doc end is the sentence end.
+        stop = min(later) if later else len(verb.doc)
+        tokens += [
+            t for t in verb.doc[verb.right_edge.i + 1 : stop] if not t.is_punct
+        ]
     tokens = tokens or [verb]
     return tokens[0].idx, tokens[-1].idx + len(tokens[-1])
 
