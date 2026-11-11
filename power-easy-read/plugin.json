@@ -1,0 +1,24 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "easy-read",
+  "version": "1.0.0",
+  "description": "Check Easy Read text against fixed rules: key facts kept unchanged, short sentences, one idea per sentence, active voice, plain words, numbers as digits, explained abbreviations and real pictogram IDs. Runs the deterministic Easy Read Engine checker as a local MCP server.",
+  "author": {
+    "name": "wendo"
+  },
+  "keywords": [
+    "easy read",
+    "easy-read",
+    "plain language",
+    "plain english",
+    "accessibility",
+    "learning disability",
+    "letter",
+    "readability",
+    "pictogram",
+    "arasaac"
+  ],
+  "homepage": "https://github.com/wendoj/easy-read-engine",
+  "repository": "https://github.com/wendoj/easy-read-engine",
+  "license": "MIT"
+}

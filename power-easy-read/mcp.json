@@ -1,0 +1,16 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "easy-read-checker": {
+      "type": "stdio",
+      "command": "sh",
+      "args": [
+        "-c",
+        "exec uv --directory \"$EASY_READ_CHECKER_DIR\" run python src/mcp_server.py"
+      ],
+      "env": {
+        "EASY_READ_CHECKER_DIR": "${EASY_READ_CHECKER_DIR}"
+      }
+    }
+  }
+}
