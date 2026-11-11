@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest --run",
-    "spike": "tsx --env-file-if-exists=../.env scripts/spike.ts"
+    "spike": "tsx --env-file-if-exists=../.env scripts/spike.ts",
+    "gen:checker-types": "tsx scripts/gen-checker-types.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -30,6 +31,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "fast-check": "^4.10.2",
+    "openapi-typescript": "^7.13.0",
     "tailwindcss": "4.3.3",
     "tsx": "^4.23.15",
     "typescript": "^5",
