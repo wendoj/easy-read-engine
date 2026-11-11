@@ -29,10 +29,12 @@ Clauses that finish the main idea are not counted either (found on the
 recorded sample letters, where they failed plain one-idea lines):
 
 - an embedded question or "what" clause: "see **if you are entitled**",
-  "pay **what you owe**", "discuss **how evidence will be heard**". The
-  parse tags "Check **if you're due** benefits." as `advcl`; that counts as
-  a question only when "if" comes straight after a `QUESTION_VERBS` verb
-  with no object ("Check your bill if you moved." still counts 2)
+  "pay **what you owe**", "discuss **how evidence will be heard**". An "if"
+  clause, whether the parse tags it `ccomp` or `advcl` ("Check **if you're
+  due** benefits."), counts as a question only when "if" comes straight
+  after a `QUESTION_VERBS` verb with no object. "Check your bill if you
+  moved." and "Tell us if you move house." still count 2. A "whether"
+  clause is always a question
 - the clause after "let", "make", "help", "see" or "hear": "**Let us know.**",
   "Rule 6 status **lets you present** evidence."
 - a "that" clause after "it is ...": "**It is essential that you contact** us."
@@ -89,10 +91,11 @@ def _is_infinitive(verb: Token) -> bool:
 
 
 def _is_question_after(head: Token, clause: Token) -> bool:
-    """Whether an `advcl` is the "if" question a verb like "check" asks.
+    """Whether an "if" clause is the question a verb like "check" asks.
 
     The parse tags "Check **if you're due** benefits." and "Find out **if you
-    can** get help." as `advcl`, not `ccomp`. It is a question, not a condition,
+    can** get help." as `advcl`, and "see **if you are entitled**" as `ccomp`.
+    Either way it is a question, not a condition,
     only when "if" or "whether" comes straight after a `QUESTION_VERBS` verb
     (or its "out") and that verb has no object of its own. "Check your bill if
     you moved." and "If you moved, check your bill." still count 2 clauses.
@@ -116,8 +119,10 @@ def _finishes_main_idea(clause: Token) -> bool:
         if head.lemma_.lower() in _SEEM_VERBS and bool(marks & {"like", "as"}):
             return True
         return _is_question_after(head, clause)
-    if marks & _QUESTION_MARKS:
+    if "whether" in marks:
         return True
+    if "if" in marks:
+        return _is_question_after(head, clause)
     first = clause.left_edge
     if first.lower_ in _WH_WORDS and first.i < clause.i:
         return True

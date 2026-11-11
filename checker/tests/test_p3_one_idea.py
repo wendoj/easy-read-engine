@@ -216,3 +216,19 @@ def test_if_condition_after_check_still_fails() -> None:
         "Tell the council if you move home.",
     ]:
         assert not _p3_passes(text), text
+
+
+def test_if_condition_tagged_ccomp_still_fails() -> None:
+    """Regression: the parse tags "move" in "Tell us if you move house." as
+    `ccomp`, and every `ccomp` "if" clause counted as a question, so this
+    condition passed as 1 idea."""
+    for text in ["Tell us if you move house."]:
+        assert not _p3_passes(text), text
+
+
+def test_if_and_whether_questions_tagged_ccomp_still_pass() -> None:
+    for text in [
+        "Go online to see if you are entitled to Council Tax support.",
+        "Ask whether you can pay later.",
+    ]:
+        assert _p3_passes(text), text

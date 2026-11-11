@@ -197,3 +197,15 @@ def test_hyphen_compounds_names_and_bill_words_pass() -> None:
 def test_hard_hyphen_compounds_and_capitalised_words_still_fail() -> None:
     for text in ["There is a pre‑inquiry call.", "Arrears are high.", "Instalments are due."]:
         assert not _p5_passes(text), text
+
+
+def test_title_case_jargon_is_not_a_name() -> None:
+    """Regression: every capitalised proper noun after the first word passed
+    as a name, so legal terms that letters write in Title Case escaped P5."""
+    for text in ["An Enforcement Agent may visit you.", "The council can apply for a Committal Order."]:
+        assert not _p5_passes(text), text
+
+
+def test_names_with_inner_capitals_and_tagged_names_still_pass() -> None:
+    for text in ["StepChange can help you for free.", "Call Citizens Advice for free help."]:
+        assert _p5_passes(text), text

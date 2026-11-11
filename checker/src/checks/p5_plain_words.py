@@ -10,9 +10,10 @@ it is used. A word token passes if any of these is true:
   (an address's street name, for example). Actions are excluded because their
   wording is meant to change, and P1 already compares them by lemma
 - it is part of a name: a spaCy entity labelled `NAME_ENTITY_LABELS`
-  ("Manchester City Council", "Citizens Advice"), a capitalised proper
-  noun that doesn't start its sentence, or a word with a capital inside it
-  ("StepChange", "PayPoint")
+  ("Manchester City Council", "Citizens Advice") or a word with a capital
+  inside it ("StepChange", "PayPoint"). A Title Case word on its own is
+  checked like any other word, so "Enforcement Agent" and "Committal Order"
+  fail unless explained
 - it is a single capital letter used as a label ("Band A")
 - it is a web or email address
 - it is an abbreviation in capitals; P7 checks those
@@ -29,7 +30,9 @@ when a noun follows "is", so "Your arrears are £120." defines nothing.
 
 Known limits: any "X is a <noun> ..." sentence counts as a definition, even
 one that explains little ("Your liability is a problem."). The words of the
-definition itself are checked like any other words.
+definition itself are checked like any other words. A place or service name
+that spaCy doesn't tag as an entity and that isn't on the list fails
+("Manchester" alone, without "City Council"). That fails closed.
 
 Punctuation, symbols and spaces are not words. Short forms ("'ll", "n't",
 "'re", "'ve", with straight or curly apostrophes) are checked as the word they
@@ -115,11 +118,10 @@ def _needs_checking(token: Token, fact_words: frozenset[str]) -> bool:
         return False
     if token.ent_type_ in NAME_ENTITY_LABELS:
         return False
-    # A name spaCy didn't tag as an entity ("StepChange", "PayPoint"): a
-    # capitalised proper noun that doesn't start the sentence, or a word with
-    # a capital inside it, which can start one ("StepChange can help.").
-    if token.pos_ == "PROPN" and token.text[:1].isupper() and not token.is_sent_start:
-        return False
+    # A name spaCy didn't tag as an entity ("StepChange", "PayPoint"): a word
+    # with a capital inside it, which can start a sentence ("StepChange can
+    # help."). A Title Case word alone is not a name: letters write legal
+    # terms that way ("Enforcement Agent", "Committal Order").
     if token.is_alpha and token.text[:1].isupper() and any(c.isupper() for c in token.text[1:]) and any(
         c.islower() for c in token.text
     ):

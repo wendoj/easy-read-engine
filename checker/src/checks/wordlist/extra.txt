@@ -4,12 +4,16 @@
 # barcode, booklet, deadline, overdue, paperless and reminder were added after
 # they failed P5 on the recorded sample letters (November 2026). Each is printed
 # on everyday bills and payment slips, not only official letters.
+# debtline is part of the name National Debtline, a free debt advice service
+# that council tax letters name. It was added when Title Case words stopped
+# passing P5 as names (review v1, November 2026).
 app
 barcode
 booklet
 cheque
 deadline
 debit
+debtline
 dentist
 internet
 landlord
