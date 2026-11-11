@@ -152,8 +152,26 @@ export function judgeUnavailableResults(lineIds: readonly string[]): [CheckResul
   return [make("P9"), make("P10")];
 }
 
+/**
+ * One block per line. A long sentence is split over several lines (P3), so
+ * each block also lists the other lines from the same source sentence. The
+ * judge failed lines for leaving out what a sibling line says, because it
+ * couldn't see the siblings.
+ */
 export function buildJudgeMessages(prompt: PromptTemplate, pairs: readonly JudgePair[]): { system: string; user: string } {
-  const blocks = pairs.map((p) => [`Line ${p.lineId}`, `Source: ${oneLine(p.source)}`, `Easy Read: ${oneLine(p.line)}`].join("\n"));
+  const bySource = new Map<string, JudgePair[]>();
+  for (const p of pairs) bySource.set(p.source, [...(bySource.get(p.source) ?? []), p]);
+  const blocks = pairs.map((p) => {
+    const others = (bySource.get(p.source) ?? []).filter((o) => o.lineId !== p.lineId);
+    return [
+      `Line ${p.lineId}`,
+      `Source: ${oneLine(p.source)}`,
+      `Easy Read: ${oneLine(p.line)}`,
+      ...(others.length > 0
+        ? [`Other lines from this sentence: ${others.map((o) => `${o.lineId}: ${oneLine(o.line)}`).join(" | ")}`]
+        : []),
+    ].join("\n");
+  });
   return { system: prompt.system, user: renderTemplate(prompt.user, { pairs: blocks.join("\n\n") }) };
 }
 
