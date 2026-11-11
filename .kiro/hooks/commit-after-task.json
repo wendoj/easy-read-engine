@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Commit after spec task",
+      "trigger": "PostTaskExec",
+      "description": "After a spec task is marked complete, commit its changes with a conventional commit message and push.",
+      "action": {
+        "type": "agent",
+        "prompt": "A spec task was just marked complete. Commit the work for that task:\n1. Run `git --no-pager status --short` and `git --no-pager diff --stat` to see what changed.\n2. Run the tests for the parts you changed: `cd checker && uv run pytest` for checker changes, `cd web && npx vitest --run` for web changes. If tests fail, do not commit. Fix the failure or report it.\n3. Stage only the files that belong to this task, by name. Never use `git add -A` or `git add .`. Never stage `.env`, letter text, or anything covered by `.gitignore`.\n4. Commit with a conventional commit message: `<type>(<scope>): <summary>`, type is one of feat, fix, docs, test, refactor, chore; scope is `checker`, `web`, `prompts`, `fixtures` or omitted; summary is lowercase, imperative, under 72 characters. Mention the task number in the body, e.g. `Task 2.1`.\n5. Run `git push`. If there is no upstream, run `git push -u origin <current branch>`.\n6. If nothing changed, skip the commit. If any git command fails, report the error instead of retrying with force or --no-verify."
+      }
+    }
+  ]
+}
