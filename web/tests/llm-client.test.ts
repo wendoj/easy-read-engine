@@ -9,7 +9,6 @@ import {
   type TransportRequest,
   type TransportResponse,
   ModelConfigError,
-  PROVIDERS,
   ProviderChainError,
   ProviderRequestError,
   buildBody,
@@ -17,9 +16,11 @@ import {
   loadModelConfig,
   parseChain,
   parseRetryAfter,
+  providerBaseUrls,
 } from "@/src/llm";
 
-const KEYS = { groq: "test-groq-key", openrouter: "test-or-key", gemini: "test-gemini-key" };
+const KEYS = { bedrock: "test-bedrock-key", groq: "test-groq-key" };
+const BASE_URLS = providerBaseUrls("eu-west-2");
 const REQUEST = { messages: [{ role: "user" as const, content: "PROMPT TEXT" }] };
 
 function okResponse(content = "MODEL OUTPUT"): TransportResponse {
@@ -31,13 +32,18 @@ function okResponse(content = "MODEL OUTPUT"): TransportResponse {
 }
 
 function providerOf(url: string): Provider {
-  const match = (Object.keys(PROVIDERS) as Provider[]).find((p) => url.startsWith(PROVIDERS[p].baseUrl));
+  const match = (Object.keys(BASE_URLS) as Provider[]).find((p) => url.startsWith(BASE_URLS[p]));
   if (!match) throw new Error(`unexpected url ${url}`);
   return match;
 }
 
 function config(chain: ChainEntry[], appEnv: "development" | "production" = "development"): ModelConfig {
-  return { appEnv, chains: { rewrite: chain, judge: chain, vision: chain }, keys: { ...KEYS } };
+  return {
+    appEnv,
+    chains: { rewrite: chain, judge: chain, vision: chain },
+    keys: { ...KEYS },
+    baseUrls: BASE_URLS,
+  };
 }
 
 type Behaviour =
@@ -49,6 +55,8 @@ type Behaviour =
 const failure: fc.Arbitrary<Behaviour> = fc.oneof(
   fc.constant<Behaviour>({ kind: "status", status: 429 }),
   fc.integer({ min: 500, max: 599 }).map<Behaviour>((status) => ({ kind: "status", status })),
+  // Key rejected, model access not granted, or model not offered in the Region.
+  fc.constantFrom(401, 403, 404).map<Behaviour>((status) => ({ kind: "status", status })),
   fc.constant<Behaviour>({ kind: "timeout" }),
   fc.constant<Behaviour>({ kind: "network" }),
 );
@@ -87,7 +95,7 @@ describe("provider chain properties", () => {
    * **Validates: Requirements 7.5 (supports); design "Model provider"**
    */
   it("tries entries in order and stops at the first success", async () => {
-    const providers: fc.Arbitrary<Provider> = fc.constantFrom("groq", "openrouter", "gemini");
+    const providers: fc.Arbitrary<Provider> = fc.constantFrom("bedrock", "groq");
     await fc.assert(
       fc.asyncProperty(
         fc.array(fc.tuple(providers, behaviour), { minLength: 1, maxLength: 6 }),
@@ -120,35 +128,28 @@ describe("provider chain properties", () => {
   });
 
   /**
-   * No `gemini:` entry is ever called in production mode, for any chain and
-   * any pattern of failures. A chain with a gemini entry fails at start-up.
+   * Only Bedrock and Groq are ever called. A chain that names any other
+   * provider, including the removed `gemini:` and `openrouter:`, fails at
+   * start-up in every APP_ENV, so it never reaches the transport.
    * **Validates: Requirements 7.5 (supports); design "Model provider"**
    */
-  it("never calls a gemini entry in production", async () => {
-    const providers: fc.Arbitrary<Provider> = fc.constantFrom("groq", "openrouter", "gemini");
-    await fc.assert(
-      fc.asyncProperty(
-        fc.array(fc.tuple(providers, behaviour), { minLength: 1, maxLength: 6 }),
-        async (spec) => {
-          const chain = spec.map(([provider], i) => ({ provider, model: `m${i}` }));
-          const byModel = new Map(spec.map(([, b], i) => [`m${i}`, b]));
-          const { transport, calls } = fakeTransport(byModel);
-          const hasGemini = chain.some((e) => e.provider === "gemini");
+  it("rejects any provider other than bedrock and groq at start-up", () => {
+    const name = fc.constantFrom("bedrock", "groq", "gemini", "openrouter", "openai", "anthropic");
+    fc.assert(
+      fc.property(
+        fc.array(name, { minLength: 1, maxLength: 6 }),
+        fc.constantFrom("development", "production"),
+        (names, appEnv) => {
           const env = {
-            APP_ENV: "production",
-            MODEL_REWRITE: chain.map((e) => `${e.provider}:${e.model}`).join(","),
+            APP_ENV: appEnv,
+            MODEL_REWRITE: names.map((n, i) => `${n}:m${i}`).join(","),
           };
-
-          if (hasGemini) {
-            expect(() => loadModelConfig(env)).toThrow(ModelConfigError);
-            expect(() =>
-              createModelClient({ config: config(chain, "production"), transport, logger: noLog }),
-            ).toThrow(ModelConfigError);
+          const allowed = names.every((n) => n === "bedrock" || n === "groq");
+          if (allowed) {
+            expect(loadModelConfig(env).chains.rewrite.map((e) => e.provider)).toEqual(names);
           } else {
-            const client = createModelClient({ config: config(chain, "production"), transport, logger: noLog });
-            await client.chat("rewrite", REQUEST).catch(() => undefined);
+            expect(() => loadModelConfig(env)).toThrow(ModelConfigError);
           }
-          expect(calls.some((c) => providerOf(c.url) === "gemini")).toBe(false);
         },
       ),
       { numRuns: 200 },
@@ -158,27 +159,30 @@ describe("provider chain properties", () => {
 
 describe("config", () => {
   it("parses provider:model entries, keeping colons in the model ID", () => {
-    expect(parseChain("groq:openai/gpt-oss-120b, openrouter:nvidia/nemotron-3-ultra-550b-a55b:free")).toEqual([
+    expect(parseChain("bedrock:openai.gpt-oss-120b-1:0, groq:openai/gpt-oss-120b")).toEqual([
+      { provider: "bedrock", model: "openai.gpt-oss-120b-1:0" },
       { provider: "groq", model: "openai/gpt-oss-120b" },
-      { provider: "openrouter", model: "nvidia/nemotron-3-ultra-550b-a55b:free" },
     ]);
   });
 
   it("rejects unknown providers and malformed entries", () => {
     expect(() => parseChain("openai:gpt-4")).toThrow(ModelConfigError);
+    expect(() => parseChain("gemini:gemini-3.5-flash-lite")).toThrow(ModelConfigError);
     expect(() => parseChain("groq")).toThrow(ModelConfigError);
     expect(() => parseChain("groq:")).toThrow(ModelConfigError);
   });
 
-  it("allows gemini in development and rejects it in production", () => {
-    const env = { MODEL_JUDGE: "groq:qwen/qwen3.8-27b,gemini:gemini-3.5-flash-lite" };
-    expect(loadModelConfig({ ...env, APP_ENV: "development" }).chains.judge).toHaveLength(2);
-    expect(() => loadModelConfig({ ...env, APP_ENV: "production" })).toThrow(/MODEL_JUDGE/);
+  it("reads keys only from env", () => {
+    const cfg = loadModelConfig({ GROQ_API_KEY: "k1", AWS_BEARER_TOKEN_BEDROCK: "k2", APP_ENV: "development" });
+    expect(cfg.keys).toEqual({ bedrock: "k2", groq: "k1" });
   });
 
-  it("reads keys only from env", () => {
-    const cfg = loadModelConfig({ GROQ_API_KEY: "k1", APP_ENV: "development" });
-    expect(cfg.keys).toEqual({ groq: "k1" });
+  it("calls Bedrock in London by default and validates AWS_REGION", () => {
+    expect(loadModelConfig({}).baseUrls?.bedrock).toBe("https://bedrock-runtime.eu-west-2.amazonaws.com/openai/v1");
+    expect(loadModelConfig({ AWS_REGION: "eu-west-1" }).baseUrls?.bedrock).toBe(
+      "https://bedrock-runtime.eu-west-1.amazonaws.com/openai/v1",
+    );
+    expect(() => loadModelConfig({ AWS_REGION: "evil.example.com/x" })).toThrow(/AWS_REGION/);
   });
 });
 
@@ -191,22 +195,29 @@ describe("request settings", () => {
     expect(body.reasoning_effort).toBe("low");
     expect(body.max_tokens).toBe(3000);
     expect(buildBody("rewrite", { provider: "groq", model: "openai/gpt-oss-120b" }, REQUEST).max_tokens).toBe(3000);
+    expect(buildBody("rewrite", { provider: "bedrock", model: "openai.gpt-oss-120b-1:0" }, REQUEST)).toMatchObject({
+      reasoning_effort: "low",
+      max_tokens: 3000,
+    });
   });
 
-  it("turns off thinking for the Qwen judge only", () => {
+  it("turns off thinking for the Groq Qwen judge only", () => {
     expect(buildBody("judge", { provider: "groq", model: "qwen/qwen3.8-27b" }, REQUEST).reasoning_effort).toBe(
       "none",
     );
     expect(buildBody("vision", { provider: "groq", model: "qwen/qwen3.8-27b" }, REQUEST)).not.toHaveProperty(
       "reasoning_effort",
     );
+    expect(
+      buildBody("judge", { provider: "bedrock", model: "qwen.qwen3-235b-a22b-2507-v1:0" }, REQUEST),
+    ).not.toHaveProperty("reasoning_effort");
   });
 });
 
 describe("chat", () => {
   const chain: ChainEntry[] = [
-    { provider: "groq", model: "a" },
-    { provider: "openrouter", model: "b" },
+    { provider: "bedrock", model: "a" },
+    { provider: "groq", model: "b" },
   ];
 
   it("stops on a 400 without trying the next entry", async () => {
@@ -219,12 +230,28 @@ describe("chat", () => {
     expect(calls).toHaveLength(1);
   });
 
+  it("falls back to Groq when Bedrock denies access or the model isn't in the Region", async () => {
+    for (const status of [401, 403, 404]) {
+      const { transport, calls } = fakeTransport(new Map<string, Behaviour>([
+        ["a", { kind: "status", status }],
+        ["b", { kind: "ok" }],
+      ]));
+      const result = await createModelClient({ config: config(chain), transport, logger: noLog }).chat(
+        "rewrite",
+        REQUEST,
+      );
+      expect(result.provider).toBe("groq");
+      expect(result.attempts.map((a) => a.outcome)).toEqual(["unavailable", "ok"]);
+      expect(calls.map((c) => providerOf(c.url))).toEqual(["bedrock", "groq"]);
+    }
+  });
+
   it("skips an entry with no API key", async () => {
     const { transport, calls } = fakeTransport(new Map<string, Behaviour>([
       ["a", { kind: "ok" }],
       ["b", { kind: "ok" }],
     ]));
-    const cfg = { ...config(chain), keys: { openrouter: "k" } };
+    const cfg = { ...config(chain), keys: { groq: "k" } };
     const result = await createModelClient({ config: cfg, transport, logger: noLog }).chat("rewrite", REQUEST);
     expect(result.model).toBe("b");
     expect(result.attempts[0].outcome).toBe("missing_key");
@@ -273,7 +300,8 @@ describe("chat", () => {
       "judge",
       REQUEST,
     );
-    expect(calls[0].headers.authorization).toBe(`Bearer ${KEYS.groq}`);
+    expect(calls[0].headers.authorization).toBe(`Bearer ${KEYS.bedrock}`);
+    expect(calls[1].headers.authorization).toBe(`Bearer ${KEYS.groq}`);
     const logged = JSON.stringify(events);
     expect(events.map((e) => e.outcome)).toEqual(["server_error", "ok"]);
     for (const secret of ["PROMPT TEXT", "MODEL OUTPUT", ...Object.values(KEYS)]) {

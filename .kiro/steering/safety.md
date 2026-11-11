@@ -34,4 +34,4 @@ These rules apply to code, prompts, tests, fixtures and logs. They come from Req
 - Never log letter text, extracted text, Easy Read lines or key-fact values. That includes request bodies, error messages and test failure output on real letters. Log only rule results, attempt counts, timings and which provider and model answered.
 - Fixtures use public sample letters and invented letters only, with no real personal data.
 - Before conversion, tell the user the text goes to an outside AI model provider and ask them not to upload letters with personal details (R7.5).
-- API keys stay in environment variables, never in code, prompts or logs. Production never uses a `gemini:` model entry.
+- API keys stay in environment variables, never in code, prompts or logs. Model chains list only `bedrock:` and `groq:` entries. Bedrock is called in-Region (`AWS_REGION`, default `eu-west-2`), never through a cross-Region inference profile.

@@ -1,19 +1,10 @@
 import { z } from "zod";
-import {
-  type AppEnv,
-  type ChainEntry,
-  type ModelConfig,
-  type Provider,
-  type Role,
-  ModelConfigError,
-  PROVIDERS,
-  assertProductionSafe,
-} from "./config";
+import { type ChainEntry, type ModelConfig, type Provider, type Role, providerBaseUrls } from "./config";
 import { type Transport, fetchTransport } from "./transport";
 
-/** Output cap for `gpt-oss-120b`. Reasoning tokens count against Groq's limits. */
+/** Output cap for `gpt-oss-120b` on Bedrock and Groq. Reasoning tokens count against the cap. */
 export const GPT_OSS_MAX_TOKENS = 3000;
-/** Per-request timeout. Free models can be slow. */
+/** Per-request timeout. */
 export const DEFAULT_TIMEOUT_MS = 45_000;
 /** Longest `Retry-After` the caller should wait before giving up (design "Error Handling"). */
 export const MAX_RETRY_AFTER_MS = 20_000;
@@ -65,6 +56,7 @@ export type AttemptOutcome =
   | "timeout"
   | "network_error"
   | "missing_key"
+  | "unavailable"
   | "client_error"
   | "bad_response";
 
@@ -86,7 +78,11 @@ export interface ChatResult {
   attempts: AttemptRecord[];
 }
 
-/** Every entry in the chain failed with a 429, a 5xx, a timeout or a network error. */
+/**
+ * Every entry in the chain failed with a 429, a 5xx, a 401, 403 or 404 (key
+ * rejected, model access not granted, or model not offered in the Region), a
+ * timeout or a network error.
+ */
 export class ProviderChainError extends Error {
   constructor(
     readonly role: Role,
@@ -99,7 +95,7 @@ export class ProviderChainError extends Error {
   }
 }
 
-/** A provider rejected the request (4xx other than 429) or sent a malformed reply. Not retried. */
+/** A provider rejected the request (a 4xx other than 401, 403, 404 or 429) or sent a malformed reply. Not retried. */
 export class ProviderRequestError extends Error {
   constructor(
     readonly role: Role,
@@ -151,10 +147,9 @@ export function modelParams(role: Role, entry: ChainEntry, request: ChatRequest)
     params.reasoning_effort = "low";
     params.max_tokens = Math.min(request.maxTokens ?? GPT_OSS_MAX_TOKENS, GPT_OSS_MAX_TOKENS);
   }
-  if (role === "judge" && /qwen/i.test(entry.model)) {
-    // Thinking off. Groq uses reasoning_effort "none"; OpenRouter uses its reasoning object.
-    if (entry.provider === "groq") params.reasoning_effort = "none";
-    else params.reasoning = { enabled: false };
+  if (role === "judge" && entry.provider === "groq" && /qwen/i.test(entry.model)) {
+    // Thinking off on Groq. The Bedrock judge (Qwen3 235B A22B Instruct 2507) has no thinking mode.
+    params.reasoning_effort = "none";
   }
   return params;
 }
@@ -177,6 +172,9 @@ export function parseRetryAfter(value: string | undefined, nowMs: number = Date.
   return Math.max(0, date - nowMs);
 }
 
+/** 4xx statuses that mean "this entry can't serve the request", so the next entry is tried. */
+export const FALLBACK_STATUSES: ReadonlySet<number> = new Set([401, 403, 404]);
+
 function isAbort(err: unknown): boolean {
   return err instanceof Error && (err.name === "AbortError" || err.name === "TimeoutError");
 }
@@ -187,7 +185,7 @@ export function createModelClient(options: ModelClientOptions): ModelClient {
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const log = options.logger ?? defaultLogger;
   const now = options.now ?? (() => performance.now());
-  assertProductionSafe(config);
+  const baseUrls = config.baseUrls ?? providerBaseUrls();
 
   async function chat(role: Role, request: ChatRequest): Promise<ChatResult> {
     const chain = config.chains[role];
@@ -208,7 +206,6 @@ export function createModelClient(options: ModelClientOptions): ModelClient {
     };
 
     for (const entry of chain) {
-      assertEntryAllowed(config.appEnv, entry);
       const start = now();
       const key = config.keys[entry.provider];
       if (!key) {
@@ -221,7 +218,7 @@ export function createModelClient(options: ModelClientOptions): ModelClient {
       let res;
       try {
         res = await transport({
-          url: `${PROVIDERS[entry.provider].baseUrl}/chat/completions`,
+          url: `${baseUrls[entry.provider]}/chat/completions`,
           headers: { authorization: `Bearer ${key}` },
           body: buildBody(role, entry, request),
           signal: controller.signal,
@@ -239,6 +236,12 @@ export function createModelClient(options: ModelClientOptions): ModelClient {
         if (wait !== undefined) {
           retryAfterMs = Math.min(retryAfterMs ?? Infinity, wait, MAX_RETRY_AFTER_MS);
         }
+        continue;
+      }
+      if (FALLBACK_STATUSES.has(res.status)) {
+        // Bedrock: key rejected (401/403), model access not granted (403) or
+        // model not offered in this Region (404). Groq: unknown model (404).
+        record(entry, "unavailable", start, res.status);
         continue;
       }
       if (res.status < 200 || res.status >= 300) {
@@ -265,11 +268,4 @@ export function createModelClient(options: ModelClientOptions): ModelClient {
   }
 
   return { chat };
-}
-
-/** Second guard at call time: never call Gemini in production, even if config was built by hand. */
-function assertEntryAllowed(appEnv: AppEnv, entry: ChainEntry): void {
-  if (appEnv === "production" && entry.provider === "gemini") {
-    throw new ModelConfigError("gemini: entries are not allowed when APP_ENV=production");
-  }
 }

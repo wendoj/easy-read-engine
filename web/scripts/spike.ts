@@ -46,9 +46,8 @@ const PROMPT_FILE = path.join(ROOT, "prompts/rewrite.md");
 const CHECKER_DIR = path.join(ROOT, "checker");
 const OUT_DIR = path.join(ROOT, "web/.spike-output");
 
-/** Design "Model provider", development column, used when MODEL_REWRITE is unset. */
-const DEFAULT_REWRITE =
-  "groq:openai/gpt-oss-120b,openrouter:nvidia/nemotron-3-ultra-550b-a55b:free,gemini:gemini-3.5-flash-lite";
+/** Design "Model provider" rewrite chain, used when MODEL_REWRITE is unset. */
+const DEFAULT_REWRITE = "bedrock:openai.gpt-oss-120b-1:0,groq:openai/gpt-oss-120b";
 const VISION_ENTRY: ChainEntry = { provider: "groq", model: "qwen/qwen3.8-27b" };
 const ARASAAC_API = "https://api.arasaac.org";
 const CATALOGUE_CANDIDATES = [

@@ -57,7 +57,7 @@ docker compose up --build
 | `cd web && npm run record-samples` | Records the public sample letters shown on the input screen, into `web/data/samples/` |
 | `cd web && npm run gen:checker-types` | Exports the checker's OpenAPI schema and regenerates `web/src/types/checker.ts` |
 
-The `fixtures`, `spike`, `record-samples` and `needs_model` commands call real model providers and use free-tier quota. Start the checker first.
+The `fixtures`, `spike`, `record-samples` and `needs_model` commands call real model providers. They cost money on Bedrock and use Groq quota on the fallback. Start the checker first.
 
 ## How it works
 
@@ -92,17 +92,25 @@ The prompts are in `prompts/`. The full design is in `.kiro/specs/easy-read/desi
 
 The thresholds are starting values to tune against real Easy Read documents. They aren't published limits.
 
-## Model providers and free limits
+## Model providers
 
-The app uses free tiers only. Each role (rewrite, judge, vision) has an ordered list of `provider:model` entries in `.env` (`MODEL_REWRITE`, `MODEL_JUDGE`, `MODEL_VISION`). The client moves to the next entry after a rate-limit error, a server error or a timeout. Each result records which provider and model answered.
+Each role (rewrite, judge, vision) has an ordered list of `provider:model` entries in `.env` (`MODEL_REWRITE`, `MODEL_JUDGE`, `MODEL_VISION`). The providers are `bedrock` and `groq`, and any other name stops the app at start-up. The client moves to the next entry after a rate-limit error, a server error, a 401, 403 or 404, or a timeout. Each result records which provider and model answered.
 
-Limits as checked on 11 November 2026:
+| Role | First | Fallback |
+| --- | --- | --- |
+| Rewrite and regenerate | `bedrock:openai.gpt-oss-120b-1:0` | `groq:openai/gpt-oss-120b` |
+| Judge (P9, P10) | `bedrock:qwen.qwen3-235b-a22b-2507-v1:0` | `groq:qwen/qwen3.8-27b` |
+| Vision (photos) | `bedrock:qwen.qwen3-vl-235b-a22b` | `groq:qwen/qwen3.8-27b` |
 
-- **Groq** (first choice). The [Groq rate limits page](https://console.groq.com/docs/rate-limits) lists `openai/gpt-oss-120b` and `qwen/qwen3.8-27b` at 30 requests a minute, 1,000 requests a day, 8,000 tokens a minute and 200,000 tokens a day each. Limits apply to the whole organisation. Your own limits page in the Groq console shows the exact figures for your account.
-- **OpenRouter** (fallback). The [OpenRouter limits page](https://openrouter.ai/docs/api/reference/limits) says models ending in `:free` allow 20 requests a minute. The daily limit is 50 requests if you have bought less than 10 credits, and 1,000 if you have bought at least 10.
-- **Gemini** (development only). Google's terms allow only paid services for apps offered to users in the UK, so production rejects any `gemini:` entry at start-up.
+- **Amazon Bedrock** (first choice, paid per token). The app calls the OpenAI-compatible [Chat Completions API](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-chat-completions.html) on `bedrock-runtime` in `AWS_REGION` (default `eu-west-2`, London), with a Bedrock API key in `AWS_BEARER_TOKEN_BEDROCK`. It uses plain model IDs and no cross-Region inference profile, so letter text stays in London. All three models were listed as In-Region in London on 11 November 2026 ([Regional availability](https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html)). Create the key in the Bedrock console under API keys.
+- **Groq** (fallback, free plan). The [Groq rate limits page](https://console.groq.com/docs/rate-limits) lists `openai/gpt-oss-120b` and `qwen/qwen3.8-27b` at 30 requests a minute, 1,000 requests a day, 8,000 tokens a minute and 200,000 tokens a day each. These limits change often, so check the page again before relying on them.
 
-Free tiers change often. Check these pages again before relying on them.
+## AWS MCP servers (development)
+
+`.kiro/settings/mcp.json` can list two AWS servers next to `easy-read-checker`. Both run on your machine through `uvx` and are never deployed:
+
+- `aws-mcp`: the [AWS MCP Server](https://docs.aws.amazon.com/agent-toolkit/latest/userguide/getting-started-aws-mcp-server.html) through `mcp-proxy-for-aws-cli`, signed with SigV4 using your AWS CLI profile (`AWS_PROFILE`, default `default`), with `AWS_REGION=eu-west-2`. Sign in first with `aws login`. Tools need your approval each time.
+- `aws-docs`: `awslabs.aws-documentation-mcp-server`, for AWS documentation search. It needs no credentials.
 
 ## Easy Read guidance
 

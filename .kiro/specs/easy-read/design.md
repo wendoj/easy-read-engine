@@ -25,8 +25,8 @@ Requirements: `requirements.md` (R1 to R9, P1 to P10). Source brief: `docs/brief
 | MCP server | Official Python MCP SDK (`mcp`, FastMCP), stdio transport | Thin wrapper over the same functions the HTTP app calls |
 | Attempts | 3 tries in total: 1 first conversion plus up to 2 regenerations | Matches the brief's "until every rule passes or three tries are used up" |
 | Fact comparison | Compare normalised values (see Key-fact normalisation) | "1 March 2026" and "1/3/2026" are the same date; a changed digit is not |
-| Model provider | Groq free plan first, OpenRouter free models as fallback; Gemini free tier in development only (see Model provider) | $0 with no card. Groq doesn't keep or train on prompts by default. Gemini's terms forbid its free tier in apps offered to UK users |
-| Judges | One judge call per try returns P9 and P10 (including the advice check) for every line | Halves the requests per try, which matters under free-tier daily limits |
+| Model provider | Amazon Bedrock in London (`eu-west-2`, in-Region only) first, Groq free plan as fallback (see Model provider) | Paid per token, with no per-day cap like the free tiers. Bedrock doesn't keep or train on prompts, and in-Region calls keep letter text in the UK |
+| Judges | One judge call per try returns P9 and P10 (including the advice check) for every line | Halves the requests per try, which matters for cost on Bedrock and for Groq's daily limits |
 | Symbol library | ARASAAC (CC BY-NC-SA) | About 13,000 pictograms with an English search API; the non-commercial licence fits this project (see Symbols) |
 | Hosting | Hetzner VPS (16 GB RAM) via Dokploy, Docker Compose, at `easyread.wendyji.com` | Your existing setup; runs the Python service and Chromium without serverless size limits (see Deployment) |
 
@@ -137,14 +137,14 @@ All handlers run with `export const runtime = "nodejs"` and validate input at th
 | `POST /api/export` | `ConversionResult` | `application/pdf`, A4 | R8 |
 
 - **`/api/extract`.** PDFs go through pdf.js (`pdfjs-dist`). If a PDF has no text layer, it is treated as an image. Images go to the vision model with a prompt that first classifies the page as printed or handwritten. Handwritten pages return `error: "handwriting"` and the UI shows the message from R1.4.
-- **`/api/convert`.** Calls the pipeline orchestrator. Free models can be slow, and 3 tries may take a minute or more, so the handler streams newline-delimited JSON: progress events ("Checking, try 2 of 3") and then the final `ConversionResult`. The stream keeps the connection active through the proxy and shows the user that work is happening.
+- **`/api/convert`.** Calls the pipeline orchestrator. Models can be slow, especially on the Groq fallback, and 3 tries may take a minute or more, so the handler streams newline-delimited JSON: progress events ("Checking, try 2 of 3") and then the final `ConversionResult`. The stream keeps the connection active through the proxy and shows the user that work is happening.
 - **`/api/check` (R9).** Called when the user saves an edit, not on every keystroke. It re-runs P1 to P8 on all lines, and runs the judge on `editedLineIds` only, so one edit costs one model request. It returns the same `status` rules as `/api/convert`. It never regenerates lines: the user's text is kept as written. The demo uses this route to show one changed date turning P1 red and blocking the output. Decisions (task 26):
   - **Key facts come from the server.** The handler runs `analyse` on the Original again and uses those sentences and key facts for P1, the judge's source sentences and `/line-facts`. Key facts sent by the client are ignored, so P1 always compares the output with the Original (R2.4). A line whose `source_sentence_id` isn't in that analysis is a 400.
   - **Earlier P9 and P10 verdicts travel in the request.** The client sends its current checks as `previousChecks`. The server keeps their P9 and P10 failures for lines that are still there and weren't edited, adds the judge's verdicts for the edited lines (`web/src/check/merge.ts`), and decides the status from all 10 rules. A previous failure that names no line stays failed. These carried verdicts are only as trustworthy as the client, which can affect only its own screen; P1 to P8 always run on the server, so a block can't be avoided this way.
   - **Pictures are not attached again.** The user's `symbol_id`s are kept and P8 validates them.
   - **A blocked edit returns no lines**, as in R2.5. The client keeps earlier results in memory (an undo stack of up to 20, never stored, R7.4), so "Undo edit" restores the result before the edit exactly, with no server call.
   - Order: zod and size checks (400, 413), checker health (503, before any model call), then the shared rate limit (route `check`, cost 1).
-- **Rate limiting.** `/api/extract`, `/api/convert` and `/api/check` share the free-tier daily allowances (see Model provider), so each has a per-IP limit (in-memory token bucket, for example 10 conversions per IP per hour). When the limit is hit, the route returns 429 with a plain message.
+- **Rate limiting.** `/api/extract`, `/api/convert` and `/api/check` share the Bedrock spend and the Groq daily allowances (see Model provider), so each has a per-IP limit (in-memory token bucket, for example 10 conversions per IP per hour). When the limit is hit, the route returns 429 with a plain message.
 - **`/api/export`.** Renders `print/page.tsx` with the result and prints it to PDF in a headless browser (Playwright or Puppeteer with Chromium), A4, background graphics on.
 
 ### Pipeline orchestrator (`web/src/pipeline`)
@@ -175,7 +175,7 @@ async function convert(original: string): Promise<ConversionResult> {
 
 ### Model client (`web/src/llm`)
 
-A small interface over OpenAI-compatible chat completions APIs. Groq, OpenRouter and Gemini all offer one, so one client covers every provider in the chain (see Model provider):
+A small interface over OpenAI-compatible chat completions APIs. Bedrock (`bedrock-runtime`, `/openai/v1`) and Groq both offer one, so one client covers every provider in the chain (see Model provider):
 
 ```ts
 interface ModelClient {
@@ -192,47 +192,47 @@ interface ModelClient {
 - The rewrite and regenerate prompts include the Easy Read rules from `.kiro/steering/easy-read-rules.md` and the safety rules from `.kiro/steering/safety.md`: no advice, no telling the reader what to decide (R7.2).
 - The judge returns, per line, a verdict and a one-line reason for each of: meaning kept (P9), respectful tone (P10) and no advice (P10, R7.3). A line fails P10 if either the tone or the advice verdict fails. Every failure maps to a line ID.
 
-### Model provider (free tiers only, no card)
+### Model provider (Bedrock first, Groq as fallback)
 
-Constraint: no money spent on model APIs. Everything below was checked in November 2026. Free tiers change often, so re-check each one on day 1.
+Bedrock is paid per token. Groq stays on its free plan as the fallback. Model availability below was checked on 11 November 2026 in the [Bedrock Regional availability table](https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html).
 
-**Providers considered:**
+**Providers:**
 
-| Provider | Free terms | Verdict |
+| Provider | Terms | Use |
 | --- | --- | --- |
-| **Groq** (primary) | Free plan, no card. `openai/gpt-oss-120b` and `qwen/qwen3.8-27b` each get 30 requests a minute, 1,000 a day, 8,000 tokens a minute and 200,000 tokens a day ([Groq rate limits](https://console.groq.com/docs/rate-limits), [free plan summary, 29 Oct 2026](https://byoklist.com/guides/groq-api-key)). Inputs and outputs aren't kept by default or used for training, and the short-term logs can be switched off in Data Controls ([Your data in GroqCloud](https://console.groq.com/docs/your-data)) | **Use.** Best privacy of the free options, fast, and two capable models with separate daily allowances |
-| **OpenRouter** (fallback) | `:free` models, no card: 20 requests a minute and 50 a day, shared across all free models ([OpenRouter limits](https://openrouter.ai/docs/api/reference/limits)). Several free hosts may train on prompts ([TrueFoundry](https://www.truefoundry.com/blog/openrouter-free-models-whats-actually-free-and-what-it-costs-you)), and the free list changes monthly | **Use as fallback** for when Groq's daily tokens run out, and as the vision fallback |
-| **Google AI Studio** (Gemini API) | Free tier with per-model limits, for example 500 requests a day on Gemini 3.5 Flash-Lite and 20 a day on Gemini 3.8 Flash ([summary, Oct 2026](https://www.scriptbyai.com/gemini-api-free-tier-limits/)). But Google's terms say that apps made available to users in the EEA, Switzerland or the **UK** may use only Paid Services ([Gemini API terms](https://aistudio.google.com/docs/terms)) | **Development only.** The app is for UK letters and UK readers, so the live site can't use the free tier. Your own local runs and hooks aren't an app offered to users, so Gemini can back up the fixture hook |
-| **Cerebras** | No permanent free tier since July 2026. New accounts get a one-time $5 credit after adding a card, and it expires after 30 days. The trial allows 5 requests a minute and 1M tokens a day ([Cerebras rate limits](https://inference-docs.cerebras.ai/support/rate-limits)) | **Don't use.** It needs a card and would stop working partway through judging |
-| Self-hosted on the VPS | No API limits. A small model on CPU would take minutes per conversion on a 16 GB server that also runs Chromium | **Not now.** It's an option later if every free API disappears |
+| **Amazon Bedrock** (primary) | Pay per token, Standard tier. OpenAI-compatible Chat Completions on `https://bedrock-runtime.eu-west-2.amazonaws.com/openai/v1`, authenticated with a Bedrock API key as a bearer token ([Chat Completions API](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-chat-completions.html)). Calls use plain model IDs, never a Geo or Global cross-Region inference profile, so requests stay in London | **Use** for every role |
+| **Groq** (fallback) | Free plan, no card. `openai/gpt-oss-120b` and `qwen/qwen3.8-27b` each get 30 requests a minute, 1,000 a day, 8,000 tokens a minute and 200,000 tokens a day ([Groq rate limits](https://console.groq.com/docs/rate-limits)). Inputs and outputs aren't kept by default or used for training ([Your data in GroqCloud](https://console.groq.com/docs/your-data)) | **Use as fallback** when Bedrock is rate limited, down, or denies access |
 
-**Chain by role.** Each role is an ordered env list of `provider:model` entries. The model client tries them in order and moves on after a 429, a 5xx or a timeout. Every result records which provider and model answered.
+OpenRouter and Gemini were removed. Any other provider name in a chain fails start-up in every `APP_ENV`.
 
-| Role | Production (`easyread.wendyji.com`) | Development (local `.env`) |
-| --- | --- | --- |
-| Rewrite and regenerate | `groq:openai/gpt-oss-120b` → `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | same, then `gemini:gemini-3.5-flash-lite` |
-| Judge (P9, P10) | `groq:qwen/qwen3.8-27b` → `openrouter:thinkingmachines/inkling-small:free` | same, then `gemini:gemini-3.5-flash-lite` |
-| Vision (photos) | `groq:qwen/qwen3.8-27b` if Groq's endpoint accepts images (check on day 1) → `openrouter:nvidia/nemotron-3.5-super-vl:free` | same |
+**Chain by role.** Each role is an ordered env list of `provider:model` entries (`bedrock` or `groq`). The model client tries them in order and moves on after a 429, a 5xx, a 401, 403 or 404 (key rejected, model access not granted, or model not offered in the Region), a timeout or a network error. Any other 4xx stops the chain, so a 400 from a rejected tool call still reaches the structured-output retry. Every result records which provider and model answered.
 
-- Rewrite and judge use different model families, so the judge isn't grading its own style. They also draw on separate Groq daily allowances.
-- Production lists never include a Google-hosted endpoint. The start-up check fails if a `gemini:` entry appears in production config.
-- `gpt-oss-120b` is a reasoning model, and reasoning tokens count against the limits. Requests set `reasoning_effort: "low"` and a `max_tokens` cap. Qwen's thinking mode is turned off for the judge.
-- These are starting points, not measured results. On day 1, run the 3 council letters through each candidate and keep the ones that pass the most checks.
+| Role | Chain (same in production and development) |
+| --- | --- |
+| Rewrite and regenerate | `bedrock:openai.gpt-oss-120b-1:0` → `groq:openai/gpt-oss-120b` |
+| Judge (P9, P10) | `bedrock:qwen.qwen3-235b-a22b-2507-v1:0` → `groq:qwen/qwen3.8-27b` |
+| Vision (photos) | `bedrock:qwen.qwen3-vl-235b-a22b` → `groq:qwen/qwen3.8-27b` |
+
+- All three Bedrock models are offered In-Region in `eu-west-2` on `bedrock-runtime` with Chat Completions. Qwen3 VL doesn't list structured outputs there, so vision may fall back from the tool request to the content request (see Error Handling).
+- Rewrite and judge use different model families, so the judge isn't grading its own style.
+- `gpt-oss-120b` is a reasoning model on both providers. Requests set `reasoning_effort: "low"` and a `max_tokens` cap. The Groq Qwen judge gets `reasoning_effort: "none"`. The Bedrock judge is the Instruct 2507 model, which has no thinking mode, so it gets no reasoning setting.
+- `AWS_REGION` sets the Bedrock Region (default `eu-west-2`). It is checked against the AWS Region name pattern, so env text can't change the host.
+- The Bedrock models are a starting point. Re-run the fixture letters on them and compare pass counts with `docs/pass-rates.md`, which was recorded on Groq and OpenRouter.
 
 **Token budget.** These are estimates to check on day 1. A rewrite request is about 4,000 tokens: Easy Read rules, letter, key facts, output and a little reasoning. A judge request is about 3,000. One conversion therefore uses 4,000 to 12,000 tokens on the rewrite model and 3,000 to 9,000 on the judge model.
 
-- **Live site:** Groq's 200,000 tokens a day per model gives roughly 16 to 50 conversions a day before the OpenRouter fallback's 50 requests start.
-- **Per minute:** at 8,000 tokens a minute, each model handles about 2 requests a minute. A 3-try conversion therefore takes 1 to 3 minutes, which is why `/api/convert` streams progress.
-- **Letter length:** one request must fit under 8,000 tokens. Letters are therefore limited to 1,500 words (R1.7), which covers typical 1 to 2 page letters.
-- **Prompt hook:** 5 letters cost about 35,000 to 105,000 tokens per model, so 2 to 5 runs a day on Groq. In development the chain then falls back to OpenRouter and Gemini Flash-Lite, which has 500 requests a day. The hook output shows which model answered each letter, so the before-and-after pass counts in the write-up compare like with like.
+- **Live site:** Bedrock has per-minute token quotas but no daily cap, so cost, not quota, limits the conversion count. Groq's 200,000 tokens a day per model covers roughly 16 to 50 conversions if Bedrock is unavailable.
+- **Per minute:** on the Groq fallback, 8,000 tokens a minute allows about 2 requests a minute, so a 3-try conversion takes 1 to 3 minutes. That is why `/api/convert` streams progress.
+- **Letter length:** one request must fit under Groq's 8,000 tokens a minute, so the fallback still works. Letters are therefore limited to 1,500 words (R1.7), which covers typical 1 to 2 page letters.
+- **Prompt hook:** 5 letters cost about 35,000 to 105,000 tokens per model, billed on Bedrock. The hook output shows which model answered each letter, so the before-and-after pass counts in the write-up compare like with like.
 
 **Protecting the live quota:**
 
 - **Sample letters.** The input screen offers the public sample letters with results recorded from a real run, labelled with the date and model. P1 to P8 are re-run on load (no model call), so the checks shown are live. Judges and visitors can see the full flow without spending quota. Loading goes through `POST /api/sample` (`{ id }`), not `/api/check`, because `/api/check` always judges the edited lines; `/api/sample` calls only the checker (`analyse`, `check`, `line-facts`), keeps the recorded P9 and P10 verdicts and labels them as recorded, and isn't under the model rate limits. The files are in `web/data/samples/`, recorded with `npm run record-samples`, and imported statically on the server; the page gets only IDs and labels.
-- **Limits.** A per-IP limit applies, plus a global daily cap set just under the combined free allowance. When the cap is reached, the site says "Daily limit reached, try again tomorrow" before a conversion starts, not halfway through.
+- **Limits.** A per-IP limit applies, plus a global daily cap that also caps Bedrock spend. When the cap is reached, the site says "Daily limit reached, try again tomorrow" before a conversion starts, not halfway through.
 - **Fixture runs** go one letter at a time, to stay under the per-minute limits.
 
-**If real letters are ever processed:** Groq's free plan doesn't keep or train on prompts by default, so turn off its logs in Data Controls and remove the OpenRouter fallbacks whose hosts may train. This is a config change, not a code change.
+**If real letters are ever processed:** Bedrock doesn't keep or train on prompts, and in-Region calls stay in London. Turn off Groq's short-term logs in Data Controls, or remove the `groq:` fallbacks so text never leaves AWS. This is a config change, not a code change.
 
 ### Checker client (`web/src/checker-client`)
 
@@ -360,6 +360,7 @@ Built with shadcn/ui components (`web/components/ui/`). Rules for every screen:
 - **Blocked state (R2.5, R9.3, R9.5).** No Easy Read lines are shown and Export is disabled. The screen shows the Original, the failed key facts with their original values, and a message that the output was withheld. If the block came from a user edit, the screen also offers "Undo edit".
 - **Flagged state (R3.4).** Lines are shown. Failed rules are red in the report, and the affected lines have a marker.
 - **Print layout (R8).** A4, large text (at least 16pt; tune against Easy Read guidance), picture column on the left, one line per row, safety notice at the top of page 1, symbol attribution in the footer.
+- **Motion (input and result screens only; values in `web/src/ui/motion.ts`).** Built with Motion (`motion/react`). The confirm step and the result screen enter once, in chunks 100ms apart (opacity, 4px blur, 12px rise, 300ms, `cubic-bezier(0.23, 1, 0.32, 1)`). The safety notice and the Original never move. A blocked result appears with no entrance. Errors, a flag after an edit, and the swap between lines and the blocked state fade over 150ms, and each also has an icon and a label. Buttons scale to 0.96 when pressed. Under `prefers-reduced-motion`, only opacity changes. The print layout has no motion.
 
 ## Data Models
 
@@ -454,7 +455,8 @@ The model and checker are replaced with fakes so the tests cover only the orches
 - For any edit (R9), `/api/check` never changes the user's text, calls the judge only for edited lines, and returns `"blocked"` whenever P1 fails.
 - A line with any advice verdict failed always fails P10.
 - A conversion makes at most 6 model requests (3 tries of 2), not counting the photo step, the one retry allowed per request for invalid JSON, and provider fallbacks.
-- For any pattern of provider failures, the chain tries entries in order, never calls an entry after one succeeds, and never calls a `gemini:` entry when running in production mode.
+- For any pattern of provider failures (429, 5xx, 401, 403, 404, timeout, network error), the chain tries entries in order and never calls an entry after one succeeds.
+- Any chain that names a provider other than `bedrock` or `groq` fails at start-up, in every `APP_ENV`.
 
 ### Fixture run
 
@@ -478,7 +480,7 @@ flowchart LR
   U[Browser] -- HTTPS --> T[Traefik<br/>managed by Dokploy]
   T --> W[web container<br/>Next.js standalone + Chromium]
   W -->|"HTTP, checker:8000"| C[checker container<br/>FastAPI + spaCy]
-  W -->|HTTPS| G[Groq, then OpenRouter]
+  W -->|HTTPS| G[Bedrock eu-west-2, then Groq]
   W -->|"HTTPS, first use only"| A[ARASAAC image server]
 ```
 
@@ -487,14 +489,14 @@ flowchart LR
   - `checker`: Python slim image. The spaCy model is installed at build time, so start-up doesn't download anything. Listens on port 8000. It has a health check on `/health`, and `web` waits for it to be healthy.
 - **Domain.** Only `web` gets a domain, added in Dokploy's Domains tab with Let's Encrypt. Dokploy adds the Traefik labels itself ([Dokploy compose domains](https://docs.dokploy.com/docs/core/docker-compose/domains)). Point the DNS record at the VPS before adding the domain in Dokploy, or the certificate may not be issued ([Dokploy troubleshooting](https://docs.dokploy.com/docs/core/troubleshooting/domains)). Domain: `easyread.wendyji.com`.
 - **Checker is private.** It has no domain and no published port. It is reachable only on the Compose network as `http://checker:8000`.
-- **Secrets.** `GROQ_API_KEY`, `OPENROUTER_API_KEY` and the model chains are set as Dokploy environment variables, never committed. `GEMINI_API_KEY` exists only in your local `.env`.
+- **Secrets.** `AWS_BEARER_TOKEN_BEDROCK`, `GROQ_API_KEY` and the model chains are set as Dokploy environment variables, never committed. `AWS_REGION` defaults to `eu-west-2`.
 - **No letter storage (R7.4).** No database. The only volume is `symbol-cache`, which holds ARASAAC PNGs and nothing else. Logs follow the rule in Error Handling.
 - **Memory.** The server has 16 GB of RAM. Chromium is the largest user at a few hundred MB per export, so the web app runs up to 2 exports at once and queues the rest. Set Compose memory limits (for example 2 GB for `web` and 1 GB for `checker`) so a runaway export can't affect other apps on the server.
-- **MCP server is local only.** Kiro starts `checker/src/mcp_server.py` over stdio on your machine, configured in `.kiro/settings/mcp.json`. It isn't deployed.
+- **MCP servers are local only.** Kiro starts `checker/src/mcp_server.py` over stdio on your machine, configured in `.kiro/settings/mcp.json`. The same file can list the AWS MCP Server (through `mcp-proxy-for-aws`, SigV4 with your AWS CLI profile) and the AWS Documentation MCP server, for development. None of them is deployed.
 
 ## Open Questions
 
-1. **Model choice.** The models in Model provider are untested starting points. Confirm or replace them after the day 1 run, and check whether Groq's `qwen3.8-27b` accepts images.
+1. **Model choice.** The Bedrock models in Model provider haven't been run on the fixture letters yet. Confirm or replace them after a fixture run, and check that Qwen3 VL reads letter photos as well as the Groq model did.
 2. **Token estimates.** The 4,000 and 3,000 token figures per request are guesses. Measure them on day 1, because they decide the daily conversion count and the 1,500-word letter limit.
 3. **Which official Easy Read guidance** the steering doc follows (from the brief).
 4. **Who reviews outputs** (from the brief).

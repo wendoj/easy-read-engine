@@ -43,10 +43,10 @@ export const PER_CLIENT_CAPACITY = 30;
 export const PER_CLIENT_REFILL_PER_HOUR = 30;
 
 /**
- * Just under the combined free allowance (design "Token budget"): Groq's
- * 200,000 tokens a day is about 50 rewrite requests (4,000 tokens each) and
- * 66 judge requests (3,000 each), plus OpenRouter's 50 free requests. That is
- * about 166 requests; 150 leaves some room for the estimates being low.
+ * Daily request cap (design "Token budget"). It was set under the old
+ * free-tier allowance. Bedrock has no daily cap, so it now limits Bedrock
+ * spend. If every request falls back, Groq's 200,000 tokens a day cover only
+ * about 116 of them (50 rewrite, 66 judge), so the rest would get a 503.
  */
 export const DAILY_CAP = 150;
 

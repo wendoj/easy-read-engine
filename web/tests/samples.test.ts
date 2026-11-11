@@ -269,8 +269,8 @@ describe("recorded label", () => {
       "Recorded on 12 May 2026 with groq:openai/gpt-oss-120b",
     );
     expect(
-      recordedLabel({ recordedAt: "2026-05-12T23:59:00.000Z", models: ["groq:a", "openrouter:b", "groq:c"] }),
-    ).toBe("Recorded on 12 May 2026 with groq:a, openrouter:b and groq:c");
+      recordedLabel({ recordedAt: "2026-05-12T23:59:00.000Z", models: ["groq:a", "bedrock:b", "groq:c"] }),
+    ).toBe("Recorded on 12 May 2026 with groq:a, bedrock:b and groq:c");
   });
 
   it("names writing models before the judge, each once", () => {

@@ -1,5 +1,6 @@
 // Runs once when the Next.js server starts. Fails start-up on bad model
-// config, including any gemini: entry when APP_ENV=production.
+// config, including any provider other than bedrock or groq and a bad
+// AWS_REGION.
 //
 // Throwing alone isn't enough: the standalone server.js logs "Failed to
 // prepare server" and keeps listening (seen in the task 32 Docker check). So

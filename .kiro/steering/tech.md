@@ -16,8 +16,9 @@ Full detail is in `.kiro/specs/easy-read/design.md`.
 | Web tests | Vitest and fast-check |
 | Checker service | Python 3.13 managed with uv. FastAPI, Pydantic, spaCy with pinned `en_core_web_sm` 3.8.0 |
 | Checker tests | pytest and Hypothesis |
-| MCP server | Official Python `mcp` SDK (FastMCP), stdio, local only |
-| Models | OpenAI-compatible client. Groq first, OpenRouter free models as fallback, Gemini in development only |
+| MCP server | Official Python `mcp` SDK (FastMCP), stdio, local only. AWS MCP Server and AWS Documentation MCP server for development, also local only |
+| Models | OpenAI-compatible client. Amazon Bedrock in `eu-west-2` (in-Region, Bedrock API key) first, Groq as fallback. No other providers |
+| Motion | Motion (`motion/react`) on the input and result screens. Shared values in `web/src/ui/motion.ts` |
 | Text extraction | `pdfjs-dist` for typed PDFs, a vision model for photos |
 | PDF export | Print page rendered in headless Chromium |
 | Pictograms | ARASAAC (CC BY-NC-SA), index committed at `checker/data/symbols.json` |
@@ -74,4 +75,4 @@ Each checker has its own file in `checker/src/checks/` and its own test file, `c
 
 ## Environment
 
-Variables are listed in `.env.example`: `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `GEMINI_API_KEY` (development only), `MODEL_REWRITE`, `MODEL_JUDGE`, `MODEL_VISION`, `CHECKER_URL`, `APP_ENV`. Never commit `.env`.
+Variables are listed in `.env.example`: `AWS_BEARER_TOKEN_BEDROCK`, `AWS_REGION` (default `eu-west-2`), `GROQ_API_KEY`, `MODEL_REWRITE`, `MODEL_JUDGE`, `MODEL_VISION`, `CHECKER_URL`, `APP_ENV`. Never commit `.env`.

@@ -23,7 +23,7 @@ open http://localhost:3000
 docker compose down
 ```
 
-Your local `.env` may list `gemini:` models for development. With `APP_ENV=production` forced by the compose file, `web` will then refuse to start. Use Groq and OpenRouter entries only when you run the stack.
+The model chains may list only `bedrock:` and `groq:` entries. Any other provider, including the removed `gemini:` and `openrouter:`, makes `web` refuse to start.
 
 ## Steps left for you
 
@@ -46,13 +46,14 @@ In the app's **Environment** tab, set these (names from `.env.example`; the valu
 
 | Variable | Notes |
 | --- | --- |
+| `AWS_BEARER_TOKEN_BEDROCK` | Secret. A long-term Bedrock API key with access to the 3 Bedrock models below |
+| `AWS_REGION` | `eu-west-2`. Optional, this is the default |
 | `GROQ_API_KEY` | Secret |
-| `OPENROUTER_API_KEY` | Secret |
-| `MODEL_REWRITE` | Groq and OpenRouter entries only |
-| `MODEL_JUDGE` | Groq and OpenRouter entries only |
-| `MODEL_VISION` | Groq and OpenRouter entries only |
+| `MODEL_REWRITE` | `bedrock:openai.gpt-oss-120b-1:0,groq:openai/gpt-oss-120b` |
+| `MODEL_JUDGE` | `bedrock:qwen.qwen3-235b-a22b-2507-v1:0,groq:qwen/qwen3.8-27b` |
+| `MODEL_VISION` | `bedrock:qwen.qwen3-vl-235b-a22b,groq:qwen/qwen3.8-27b` |
 
-Don't set `GEMINI_API_KEY` or any `gemini:` entry. Gemini is for development only. `APP_ENV`, `CHECKER_URL`, `SYMBOL_CACHE_DIR` and `CHROMIUM_PATH` are already set in `docker-compose.yml`.
+`APP_ENV`, `CHECKER_URL`, `SYMBOL_CACHE_DIR` and `CHROMIUM_PATH` are already set in `docker-compose.yml`. Bedrock is paid per token, so set an AWS Budgets alert on the account.
 
 ### 4. Attach the domain
 
@@ -63,7 +64,7 @@ In the **Domains** tab, add `easyread.wendyji.com` to the `web` service, contain
 1. Open `https://easyread.wendyji.com`. The page loads over HTTPS with a valid certificate.
 2. Convert a sample letter (one of the invented letters in `fixtures/letters/`, pasted in). The result screen shows the Original on the left, the notice that can't be dismissed, and the Easy Read lines with key facts highlighted.
 3. Click **Export** and check the PDF: A4, the notice at the top of page 1, pictures in the left column, and the ARASAAC attribution in the footer.
-4. Start-up check: in the Environment tab, set `MODEL_REWRITE` to a value with a `gemini:` entry (for example `gemini:gemini-2.5-flash`) and redeploy. The `web` container must exit with `Refusing to start: MODEL_REWRITE lists a gemini: entry, which is not allowed when APP_ENV=production` in its logs, and the site must not serve. Because of `restart: unless-stopped`, Docker restarts it and it exits again each time. Put the real value back and redeploy.
+4. Start-up check: in the Environment tab, set `MODEL_REWRITE` to a value with an unknown provider (for example `gemini:gemini-2.5-flash`) and redeploy. The `web` container must exit with `Refusing to start: Unknown model provider in entry "gemini:gemini-2.5-flash". Use one of: bedrock, groq` in its logs, and the site must not serve. Because of `restart: unless-stopped`, Docker restarts it and it exits again each time. Put the real value back and redeploy.
 5. In the `web` logs, check that log lines hold rule results, counts and timings only, with no letter text (R7.4).
 
 ## Chromium sandbox
