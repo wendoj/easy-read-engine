@@ -1,10 +1,10 @@
 # Pass rates
 
-> **Bedrock fixture run on the final code, 12 November 2026.** 8 letters: the 3 public sample letters and the 5 invented letters. Every letter finished with a checked result and every model request went to Bedrock. No letter passed all 10 rules: 6 ended flagged and 2 blocked, the same split as the run on `a8d723d`. This is a run on 8 letters, not a pass rate on the planned 20 public letters.
+> **Bedrock fixture run on `66a8d0b`, 12 November 2026.** The checker fix `657bd8f` came after this run and has had no live run (see "Changes after this run"). 8 letters: the 3 public sample letters and the 5 invented letters. Every letter finished with a checked result and every model request went to Bedrock. No letter passed all 10 rules: 6 ended flagged and 2 blocked, the same split as the run on `a8d723d`. This is a run on 8 letters, not a pass rate on the planned 20 public letters.
 
 - **Date:** 2026-11-12, 19:56 to 20:18 UTC
 - **Command:** `cd web && npm run fixtures -- --all` (checker at `http://localhost:8000`, `APP_ENV=development`, default 15 s pause between letters)
-- **Code:** commit `66a8d0b`, which has every fix listed under "Changes since the a8d723d run" below
+- **Code:** commit `66a8d0b`, which has every fix listed under "Changes since the a8d723d run" below. It does not have `657bd8f`, which came after
 - **Raw results:** `fixtures/results/20261112T195656Z-all.json`
 - **Exit code:** 0
 
@@ -102,7 +102,7 @@ These are all in `66a8d0b`, so they are in this run's numbers.
 
 ## Changes after this run
 
-- **Checker.** Hypothesis found a sentence where spaCy tagged an amount with a thousands comma as a verb, so the first of 2 payments in one sentence lost its amount and date, and swapping the dates between the 2 payments passed P1. The action now keeps that amount (`657bd8f`). The recorded samples give the same P1 to P8 counts after the fix.
+- **Checker.** Hypothesis found a sentence where spaCy tagged an amount with a thousands comma as a verb, so the first of 2 payments in one sentence lost its amount and date, and swapping the dates between the 2 payments passed P1. The action now keeps that amount (`657bd8f`). This fix has not had a live fixture run. The recorded samples give the same P1 to P8 counts after the fix.
 
 ## Re-recorded samples
 

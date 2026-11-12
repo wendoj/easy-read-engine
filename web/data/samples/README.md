@@ -35,7 +35,7 @@ The script runs each public sample letter through the real pipeline, one at a ti
 
 ## Current state
 
-On 12 November 2026, on the final code (`66a8d0b`), East Cambridgeshire and the planning letter were re-recorded on Bedrock, both flagged after 3 tries. Manchester was blocked on P1 on all 3 tries, twice (the first run and the retry), so its 11 November recording is kept. No sample passes all 10 rules. Failing lines per rule on the files as committed (P1 to P8 from `recheck_samples.py`, which match the recorded checks exactly; P9 and P10 from the recorded checks):
+On 12 November 2026, on `66a8d0b` (before the `657bd8f` checker fix), East Cambridgeshire and the planning letter were re-recorded on Bedrock, both flagged after 3 tries. Manchester was blocked on P1 on all 3 tries, twice (the first run and the retry), so its 11 November recording is kept. No sample passes all 10 rules. Failing lines per rule on the files as committed (P1 to P8 from `recheck_samples.py`, which match the recorded checks exactly; P9 and P10 from the recorded checks):
 
 | Sample | Lines | P2 | P3 | P4 | P5 | P6 | P7 | P9 | P10 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
