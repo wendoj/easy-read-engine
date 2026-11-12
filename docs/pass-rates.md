@@ -1,11 +1,11 @@
 # Pass rates
 
-> **Bedrock fixture run, 12 November 2026 (spec task 35).** 8 letters: the 3 public sample letters and the 5 invented letters. Every letter finished with a checked result and every model request went to Bedrock. No letter passed all 10 rules: 6 ended flagged and 2 blocked. This is a run on 8 letters, not a pass rate on the planned 20 public letters.
+> **Bedrock fixture run on the final code, 12 November 2026.** 8 letters: the 3 public sample letters and the 5 invented letters. Every letter finished with a checked result and every model request went to Bedrock. No letter passed all 10 rules: 6 ended flagged and 2 blocked, the same split as the run on `a8d723d`. This is a run on 8 letters, not a pass rate on the planned 20 public letters.
 
-- **Date:** 2026-11-12, 17:14 to 17:32 UTC
+- **Date:** 2026-11-12, 19:56 to 20:18 UTC
 - **Command:** `cd web && npm run fixtures -- --all` (checker at `http://localhost:8000`, `APP_ENV=development`, default 15 s pause between letters)
-- **Code:** commit `a8d723d` (the checker fix in `4023e6f`, which passes template placeholders and address lines in P5 and P7, came after this run)
-- **Raw results:** `fixtures/results/20261112T171407Z-all.json`
+- **Code:** commit `66a8d0b`, which has every fix listed under "Changes since the a8d723d run" below
+- **Raw results:** `fixtures/results/20261112T195656Z-all.json`
 - **Exit code:** 0
 
 This file and the JSON hold rule results and metadata only. No letter text, Easy Read lines or key-fact values.
@@ -18,7 +18,7 @@ This file and the JSON hold rule results and metadata only. No letter text, Easy
 | Judge (P9, P10) | `bedrock:qwen.qwen3-235b-a22b-2507-v1:0`, then `groq:qwen/qwen3.8-27b` | Bedrock Qwen3 235B, every judge call |
 | Vision | `bedrock:qwen.qwen3-vl-235b-a22b`, then `groq:qwen/qwen3.8-27b` | Not used (no photos in the set) |
 
-Model requests: 49 in total, 49 answered by Bedrock, none rate-limited and none sent to Groq. The judge was available on every try.
+Model requests: 76 in total, 76 answered by Bedrock, none rate-limited and none sent to Groq. The judge was available on every try. The run has more requests than the `a8d723d` run (49) because long letters are now rewritten in parts and judged in batches.
 
 ## Results
 
@@ -26,23 +26,25 @@ Status: **passed** means all 10 rules passed. **flagged** means the output is sh
 
 ### Public sample letters (3)
 
-| Letter | Source | Sentences | Status | Tries | Lines | P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| council-tax-final-notice-east-cambridgeshire | pdf | 89 | flagged | 3 | 67 | ok | 11 | 15 | 6 | 7 | ok | 5 | ok | 21 | ok |
-| manchester-missed-council-tax-payment | pdf | 143 | blocked | 3 | 0 | 1 fact | ok | 7 | ok | 14 | ok | 2 | ok | 24 | ok |
-| planning-appeal-notification-letter | txt | 51 | flagged | 3 | 67 | ok | ok | ok | 3 | 7 | ok | 1 | ok | 24 | ok |
+| Letter | Source | Sentences | Status | Tries | Lines | Time | P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| council-tax-final-notice-east-cambridgeshire | pdf | 89 | flagged | 3 | 160 | 339 s | ok | 1 | 5 | 4 | 7 | ok | 2 | ok | 17 | ok |
+| manchester-missed-council-tax-payment | pdf | 143 | blocked | 3 | 0 | 354 s | 3 facts | 3 | 7 | ok | ok | ok | ok | ok | 26 | 7 |
+| planning-appeal-notification-letter | txt | 51 | flagged | 3 | 80 | 171 s | ok | 2 | 3 | 6 | 4 | ok | 1 | ok | 9 | ok |
 
-A blocked letter shows no lines, so its counts come from the last try, which failed P1 on 1 key fact. On Manchester the first rewrite came back in under 2 seconds with very few lines for a 143-sentence letter, and regenerate could not recover every missing key fact in 2 more tries.
+A blocked letter shows no lines, so its counts come from the last try. Manchester failed P1 on all 3 tries and missed 3 key facts on the last one.
 
 ### Invented letters (5)
 
-| Letter | Sentences | Status | Tries | Lines | P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| invented-care-assessment | 20 | flagged | 3 | 27 | ok | ok | 3 | ok | 7 | ok | ok | ok | 4 | 3 |
-| invented-council-tax-reminder | 16 | blocked | 3 | 0 | 1 fact | ok | ok | 1 | 2 | ok | ok | ok | 5 | ok |
-| invented-housing-benefit-change | 19 | flagged | 3 | 25 | ok | ok | 1 | ok | ok | ok | 1 | ok | 1 | ok |
-| invented-parking-penalty | 17 | flagged | 3 | 29 | ok | ok | 2 | 2 | 4 | ok | ok | ok | 4 | ok |
-| invented-repair-appointment | 17 | flagged | 3 | 25 | ok | ok | 2 | 1 | 6 | 1 | 1 | ok | 4 | ok |
+| Letter | Sentences | Status | Tries | Lines | Time | P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| invented-care-assessment | 20 | flagged | 3 | 14 | 58 s | ok | ok | 1 | 2 | 2 | ok | 1 | ok | 5 | ok |
+| invented-council-tax-reminder | 16 | blocked | 3 | 0 | 51 s | 1 fact | ok | ok | ok | ok | ok | ok | ok | 1 | ok |
+| invented-housing-benefit-change | 19 | flagged | 3 | 25 | 76 s | ok | ok | 2 | 3 | 2 | ok | 1 | ok | 1 | ok |
+| invented-parking-penalty | 17 | flagged | 3 | 28 | 67 s | ok | ok | 2 | 2 | 1 | ok | ok | ok | 3 | ok |
+| invented-repair-appointment | 17 | flagged | 3 | 23 | 73 s | ok | ok | 3 | 2 | 6 | 1 | 1 | ok | 4 | ok |
+
+On the care assessment letter, tries 2 and 3 failed P1, so the pipeline kept try 1, the latest try that passed P1, with its own checks. The council tax reminder failed P1 on 1 key fact on every try. Its last try failed only P1 and P9.
 
 ### Totals
 
@@ -56,28 +58,52 @@ A blocked letter shows no lines, so its counts come from the last try, which fai
 
 Letters passing each rule, out of 8:
 
-| P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 6/8 | 7/8 | 2/8 | 3/8 | 1/8 | 7/8 | 3/8 | 8/8 | 0/8 | 7/8 |
+| Run | P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `66a8d0b` (this run) | 6/8 | 5/8 | 1/8 | 2/8 | 2/8 | 7/8 | 3/8 | 8/8 | 0/8 | 7/8 |
+| `a8d723d` | 6/8 | 7/8 | 2/8 | 3/8 | 1/8 | 7/8 | 3/8 | 8/8 | 0/8 | 7/8 |
 
-## Compared with the earlier run
+## Compared with the a8d723d run
 
-The earlier run (11 November 2026, `fixtures/results/20261111T164114Z-all.json`) used the free Groq and OpenRouter chains. 6 of its 8 letters stopped with a provider or model-output error, and only 2 invented letters finished, both flagged. On Bedrock every letter finished, nothing was rate-limited, and the judge answered every time. The rules are now the limit, not the providers.
+The `a8d723d` run (`fixtures/results/20261112T171407Z-all.json`, 17:14 to 17:32 UTC the same day) also ended with 0 passed, 6 flagged and 2 blocked, and the same 2 letters were blocked. Per letter, on the try the pipeline kept:
+
+| Letter | Lines (a8d723d to 66a8d0b) | P9 failing lines | Rules failed |
+| --- | --- | --- | --- |
+| council-tax-final-notice-east-cambridgeshire | 67 to 160 | 21 to 17 | 6 to 6 |
+| manchester-missed-council-tax-payment | blocked, both runs | 24 to 26 | 5 to 5. P1 missed 1 fact, now 3 |
+| planning-appeal-notification-letter | 67 to 80 | 24 to 9 | 4 to 6 |
+| invented-care-assessment | 27 to 14 | 4 to 5 | 4 to 5 |
+| invented-council-tax-reminder | blocked, both runs | 5 to 1 | 4 to 2 |
+| invented-housing-benefit-change | 25 to 25 | 1 to 1 | 3 to 5 |
+| invented-parking-penalty | 29 to 28 | 4 to 3 | 4 to 4 |
+| invented-repair-appointment | 25 to 23 | 4 to 4 | 6 to 6 |
+
+- **Long letters are now covered.** East Cambridgeshire went from 67 to 160 lines for 89 sentences. That is the effect of rewriting in parts (`750a945`, `f42c83e`). With more lines, P2 and P4 now fail on a few of them.
+- **P9 failures fell on the 2 flagged public letters** (21 to 17 and 24 to 9 lines), after the judge rubric changes (`4b8230e`, `be0beaf`). P9 still fails on all 8 letters.
+- **Manchester is still blocked.** The judge answered every batch, so the block comes from the lines, not the providers. The last try missed 3 key facts, and P10 failed on 7 lines on that try.
+- **Rule counts moved both ways.** P2 passes on 2 fewer letters, P3 and P4 on 1 fewer each, and P5 on 1 more. Each letter gets 3 tries from a model that does not answer the same way twice, so on 8 letters a change of 1 or 2 letters may be run-to-run variation. 2 runs can't tell.
+
+The first run (11 November 2026, `fixtures/results/20261111T164114Z-all.json`) used the free Groq and OpenRouter chains. 6 of its 8 letters stopped with a provider or model-output error, and only 2 invented letters finished, both flagged.
 
 ## What fails, and why
 
-- **P9 (meaning) fails on every letter.** It is the most common failure on the long public letters (21 to 24 lines). Earlier recorded samples show the judge failing lines for plain swaps of legal words ("amended" written as "changed") and for shortened official names. Some of those are real meaning changes and some are the judge being stricter than its rubric.
-- **P3, P4 and P5 are the main checker failures.** These are lines the model wrote: "... if you can" and "when you ..." clauses, copied passives ("is set out in"), and letter words left in.
-- **Blocks come from missing key facts.** Both blocked letters lost 1 key fact. On Manchester, the first rewrite was far too short for the letter.
+- **P9 (meaning) fails on every letter**, on 1 to 26 lines. Earlier recorded samples show the judge failing lines for plain swaps of legal words and for shortened official names. Some of those are real meaning changes and some are the judge being stricter than its rubric.
+- **P3, P4 and P5 are the main checker failures.** These are lines the model wrote: "... if you can" and "when you ..." clauses, copied passives, and letter words left in.
+- **Blocks come from missing key facts.** Both blocked letters missed key facts on all 3 tries. The rules were not relaxed to change that.
+
+## Changes since the a8d723d run
+
+These are all in `66a8d0b`, so they are in this run's numbers.
+
+- **Long letters.** The rewrite goes in parts of up to 60 sentences (`750a945`), and each part gets the letter's first and last sentences as context (`f42c83e`). The judge goes in batches of whole sentences, up to 40 lines each (`2f13fcb`). If a judge batch fails, only its unanswered lines are skipped (`4d81c75`).
+- **Checker.** P5 and P7 pass X placeholders copied from a template letter and address lines before a key-fact postcode (`4023e6f`), and address words only when the Original has them (`c69682f`). Key facts: an action stops at a lone spaced dash (`d21042c`, `8f07e43`), and a heading question is not an action (`d21042c`). Each has regression and still-fails tests.
+- **Prompts and plain words.** Worked examples for "if you can", "when" and "if" at the end of a line, "Then" only after "Maybe", template blanks and capitals for emphasis (`4b8230e`). The judge passes plain swaps for official words, shortened official names, repeated facts, correct definitions of hard words, and "Maybe" and "Then" for "if" (`4b8230e`, `be0beaf`). 7 plain-word swaps added (`7a96564`).
+- **Access.** The model routes need a judge access key when `ACCESS_KEY` is set (`a98181c`, `22d9ef7`). The fixture script calls the pipeline directly, so this does not change the run.
 
 ## Changes after this run
 
-These came after the run above and are not in its numbers.
-
-- **Long letters.** On Manchester (143 sentences) gpt-oss-120b often reasoned that the task was too big and answered with almost no lines. In 3 local tries, 1 request covered 75 to 105 of the 143 sentences. The rewrite now goes in parts of up to 60 sentences (`750a945`). A local try then covered 136. The longer output then broke the judge: 158 lines gave an invalid answer twice, so every line failed as "judge unavailable". The judge now goes in batches of whole sentences, up to 40 lines each (`2f13fcb`).
-- **Checker.** P5 and P7 pass X placeholders copied from a template letter ("£XXX.XX") and, in P7, address lines before a key-fact postcode, as P5 already did (`4023e6f`). Key facts: an action stops at a dash ("Please pay online now – details on the back" asked for "pay details"), and a heading question ("Need help with council tax?") is not an action (`d21042c`). Each has regression and still-fails tests.
-- **Prompts and plain words.** Worked examples for "if you can", "when" and "if" at the end of a line, "Then" only after "Maybe", template blanks and capitals for emphasis (`4b8230e`). The judge now passes plain swaps for official words, shortened official names, repeated facts, correct definitions of hard words and "Maybe" and "Then" for "if" (`4b8230e`, `be0beaf`). 7 plain-word swaps added (`7a96564`).
+- **Checker.** Hypothesis found a sentence where spaCy tagged an amount with a thousands comma as a verb, so the first of 2 payments in one sentence lost its amount and date, and swapping the dates between the 2 payments passed P1. The action now keeps that amount (`657bd8f`). The recorded samples give the same P1 to P8 counts after the fix.
 
 ## Re-recorded samples
 
-The public samples were re-recorded on Bedrock on 12 November 2026, with the long-letter, prompt and first checker changes, but before the key-fact fix in `d21042c` and the judge's "Maybe" and "Then" rule in `be0beaf` (`58055db`). East Cambridgeshire and the planning letter ended flagged. Manchester was blocked on P1 on every try, so its 11 November recording is kept. 0 public letters pass all 10 rules. Per-rule counts are in `web/data/samples/README.md`.
+The public samples were re-recorded on Bedrock on `66a8d0b` straight after this run (`a107eeb`). East Cambridgeshire and the planning letter ended flagged. Manchester was blocked on P1 on all 3 tries, twice, so its 11 November recording is kept. 0 public letters pass all 10 rules. `checker/scripts/recheck_samples.py` gives the same P1 to P8 counts as the recorded checks. Per-rule counts are in `web/data/samples/README.md`.

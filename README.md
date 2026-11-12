@@ -230,6 +230,6 @@ Both guides say to involve people with learning disabilities and test with them 
 ## Status and known limitations
 
 - [docs/day1-results.md](docs/day1-results.md): day 1 spike results.
-- [docs/pass-rates.md](docs/pass-rates.md): the 8-letter fixture run on Bedrock (12 November 2026) finished every letter with no provider errors. 0 passed all 10 rules, 6 were flagged and 2 were blocked on 1 key fact each. P9 (meaning) failed on all 8. This is 8 letters, not the planned 20.
-- The public sample letters were re-recorded on Bedrock on 12 November 2026 (`web/data/samples/`). East Cambridgeshire and the planning letter ended flagged. Manchester was blocked on P1 on every try, so its 11 November recording is kept. No sample passes all 10 rules.
+- [docs/pass-rates.md](docs/pass-rates.md): the 8-letter fixture run on Bedrock on the final code (`66a8d0b`, 12 November 2026) finished every letter with no provider errors. 0 passed all 10 rules, 6 were flagged and 2 were blocked on missing key facts, the same split as the earlier `a8d723d` run. P9 (meaning) failed on all 8. This is 8 letters, not the planned 20.
+- The public sample letters were re-recorded on Bedrock on the same code (`web/data/samples/`). East Cambridgeshire and the planning letter ended flagged. Manchester was blocked on P1 on every try, so its 11 November recording is kept. No sample passes all 10 rules.
 - [docs/deploy.md](docs/deploy.md): the Chromium sandbox is turned off for PDF export in the container. The live deploy is still pending.
