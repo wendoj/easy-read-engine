@@ -12,7 +12,14 @@ It prints, per sample, the line count and the number of failing lines per
 rule. `--explain` also prints the failing line IDs per rule. It never prints
 letter text, Easy Read lines or key-fact values (R7.4).
 
-Exit code 0 always: the numbers are for measuring, not a gate.
+It also compares the recorded sentences with the current sentence split. The
+web app refuses a sample (`sample_outdated`) when a line's
+`source_sentence_id` is no longer a sentence, and a sentence whose text
+changed traces lines to the wrong source. Either way the sample needs
+`cd web && npm run record-samples`.
+
+Exit code 1 when any sample is outdated in this way, else 0. The rule numbers
+are for measuring, not a gate.
 """
 
 from __future__ import annotations
@@ -40,6 +47,36 @@ def recheck(sample: dict) -> tuple[int, list[tuple[str, list[str]]]]:
     return len(lines), [(c.rule, [] if c.passed else list(c.line_ids)) for c in checks]
 
 
+def sentence_drift(sample: dict) -> tuple[list[str], list[str]]:
+    """Sentence IDs the recorded lines use that the current split doesn't have,
+    and recorded sentence IDs whose text or offsets differ from the current split."""
+    result = sample["result"]
+    current = {s.id: (s.text, s.start, s.end) for s in analyse(result["original"]["text"]).sentences}
+    used = {line["source_sentence_id"] for line in result["lines"]}
+    missing = sorted(used - current.keys(), key=_id_order)
+    recorded = result["original"].get("sentences", [])
+    changed = [
+        s["id"] for s in recorded if current.get(s["id"]) != (s["text"], s["start"], s["end"])
+    ]
+    changed += sorted(current.keys() - {s["id"] for s in recorded}, key=_id_order)
+    return missing, changed
+
+
+def _id_order(sentence_id: str) -> tuple[int, str]:
+    digits = sentence_id.lstrip("s")
+    return (int(digits), "") if digits.isdigit() else (0, sentence_id)
+
+
+def format_drift(sample_id: str, missing: list[str], changed: list[str]) -> list[str]:
+    if not missing and not changed:
+        return []
+    return [
+        f"{sample_id}: OUTDATED, {len(missing)} line source IDs not in the current split "
+        f"({', '.join(missing) or 'none'}), {len(changed)} recorded sentences changed. "
+        "Run: cd web && npm run record-samples"
+    ]
+
+
 def format_report(sample_id: str, line_count: int, rules: list[tuple[str, list[str]]], explain: bool) -> list[str]:
     counts = " ".join(f"{rule} {len(ids)}" for rule, ids in rules)
     out = [f"{sample_id}: {line_count} lines, failing lines: {counts}"]
@@ -56,10 +93,16 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     paths = [args.samples / f"{i}.json" for i in args.ids] or sorted(args.samples.glob("*.json"))
+    outdated = False
     for path in paths:
-        line_count, rules = recheck(json.loads(path.read_text(encoding="utf-8")))
+        sample = json.loads(path.read_text(encoding="utf-8"))
+        line_count, rules = recheck(sample)
         print("\n".join(format_report(path.stem, line_count, rules, args.explain)))
-    return 0
+        drift = format_drift(path.stem, *sentence_drift(sample))
+        if drift:
+            outdated = True
+            print("\n".join(drift))
+    return 1 if outdated else 0
 
 
 if __name__ == "__main__":
