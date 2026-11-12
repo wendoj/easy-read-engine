@@ -29,7 +29,7 @@ P1 to P8 run in a Python checker with spaCy and no model, so the same input alwa
 
 Key facts are taken from the original before the model writes anything. Then the model writes lines, the checker runs, and failed lines are written again, up to 3 tries.
 
-- If a key fact is still missing or changed, the output is blocked. No lines are shown, the failed fact is named and export is turned off.
+- If no try keeps every key fact, the output is blocked. No lines are shown, the failed fact is named and export is turned off. If only the last try broke a key fact, the latest try that kept them all is shown instead.
 - If another rule still fails, the output is shown with that rule flagged. A failure is never hidden.
 - If the checker is down, nothing is shown.
 

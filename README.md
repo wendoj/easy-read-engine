@@ -10,7 +10,7 @@ It is for adults with learning disabilities, low literacy or English as a second
 
 ## Prior art
 
-AI Easy Read tools already exist. Swindon Borough Council built [Simply Readable](https://www.local.gov.uk/case-studies/swindon-borough-council-simply-readable-ai-easy-read-solution), an AI Easy Read generator on Amazon Bedrock. According to the Local Government Association case study (read again on 11 November 2026), it is open source, and the council worked with a group of residents with learning disabilities throughout its development. Social workers put in the information and get an Easy Read version in under 30 minutes. The case study puts the cost at about 1p per page, or 7 to 10p for a 5 to 10 page document, against about £120 per A4 page made by hand. It also says the tool can translate into 75 languages. The case study does not describe any automated check of the output: no rule checks, no check that key facts are kept, and no tracing of lines back to the source.
+AI Easy Read tools already exist. Swindon Borough Council built [Simply Readable](https://www.local.gov.uk/case-studies/swindon-borough-council-simply-readable-ai-easy-read-solution), an AI Easy Read generator on Amazon Bedrock. According to the Local Government Association case study (read again on 11 November 2026), it is open source, and the council worked with a group of residents with learning disabilities throughout its development. Social workers put in the information and get an Easy Read version in under 30 minutes. The case study puts the cost at about 1p per page, against about £120 per A4 page made by hand. It says a complex 5 to 10 page document could cost more than £600 to convert before, and now costs 7 to 10p. It also says the tool can translate into 75 languages. The case study does not describe any automated check of the output: no rule checks, no check that key facts are kept, and no tracing of lines back to the source.
 
 Easy Read Engine solves a different part of the problem:
 
@@ -105,7 +105,8 @@ The project joins parts that don't usually work together. The model writes, and 
 How the checker gates the model:
 
 - Key facts are taken from the original before the model writes anything, so P1 compares the output with the original, never with itself.
-- If P1 fails on all 3 tries, or after a user edit, the output is blocked. If the last try fails P1 but an earlier try passed it, the latest try that passed P1 is shown, with its own checks. No lines are shown, the failed key fact is named and export is turned off.
+- If the last try fails P1 but an earlier try passed it, the latest try that passed P1 is shown, with its own checks.
+- If no try passes P1, or P1 fails after a user edit, the output is blocked: no lines are shown, the failed key fact is named and export is turned off.
 - If any other rule still fails after 3 tries, the output is shown with that rule flagged.
 - If the advice check (P10) could not run, export is turned off.
 - If the checker service is down, nothing is shown (503).
