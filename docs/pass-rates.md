@@ -69,3 +69,15 @@ The earlier run (11 November 2026, `fixtures/results/20261111T164114Z-all.json`)
 - **P9 (meaning) fails on every letter.** It is the most common failure on the long public letters (21 to 24 lines). Earlier recorded samples show the judge failing lines for plain swaps of legal words ("amended" written as "changed") and for shortened official names. Some of those are real meaning changes and some are the judge being stricter than its rubric.
 - **P3, P4 and P5 are the main checker failures.** These are lines the model wrote: "... if you can" and "when you ..." clauses, copied passives ("is set out in"), and letter words left in.
 - **Blocks come from missing key facts.** Both blocked letters lost 1 key fact. On Manchester, the first rewrite was far too short for the letter.
+
+## Changes after this run
+
+These came after the run above and are not in its numbers.
+
+- **Long letters.** On Manchester (143 sentences) gpt-oss-120b often reasoned that the task was too big and answered with almost no lines. In 3 local tries, 1 request covered 75 to 105 of the 143 sentences. The rewrite now goes in parts of up to 60 sentences (`750a945`). A local try then covered 136. The longer output then broke the judge: 158 lines gave an invalid answer twice, so every line failed as "judge unavailable". The judge now goes in batches of whole sentences, up to 40 lines each (`2f13fcb`).
+- **Checker.** P5 and P7 pass X placeholders copied from a template letter ("£XXX.XX") and, in P7, address lines before a key-fact postcode, as P5 already did (`4023e6f`). Key facts: an action stops at a dash ("Please pay online now – details on the back" asked for "pay details"), and a heading question ("Need help with council tax?") is not an action (`d21042c`). Each has regression and still-fails tests.
+- **Prompts and plain words.** Worked examples for "if you can", "when" and "if" at the end of a line, "Then" only after "Maybe", template blanks and capitals for emphasis (`4b8230e`). The judge now passes plain swaps for official words, shortened official names, repeated facts, correct definitions of hard words and "Maybe" and "Then" for "if" (`4b8230e`, `be0beaf`). 7 plain-word swaps added (`7a96564`).
+
+## Re-recorded samples
+
+The public samples were re-recorded on Bedrock on 12 November 2026, with the long-letter, prompt and first checker changes, but before the key-fact fix in `d21042c` and the judge's "Maybe" and "Then" rule in `be0beaf` (`58055db`). East Cambridgeshire and the planning letter ended flagged. Manchester was blocked on P1 on every try, so its 11 November recording is kept. 0 public letters pass all 10 rules. Per-rule counts are in `web/data/samples/README.md`.

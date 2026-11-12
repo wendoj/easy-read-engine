@@ -53,7 +53,7 @@ The checker is also an MCP server, and a Kiro Power packages it with the rules, 
 
 ## Where it stands
 
-The results so far are partial. The 3 public sample letters were recorded on Bedrock on 11 November 2026, and each ended flagged after 3 tries: every key fact passed P1, and some lines still broke other rules (`web/data/samples/`). An earlier run of 8 fixture letters on free-tier providers finished 2, both flagged, and 6 stopped on provider errors (`docs/pass-rates.md`). The 8-letter run on Bedrock is next.
+The results so far are partial, and no letter has passed all 10 rules yet. The 8-letter fixture run on Bedrock (12 November 2026) finished every letter, with no provider errors: 6 flagged and 2 blocked on a missing key fact (`docs/pass-rates.md`). The meaning check (P9) failed on all 8. The long Manchester letter was blocked because the rewrite model answered a 143-sentence request with almost no lines, so long letters are now rewritten and judged in parts. Manchester was still blocked after that. In a local check, P1 failed on 5 "required actions", and the checker had misread 3 of them (a heading question, and 2 notes after a dash). The other 2 were real: the lines dropped the letter's "choose". The checker fix came after the last recording, so it has not been tested on a live run yet. The other 2 public sample letters were re-recorded on Bedrock the same day, and both ended flagged (`web/data/samples/`).
 
 An Easy Read checker tried the app and told us it was easy to use and helped a lot. That is 1 informal check. It is not testing with readers, which both guides say matters and which hasn't been done yet.
 

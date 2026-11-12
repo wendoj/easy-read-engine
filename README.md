@@ -222,6 +222,6 @@ Both guides say to involve people with learning disabilities and test with them 
 ## Status and known limitations
 
 - [docs/day1-results.md](docs/day1-results.md): day 1 spike results.
-- [docs/pass-rates.md](docs/pass-rates.md): the fixture run is partial (8 letters). Groq returned rate-limit errors on 22 of 67 requests, every rewrite from the OpenRouter Nemotron fallback was invalid, and the OpenRouter judge fallback returned 404.
-- The 3 public sample letters were recorded on Bedrock on 11 November 2026 (`web/data/samples/`). Each ended flagged after 3 tries: P1 passed, and P3, P5 and P7 still failed on some lines in all 3. The 8-letter fixture run on Bedrock (spec task 35) is still to do.
+- [docs/pass-rates.md](docs/pass-rates.md): the 8-letter fixture run on Bedrock (12 November 2026) finished every letter with no provider errors. 0 passed all 10 rules, 6 were flagged and 2 were blocked on 1 key fact each. P9 (meaning) failed on all 8. This is 8 letters, not the planned 20.
+- The public sample letters were re-recorded on Bedrock on 12 November 2026 (`web/data/samples/`). East Cambridgeshire and the planning letter ended flagged. Manchester was blocked on P1 on every try, so its 11 November recording is kept. No sample passes all 10 rules.
 - [docs/deploy.md](docs/deploy.md): the Chromium sandbox is turned off for PDF export in the container. The live deploy is still pending.

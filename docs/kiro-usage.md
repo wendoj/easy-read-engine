@@ -78,8 +78,10 @@ The brief planned to compare "the first day of vibe-coded prompts with the spec-
 | Day 1 spike, public letters, 1 run | P1, P2, P4 only | 3 public | No output passed all 3 rules. P1 passed on 0 letters | `docs/day1-results.md` |
 | Fixture run, final prompts, Groq chain | All 10 | 8 (3 public, 5 invented) | 2 letters finished, both flagged. P1, P2, P3, P4, P6 and P8 passed on both. 6 letters ended with a provider or model-output error | `docs/pass-rates.md` |
 | Sample recording, Bedrock chain, 11 November 2026 | All 10 | 3 public | All 3 flagged after 3 tries. P1 passed on all 3. P3, P5 and P7 failed on some lines in all 3 | `web/data/samples/`, `40faaee` |
+| Fixture run, Bedrock chain, 12 November 2026 (spec task 35) | All 10 | 8 (3 public, 5 invented) | All 8 finished, no provider errors. 0 passed, 6 flagged, 2 blocked on 1 key fact each. P9 failed on all 8, P8 passed on all 8 | `docs/pass-rates.md`, `fixtures/results/20261112T171407Z-all.json` |
+| Sample re-recording, Bedrock chain, 12 November 2026 | All 10 | 3 public | East Cambridgeshire and the planning letter flagged. Manchester blocked on P1 on every try, so its 11 November recording is kept. 0 letters passed all 10 | `web/data/samples/`, `58055db` |
 
-The 2 finished fixture letters are not enough for a pass rate, and they were not the letters that lost key facts on day 1. The 3 recorded samples are the first Bedrock results. A full fixture run on the Bedrock chain is spec task 35, still open.
+None of these runs is a pass rate: no letter has passed all 10 rules. On Bedrock the providers are no longer the limit. The rules are, P9 most of all.
 
 ## Prior art
 
@@ -88,4 +90,4 @@ The brief listed "An AI Easy Read tool already exists" as a risk, with the plan 
 ## What we didn't do
 
 - No formal testing with readers. An Easy Read checker tried the app and told us it was easy to use and helped a lot. That was 1 informal check (`tasks.md`, non-coding checklist, "Show one output to someone who uses or makes Easy Read"). Feedback from 3 to 5 people, with quotes, is still open there.
-- The 20-letter pass-rate run planned in the brief has not happened. The partial run had 8 letters (`docs/pass-rates.md`).
+- The 20-letter pass-rate run planned in the brief has not happened. The Bedrock run had 8 letters (`docs/pass-rates.md`).
