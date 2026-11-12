@@ -57,7 +57,7 @@ Anyone can open the sample letters, read them in Easy Read and export them as PD
 
 Live conversion (paste, upload, convert and line edits) calls a paid model, so it needs the judge access key. Hackathon judges get the key through the private Devpost form. On the input screen, select **I have an access key** and type it. The server sets a cookie that lasts 30 days.
 
-The key is set in `ACCESS_KEY` (see `.env.example` and [docs/deploy.md](docs/deploy.md)). With `ACCESS_KEY` empty, every route is open in development, and live conversion is closed in production.
+The key is set in `ACCESS_KEY` (see `.env.example` and [docs/deploy.md](docs/deploy.md)). With `ACCESS_KEY` empty, every route is open in development (`APP_ENV=development`, or `npm run dev` and Vitest when `APP_ENV` is unset), and live conversion is closed everywhere else, including `npm start` without `APP_ENV`.
 
 To run both services in Docker instead:
 
@@ -230,6 +230,6 @@ Both guides say to involve people with learning disabilities and test with them 
 ## Status and known limitations
 
 - [docs/day1-results.md](docs/day1-results.md): day 1 spike results.
-- [docs/pass-rates.md](docs/pass-rates.md): the 8-letter fixture run on Bedrock on the final code (`66a8d0b`, 12 November 2026) finished every letter with no provider errors. 0 passed all 10 rules, 6 were flagged and 2 were blocked on missing key facts, the same split as the earlier `a8d723d` run. P9 (meaning) failed on all 8. This is 8 letters, not the planned 20.
+- [docs/pass-rates.md](docs/pass-rates.md): the 8-letter fixture run on Bedrock on `66a8d0b` (12 November 2026, before the `657bd8f` checker fix, which has had no live run) finished every letter with no provider errors. 0 passed all 10 rules, 6 were flagged and 2 were blocked on missing key facts, the same split as the earlier `a8d723d` run. P9 (meaning) failed on all 8. This is 8 letters, not the planned 20.
 - The public sample letters were re-recorded on Bedrock on the same code (`web/data/samples/`). East Cambridgeshire and the planning letter ended flagged. Manchester was blocked on P1 on every try, so its 11 November recording is kept. No sample passes all 10 rules.
 - [docs/deploy.md](docs/deploy.md): the Chromium sandbox is turned off for PDF export in the container. The live deploy is still pending.

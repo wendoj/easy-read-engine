@@ -8,7 +8,8 @@
  *
  * - `ACCESS_KEY` set: a model route needs a valid `er_access` cookie.
  * - `ACCESS_KEY` empty in production: model routes are closed to everyone
- *   (fail closed). Any `APP_ENV` other than "development" counts as production.
+ *   (fail closed). Any `APP_ENV` other than "development" counts as production,
+ *   and so does an unset `APP_ENV` unless `NODE_ENV` is "development" or "test".
  * - `ACCESS_KEY` empty in development: model routes stay open, so local runs
  *   and tests work without a key.
  *
@@ -52,8 +53,16 @@ function configuredKey(env: AccessEnv): string | null {
   return key.trim() === "" ? null : key;
 }
 
+/**
+ * True unless this is clearly a local run. `APP_ENV` decides when it is set:
+ * only "development" counts as development. When it is unset, only
+ * `NODE_ENV` "development" (`next dev`) or "test" (Vitest) count as
+ * development, so `next start` or a container without `APP_ENV` fails closed.
+ */
 export function isProduction(env: AccessEnv): boolean {
-  return (env.APP_ENV ?? "development") !== "development";
+  const appEnv = (env.APP_ENV ?? "").trim();
+  if (appEnv !== "") return appEnv !== "development";
+  return env.NODE_ENV !== "development" && env.NODE_ENV !== "test";
 }
 
 /** The value of 1 cookie from a `Cookie` header, or null. */

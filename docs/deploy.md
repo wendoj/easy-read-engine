@@ -67,6 +67,8 @@ The routes that call a model (`/api/convert`, `/api/extract`, `/api/check`) need
 
 The per-client rate limit and the daily cap still apply to key holders. Key attempts count against the per-client limit, to slow guessing.
 
+If the web image runs outside `docker-compose.yml` (for example `docker run` or `npm start`) and `APP_ENV` is not set, the access check counts it as production, so live conversion stays closed until `ACCESS_KEY` is set. Only `npm run dev` and Vitest count as development when `APP_ENV` is unset.
+
 ### 4. Attach the domain
 
 In the **Domains** tab, add `easyread.wendyji.com` to the `web` service, container port `3000`, HTTPS on, certificate provider Let's Encrypt. Don't add a domain to `checker`. Then deploy.

@@ -79,13 +79,25 @@ describe("access token", () => {
 
   it("is open in development with no key, and closed in production with no key", () => {
     expect(accessState(request(), { APP_ENV: "development" })).toBe("open");
-    expect(accessState(request(), {})).toBe("open");
     expect(accessState(request(), { APP_ENV: "development", ACCESS_KEY: "  " })).toBe("open");
     expect(accessState(request(), { APP_ENV: "production" })).toBe("closed");
     expect(accessState(request(), { APP_ENV: "staging" })).toBe("closed");
     expect(checkAccess(request(), { APP_ENV: "production" })).toEqual({ error: "access_closed", ...ACCESS_ERRORS.access_closed });
     expect(checkAccess(request(), { APP_ENV: "development" })).toBeNull();
     expect(accessState(request(), DEV)).toBe("denied");
+  });
+
+  it("fails closed when APP_ENV is unset, unless NODE_ENV says next dev or Vitest", () => {
+    // next dev and Vitest: open with no key, so local runs need no key.
+    expect(accessState(request(), { NODE_ENV: "development" })).toBe("open");
+    expect(accessState(request(), { NODE_ENV: "test" })).toBe("open");
+    // next start, a container without APP_ENV, or nothing set: closed.
+    expect(accessState(request(), { NODE_ENV: "production" })).toBe("closed");
+    expect(accessState(request(), {})).toBe("closed");
+    expect(accessState(request(), { APP_ENV: "  ", NODE_ENV: "production" })).toBe("closed");
+    // APP_ENV wins when it is set.
+    expect(accessState(request(), { APP_ENV: "production", NODE_ENV: "development" })).toBe("closed");
+    expect(accessState(request(), { APP_ENV: "development", NODE_ENV: "production" })).toBe("open");
   });
 
   it("compares submitted keys exactly", () => {
