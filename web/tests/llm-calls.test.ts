@@ -10,6 +10,8 @@ import {
   type StructuredLogEvent,
   type Transport,
   type TransportResponse,
+  type JudgePair,
+  JUDGE_BATCH_LINES,
   JUDGE_UNAVAILABLE,
   ModelOutputError,
   REWRITE_CHUNK_SENTENCES,
@@ -20,6 +22,7 @@ import {
   collectFailures,
   createModelClient,
   judge,
+  judgeBatches,
   loadPrompt,
   parsePrompt,
   regenerate,
@@ -490,6 +493,63 @@ describe("judge", () => {
       expect(check.line_ids).toEqual(["L1"]);
       expect(check.details).toEqual([`L1 ${JUDGE_UNAVAILABLE}`]);
     }
+  });
+
+  it("batches whole sentences, with context-only siblings, up to the line limit", () => {
+    const p = (lineId: string, sourceSentenceId: string, contextOnly = false): JudgePair => ({
+      lineId, sourceSentenceId, source: "Source.", line: "Line.", ...(contextOnly ? { contextOnly } : {}),
+    });  // prettier-ignore
+    const all = [p("L1", "s1"), p("L2", "s1"), p("L3", "s2"), p("L4", "s2", true), p("L5", "s3"), p("L6", "s4", true)];
+    const ids = (batches: JudgePair[][]) => batches.map((b) => b.map((x) => x.lineId));
+    expect(ids(judgeBatches(all, 3))).toEqual([["L1", "L2", "L3", "L4"], ["L5"]]);
+    expect(ids(judgeBatches(all, 1))).toEqual([["L1", "L2"], ["L3", "L4"], ["L5"]]);
+    expect(ids(judgeBatches(all, JUDGE_BATCH_LINES))).toEqual([["L1", "L2", "L3", "L4", "L5"]]);
+  });
+
+  it("judges many lines in batches and keeps every batch's verdicts", async () => {
+    const many: JudgePair[] = Array.from({ length: JUDGE_BATCH_LINES + 2 }, (_, i) => ({
+      lineId: `L${i + 1}`, sourceSentenceId: `s${i + 1}`, source: "Call us.", line: "Call the council.",
+    }));  // prettier-ignore
+    const verdictsFor = (from: number, to: number) => ({
+      tool: "submit_verdicts",
+      args: {
+        verdicts: many.slice(from, to).map((x) => ({
+          lineId: x.lineId, meaning: x.lineId === "L41" ? fail("Adds a fact.") : pass, tone: pass, advice: pass,
+        })),  // prettier-ignore
+      },
+    });
+    const m = fakeModel([verdictsFor(0, JUDGE_BATCH_LINES), verdictsFor(JUDGE_BATCH_LINES, many.length)]);
+    const result = await judge(m.client, many, { prompt: JUDGE_PROMPT, logger: m.logger });
+    expect(m.sent).toHaveLength(2);
+    expect(userText(m.sent[0])).not.toContain("Line L41");
+    expect(userText(m.sent[1])).toContain("Line L41");
+    expect(result.available).toBe(true);
+    expect(result.requests).toBe(2);
+    expect(result.checks[0].line_ids).toEqual(["L41"]);
+    expect(result.checks[1].passed).toBe(true);
+  });
+
+  it("fails only a failed batch's lines as 'judge unavailable', in line order", async () => {
+    const many: JudgePair[] = Array.from({ length: JUDGE_BATCH_LINES + 2 }, (_, i) => ({
+      lineId: `L${i + 1}`, sourceSentenceId: `s${i + 1}`, source: "Call us.", line: "Call the council.",
+    }));  // prettier-ignore
+    const first = {
+      tool: "submit_verdicts",
+      args: {
+        verdicts: many.slice(0, JUDGE_BATCH_LINES).map((x) => ({
+          lineId: x.lineId, meaning: x.lineId === "L2" ? fail("Adds a fact.") : pass, tone: pass, advice: pass,
+        })),  // prettier-ignore
+      },
+    };
+    const broken = { tool: "submit_verdicts", args: "{cut off" };
+    const m = fakeModel([first, broken, broken]);
+    const result = await judge(m.client, many, { prompt: JUDGE_PROMPT, logger: m.logger });
+    const [p9, p10] = result.checks;
+    expect(result.available).toBe(false);
+    expect(result.requests).toBe(3);
+    expect(p9.line_ids).toEqual(["L2", "L41", "L42"]);
+    expect(p9.details).toEqual(["L2 meaning: Adds a fact.", `L41 ${JUDGE_UNAVAILABLE}`, `L42 ${JUDGE_UNAVAILABLE}`]);
+    expect(p10.line_ids).toEqual(["L41", "L42"]);
   });
 
   it("makes no request when every pair is context only", async () => {

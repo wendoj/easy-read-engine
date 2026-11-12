@@ -1,6 +1,7 @@
 /**
- * Judge: P9 (meaning) and P10 (tone and advice) for every line in one
- * request (design "Judges"). Prompt: `prompts/judge.md`.
+ * Judge: P9 (meaning) and P10 (tone and advice) for every line, in batches
+ * of up to `JUDGE_BATCH_LINES` lines, 1 request each (design "Judges").
+ * Prompt: `prompts/judge.md`.
  *
  * A line fails P10 if its tone verdict or its advice verdict fails (R7.3).
  * If the judge gives no valid answer, both rules fail with "judge
@@ -216,14 +217,51 @@ export interface JudgeResult {
   requests: number;
 }
 
-export async function judge(
+/**
+ * Most judged lines in 1 request. With 158 lines, the Bedrock judge's answer
+ * was invalid twice (cut off), so every line failed as "judge unavailable"
+ * (re-recorded samples, November 2026). About 100 lines still worked.
+ */
+export const JUDGE_BATCH_LINES = 40;
+
+/**
+ * Split `pairs` into batches of whole sentences, in order: every pair from a
+ * sentence (judged or context-only) goes in the same batch, so the judge
+ * always sees a line's siblings. A batch holds at most `size` judged lines,
+ * unless 1 sentence alone has more. Sentences with no judged line are left out.
+ */
+export function judgeBatches(pairs: readonly JudgePair[], size: number = JUDGE_BATCH_LINES): JudgePair[][] {
+  const judgedPerSentence = new Map<string, number>();
+  for (const p of pairs) {
+    if (!p.contextOnly) judgedPerSentence.set(p.sourceSentenceId, (judgedPerSentence.get(p.sourceSentenceId) ?? 0) + 1);
+  }
+  const batches: Set<string>[] = [];
+  let current = new Set<string>();
+  let count = 0;
+  for (const [sentenceId, n] of judgedPerSentence) {
+    if (count > 0 && count + n > size) {
+      batches.push(current);
+      current = new Set();
+      count = 0;
+    }
+    current.add(sentenceId);
+    count += n;
+  }
+  if (count > 0) batches.push(current);
+  return batches.map((ids) => pairs.filter((p) => ids.has(p.sourceSentenceId)));
+}
+
+type BatchOutcome =
+  | { ok: true; lineIds: string[]; verdicts: LineVerdict[]; provider: string; model: string; requests: number }
+  | { ok: false; lineIds: string[]; requests: number };
+
+async function judgeBatch(
   client: ModelClient,
+  prompt: PromptTemplate,
   pairs: readonly JudgePair[],
-  options: LlmCallOptions = {},
-): Promise<JudgeResult> {
+  options: LlmCallOptions,
+): Promise<BatchOutcome> {
   const lineIds = pairs.filter((p) => !p.contextOnly).map((p) => p.lineId);
-  if (lineIds.length === 0) return { checks: buildJudgeResults([], []), available: true, requests: 0 };
-  const prompt = options.prompt ?? (await loadPrompt("judge"));
   const { system, user } = buildJudgeMessages(prompt, pairs);
   try {
     const result = await callStructured(
@@ -240,21 +278,49 @@ export async function judge(
       },
       options,
     );
-    return {
-      checks: buildJudgeResults(lineIds, result.data.verdicts),
-      available: true,
-      provider: result.provider,
-      model: result.model,
-      requests: result.requests,
-    };
+    const { provider, model, requests } = result;
+    return { ok: true, lineIds, verdicts: result.data.verdicts, provider, model, requests };
   } catch (err) {
     // Any model failure (invalid output, rejected request, every provider down) flags both rules.
-    if (err instanceof ModelOutputError) {
-      return { checks: judgeUnavailableResults(lineIds), available: false, requests: err.requests };
-    }
-    if (err instanceof ProviderRequestError || err instanceof ProviderChainError) {
-      return { checks: judgeUnavailableResults(lineIds), available: false, requests: 1 };
-    }
+    if (err instanceof ModelOutputError) return { ok: false, lineIds, requests: err.requests };
+    if (err instanceof ProviderRequestError || err instanceof ProviderChainError) return { ok: false, lineIds, requests: 1 };
     throw err;
   }
+}
+
+/**
+ * Judges the lines in batches (`judgeBatches`), one request each, in order.
+ * If any batch gets no valid answer, its lines fail both rules as "judge
+ * unavailable" and `available` is false; the other batches keep their
+ * verdicts. Results list lines in the order of `pairs`.
+ */
+export async function judge(
+  client: ModelClient,
+  pairs: readonly JudgePair[],
+  options: LlmCallOptions = {},
+): Promise<JudgeResult> {
+  const lineIds = pairs.filter((p) => !p.contextOnly).map((p) => p.lineId);
+  if (lineIds.length === 0) return { checks: buildJudgeResults([], []), available: true, requests: 0 };
+  const prompt = options.prompt ?? (await loadPrompt("judge"));
+  const outcomes: BatchOutcome[] = [];
+  for (const batch of judgeBatches(pairs)) outcomes.push(await judgeBatch(client, prompt, batch, options));
+
+  const unavailable = new Set(outcomes.flatMap((o) => (o.ok ? [] : o.lineIds)));
+  const verdicts = outcomes.flatMap((o) => (o.ok ? o.verdicts : []));
+  const [judged9, judged10] = buildJudgeResults(lineIds.filter((id) => !unavailable.has(id)), verdicts);
+  const [missing9, missing10] = judgeUnavailableResults(lineIds.filter((id) => unavailable.has(id)));
+  const order = new Map(lineIds.map((id, i) => [id, i]));
+  const merge = (a: CheckResult, b: CheckResult): CheckResult => {
+    const ids = [...a.line_ids, ...b.line_ids].sort((x, y) => order.get(x)! - order.get(y)!);
+    const details = [...a.details, ...b.details];
+    const firstId = (d: string) => order.get(d.split(" ", 1)[0]) ?? 0;
+    return { ...a, passed: ids.length === 0, line_ids: ids, details: details.sort((x, y) => firstId(x) - firstId(y)) };
+  };
+  const answered = outcomes.filter((o) => o.ok).at(-1);
+  return {
+    checks: [merge(judged9, missing9), merge(judged10, missing10)],
+    available: unavailable.size === 0,
+    ...(answered?.ok ? { provider: answered.provider, model: answered.model } : {}),
+    requests: outcomes.reduce((n, o) => n + o.requests, 0),
+  };
 }

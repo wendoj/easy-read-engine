@@ -182,7 +182,8 @@ interface ModelClient {
   extractText(image: Uint8Array): Promise<{ handwritten: boolean; text: string }>;
   rewrite(input: RewriteInput): Promise<DraftLine[]>;
   regenerate(input: RegenerateInput): Promise<DraftLine[]>;
-  // One request returns P9 and P10 for every line passed in
+  // Returns P9 and P10 for every line passed in: 1 request per batch of whole
+  // sentences, up to 40 judged lines each (JUDGE_BATCH_LINES in web/src/llm/judge.ts)
   judge(pairs: { lineId: string; source: string; line: string }[]): Promise<[CheckResult, CheckResult]>;
 }
 ```
