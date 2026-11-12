@@ -24,7 +24,10 @@ doesn't use capitals for emphasis.
 Two kinds of capitals are copied from the letter, so they pass:
 - the address lines just before a postcode that is in one of the Original's
   address key facts ("PO BOX 3, Manchester, M15 5BA"), the same run that P5
-  passes (`checks/address_lines.py`). The model must not reword an address
+  passes (`checks/address_lines.py`). Each capitalised word must be in the
+  Original's address text before that postcode, so an abbreviation the model
+  adds to an address ("DWP, M15 5BA") still fails. The model must not reword
+  an address
 - a placeholder of 3 or more X's that the Original also has ("XXXXXXXXX" for
   an account reference in a template letter). It stands for a value, not a
   word. A run of X's the Original doesn't have still fails
@@ -118,7 +121,7 @@ def check_p7(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
     `original` and `key_facts` are used only for the capitals copied from the
     letter (module docstring): placeholders and address lines.
     """
-    postcodes = address_postcodes(key_facts)
+    postcodes = address_postcodes(original, key_facts)
     expanded: set[str] = set()
     failing: list[str] = []
     details: list[str] = []

@@ -18,7 +18,7 @@ it is used. A word token passes if any of these is true:
 - it is part of the address lines just before a postcode that is in one of
   the Original's address key facts (`checks/address_lines.py`): the capitalised words, numbers and
   commas back to the first other word ("The Grange, Nutholt Lane, Ely, CB7
-  4EE")
+  4EE"). Each word must be in the Original's address text before that postcode
 - it is a single capital letter used as a label ("Band A")
 - it is a web or email address
 - it is a placeholder of 3 or more X's that the Original also has, such as
@@ -40,9 +40,9 @@ one that explains little ("Your liability is a problem."). The words of the
 definition itself are checked like any other words. A place or service name
 that spaCy doesn't tag as an entity and that isn't in `names.txt` fails.
 That fails closed: add the name to `names.txt` only if it is a name. The
-address rule passes any capitalised words in the comma-separated run before
-a key-fact postcode, so a Title Case term written straight before an address
-("the Enforcement Agent, CB7 4EE") would pass too.
+address rule passes a Title Case term written straight before an address
+("the Enforcement Agent, CB7 4EE") only when the Original's own address
+text before that postcode has those words.
 
 Punctuation, symbols and spaces are not words. Short forms ("'ll", "n't",
 "'re", "'ve", with straight or curly apostrophes) are checked as the word they
@@ -184,11 +184,12 @@ def check_p5(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
     """Fail every line with a word that is not common and not yet defined.
 
     `key_facts` are the Original's key facts; their non-action words pass.
-    `original` is used only to pass placeholders copied from it ("£XXX.XX").
+    `original` is used only to pass text copied from it: placeholders
+    ("£XXX.XX") and the address words before a key-fact postcode.
     """
     words = common_words()
     fact_words = _key_fact_words(key_facts)
-    postcodes = address_postcodes(key_facts)
+    postcodes = address_postcodes(original, key_facts)
     defined: set[str] = set()
     failing: list[str] = []
     details: list[str] = []

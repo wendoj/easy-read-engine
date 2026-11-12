@@ -243,8 +243,24 @@ def test_address_lines_before_a_key_fact_postcode_pass() -> None:
     """Regression (review v2): "The Grange" in a payment address failed P5.
     P1 checks only the postcode, so regenerate could change the address."""
     line = "Send cheques to the council, The Grange, Nutholt Lane, Ely, Cambs, CB7 4EE."
-    fact = _address_fact("The Grange, Nutholt Lane, Ely, Cambs, CB7 4EE.", "CB7 4EE")
-    assert check_p5("", [fact], _lines([line])).passed
+    original = "The Grange, Nutholt Lane, Ely, Cambs, CB7 4EE."
+    fact = _address_fact(original, "CB7 4EE")
+    assert check_p5(original, [fact], _lines([line])).passed
+    # The letter prints each address part on its own line.
+    original = "Pay by cheque to:\nThe Grange\nNutholt Lane\nEly\nCambs\nCB7 4EE"
+    assert check_p5(original, [_address_fact(original, "CB7 4EE")], _lines([line])).passed
+
+
+def test_address_words_the_original_lacks_still_fail() -> None:
+    """Still fails (review v1, 12 November 2026): the address run passed every
+    capitalised word before the postcode, even words the letter never had."""
+    original = "Send cheques to The Grange, Ely, CB7 4EE."
+    fact = _address_fact(original, "CB7 4EE")
+    assert not check_p5(original, [fact], _lines(["Send cheques to the Enforcement Agent, CB7 4EE."])).passed
+    # A word from another sentence of the letter is not part of the address.
+    original = "An Enforcement Agent may visit. Send cheques to The Grange, Ely, CB7 4EE."
+    fact = _address_fact(original, "CB7 4EE")
+    assert not check_p5(original, [fact], _lines(["Send cheques to the Enforcement Agent, CB7 4EE."])).passed
 
 
 def test_address_words_need_a_key_fact_postcode() -> None:

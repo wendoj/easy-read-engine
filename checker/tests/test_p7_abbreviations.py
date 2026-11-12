@@ -167,6 +167,21 @@ def test_capitals_away_from_a_key_fact_address_still_fail() -> None:
         assert not check_p7(original, [fact], _lines([text])).passed, text
 
 
+def test_address_capitals_the_original_lacks_still_fail() -> None:
+    """Still fails (review v1, 12 November 2026): the address run passed every
+    capitalised word before the postcode, so an abbreviation the model added
+    to an address passed P7."""
+    original = "Please write to PO Box 3, Manchester, M15 5BA."
+    fact = _address_fact(original, "M15 5BA")
+    assert check_p7(original, [fact], _lines(["Write to PO Box 3, Manchester, M15 5BA."])).passed
+    for text in ["Write to DWP HMRC, PO Box 3, Manchester, M15 5BA.", "Write to DWP, M15 5BA."]:
+        assert not check_p7(original, [fact], _lines([text])).passed, text
+    # Capitals elsewhere in the letter are not part of the address.
+    original = "The DWP sent this. Please write to PO Box 3, Manchester, M15 5BA."
+    fact = _address_fact(original, "M15 5BA")
+    assert not check_p7(original, [fact], _lines(["Write to DWP, M15 5BA."])).passed
+
+
 def test_placeholder_copied_from_the_original_passes() -> None:
     """Regression (Bedrock samples, November 2026): a template letter prints
     "XXXXXXXXX" for the account reference, and the copied line failed P7."""
