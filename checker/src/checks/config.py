@@ -67,6 +67,10 @@ WORDLIST_FILES: tuple[str, ...] = (
     "ngsl-1.2-supplement-lemmatized.csv",
     "extra.txt",
 )
+# P5: names that letters use and spaCy doesn't tag as entities, one per line in
+# checks/wordlist/. A token passes only when it is written exactly as listed
+# ("Inspectorate", "GOV.UK"), so the same word in lower case is still checked.
+NAMES_FILE = "names.txt"
 # P5: names of people, organisations and places are not "hard words", so
 # tokens inside a spaCy entity with one of these labels pass.
 NAME_ENTITY_LABELS: frozenset[str] = frozenset({"PERSON", "ORG", "GPE", "LOC", "FAC", "NORP"})

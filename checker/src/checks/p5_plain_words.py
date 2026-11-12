@@ -10,10 +10,15 @@ it is used. A word token passes if any of these is true:
   (an address's street name, for example). Actions are excluded because their
   wording is meant to change, and P1 already compares them by lemma
 - it is part of a name: a spaCy entity labelled `NAME_ENTITY_LABELS`
-  ("Manchester City Council", "Citizens Advice") or a word with a capital
-  inside it ("StepChange", "PayPoint"). A Title Case word on its own is
-  checked like any other word, so "Enforcement Agent" and "Committal Order"
-  fail unless explained
+  ("Manchester City Council", "Citizens Advice"), a word with a capital
+  inside it ("StepChange", "PayPoint"), or a name in `wordlist/names.txt`
+  written exactly as listed ("Inspectorate", "GOV.UK"). A Title Case word on
+  its own is checked like any other word, so "Enforcement Agent" and
+  "Committal Order" fail unless explained
+- it is part of the address lines just before a postcode that is in one of
+  the Original's address key facts: the capitalised words, numbers and
+  commas back to the first other word ("The Grange, Nutholt Lane, Ely, CB7
+  4EE")
 - it is a single capital letter used as a label ("Band A")
 - it is a web or email address
 - it is an abbreviation in capitals; P7 checks those
@@ -31,8 +36,11 @@ when a noun follows "is", so "Your arrears are £120." defines nothing.
 Known limits: any "X is a <noun> ..." sentence counts as a definition, even
 one that explains little ("Your liability is a problem."). The words of the
 definition itself are checked like any other words. A place or service name
-that spaCy doesn't tag as an entity and that isn't on the list fails
-("Manchester" alone, without "City Council"). That fails closed.
+that spaCy doesn't tag as an entity and that isn't in `names.txt` fails.
+That fails closed: add the name to `names.txt` only if it is a name. The
+address rule passes any capitalised words in the comma-separated run before
+a key-fact postcode, so a Title Case term written straight before an address
+("the Enforcement Agent, CB7 4EE") would pass too.
 
 Punctuation, symbols and spaces are not words. Short forms ("'ll", "n't",
 "'re", "'ve", with straight or curly apostrophes) are checked as the word they
@@ -47,7 +55,7 @@ from pathlib import Path
 
 from spacy.tokens import Span, Token
 
-from checks.config import DEFINING_VERBS, NAME_ENTITY_LABELS, WORDLIST_FILES
+from checks.config import DEFINING_VERBS, NAME_ENTITY_LABELS, NAMES_FILE, WORDLIST_FILES
 from checks.models import CheckResult, KeyFact, Line
 from checks.p7_abbreviations import abbreviation_of
 from checks.sentences import get_nlp
@@ -64,6 +72,8 @@ _CONTRACTIONS = {"'ll": "will", "n't": "not", "'re": "be", "'ve": "have", "'d": 
 _CLITICS = frozenset({"'s", "'"})
 # What can follow "means" in a definition: "X means the money ...", "X means you ...".
 _MEANING_DEPS = frozenset({"dobj", "attr", "ccomp", "xcomp"})
+# A UK postcode, as P1's address key facts find it ("CB7 4EE").
+_POSTCODE = re.compile(r"(?i)\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[ABD-HJLNP-UW-Z]{2}\b")
 
 
 @lru_cache(maxsize=1)
@@ -81,6 +91,45 @@ def common_words() -> frozenset[str]:
                 continue
             words.update(w.strip().lower() for w in row.split(",") if w.strip())
     return frozenset(words)
+
+
+@lru_cache(maxsize=1)
+def listed_names() -> frozenset[str]:
+    """Names in `NAMES_FILE`, exactly as written there (see the file's comments)."""
+    text = (WORDLIST_DIR / NAMES_FILE).read_text(encoding="utf-8")
+    return frozenset(r.strip() for r in text.splitlines() if r.strip() and not r.lstrip().startswith("#"))
+
+
+def _address_postcodes(key_facts: list[KeyFact]) -> frozenset[str]:
+    """Postcodes of the Original's address key facts, upper case without spaces."""
+    return frozenset(
+        re.sub(r"\s", "", m.group()).upper()
+        for f in key_facts
+        if f.type == "address"
+        for m in _POSTCODE.finditer(f.value)
+    )
+
+
+def _address_words(sent: Span, postcodes: frozenset[str]) -> set[int]:
+    """Token indexes of the address lines before a key-fact postcode.
+
+    Walks back from the postcode over capitalised words, numbers and commas,
+    and stops at the first other word: in "Send it to The Grange, Nutholt
+    Lane, Ely, CB7 4EE." that is "to". P1 checks the postcode but not these
+    words, so a changed address part would go unnoticed.
+    """
+    found: set[int] = set()
+    for m in _POSTCODE.finditer(sent.text):
+        if re.sub(r"\s", "", m.group()).upper() not in postcodes:
+            continue
+        start = sent.start_char + m.start()
+        tokens = [t for t in sent if t.idx < start]
+        for token in reversed(tokens):
+            if token.text == "," or token.text[:1].isupper() or token.text[:1].isdigit():
+                found.add(token.i)
+            else:
+                break
+    return found
 
 
 def _key_fact_words(key_facts: list[KeyFact]) -> frozenset[str]:
@@ -107,7 +156,11 @@ def _common_parts(token: Token, words: frozenset[str]) -> bool:
 
 
 def _needs_checking(token: Token, fact_words: frozenset[str]) -> bool:
-    """False for tokens that pass whatever they say (see the module docstring)."""
+    """False for tokens that pass whatever they say (see the module docstring).
+
+    Address lines before a postcode are handled in `check_p5`, which knows the
+    sentence.
+    """
     if not any(c.isalpha() for c in token.text):
         return False  # punctuation, symbols, spaces and plain numbers
     if any(c.isdigit() for c in token.text) or token.like_num:
@@ -117,6 +170,8 @@ def _needs_checking(token: Token, fact_words: frozenset[str]) -> bool:
     if abbreviation_of(token) is not None:
         return False
     if token.ent_type_ in NAME_ENTITY_LABELS:
+        return False
+    if token.text in listed_names():
         return False
     # A name spaCy didn't tag as an entity ("StepChange", "PayPoint"): a word
     # with a capital inside it, which can start a sentence ("StepChange can
@@ -165,6 +220,7 @@ def check_p5(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
     del original
     words = common_words()
     fact_words = _key_fact_words(key_facts)
+    postcodes = _address_postcodes(key_facts)
     defined: set[str] = set()
     failing: list[str] = []
     details: list[str] = []
@@ -174,8 +230,9 @@ def check_p5(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
         for sent in doc.sents:
             for token in _defined_words(sent):
                 defined.update(_forms(token))
+            address = _address_words(sent, postcodes) if postcodes else set()
             for token in sent:
-                if not _needs_checking(token, fact_words):
+                if token.i in address or not _needs_checking(token, fact_words):
                     continue
                 forms = _forms(token)
                 if forms & words or forms & defined or forms & _CLITICS or _common_parts(token, words):

@@ -209,3 +209,59 @@ def test_title_case_jargon_is_not_a_name() -> None:
 def test_names_with_inner_capitals_and_tagged_names_still_pass() -> None:
     for text in ["StepChange can help you for free.", "Call Citizens Advice for free help."]:
         assert _p5_passes(text), text
+
+
+def test_listed_sender_service_and_place_names_pass() -> None:
+    """Regression (review v2): after Title Case words stopped passing as
+    names, the sender and the places a reader must see failed P5 on the
+    recorded samples, and regenerate was told to swap them."""
+    for text in [
+        "The Planning Inspectorate will decide your appeal.",
+        "The Inspector will look at your comments.",
+        "You can get it from GOV.UK.",
+        "Citizen’s Advice Manchester can help you.",
+        "Call National Debtline for free help.",
+    ]:
+        assert _p5_passes(text), text
+
+
+def test_listed_names_pass_only_as_written() -> None:
+    """Still fails: a listed name in lower case is checked as a word."""
+    for text in ["The inspectorate will decide.", "Ring the debtline."]:
+        assert not _p5_passes(text), text
+
+
+def _address_fact(original: str, value: str) -> KeyFact:
+    start = original.index(value)
+    return KeyFact(
+        id="f1", type="address", value=value, normalised="CB74EE",
+        start=start, end=start + len(value), sentence_id="s1",
+    )  # fmt: skip
+
+
+def test_address_lines_before_a_key_fact_postcode_pass() -> None:
+    """Regression (review v2): "The Grange" in a payment address failed P5.
+    P1 checks only the postcode, so regenerate could change the address."""
+    line = "Send cheques to the council, The Grange, Nutholt Lane, Ely, Cambs, CB7 4EE."
+    fact = _address_fact("The Grange, Nutholt Lane, Ely, Cambs, CB7 4EE.", "CB7 4EE")
+    assert check_p5("", [fact], _lines([line])).passed
+
+
+def test_address_words_need_a_key_fact_postcode() -> None:
+    """Still fails: with no address key fact, or a postcode that isn't one, the
+    same words are checked, and the walk back stops at the first other word."""
+    line = "Send cheques to the council, The Grange, Nutholt Lane, Ely, Cambs, CB7 4EE."
+    assert not check_p5("", [], _lines([line])).passed
+    other = _address_fact("Write to SW1A 2AA.", "SW1A 2AA")
+    assert not check_p5("", [other], _lines([line])).passed
+    fact = _address_fact("The Grange, Ely, CB7 4EE.", "CB7 4EE")
+    for text in ["An Enforcement Agent may visit The Grange, Ely, CB7 4EE.", "The Grange, Ely, CB7 4EE has arrears."]:
+        assert not check_p5("", [fact], _lines([text])).passed, text
+
+
+def test_title_case_jargon_still_fails_next_to_listed_names() -> None:
+    for text in [
+        "The Planning Inspectorate can apply for a Committal Order.",
+        "The Inspector can make a Committal Order.",
+    ]:
+        assert not _p5_passes(text), text

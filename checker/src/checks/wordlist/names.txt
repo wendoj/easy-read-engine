@@ -1,0 +1,19 @@
+# Names that letters print and spaCy's small model doesn't tag as names, so P5
+# would fail them. One name per line, written exactly as it must appear: P5
+# passes a token only when it matches a line here character for character, so
+# the lower-case word is still checked like any other word. Keep this list to
+# names of senders, services, places and websites. Legal terms written in Title
+# Case ("Enforcement Agent", "Committal Order") are not names and must be
+# explained in the output.
+#
+# Debtline is part of National Debtline, a free debt advice service that
+# council tax letters name (review v1, November 2026).
+Debtline
+# These failed P5 on the recorded sample letters after Title Case words
+# stopped passing as names (review v2, November 2026): the sender "the
+# Planning Inspectorate", the planning "Inspector" who decides the appeal, the
+# website "GOV.UK" and "Manchester" in "Citizen's Advice Manchester".
+GOV.UK
+Inspector
+Inspectorate
+Manchester
