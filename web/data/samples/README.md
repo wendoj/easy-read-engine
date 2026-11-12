@@ -35,15 +35,15 @@ The script runs each public sample letter through the real pipeline, one at a ti
 
 ## Current state
 
-On 12 November 2026 (`58055db`), East Cambridgeshire and the planning letter were re-recorded on Bedrock, both flagged. Manchester was blocked on P1 on every try that day, so its 11 November recording is kept. No sample passes all 10 rules. Failing lines per rule on the files as committed (P1 to P8 from `recheck_samples.py`, P9 and P10 from the recorded checks):
+On 12 November 2026, on the final code (`66a8d0b`), East Cambridgeshire and the planning letter were re-recorded on Bedrock, both flagged after 3 tries. Manchester was blocked on P1 on all 3 tries, twice (the first run and the retry), so its 11 November recording is kept. No sample passes all 10 rules. Failing lines per rule on the files as committed (P1 to P8 from `recheck_samples.py`, which match the recorded checks exactly; P9 and P10 from the recorded checks):
 
 | Sample | Lines | P2 | P3 | P4 | P5 | P6 | P7 | P9 | P10 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| East Cambridgeshire (12 Nov) | 131 | 5 | 9 | 6 | 13 | 1 | 5 | 8 | 0 |
+| East Cambridgeshire (12 Nov, `66a8d0b`) | 109 | 1 | 1 | 4 | 5 | 0 | 1 | 23 | 0 |
 | Manchester (11 Nov) | 122 | 0 | 8 | 0 | 3 | 0 | 2 | 52 | 0 |
-| Planning appeal (12 Nov) | 67 | 2 | 1 | 3 | 0 | 1 | 0 | 10 | 0 |
+| Planning appeal (12 Nov, `66a8d0b`) | 70 | 0 | 3 | 8 | 4 | 0 | 1 | 5 | 0 |
 
-P1 and P8 pass on all 3. The new East Cambridgeshire recording has about twice the lines of the old one (131, was 64), because the rewrite now covers more of the letter, so its counts are not directly comparable with the old ones.
+P1 and P8 pass on all 3. Compared with the `58055db` recordings, East Cambridgeshire went from 131 to 109 lines and from 47 to 35 failing lines over P2 to P10, with fewer checker failures and more P9 failures (8 to 23). The planning letter went from 67 to 70 lines and from 17 to 21 failing lines, with more P3, P4 and P5 failures and fewer P9 failures (10 to 5). Each recording is 1 run of a model that does not answer the same way twice.
 
 The 11 November history follows.
 
