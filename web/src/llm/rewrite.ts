@@ -7,6 +7,7 @@ import type { KeyFact, Sentence } from "@/src/checker-client/schemas";
 import type { ModelClient } from "./client";
 import { DRAFT_LINE_PARAMETERS, type DraftLine, draftLineSchema, formatKeyFacts, formatSentences } from "./lines";
 import { formatPlainWords } from "./plain-words";
+import type { ModelAnswer } from "./judge";
 import { type PromptTemplate, loadPrompt, renderTemplate } from "./prompts";
 import { type StructuredOptions, type ToolDefinition, callStructured } from "./structured";
 
@@ -46,8 +47,11 @@ export interface RewriteInput {
 
 export interface RewriteResult {
   lines: DraftLine[];
+  /** The last part's answer. */
   provider: string;
   model: string;
+  /** Who answered each part, in order. A fake may leave it out. */
+  answers?: ModelAnswer[];
   requests: number;
 }
 
@@ -56,15 +60,46 @@ export interface LlmCallOptions extends StructuredOptions {
   prompt?: PromptTemplate;
 }
 
-export function buildRewriteMessages(prompt: PromptTemplate, input: RewriteInput): { system: string; user: string } {
+/** Said when the request holds the whole letter, or the first part has no context to add. */
+export const NO_CONTEXT = "None. These are all the sentences.";
+
+/**
+ * Builds the rewrite messages. `context` is sentences from other parts of
+ * the letter, shown so the model knows who sent it. They are not rewritten:
+ * `rewriteSchema` takes only the part's own sentence IDs.
+ */
+export function buildRewriteMessages(
+  prompt: PromptTemplate,
+  input: RewriteInput,
+  context: readonly Sentence[] = [],
+): { system: string; user: string } {
   return {
     system: prompt.system,
     user: renderTemplate(prompt.user, {
       sentences: formatSentences(input.sentences),
       key_facts: formatKeyFacts(input.keyFacts),
       plain_words: formatPlainWords(input.sentences.map((s) => s.text)),
+      context: context.length > 0 ? formatSentences([...context]) : NO_CONTEXT,
     }),
   };
+}
+
+/** Sentences from the start and the end of the letter that every part sees as context. */
+export const REWRITE_CONTEXT_START = 5;
+export const REWRITE_CONTEXT_END = 3;
+
+/**
+ * Context for 1 part: the letter's first `REWRITE_CONTEXT_START` and last
+ * `REWRITE_CONTEXT_END` sentences that are not in the part. The letterhead
+ * and the sign-off name the sender, so a later part can write "The council"
+ * for "we", as the prompt asks. Empty when the letter is not split.
+ */
+export function rewriteContext(all: readonly Sentence[], part: readonly Sentence[]): Sentence[] {
+  if (part.length === all.length) return [];
+  const own = new Set(part.map((s) => s.id));
+  const start = all.slice(0, REWRITE_CONTEXT_START);
+  const end = all.slice(Math.max(REWRITE_CONTEXT_START, all.length - REWRITE_CONTEXT_END));
+  return [...start, ...end].filter((s) => !own.has(s.id));
 }
 
 /**
@@ -87,9 +122,11 @@ export function chunkSentences<T>(sentences: readonly T[], size: number = REWRIT
 
 /**
  * Rewrites the letter in 1 request, or in parts of at most
- * `REWRITE_CHUNK_SENTENCES` sentences, one after another. Each part gets only
- * its own sentences and key facts, and its lines may point only at its own
- * sentences. The lines are joined in letter order.
+ * `REWRITE_CHUNK_SENTENCES` sentences, one after another. Each part gets its
+ * own sentences and key facts, and its lines may point only at its own
+ * sentences. It also sees the start and end of the letter as context only
+ * (`rewriteContext`). The lines are joined in letter order, and `answers`
+ * records who answered each part.
  */
 export async function rewrite(
   client: ModelClient,
@@ -99,11 +136,12 @@ export async function rewrite(
   const prompt = options.prompt ?? (await loadPrompt("rewrite"));
   const lines: DraftLine[] = [];
   let requests = 0;
-  let answeredBy = { provider: "", model: "" };
+  const answers: ModelAnswer[] = [];
   for (const sentences of chunkSentences(input.sentences)) {
     const ids = new Set(sentences.map((s) => s.id));
     const keyFacts = input.keyFacts.filter((f) => ids.has(f.sentence_id));
-    const { system, user } = buildRewriteMessages(prompt, { sentences, keyFacts });
+    const context = rewriteContext(input.sentences, sentences);
+    const { system, user } = buildRewriteMessages(prompt, { sentences, keyFacts }, context);
     const result = await callStructured(
       client,
       {
@@ -120,7 +158,8 @@ export async function rewrite(
     );
     lines.push(...result.data.lines);
     requests += result.requests;
-    answeredBy = { provider: result.provider, model: result.model };
+    answers.push({ provider: result.provider, model: result.model });
   }
-  return { lines, ...answeredBy, requests };
+  const last = answers.at(-1) ?? { provider: "", model: "" };
+  return { lines, ...last, answers, requests };
 }

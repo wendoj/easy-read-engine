@@ -14,6 +14,7 @@ import {
   JUDGE_BATCH_LINES,
   JUDGE_UNAVAILABLE,
   ModelOutputError,
+  NO_CONTEXT,
   REWRITE_CHUNK_SENTENCES,
   buildJudgeResults,
   chunkSentences,
@@ -63,7 +64,7 @@ function reply(r: Reply): TransportResponse {
   return { status: 200, headers: {}, json: { choices: [{ message, finish_reason: "stop" }] } };
 }
 
-function fakeModel(replies: Reply[]) {
+function fakeModel(replies: Reply[], chains: Partial<ModelConfig["chains"]> = {}) {
   const sent: SentBody[] = [];
   const clientLogs: ModelLogEvent[] = [];
   const taskLogs: StructuredLogEvent[] = [];
@@ -80,6 +81,7 @@ function fakeModel(replies: Reply[]) {
       rewrite: [{ provider: "groq", model: "openai/gpt-oss-120b" }],
       judge: [{ provider: "groq", model: "qwen/qwen3.8-27b" }],
       vision: [{ provider: "groq", model: "qwen/qwen3.8-27b" }],
+      ...chains,
     },
     keys: { groq: "test-key" },
   };
@@ -115,7 +117,13 @@ const goodLines = {
   ],
 };
 
-const PROMPT = parsePrompt("## System\nSYSTEM RULES\n## User\nS:\n{{sentences}}\nK:\n{{key_facts}}\nW:\n{{plain_words}}");
+const PROMPT = parsePrompt(
+  "## System\nSYSTEM RULES\n## User\nS:\n{{sentences}}\nC:\n{{context}}\nK:\n{{key_facts}}\nW:\n{{plain_words}}",
+);
+/** The part of a rewrite request before "C:": the sentences to rewrite. */
+const toRewrite = (body: SentBody) => userText(body).split("\nC:\n")[0];
+/** The part of a rewrite request between "C:" and "K:": context only. */
+const contextOf = (body: SentBody) => userText(body).split("\nC:\n")[1].split("\nK:\n")[0];
 
 // --- rewrite: tool call, zod validation and the one retry ----------------------------
 
@@ -230,12 +238,71 @@ describe("rewrite", () => {
     expect(result.requests).toBe(2);
     expect(m.sent).toHaveLength(2);
     expect(userText(m.sent[0])).toContain("s1: Sentence number 1.");
-    expect(userText(m.sent[0])).not.toContain(`${last}: `);
+    expect(toRewrite(m.sent[0])).not.toContain(`${last}: `);
     expect(userText(m.sent[0])).toContain("k1 (money, from s2)");
     expect(userText(m.sent[0])).not.toContain("k3");
     expect(userText(m.sent[1])).toContain(`${last}: Sentence number ${many.length}.`);
-    expect(userText(m.sent[1])).not.toContain("s1: ");
+    expect(toRewrite(m.sent[1])).not.toContain("s1: ");
     expect(userText(m.sent[1])).toContain(`k3 (reference, from ${last})`);
+  });
+
+  it("shows each part the start and end of the letter as context only (review v1)", async () => {
+    // Regression: a later part never saw the letterhead, so it had to guess
+    // the sender's name for "we".
+    const many: Sentence[] = Array.from({ length: 2 * REWRITE_CHUNK_SENTENCES }, (_, i) => ({
+      id: `s${i + 1}`,
+      text: i === 0 ? "Northbridge Borough Council." : `Sentence number ${i + 1}.`,
+      start: i * 30,
+      end: i * 30 + 29,
+    }));
+    const n = many.length;
+    const part1 = { lines: [{ text: "Line from part 1.", sourceSentenceId: "s1", symbolQuery: "" }] };
+    const part2 = { lines: [{ text: "Line from part 2.", sourceSentenceId: `s${n}`, symbolQuery: "" }] };
+    const m = fakeModel([
+      { tool: "submit_lines", args: part1 },
+      { tool: "submit_lines", args: part2 },
+    ]);
+    await rewrite(m.client, { sentences: many, keyFacts: [] }, { prompt: PROMPT, logger: m.logger });
+    // Part 2 sees the first 5 sentences (the letterhead) as context, not as sentences to rewrite.
+    expect(contextOf(m.sent[1])).toContain("s1: Northbridge Borough Council.");
+    expect(contextOf(m.sent[1])).toContain("s5: ");
+    expect(contextOf(m.sent[1])).not.toContain("s6: ");
+    expect(toRewrite(m.sent[1])).not.toContain("s1: ");
+    // Part 1 sees the last 3 sentences (the sign-off) as context.
+    expect(contextOf(m.sent[0])).toContain(`s${n}: `);
+    expect(contextOf(m.sent[0])).toContain(`s${n - 2}: `);
+    expect(contextOf(m.sent[0])).not.toContain(`s${n - 3}: `);
+    expect(contextOf(m.sent[0])).not.toContain("s1: ");
+  });
+
+  it("gives no context when the letter is rewritten in 1 request", async () => {
+    const m = fakeModel([{ tool: "submit_lines", args: goodLines }]);
+    await rewrite(m.client, { sentences, keyFacts }, { prompt: PROMPT, logger: m.logger });
+    expect(contextOf(m.sent[0])).toBe(NO_CONTEXT);
+  });
+
+  it("records who answered each part, so a fallback on one part shows (review v1)", async () => {
+    // Regression: only the last part's provider and model were kept.
+    const many: Sentence[] = Array.from({ length: REWRITE_CHUNK_SENTENCES + 1 }, (_, i) => ({
+      id: `s${i + 1}`,
+      text: `Sentence number ${i + 1}.`,
+      start: i * 20,
+      end: i * 20 + 19,
+    }));
+    const part1 = { lines: [{ text: "Line from part 1.", sourceSentenceId: "s1", symbolQuery: "" }] };
+    const part2 = { lines: [{ text: "Line from part 2.", sourceSentenceId: `s${many.length}`, symbolQuery: "" }] };
+    const m = fakeModel([{ status: 500 }, { tool: "submit_lines", args: part1 }, { tool: "submit_lines", args: part2 }], {
+      rewrite: [
+        { provider: "groq", model: "first-model" },
+        { provider: "groq", model: "second-model" },
+      ],
+    });
+    const result = await rewrite(m.client, { sentences: many, keyFacts: [] }, { prompt: PROMPT, logger: m.logger });
+    expect(result.answers).toEqual([
+      { provider: "groq", model: "second-model" },
+      { provider: "groq", model: "first-model" },
+    ]);
+    expect(result.model).toBe("first-model");
   });
 
   it("rejects a line in a later part that points at a sentence from an earlier part", async () => {
@@ -550,6 +617,9 @@ describe("judge", () => {
     expect(p9.line_ids).toEqual(["L2", "L41", "L42"]);
     expect(p9.details).toEqual(["L2 meaning: Adds a fact.", `L41 ${JUDGE_UNAVAILABLE}`, `L42 ${JUDGE_UNAVAILABLE}`]);
     expect(p10.line_ids).toEqual(["L41", "L42"]);
+    // Review v1: the unanswered lines are named, and each answered batch is recorded.
+    expect(result.unavailableLineIds).toEqual(["L41", "L42"]);
+    expect(result.answers).toEqual([{ provider: "groq", model: "qwen/qwen3.8-27b" }]);
   });
 
   it("makes no request when every pair is context only", async () => {

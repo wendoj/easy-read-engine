@@ -6,7 +6,8 @@
      came back as 1 line after the model called a tool that was not offered. The recorded samples
      (11 November 2026) kept "If ..., ..." lines (P3), letter jargon (P5) and "decided by <method>"
      passives (P4), so those now have worked examples.
-     The code fills in {{sentences}}, {{key_facts}} and {{plain_words}} (entries from
+     The code fills in {{sentences}}, {{context}} (start and end of the letter when it is rewritten in
+     parts, so later parts know the sender), {{key_facts}} and {{plain_words}} (entries from
      web/src/llm/plain-words.ts for the hard words in the letter). Every example line below passes P2 to P7.
      Keep this file free of real letter text. -->
 
@@ -108,6 +109,10 @@ Call `submit_lines` once with every line. If you cannot call the tool, reply wit
 Sentences from the letter, as `ID: text`:
 
 {{sentences}}
+
+A long letter is rewritten in parts. Other sentences from the start and end of the letter, for context only. Use them to know who sent the letter. Do not write lines for them:
+
+{{context}}
 
 Key facts that must appear unchanged, as `ID (type, from sentence ID): value`:
 
