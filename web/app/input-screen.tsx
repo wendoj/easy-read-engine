@@ -14,8 +14,13 @@
  * letter through `/api/sample`, which re-runs P1 to P8 and makes no model
  * call. The list holds only IDs and labels; the page passes it in from the
  * server.
+ *
+ * Live conversion needs the judge access key (`/api/access`). Without access,
+ * the paste, upload and convert controls are disabled and the sample letters
+ * move up, so visitors can still read them. Until the access state arrives,
+ * the controls stay on: the server checks access on every model route anyway.
  */
-import { ArrowRight, ClipboardPaste, FileUp, Info, LoaderCircle } from "lucide-react";
+import { ArrowRight, ClipboardPaste, FileUp, Info, KeyRound, LoaderCircle, LockKeyhole } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
@@ -25,12 +30,19 @@ import { Steps } from "@/components/steps";
 import { ProblemIcon } from "@/components/status-icons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  ACCESS_CLOSED_MESSAGE,
+  ACCESS_REQUIRED_MESSAGE,
+  type AccessState,
+  MAX_ACCESS_KEY_CHARS,
+} from "@/src/access/errors";
 import type { ProgressEvent } from "@/src/pipeline/types";
 import type { SampleInfo } from "@/src/samples/sample";
-import { convertLetter, extractText, loadSample } from "@/src/ui/api";
+import { convertLetter, extractText, getAccess, loadSample, sendAccessKey } from "@/src/ui/api";
 import { useConversion } from "@/src/ui/conversion-context";
 import { progressLabel, progressValue, stageRows } from "@/src/ui/convert-events";
 import { statusFade } from "@/src/ui/motion";
@@ -153,6 +165,85 @@ function SampleChips({
   );
 }
 
+/**
+ * Shown when this browser has no judge access. Samples stay usable. "denied"
+ * offers the key field; "closed" (production with no key set) does not, as
+ * no key can work. The key goes to `/api/access` only and is cleared after.
+ */
+function AccessNotice({
+  access,
+  onAccess,
+}: {
+  access: "denied" | "closed";
+  onAccess: (next: AccessState) => void;
+}) {
+  const ids = useId();
+  const keyId = `${ids}-key`;
+  const [asking, setAsking] = useState(false);
+  const [key, setKey] = useState("");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const focusOnMount = useCallback((el: HTMLInputElement | null) => el?.focus(), []);
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (key === "" || sending) return;
+    setSending(true);
+    setError(null);
+    const outcome = await sendAccessKey(key);
+    setSending(false);
+    if (outcome.ok) {
+      setKey("");
+      onAccess(outcome.access);
+    } else if (!outcome.aborted) {
+      setError(outcome.message);
+    }
+  }
+
+  return (
+    <section aria-label="Access" className="flex flex-col gap-4">
+      <Alert role="note" className="border-input bg-accent-tint">
+        <LockKeyhole aria-hidden strokeWidth={2} absoluteStrokeWidth />
+        <AlertDescription className="text-lg leading-normal text-foreground">
+          {access === "closed" ? ACCESS_CLOSED_MESSAGE : ACCESS_REQUIRED_MESSAGE}
+        </AlertDescription>
+      </Alert>
+      {access === "denied" &&
+        (asking ? (
+          <form onSubmit={(event) => void submit(event)} className="flex flex-col gap-3">
+            <label htmlFor={keyId} className="text-lg font-semibold">
+              Access key
+            </label>
+            <div className="flex flex-wrap gap-3">
+              <Input
+                id={keyId}
+                ref={focusOnMount}
+                type="password"
+                autoComplete="off"
+                value={key}
+                onChange={(event) => setKey(event.target.value)}
+                maxLength={MAX_ACCESS_KEY_CHARS}
+                aria-invalid={error !== null || undefined}
+                className="h-12 max-w-md flex-1 bg-card px-4 text-lg md:text-lg"
+              />
+              <Button type="submit" disabled={key === "" || sending} aria-busy={sending || undefined}>
+                {sending && <LoaderCircle aria-hidden data-icon="inline-start" className="motion-safe:animate-spin" />}
+                {sending ? "Checking the key" : "Use this key"}
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <div>
+            <Button type="button" variant="outline" onClick={() => setAsking(true)}>
+              <KeyRound aria-hidden data-icon="inline-start" />I have an access key
+            </Button>
+          </div>
+        ))}
+      <ErrorAlert message={error} />
+    </section>
+  );
+}
+
 /** The file field inside the composer: a dashed drop area over a visually hidden input. */
 function FileDrop({
   id,
@@ -222,10 +313,33 @@ export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] 
   const [progress, setProgress] = useState<ProgressEvent | null>(null);
   const [sawFix, setSawFix] = useState(false);
 
+  // Null until /api/access answers, or when it can't be reached.
+  const [access, setAccess] = useState<AccessState | null>(null);
+
   const abortRef = useRef<AbortController | null>(null);
 
   // Stop a running request when the screen is hidden or unmounted.
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void getAccess({ signal: controller.signal }).then((outcome) => {
+      if (outcome.ok) setAccess(outcome.access);
+    });
+    return () => controller.abort();
+  }, []);
+
+  const locked = access === "denied" || access === "closed";
+  const accessNotice =
+    access === "denied" || access === "closed" ? (
+      <AccessNotice
+        access={access}
+        onAccess={(next) => {
+          setAccess(next);
+          setError(null);
+        }}
+      />
+    ) : null;
 
   // Move focus to the confirm step so keyboard and screen reader users land on it.
   // A ref callback, because the heading mounts with the step.
@@ -247,17 +361,27 @@ export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] 
   }
 
   async function readFile() {
-    if (!file) return;
+    if (!file || locked) return;
     setError(null);
     setBusy("reading");
     const outcome = await extractText(file, { signal: startRequest() });
     setBusy(null);
     if (outcome.ok) goToConfirm(outcome.text);
-    else if (!outcome.aborted) setError(outcome.message);
+    else if (!outcome.aborted) failedWith(outcome);
+  }
+
+  /** Shows the error. An access error locks the controls instead, and the access notice says why. */
+  function failedWith(outcome: { error: string | null; message: string }) {
+    if (outcome.error === "access_required" || outcome.error === "access_closed") {
+      setAccess(outcome.error === "access_required" ? "denied" : "closed");
+      setError(null);
+      return;
+    }
+    setError(outcome.message);
   }
 
   async function convert() {
-    if (!limit.canConvert) return;
+    if (!limit.canConvert || locked) return;
     setError(null);
     setProgress(null);
     setSawFix(false);
@@ -275,7 +399,7 @@ export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] 
       startResult(outcome.result, null);
       router.push("/result");
     } else if (!outcome.aborted) {
-      setError(outcome.message);
+      failedWith(outcome);
     }
   }
 
@@ -313,6 +437,7 @@ export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] 
     return (
       <section aria-labelledby={`${confirmId}-heading`} className="flex flex-col gap-6">
         <Steps current={2} />
+        {accessNotice}
         <Panel>
           <PanelBar>
             <h2
@@ -345,7 +470,7 @@ export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] 
             <Button
               type="button"
               onClick={convert}
-              disabled={!limit.canConvert || converting}
+              disabled={!limit.canConvert || converting || locked}
               aria-busy={converting || undefined}
             >
               {converting ? "Making it Easy Read" : "Make it Easy Read"}
@@ -376,9 +501,20 @@ export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] 
 
   function enterView() {
     const reading = busy === "reading";
+    // Visitors without access see the samples first, as they are what they can use.
+    const sampleChips = (
+      <SampleChips
+        samples={samples}
+        loadingId={sampleId}
+        disabled={busy !== null}
+        onShow={(id) => void showSample(id)}
+      />
+    );
     return (
       <section className="flex flex-col gap-6" aria-label="Your letter">
         <Steps current={1} />
+        {accessNotice}
+        {locked && sampleChips}
         <Panel>
           <Tabs
             value={tab}
@@ -412,10 +548,11 @@ export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] 
                 onChange={(event) => setPasted(event.target.value)}
                 aria-describedby={pasteCountId}
                 placeholder="Paste your letter here"
+                disabled={locked}
                 className={PANEL_FIELD}
               />
               <SendBar>
-                <Button type="button" onClick={() => goToConfirm(pasted)} disabled={pasted.trim() === ""}>
+                <Button type="button" onClick={() => goToConfirm(pasted)} disabled={pasted.trim() === "" || locked}>
                   Next
                   <ArrowRight aria-hidden data-icon="inline-end" />
                 </Button>
@@ -426,7 +563,7 @@ export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] 
               <FileDrop
                 id={fileId}
                 file={file}
-                disabled={reading}
+                disabled={reading || locked}
                 onFile={(next) => {
                   setFile(next);
                   setError(null);
@@ -436,7 +573,7 @@ export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] 
                 {reading ? "Reading the file" : ""}
               </p>
               <SendBar>
-                <Button type="button" onClick={readFile} disabled={!file || reading} aria-busy={reading || undefined}>
+                <Button type="button" onClick={readFile} disabled={!file || reading || locked} aria-busy={reading || undefined}>
                   {reading && <LoaderCircle aria-hidden data-icon="inline-start" className="motion-safe:animate-spin" />}
                   {reading ? "Reading the letter" : "Read the letter"}
                 </Button>
@@ -447,12 +584,7 @@ export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] 
 
         <ErrorAlert message={error} />
 
-        <SampleChips
-          samples={samples}
-          loadingId={sampleId}
-          disabled={busy !== null}
-          onShow={(id) => void showSample(id)}
-        />
+        {!locked && sampleChips}
       </section>
     );
   }

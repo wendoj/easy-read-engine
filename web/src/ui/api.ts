@@ -1,9 +1,10 @@
 /**
- * Browser calls to `/api/extract`, `/api/convert`, `/api/check`, `/api/sample` and `/api/export`. They return plain
+ * Browser calls to `/api/extract`, `/api/convert`, `/api/check`, `/api/sample`, `/api/export` and `/api/access`. They return plain
  * outcomes, never throw for HTTP errors, and never log or store letter text
  * (R7.4).
  */
 import { z } from "zod";
+import type { AccessState } from "@/src/access/errors";
 import type { ConversionResult, ProgressEvent } from "@/src/pipeline/types";
 import { type SampleInfo, sampleInfoSchema } from "@/src/samples/sample";
 import {
@@ -159,6 +160,49 @@ export async function loadSample(
   const parsed = sampleResponseSchema.safeParse(body);
   if (!parsed.success) return { ok: false, error: null, message: GENERIC_MESSAGE };
   return { ok: true, result: parsed.data.result, sample: parsed.data.sample };
+}
+
+const accessStateSchema = z.enum(["open", "granted", "denied", "closed"]);
+const accessResponseSchema = z.object({ access: accessStateSchema });
+
+export type AccessOutcome = { ok: true; access: AccessState } | ApiFailure;
+
+/** Asks whether this browser may use the model routes (judge access key). */
+export async function getAccess(options: { signal?: AbortSignal; fetch?: Fetch } = {}): Promise<AccessOutcome> {
+  let response: Response;
+  try {
+    response = await (options.fetch ?? fetch)("/api/access", { method: "GET", cache: "no-store", signal: options.signal });
+  } catch (err) {
+    return failure(err, NETWORK_MESSAGE);
+  }
+  const body = await readErrorBody(response);
+  if (!response.ok) return { ok: false, error: codeOf(body), message: errorMessage("access", response.status, body) };
+  const parsed = accessResponseSchema.safeParse(body);
+  if (!parsed.success) return { ok: false, error: null, message: GENERIC_MESSAGE };
+  return { ok: true, access: parsed.data.access };
+}
+
+/** Sends the judge access key. On a match the server sets an HttpOnly cookie. The key is never stored here. */
+export async function sendAccessKey(
+  key: string,
+  options: { signal?: AbortSignal; fetch?: Fetch } = {},
+): Promise<AccessOutcome> {
+  let response: Response;
+  try {
+    response = await (options.fetch ?? fetch)("/api/access", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ key }),
+      signal: options.signal,
+    });
+  } catch (err) {
+    return failure(err, NETWORK_MESSAGE);
+  }
+  const body = await readErrorBody(response);
+  if (!response.ok) return { ok: false, error: codeOf(body), message: errorMessage("access", response.status, body) };
+  const parsed = accessResponseSchema.safeParse(body);
+  if (!parsed.success) return { ok: false, error: null, message: GENERIC_MESSAGE };
+  return { ok: true, access: parsed.data.access };
 }
 
 /**
