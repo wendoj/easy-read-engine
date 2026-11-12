@@ -6,6 +6,7 @@ import { z } from "zod";
 import type { KeyFact, Sentence } from "@/src/checker-client/schemas";
 import type { ModelClient } from "./client";
 import { DRAFT_LINE_PARAMETERS, type DraftLine, draftLineSchema, formatKeyFacts, formatSentences } from "./lines";
+import { formatPlainWords } from "./plain-words";
 import { type PromptTemplate, loadPrompt, renderTemplate } from "./prompts";
 import { type StructuredOptions, type ToolDefinition, callStructured } from "./structured";
 
@@ -61,6 +62,7 @@ export function buildRewriteMessages(prompt: PromptTemplate, input: RewriteInput
     user: renderTemplate(prompt.user, {
       sentences: formatSentences(input.sentences),
       key_facts: formatKeyFacts(input.keyFacts),
+      plain_words: formatPlainWords(input.sentences.map((s) => s.text)),
     }),
   };
 }

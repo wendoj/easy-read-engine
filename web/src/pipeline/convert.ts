@@ -50,6 +50,7 @@ import {
 } from "@/src/llm";
 import { MAX_ATTEMPTS, completeChecks, decide, failingLineIds, missingFacts, regenerationChecks } from "./decide";
 import { LineIds, type WorkingLine, applyRegeneration, fromDrafts, toLines } from "./lines";
+import { splitConditions } from "./split-conditions";
 import { attachSymbols } from "./symbols";
 import type {
   ConversionResult,
@@ -151,7 +152,7 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
   const drafted = await model.rewrite({ sentences, keyFacts }); // step 5
   models.push({ task: "rewrite", attempt: 1, provider: drafted.provider, model: drafted.model });
   const ids = new LineIds();
-  let lines = fromDrafts(drafted.lines, ids);
+  let lines = fromDrafts(splitConditions(drafted.lines), ids);
   let judgeRetried = false;
 
   for (let attempt = 1; ; attempt++) {
@@ -202,6 +203,10 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
       return finish(done);
     }
     models.push({ task: "regenerate", attempt, provider: regenerated.provider, model: regenerated.model });
-    lines = applyRegeneration(lines, failed, regenerated, sentences, ids);
+    const split = {
+      replacements: regenerated.replacements.map((r) => ({ ...r, lines: splitConditions(r.lines) })),
+      added: splitConditions(regenerated.added),
+    };
+    lines = applyRegeneration(lines, failed, split, sentences, ids);
   }
 }

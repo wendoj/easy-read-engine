@@ -110,7 +110,7 @@ const goodLines = {
   ],
 };
 
-const PROMPT = parsePrompt("## System\nSYSTEM RULES\n## User\nS:\n{{sentences}}\nK:\n{{key_facts}}");
+const PROMPT = parsePrompt("## System\nSYSTEM RULES\n## User\nS:\n{{sentences}}\nK:\n{{key_facts}}\nW:\n{{plain_words}}");
 
 // --- rewrite: tool call, zod validation and the one retry ----------------------------
 
@@ -217,7 +217,7 @@ const checks: CheckResult[] = [
 ];
 
 const REGEN_PROMPT = parsePrompt(
-  "## System\nFIX\n## User\n{{failing_lines}}\n--\n{{sentences}}\n--\n{{key_facts}}\n--\n{{missing_facts}}",
+  "## System\nFIX\n## User\n{{failing_lines}}\n--\n{{sentences}}\n--\n{{key_facts}}\n--\n{{missing_facts}}\n--\n{{plain_words}}",
 );
 
 describe("regenerate", () => {

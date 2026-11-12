@@ -36,8 +36,8 @@ export interface JudgePair {
 }
 
 const verdictSchema = z.object({
-  verdict: z.enum(["pass", "fail"]),
   reason: z.string().default(""),
+  verdict: z.enum(["pass", "fail"]),
 });
 
 export const lineVerdictSchema = z.object({
@@ -50,13 +50,22 @@ export const lineVerdictSchema = z.object({
 export type Verdict = z.infer<typeof verdictSchema>;
 export type LineVerdict = z.infer<typeof lineVerdictSchema>;
 
+/**
+ * `reason` comes before `verdict`, so the model writes the problem before it
+ * decides. With the verdict first, the recorded samples (November 2026) had
+ * fails whose own reason described a pass ("Leaves out X, which other lines
+ * cover").
+ */
 const VERDICT_PARAMETERS = {
   type: "object",
   properties: {
+    reason: {
+      type: "string",
+      description: "Written first: the problem, in 15 words or fewer. Empty if there is no problem",
+    },
     verdict: { type: "string", enum: ["pass", "fail"] },
-    reason: { type: "string", description: "Why it fails, in 15 words or fewer. Empty for a pass" },
   },
-  required: ["verdict", "reason"],
+  required: ["reason", "verdict"],
 } as const;
 
 export const SUBMIT_VERDICTS_TOOL: ToolDefinition = {

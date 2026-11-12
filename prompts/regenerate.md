@@ -3,7 +3,8 @@
 <!-- Task 15. Rules come from .kiro/steering/easy-read-rules.md and .kiro/steering/safety.md, and match
      prompts/rewrite.md. The code sends only the failing lines, their failure reasons, their source
      sentences and the key facts from those sentences. It fills in {{failing_lines}}, {{sentences}},
-     {{key_facts}} and {{missing_facts}}. Every example line below passes P2 to P7. The recorded samples
+     {{key_facts}}, {{missing_facts}} and {{plain_words}} (entries from web/src/llm/plain-words.ts for the
+     hard words in the failing lines and their sentences). Checker reasons for P5 never name the word. Every example line below passes P2 to P7. The recorded samples
      (November 2026) kept "If ..., ..." lines (P3) and letter jargon (P5) after regenerating, so those
      have worked examples.
      Keep this file free of real letter text. -->
@@ -97,5 +98,9 @@ Key facts in these sentences, which must appear unchanged, as `ID (type, from se
 Key facts missing from every line, which need a new line in `added`:
 
 {{missing_facts}}
+
+Hard words in these lines and sentences, with a plain word to use instead. A line that failed P5 most likely uses one of them. Use the plain word, or explain the hard word in its own line. Keep the meaning:
+
+{{plain_words}}
 
 Fix the failing lines now.

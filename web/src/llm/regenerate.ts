@@ -11,6 +11,7 @@ import { z } from "zod";
 import type { CheckResult, KeyFact, Line, Sentence } from "@/src/checker-client/schemas";
 import type { ModelClient } from "./client";
 import { DRAFT_LINE_PARAMETERS, type DraftLine, draftLineSchema, formatKeyFacts, formatSentences } from "./lines";
+import { formatPlainWords } from "./plain-words";
 import { type PromptTemplate, loadPrompt, oneLine, renderTemplate } from "./prompts";
 import type { LlmCallOptions } from "./rewrite";
 import { type ToolDefinition, callStructured } from "./structured";
@@ -198,6 +199,7 @@ export function buildRegenerateMessages(
       sentences: formatSentences(sentences),
       key_facts: formatKeyFacts(keyFacts),
       missing_facts: formatKeyFacts(input.missingFacts ?? []),
+      plain_words: formatPlainWords([...input.failing.map((f) => f.line.text), ...sentences.map((s) => s.text)]),
     }),
   };
 }

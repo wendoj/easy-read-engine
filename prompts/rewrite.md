@@ -6,7 +6,8 @@
      came back as 1 line after the model called a tool that was not offered. The recorded samples
      (11 November 2026) kept "If ..., ..." lines (P3), letter jargon (P5) and "decided by <method>"
      passives (P4), so those now have worked examples.
-     The code fills in {{sentences}} and {{key_facts}}. Every example line below passes P2 to P7.
+     The code fills in {{sentences}}, {{key_facts}} and {{plain_words}} (entries from
+     web/src/llm/plain-words.ts for the hard words in the letter). Every example line below passes P2 to P7.
      Keep this file free of real letter text. -->
 
 ## System
@@ -103,5 +104,9 @@ Sentences from the letter, as `ID: text`:
 Key facts that must appear unchanged, as `ID (type, from sentence ID): value`:
 
 {{key_facts}}
+
+Hard words in these sentences, with a plain word to use instead. Use the plain word, or explain the hard word in its own line. Keep the meaning:
+
+{{plain_words}}
 
 Rewrite the whole letter into Easy Read lines now.
