@@ -51,6 +51,14 @@ cd web && npm run dev
 
 `CHECKER_URL` in `.env` tells the web app where the checker is (`http://localhost:8000` by default).
 
+## Access
+
+Anyone can open the sample letters, read them in Easy Read and export them as PDFs. These make no model call.
+
+Live conversion (paste, upload, convert and line edits) calls a paid model, so it needs the judge access key. Hackathon judges get the key through the private Devpost form. On the input screen, select **I have an access key** and type it. The server sets a cookie that lasts 30 days.
+
+The key is set in `ACCESS_KEY` (see `.env.example` and [docs/deploy.md](docs/deploy.md)). With `ACCESS_KEY` empty, every route is open in development, and live conversion is closed in production.
+
 To run both services in Docker instead:
 
 ```sh

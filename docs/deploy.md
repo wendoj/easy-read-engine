@@ -52,8 +52,20 @@ In the app's **Environment** tab, set these (names from `.env.example`; the valu
 | `MODEL_REWRITE` | `bedrock:openai.gpt-oss-120b-1:0,groq:openai/gpt-oss-120b` |
 | `MODEL_JUDGE` | `bedrock:qwen.qwen3-235b-a22b-2507-v1:0,groq:qwen/qwen3.8-27b` |
 | `MODEL_VISION` | `bedrock:qwen.qwen3-vl-235b-a22b,groq:qwen/qwen3.8-27b` |
+| `ACCESS_KEY` | Secret. The judge access key, a random value such as the output of `openssl rand -base64 32`. Required in production: without it, live conversion is closed to everyone and only the sample letters work |
 
 `APP_ENV`, `CHECKER_URL`, `SYMBOL_CACHE_DIR` and `CHROMIUM_PATH` are already set in `docker-compose.yml`. Bedrock is paid per token, so set an AWS Budgets alert on the account.
+
+#### Judge access
+
+The routes that call a model (`/api/convert`, `/api/extract`, `/api/check`) need the access key. Anyone can open the sample letters and export them as PDFs.
+
+1. Set `ACCESS_KEY` in the Environment tab and redeploy.
+2. Put the key in the private judge field of the Devpost submission. Don't put it in the README, the video or anywhere public.
+3. A judge selects **I have an access key** on the input screen and types the key. The browser keeps a cookie for 30 days. The cookie holds an HMAC of the key, not the key.
+4. After judging, change `ACCESS_KEY` (or clear it) and redeploy. Every cookie made with the old key stops working at once.
+
+The per-client rate limit and the daily cap still apply to key holders. Key attempts count against the per-client limit, to slow guessing.
 
 ### 4. Attach the domain
 
@@ -62,7 +74,7 @@ In the **Domains** tab, add `easyread.wendyji.com` to the `web` service, contain
 ### 5. Smoke test on the live URL
 
 1. Open `https://easyread.wendyji.com`. The page loads over HTTPS with a valid certificate.
-2. Convert a sample letter (one of the invented letters in `fixtures/letters/`, pasted in). The result screen shows the Original on the left, the notice that can't be dismissed, and the Easy Read lines with key facts highlighted.
+2. Without the key, select a sample letter: it loads, and the paste and upload controls are turned off. Then select **I have an access key**, type `ACCESS_KEY`, and convert a letter (one of the invented letters in `fixtures/letters/`, pasted in). The result screen shows the Original on the left, the notice that can't be dismissed, and the Easy Read lines with key facts highlighted.
 3. Click **Export** and check the PDF: A4, the notice at the top of page 1, pictures in the left column, and the ARASAAC attribution in the footer.
 4. Start-up check: in the Environment tab, set `MODEL_REWRITE` to a value with an unknown provider (for example `gemini:gemini-2.5-flash`) and redeploy. The `web` container must exit with `Refusing to start: Unknown model provider in entry "gemini:gemini-2.5-flash". Use one of: bedrock, groq` in its logs, and the site must not serve. Because of `restart: unless-stopped`, Docker restarts it and it exits again each time. Put the real value back and redeploy.
 5. In the `web` logs, check that log lines hold rule results, counts and timings only, with no letter text (R7.4).

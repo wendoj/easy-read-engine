@@ -75,4 +75,6 @@ Each checker has its own file in `checker/src/checks/` and its own test file, `c
 
 ## Environment
 
-Variables are listed in `.env.example`: `AWS_BEARER_TOKEN_BEDROCK`, `AWS_REGION` (default `eu-west-2`), `GROQ_API_KEY`, `MODEL_REWRITE`, `MODEL_JUDGE`, `MODEL_VISION`, `CHECKER_URL`, `APP_ENV`. Never commit `.env`.
+Variables are listed in `.env.example`: `AWS_BEARER_TOKEN_BEDROCK`, `AWS_REGION` (default `eu-west-2`), `GROQ_API_KEY`, `MODEL_REWRITE`, `MODEL_JUDGE`, `MODEL_VISION`, `CHECKER_URL`, `APP_ENV`, `ACCESS_KEY`. Never commit `.env`.
+
+`ACCESS_KEY` is the judge access key. `/api/convert`, `/api/extract` and `/api/check` need a valid access cookie when it is set (`web/src/access/`). `/api/sample` and `/api/export` stay open. If it is empty, those routes are open in development and closed in production. Never log the key or the cookie.
