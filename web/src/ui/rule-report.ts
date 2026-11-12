@@ -59,12 +59,21 @@ export interface RuleRow {
   passed: boolean;
   /** "Passed" or "Failed", so colour is never the only signal. */
   resultLabel: "Passed" | "Failed";
-  /** Lines the rule applied to, as shown on screen: "Line 1", "Line 3". */
-  lines: string[];
+  /** Lines the rule applied to, in screen order, with their label: "Line 1", "Line 3". */
+  lines: RuleLine[];
   /** Short reasons from the check (`details`). */
   reasons: string[];
   /** P1 only: the key facts that failed, with their values from the Original. */
   failedFacts: FailedFact[];
+}
+
+export interface RuleLine {
+  /** The line's ID, to find it on screen or in print. */
+  id: string;
+  /** Its place on screen, from 1. */
+  number: number;
+  /** "Line 3". */
+  label: string;
 }
 
 export interface PassCount {
@@ -84,7 +93,10 @@ function effectiveChecks(input: Pick<ReportInput, "checks" | "judgeAvailable">):
     if (!input.judgeAvailable && JUDGE_RULES.has(rule)) {
       out.set(rule, { rule, passed: false, line_ids: [], failed_fact_ids: [], details: [JUDGE_UNAVAILABLE_REASON] });
     } else {
-      out.set(rule, found ?? { rule, passed: false, line_ids: [], failed_fact_ids: [], details: ["No result for this check"] });
+      out.set(
+        rule,
+        found ?? { rule, passed: false, line_ids: [], failed_fact_ids: [], details: ["No result for this check"] },
+      );
     }
   }
   return out;
@@ -99,10 +111,12 @@ export function ruleRows(input: ReportInput): RuleRow[] {
   const position = new Map(input.lines.map((l, i) => [l.id, i + 1]));
   const facts = new Map(input.keyFacts.map((f) => [f.id, f]));
   return [...effectiveChecks(input).values()].map((c) => {
-    const numbers = [...new Set(c.line_ids)]
-      .map((id) => position.get(id))
-      .filter((n): n is number => n !== undefined)
-      .sort((a, b) => a - b);
+    const lines = [...new Set(c.line_ids)]
+      .flatMap((id) => {
+        const number = position.get(id);
+        return number === undefined ? [] : [{ id, number, label: `Line ${number}` }];
+      })
+      .sort((a, b) => a.number - b.number);
     const failedFacts = c.failed_fact_ids
       .map((id) => facts.get(id))
       .filter((f): f is KeyFact => f !== undefined)
@@ -112,7 +126,7 @@ export function ruleRows(input: ReportInput): RuleRow[] {
       name: RULE_NAMES[c.rule],
       passed: c.passed,
       resultLabel: c.passed ? "Passed" : "Failed",
-      lines: numbers.map((n) => `Line ${n}`),
+      lines,
       reasons: c.details,
       failedFacts,
     };
@@ -136,7 +150,55 @@ export function lineMarkers(input: Pick<ReportInput, "checks" | "lines" | "judge
   return out;
 }
 
-/** Text of the marker on a line, naming the rules it failed: "Failed: Short sentences, Plain words". */
-export function lineMarkerLabel(rules: readonly Rule[]): string {
-  return `Failed: ${rules.map((r) => RULE_NAMES[r]).join(", ")}`;
+const FACT_TYPE_PLURALS: Record<KeyFact["type"], string> = {
+  date: "dates",
+  time: "times",
+  money: "money amounts",
+  reference: "reference numbers",
+  phone: "phone numbers",
+  address: "addresses",
+  action: "instructions",
+};
+const FACT_TYPE_ORDER: KeyFact["type"][] = ["date", "time", "money", "reference", "phone", "address", "action"];
+
+export interface FactSummary {
+  /** P1 passed. */
+  matched: boolean;
+  /** "All 14 key facts match the letter". */
+  label: string;
+  /** "Checked: dates, money amounts and instructions." Empty when the letter has no key facts. */
+  detail: string;
+}
+
+/** "a", "a and b", "a, b and c". */
+function listWords(words: readonly string[]): string {
+  if (words.length <= 1) return words.join("");
+  return `${words.slice(0, -1).join(", ")} and ${words[words.length - 1]}`;
+}
+
+/**
+ * The headline of the result: whether every key fact (P1) matches the
+ * letter. It comes first because it is the promise that matters most to a
+ * reader: no date, amount or instruction was changed. The other 9 checks are
+ * in the pass count and the report.
+ */
+export function factSummary(input: Pick<ReportInput, "checks" | "judgeAvailable" | "keyFacts">): FactSummary {
+  const p1 = effectiveChecks(input).get("P1");
+  const total = input.keyFacts.length;
+  const types = FACT_TYPE_ORDER.filter((t) => input.keyFacts.some((f) => f.type === t)).map(
+    (t) => FACT_TYPE_PLURALS[t],
+  );
+  const words = listWords(types);
+  const detail = words ? `Checked: ${words}.` : "";
+  if (p1?.passed) {
+    if (total === 0) return { matched: true, label: "No dates, amounts or instructions to check", detail };
+    const label = total === 1 ? "The 1 key fact matches the letter" : `All ${total} key facts match the letter`;
+    return { matched: true, label, detail };
+  }
+  const failed = new Set(p1?.failed_fact_ids ?? []).size;
+  const label =
+    failed > 0 && total > 0
+      ? `${failed} of ${total} key ${total === 1 ? "fact" : "facts"} ${failed === 1 ? "does" : "do"} not match the letter`
+      : "Some key facts do not match the letter";
+  return { matched: false, label, detail };
 }

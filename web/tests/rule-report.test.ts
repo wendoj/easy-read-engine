@@ -7,7 +7,7 @@ import {
   JUDGE_UNAVAILABLE_REASON,
   RULE_NAMES,
   TOTAL_RULES,
-  lineMarkerLabel,
+  factSummary,
   lineMarkers,
   passCount,
   ruleRows,
@@ -39,7 +39,9 @@ function checks(failed: Partial<Record<Rule, string[]>> = {}): CheckResult[] {
   }));
 }
 
-function input(overrides: { checks?: CheckResult[]; lines?: Line[]; judgeAvailable?: boolean; keyFacts?: KeyFact[] } = {}) {
+function input(
+  overrides: { checks?: CheckResult[]; lines?: Line[]; judgeAvailable?: boolean; keyFacts?: KeyFact[] } = {},
+) {
   return { checks: checks(), lines: LINES, keyFacts: [], judgeAvailable: true, ...overrides };
 }
 
@@ -83,17 +85,24 @@ describe("ruleRows", () => {
     expect(rows.map((r) => r.rule)).toEqual(RULES);
     expect(rows.every((r) => r.name === RULE_NAMES[r.rule] && r.name.length > 0)).toBe(true);
     const p2 = rows[1];
-    expect(p2).toMatchObject({ passed: false, resultLabel: "Failed", lines: ["Line 1", "Line 3"], reasons: ["P2 reason"] });
+    expect(p2).toMatchObject({ passed: false, resultLabel: "Failed", reasons: ["P2 reason"] });
+    expect(p2.lines).toEqual([
+      { id: "l1", number: 1, label: "Line 1" },
+      { id: "l3", number: 3, label: "Line 3" },
+    ]);
     expect(rows[0]).toMatchObject({ passed: true, resultLabel: "Passed", lines: [], reasons: [] });
   });
 
   it("shows P9 and P10 as failed with the not-available reason when the judge was unavailable", () => {
-    const all = checks().map((c) =>
-      c.rule === "P9" || c.rule === "P10" ? { ...c, line_ids: ["l1", "l2", "l3"] } : c,
-    );
+    const all = checks().map((c) => (c.rule === "P9" || c.rule === "P10" ? { ...c, line_ids: ["l1", "l2", "l3"] } : c));
     const rows = ruleRows(input({ checks: all, judgeAvailable: false }));
     for (const row of rows.filter((r) => r.rule === "P9" || r.rule === "P10")) {
-      expect(row).toMatchObject({ passed: false, resultLabel: "Failed", lines: [], reasons: [JUDGE_UNAVAILABLE_REASON] });
+      expect(row).toMatchObject({
+        passed: false,
+        resultLabel: "Failed",
+        lines: [],
+        reasons: [JUDGE_UNAVAILABLE_REASON],
+      });
     }
   });
 
@@ -113,11 +122,42 @@ describe("lineMarkers", () => {
   it("names the failed rules on each affected line, in rule order", () => {
     const markers = lineMarkers(input({ checks: checks({ P5: ["l2"], P2: ["l2", "l3"], P10: ["l9"] }) }));
     expect(Object.fromEntries(markers)).toEqual({ l2: ["P2", "P5"], l3: ["P2"] });
-    expect(lineMarkerLabel(markers.get("l2")!)).toBe("Failed: Short sentences, Plain words");
   });
 
   it("puts no P9 or P10 marker on lines when the judge was unavailable", () => {
     const all = checks({ P9: ["l1", "l2", "l3"], P10: ["l1", "l2", "l3"] });
     expect(lineMarkers(input({ checks: all, judgeAvailable: false })).size).toBe(0);
+  });
+});
+
+describe("factSummary", () => {
+  const DATE: KeyFact = { ...PHONE, id: "k2", type: "date", value: "1 April 2026", normalised: "2026-04-01" };
+  const ACTION: KeyFact = { ...PHONE, id: "k3", type: "action", value: "pay", normalised: "pay" };
+
+  it("leads with every key fact matching, and names the kinds checked in a fixed order", () => {
+    const summary = factSummary(input({ keyFacts: [ACTION, PHONE, DATE] }));
+    expect(summary).toEqual({
+      matched: true,
+      label: "All 3 key facts match the letter",
+      detail: "Checked: dates, phone numbers and instructions.",
+    });
+    expect(factSummary(input({ keyFacts: [PHONE] })).label).toBe("The 1 key fact matches the letter");
+    expect(factSummary(input({ keyFacts: [] }))).toEqual({
+      matched: true,
+      label: "No dates, amounts or instructions to check",
+      detail: "",
+    });
+  });
+
+  it("says how many key facts don't match when P1 fails", () => {
+    const failed = checks({ P1: [] }).map((c) => (c.rule === "P1" ? { ...c, failed_fact_ids: ["k1"] } : c));
+    expect(factSummary(input({ checks: failed, keyFacts: [PHONE, DATE] }))).toMatchObject({
+      matched: false,
+      label: "1 of 2 key facts does not match the letter",
+    });
+    const noIds = checks({ P1: [] });
+    expect(factSummary(input({ checks: noIds, keyFacts: [PHONE] })).label).toBe(
+      "Some key facts do not match the letter",
+    );
   });
 });

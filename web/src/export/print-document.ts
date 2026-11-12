@@ -9,14 +9,16 @@
  * picture on the left, the R7.1 notice at the top of page 1, and the ARASAAC
  * attribution and licence in the footer. Rows never split across pages.
  *
- * Failed rules are never hidden (R3.4): the pass count and the names of the
- * failed checks are under the notice, and each affected line has a marker.
+ * Failed rules are never hidden (R3.4): a "Checks" section at the end gives
+ * the pass count and each failed check with the start of each line it
+ * failed on. Rows carry no marker, so the reader's copy stays clean, and the
+ * rows have no numbers, so a carer finds a line by its first words.
  *
  * Browser-safe: imports only pure helpers and constants. Nothing here logs.
  */
 import { ARASAAC_ATTRIBUTION_PARTS } from "@/src/symbols/attribution";
 import type { ConversionResult } from "@/src/pipeline/types";
-import { lineMarkerLabel, lineMarkers, passCount, ruleRows } from "@/src/ui/rule-report";
+import { passCount, ruleRows } from "@/src/ui/rule-report";
 
 export const PRINT_TITLE = "Easy Read version";
 
@@ -25,8 +27,13 @@ export interface PrintRow {
   text: string;
   /** Null when the line has no picture. The row keeps an empty picture slot. */
   symbolId: string | null;
-  /** "Failed: Plain words" when the line failed a check, otherwise null. */
-  marker: string | null;
+}
+
+export interface PrintFailedCheck {
+  /** The check's plain name, such as "Plain words". */
+  name: string;
+  /** The start of each line it failed on, in line order (`lineExcerpt`). */
+  excerpts: string[];
 }
 
 export interface PrintDocument {
@@ -35,39 +42,44 @@ export interface PrintDocument {
   notice: string;
   /** For example "10 of 10 checks passed". */
   passLabel: string;
-  /** Names of the failed checks, in rule order. Empty when every check passed. */
-  failedChecks: string[];
+  /** The failed checks, in rule order. Empty when every check passed. */
+  failedChecks: PrintFailedCheck[];
   rows: PrintRow[];
   attribution: readonly { text: string; href?: string }[];
 }
 
 export type PrintInput = Pick<ConversionResult, "checks" | "lines" | "keyFacts" | "judgeAvailable" | "notice">;
 
+/** Words of a line shown in the Checks section before it is cut with "…". */
+export const EXCERPT_WORDS = 8;
+
+/** The first `EXCERPT_WORDS` words of a line, with "…" when there are more. */
+export function lineExcerpt(text: string): string {
+  const words = text.trim().split(/\s+/u).filter(Boolean);
+  if (words.length <= EXCERPT_WORDS) return words.join(" ");
+  return `${words.slice(0, EXCERPT_WORDS).join(" ")}…`;
+}
+
 export function printDocument(input: PrintInput): PrintDocument {
-  const markers = lineMarkers(input);
+  const text = new Map(input.lines.map((l) => [l.id, l.text]));
   return {
     title: PRINT_TITLE,
     notice: input.notice,
     passLabel: passCount(input).label,
     failedChecks: ruleRows(input)
       .filter((r) => !r.passed)
-      .map((r) => r.name),
-    rows: input.lines.map((line) => {
-      const rules = markers.get(line.id);
-      return {
-        id: line.id,
-        text: line.text,
-        symbolId: line.symbol_id,
-        marker: rules && rules.length > 0 ? lineMarkerLabel(rules) : null,
-      };
-    }),
+      .map((r) => ({ name: r.name, excerpts: r.lines.map((l) => lineExcerpt(text.get(l.id) ?? "")) })),
+    rows: input.lines.map((line) => ({ id: line.id, text: line.text, symbolId: line.symbol_id })),
     attribution: ARASAAC_ATTRIBUTION_PARTS,
   };
 }
 
-/** "Checks that did not pass: Short sentences, Plain words." */
-export function failedChecksText(names: readonly string[]): string {
-  return `Checks that did not pass: ${names.join(", ")}.`;
+export const CHECKS_HEADING = "Checks";
+
+/** One failed check: "Plain words: “You are in arrears.”; “A summons is…”". The name alone when no line is named. */
+export function failedCheckText(check: PrintFailedCheck): string {
+  if (check.excerpts.length === 0) return `${check.name}: did not pass.`;
+  return `${check.name}: ${check.excerpts.map((e) => `“${e}”`).join("; ")}`;
 }
 
 /** Smallest font size in the layout, in points (ui.md: at least 16pt). */
@@ -108,8 +120,11 @@ export const PRINT_CSS = `
   font-size: 18pt;
   font-weight: 700;
 }
-.er-print .er-checks { margin: 0 0 6mm; font-size: 16pt; }
-.er-print .er-checks p { margin: 0; }
+.er-print .er-checks { margin-top: 8mm; font-size: 16pt; }
+.er-print .er-checks h2 { margin: 0 0 2mm; font-size: 20pt; font-weight: 700; line-height: 1.2; }
+.er-print .er-checks p { margin: 0 0 2mm; }
+.er-print .er-checks ul { margin: 0; padding-left: 6mm; }
+.er-print .er-checks li { margin: 0 0 2mm; break-inside: avoid; page-break-inside: avoid; }
 .er-print .er-lines { list-style: none; margin: 0; padding: 0; }
 .er-print .er-row {
   display: flex;
@@ -129,7 +144,6 @@ export const PRINT_CSS = `
   border-radius: 1pt;
 }
 .er-print .er-text { flex: 1 1 auto; min-width: 0; margin: 0; font-size: 20pt; }
-.er-print .er-marker { display: block; margin-top: 1mm; font-size: 16pt; font-weight: 700; color: #a0001c; }
 .er-print .er-footer {
   margin-top: 8mm;
   padding-top: 4mm;

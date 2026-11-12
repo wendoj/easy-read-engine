@@ -358,7 +358,7 @@ Built with shadcn/ui components (`web/components/ui/`). Rules for every screen:
 | Paste or upload | `Tabs`, `Textarea`, `Input` (file), `Button` |
 | Safety and privacy notices | `Alert`, with no close button |
 | Progress events | `Progress` and one status line |
-| Pass count and flag markers | `Badge` |
+| Pass count and rule results in the report | `Badge` |
 | Rule report panel | `Sheet` with a `Table` |
 | Line editing | `Textarea` and `Button` inline in the line |
 | Sample letters | `Select` |
@@ -370,7 +370,7 @@ Built with shadcn/ui components (`web/components/ui/`). Rules for every screen:
 - **Result screen (R5, R6, R7).** Two columns on wide screens: Original on the left, Easy Read on the right (the wider column) with a picture to the left of each line. Under 1024px they stack, Original first, with a skip link to the Easy Read version; the Original stays on screen because the reader or a supporter must be able to check it (R5.1, R7.1), even though Easy Read guidance advises against columns. Key facts are highlighted with the same colour per fact in both columns, plus an underline style per type. Selecting a line highlights its source sentence, using character spans from `analyse`. The pass count ("10 of 10 checks passed") opens the rule report panel. The safety notice is at the top and cannot be dismissed.
 - **Reload (R7.4).** The result lives only in React state. Letter text is never put in localStorage, sessionStorage, IndexedDB, cookies or a server cache to survive a reload, because that would store letter content on the device. A sample letter's ID goes in the URL (`/result?sample=<id>`, parsed by `web/src/ui/result-url.ts`); its text is public, so a reload loads it again from `/api/sample`. A user's letter shows "Your Easy Read version is gone" with "Start again", and a `beforeunload` prompt asks before a reload while it is on screen.
 - **Blocked state (R2.5, R9.3, R9.5).** No Easy Read lines are shown and Export is disabled. The screen shows the Original, the failed key facts with their original values, and a message that the output was withheld. If the block came from a user edit, the screen also offers "Undo edit".
-- **Flagged state (R3.4).** Lines are shown. Failed rules are red in the report, and the affected lines have a marker that names the rule in words.
+- **Flagged state (R3.4).** Lines are shown with no failure marker, so the reader's copy stays clean. A Checks strip above the actions leads with the key-fact result (P1), then the pass count in plain words and a "See the check report" button. The report names each failed rule in words with the lines it failed on. Each line number in the report is a button that closes the report, scrolls to the line, focuses it and selects it. Print and PDF put a Checks section at the end: the pass count and each failed rule with the first 8 words of each line it failed on.
 - **Print layout (R8).** A4, Arial 18pt text and 20pt lines (never under 16pt), picture column on the left, one line per row, safety notice at the top of page 1, symbol attribution in the footer.
 - **Motion (values in `web/src/ui/motion.ts`).** Easy Read guidance says not to animate the screen, so nothing enters, cascades or shimmers. A status that appears after load (an error, the blocked state after an edit) fades in over 150ms and also has an icon and a label. Buttons scale to 0.96 when pressed. Under `prefers-reduced-motion` nothing animates, including spinners. The print layout has no motion.
 

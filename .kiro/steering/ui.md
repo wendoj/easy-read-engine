@@ -15,7 +15,7 @@ fileMatchPattern: ["web/app/**/*.tsx", "web/components/**/*.tsx"]
 | Paste or upload | `Tabs`, `Textarea`, `Input` (file), `Button` |
 | Safety and privacy notices | `Alert`, with no close button |
 | Progress | `Progress` and one status line |
-| Pass count and flag markers | `Badge` |
+| Pass count and rule results in the report | `Badge` |
 | Rule report | `Sheet` with a `Table` |
 | Line editing | `Textarea` and `Button`, inline in the line |
 | Sample letters | `Select` |
@@ -38,7 +38,7 @@ fileMatchPattern: ["web/app/**/*.tsx", "web/components/**/*.tsx"]
 - Result screen: Original on the left, Easy Read on the right, picture to the left of each line. The Easy Read column is wider (5:7), because it is the one people read.
 - Narrow screens (under 1024px): the columns stack, Original first, with a "Go to the Easy Read version" link above them. Easy Read guidance says "Do not write in columns" (IE 2.27), but safety.md requires the Original on every result screen so the reader or a supporter can check it, so it stays, with the Easy Read version easy to reach.
 - Use one colour per key fact, the same in both columns, plus an underline style per fact type, so colour is never the only cue.
-- A flagged line shows the failed rule in words with a flag icon. The blocked state keeps the Original and lists the key facts that did not match.
+- Flagged lines carry no marker. A Checks strip leads with the key-fact result (green tick and "All N key facts match the letter", or red with an icon when P1 fails), then the pass count in plain words and "See the check report". The report names each failed rule in words, and its line numbers go to the line. The blocked state keeps the Original and lists the key facts that did not match.
 - Reload: results are never stored (R7.4). A sample letter keeps its ID in the URL (`/result?sample=<id>`) and loads again. The user's own letter shows "Your Easy Read version is gone" and "Start again", and the browser asks before a reload while it is on screen, on `/result` and on `/print`.
 - Print layout uses at least 16pt (18pt text, 20pt lines), a picture left of each line, the R7.1 notice at the top and the ARASAAC attribution in the footer.
 - Show the ARASAAC attribution in the result screen footer and the PDF footer.

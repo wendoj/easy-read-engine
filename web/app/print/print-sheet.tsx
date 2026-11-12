@@ -5,7 +5,7 @@
  * The PDF inlines pictures as data URIs; the preview loads `/symbols/<id>`.
  */
 import Image from "next/image";
-import { PRINT_CSS, type PrintDocument, failedChecksText } from "@/src/export/print-document";
+import { CHECKS_HEADING, PRINT_CSS, type PrintDocument, failedCheckText } from "@/src/export/print-document";
 import { symbolSrc } from "@/src/ui/result-layout";
 
 /** 30mm at 96 dpi. CSS sets the printed size. */
@@ -20,10 +20,6 @@ export function PrintSheet({ doc }: { doc: PrintDocument }) {
         <p className="er-notice" role="note">
           {doc.notice}
         </p>
-        <div className="er-checks">
-          <p>{doc.passLabel}</p>
-          {doc.failedChecks.length > 0 && <p>{failedChecksText(doc.failedChecks)}</p>}
-        </div>
         <ul className="er-lines">
           {doc.rows.map((row) => (
             <li key={row.id} className="er-row">
@@ -39,13 +35,21 @@ export function PrintSheet({ doc }: { doc: PrintDocument }) {
                   unoptimized
                 />
               )}
-              <p className="er-text">
-                {row.text}
-                {row.marker !== null && <span className="er-marker">{row.marker}</span>}
-              </p>
+              <p className="er-text">{row.text}</p>
             </li>
           ))}
         </ul>
+        <section className="er-checks">
+          <h2>{CHECKS_HEADING}</h2>
+          <p>{doc.passLabel}</p>
+          {doc.failedChecks.length > 0 && (
+            <ul>
+              {doc.failedChecks.map((check) => (
+                <li key={check.name}>{failedCheckText(check)}</li>
+              ))}
+            </ul>
+          )}
+        </section>
         <footer className="er-footer">
           <p>{doc.attribution.map((part) => part.text).join("")}</p>
         </footer>

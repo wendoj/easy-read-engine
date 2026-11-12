@@ -22,6 +22,8 @@ import {
   chromiumExecutable,
   createExportQueue,
   handleExport,
+  failedCheckText,
+  lineExcerpt,
   printDocument,
   renderPrintHtml,
 } from "@/src/export";
@@ -29,6 +31,7 @@ import { NOTICE, RULES } from "@/src/pipeline/decide";
 import type { ConversionResult } from "@/src/pipeline/types";
 import { DAILY_CAP_EXEMPT, ROUTE_COSTS, createRateLimiter } from "@/src/rate-limit";
 import { ARASAAC_ATTRIBUTION } from "@/src/symbols/attribution";
+
 
 // ---------- an invented letter and its result ----------
 
@@ -244,8 +247,9 @@ describe("/api/export", () => {
     expect(res.status).toBe(200);
     const html = seen.renders[0];
     expect(html.includes("9 of 10 checks passed")).toBe(true);
-    expect(html.includes("Checks that did not pass: Plain words.")).toBe(true);
-    expect(html.includes("Failed: Plain words")).toBe(true);
+    expect(html.includes("<h2>Checks</h2>")).toBe(true);
+    expect(html.includes("Plain words: “")).toBe(true);
+    expect(html.includes("Failed: Plain words")).toBe(false);
   });
 
   it("rejects bad bodies with 400 before any checker call", async () => {
@@ -458,6 +462,39 @@ describe("print layout", () => {
     expect(/font-size:\s*\d+(px|em|rem)/u.test(PRINT_CSS)).toBe(false);
     expect(PRINT_CSS.includes("@page { size: A4;")).toBe(true);
     expect(/\.er-row \{[^}]*break-inside: avoid/u.test(PRINT_CSS)).toBe(true);
+  });
+
+  it("lists failed checks at the end with the start of each line, and no row markers", () => {
+    const long = "One two three four five six seven eight nine ten.";
+    const doc = printDocument({
+      ...result(),
+      lines: [
+        { id: "l1", text: "Your arrears are £181.62.", source_sentence_id: "s1", symbol_id: null },
+        { id: "l2", text: long, source_sentence_id: "s1", symbol_id: null },
+      ],
+      checks: RULES.map((rule) =>
+        rule === "P5" ? { ...pass(rule), passed: false, line_ids: ["l2", "l1"] } : pass(rule),
+      ),
+    });
+    expect(doc.failedChecks).toEqual([
+      { name: "Plain words", excerpts: ["Your arrears are £181.62.", "One two three four five six seven eight…"] },
+    ]);
+    const html = renderPrintHtml(doc, new Map());
+    expect(html.includes("er-marker")).toBe(false);
+    expect(html.indexOf('class="er-checks"')).toBeGreaterThan(html.indexOf('class="er-lines"'));
+    expect(html.indexOf('class="er-checks"')).toBeLessThan(html.indexOf('class="er-footer"'));
+    expect(html.includes("Plain words: “Your arrears are £181.62.”; “One two three four five six seven eight…”")).toBe(
+      true,
+    );
+  });
+
+  it("cuts excerpts at 8 words and names a check with no lines on its own", () => {
+    expect(lineExcerpt("  Pay   £45 now. ")).toBe("Pay £45 now.");
+    expect(lineExcerpt("a b c d e f g h")).toBe("a b c d e f g h");
+    expect(lineExcerpt("a b c d e f g h i")).toBe("a b c d e f g h…");
+    expect(failedCheckText({ name: "Keeps the meaning of the letter", excerpts: [] })).toBe(
+      "Keeps the meaning of the letter: did not pass.",
+    );
   });
 
   it("puts the picture before the text in each row", () => {

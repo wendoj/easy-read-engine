@@ -14,7 +14,7 @@
  *   pictogram cache, so the page makes no network request at all.
  */
 import { MAX_ID_CHARS } from "@/src/check/errors";
-import { PRINT_CSS, type PrintDocument, failedChecksText } from "./print-document";
+import { CHECKS_HEADING, PRINT_CSS, type PrintDocument, failedCheckText } from "./print-document";
 
 const ESCAPES: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 
@@ -38,13 +38,12 @@ function picture(symbolId: string | null, pictures: PictureMap): string {
 
 export function renderPrintHtml(doc: PrintDocument, pictures: PictureMap): string {
   const rows = doc.rows
-    .map((row) => {
-      const marker = row.marker === null ? "" : `<span class="er-marker">${escapeHtml(row.marker)}</span>`;
-      return `<li class="er-row">${picture(row.symbolId, pictures)}<p class="er-text">${escapeHtml(row.text)}${marker}</p></li>`;
-    })
+    .map((row) => `<li class="er-row">${picture(row.symbolId, pictures)}<p class="er-text">${escapeHtml(row.text)}</p></li>`)
     .join("");
   const failed =
-    doc.failedChecks.length === 0 ? "" : `<p>${escapeHtml(failedChecksText(doc.failedChecks))}</p>`;
+    doc.failedChecks.length === 0
+      ? ""
+      : `<ul>${doc.failedChecks.map((c) => `<li>${escapeHtml(failedCheckText(c))}</li>`).join("")}</ul>`;
   // Plain text in the PDF: the URL is part of the attribution text already.
   const attribution = doc.attribution.map((part) => escapeHtml(part.text)).join("");
   return [
@@ -57,8 +56,8 @@ export function renderPrintHtml(doc: PrintDocument, pictures: PictureMap): strin
     '<main class="er-print">',
     `<h1 class="er-title">${escapeHtml(doc.title)}</h1>`,
     `<p class="er-notice" role="note">${escapeHtml(doc.notice)}</p>`,
-    `<div class="er-checks"><p>${escapeHtml(doc.passLabel)}</p>${failed}</div>`,
     `<ul class="er-lines">${rows}</ul>`,
+    `<section class="er-checks"><h2>${escapeHtml(CHECKS_HEADING)}</h2><p>${escapeHtml(doc.passLabel)}</p>${failed}</section>`,
     `<footer class="er-footer"><p>${attribution}</p></footer>`,
     "</main></body></html>",
   ].join("");

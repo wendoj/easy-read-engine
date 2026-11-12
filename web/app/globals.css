@@ -16,6 +16,7 @@
   --color-tint: var(--tint);
   --color-tint-strong: var(--tint-strong);
   --color-link: var(--link);
+  --color-pass: var(--pass);
   --color-accent-blue: var(--accent-blue);
   --color-accent-tint: var(--accent-tint);
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
@@ -91,6 +92,8 @@
   --accent-blue: #1446a0;
   --accent-tint: #e3ebfa;
   --link: #1446a0;
+  /* Passed checks: 6.5:1 on white, so it reads as text too. */
+  --pass: #1b6b3a;
   --radius: 0.75rem;
 }
 

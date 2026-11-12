@@ -63,7 +63,7 @@ Source: `docs/brief.md`.
 1. THE System SHALL check every Easy Read output against every rule in the Rule set before showing it.
 2. THE System SHALL only show output that passes every rule in the Rule set, except as allowed by criterion 4.
 3. WHEN a rule fails, THE System SHALL regenerate only the failing Lines and check again, up to 3 attempts.
-4. IF a rule other than P1 still fails after 3 attempts, THEN THE System SHALL show the output with that rule flagged, and SHALL NOT hide the failure.
+4. IF a rule other than P1 still fails after 3 attempts, THEN THE System SHALL show the output with that rule flagged, and SHALL NOT hide the failure. On screen, the flag is the pass count and the check report, which names each failed rule and the Lines it failed on. In print and PDF, it is a Checks section at the end that names each failed rule and the start of each Line it failed on. The Lines themselves carry no failure marker.
 5. IF P1 still fails after 3 attempts, THEN THE System SHALL block the output as stated in Requirement 2.
 6. WHEN P9 or P10 fails, THE System SHALL treat it like any other rule failure: regenerate the failing Lines within the same 3 attempts, then flag the rule if it still fails.
 

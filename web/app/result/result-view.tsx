@@ -23,7 +23,8 @@
  *
  * Seams for later tasks:
  * - Pictures load from `/symbols/<id>` (task 23); `ResultFooter` shows the ARASAAC attribution (R4.4).
- * - Task 24: `RuleReport` shows the pass count and opens the report; flagged lines name their failed rules.
+ * - Task 24: `RuleReport` is the Checks strip: the key-fact result first, then the pass count and the report. Lines carry no failed-rule badge;
+ *   the report's line numbers go to the line (`onGoToLine`).
  * - Task 25: `FactText` highlights key facts in both columns, one colour per fact (R5.3).
  *   Failed key facts in the Original get a red ring, also when blocked; task 27 builds on this.
  * - Task 26: each line has an Edit button that opens an inline `Textarea`. Save sends every line
@@ -40,7 +41,7 @@
  * - Task 29: a result from a sample letter shows "Recorded on <date> with <model>" and says
  *   that P1 to P8 ran again and P9 and P10 are from the recording.
  */
-import { Info, LoaderCircle, Pencil } from "lucide-react";
+import { Info, LoaderCircle, Pencil, ScanSearch } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -48,7 +49,6 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FlagIcon, ProblemIcon } from "@/components/status-icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RECORDED_CHECKS_NOTE, type SampleInfo, recordedLabel } from "@/src/samples/sample";
@@ -68,14 +68,11 @@ import {
 } from "@/src/ui/blocked-state";
 import { ARASAAC_ATTRIBUTION_PARTS } from "@/src/symbols/attribution";
 import { useConversion } from "@/src/ui/conversion-context";
-import { lineMarkerLabel } from "@/src/ui/rule-report";
 import {
   type FactStyle,
   type HighlightPiece,
   type HighlightedSegment,
   factClassName,
-  pieceClassName,
-  pieceTitle,
 } from "@/src/ui/key-fact-highlight";
 import {
   EDIT_PROBLEM_MESSAGES,
@@ -89,14 +86,22 @@ import {
   undoEdit,
 } from "@/src/ui/line-edit";
 import { statusFade } from "@/src/ui/motion";
+import { useReadAloud, type ReadAloud } from "@/src/ui/read-aloud";
+import { saveBlob } from "@/src/ui/save-blob";
+import { buildToDoItems } from "@/src/ui/to-do-list";
 import { GONE_HEADING, GONE_MESSAGE, SAMPLE_LOADING_MESSAGE, parseSampleId } from "@/src/ui/result-url";
 import { type LineRow as LineRowData, resultLayout, scrollTopToReveal } from "@/src/ui/result-layout";
 import { cn } from "cn";
+import { FactText, ListenButton } from "./fact-text";
 import { RuleReport } from "./rule-report";
+import { ToDoBox } from "./to-do-box";
 
 const PICTURE_SIZE = 80;
 
 const SECTION_HEADING = "text-[28px] leading-tight font-semibold";
+
+/** DOM ID of an Easy Read line, for "go to line" from the Check report. */
+const lineElementId = (lineId: string) => `line-${lineId}`;
 
 function StartAgainLink() {
   return (
@@ -113,31 +118,6 @@ function SafetyNotice({ text }: { text: string }) {
       <Info aria-hidden strokeWidth={2} absoluteStrokeWidth />
       <AlertDescription className="text-lg font-semibold text-foreground">{text}</AlertDescription>
     </Alert>
-  );
-}
-
-/**
- * Text with key-fact highlights (R5.3). Each fact keeps its colour in both
- * columns; the underline style and a type label mean colour is never the only
- * signal. The label is screen-reader text after the fact and a tooltip.
- */
-function FactText({ pieces, styles }: { pieces: HighlightPiece[]; styles: ReadonlyMap<string, FactStyle> }) {
-  return (
-    <>
-      {pieces.map((piece) => {
-        const className = pieceClassName(piece, styles);
-        if (className === null) return <span key={piece.start}>{piece.text}</span>;
-        const labels = piece.endingFactIds.flatMap((id) => styles.get(id)?.label ?? []);
-        return (
-          <span key={piece.start}>
-            <span className={className} title={pieceTitle(piece, styles)}>
-              {piece.text}
-            </span>
-            {labels.length > 0 && <span className="sr-only"> ({labels.join("; ")})</span>}
-          </span>
-        );
-      })}
-    </>
   );
 }
 
@@ -183,11 +163,7 @@ function OriginalText({
           </span>
         ) : (
           <span key={`s${segment.start}`} ref={(el) => register(segment.sentenceId, el)}>
-            <OriginalSentence
-              segment={segment}
-              selected={segment.sentenceId === selectedSentenceId}
-              styles={styles}
-            />
+            <OriginalSentence segment={segment} selected={segment.sentenceId === selectedSentenceId} styles={styles} />
           </span>
         ),
       )}
@@ -215,7 +191,7 @@ function Picture({ src }: { src: string | null }) {
 function LineText({ pieces, styles }: { pieces: HighlightPiece[]; styles: ReadonlyMap<string, FactStyle> }) {
   return (
     <span>
-      <FactText pieces={pieces} styles={styles} />
+      <FactText pieces={pieces} styles={styles} explain />
     </span>
   );
 }
@@ -275,12 +251,7 @@ function LineEditor({
         <Button type="submit" disabled={edit.saving}>
           {edit.saving ? "Checking…" : "Save"}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={edit.saving}
-          onClick={onCancel}
-        >
+        <Button type="button" variant="outline" disabled={edit.saving} onClick={onCancel}>
           Cancel
         </Button>
       </div>
@@ -290,6 +261,8 @@ function LineEditor({
 
 function LineRow({
   row,
+  index,
+  readAloud,
   styles,
   selected,
   onSelect,
@@ -301,6 +274,9 @@ function LineRow({
   onCancel,
 }: {
   row: LineRowData;
+  /** Position in the list, from 0. */
+  index: number;
+  readAloud: ReadAloud;
   styles: ReadonlyMap<string, FactStyle>;
   selected: boolean;
   onSelect: (row: LineRowData) => void;
@@ -315,7 +291,11 @@ function LineRow({
 }) {
   if (edit !== null) {
     return (
-      <li className="flex items-start gap-4 bg-wash p-4 sm:gap-6 sm:p-6">
+      <li
+        id={lineElementId(row.id)}
+        tabIndex={-1}
+        className="flex scroll-mt-6 items-start gap-4 bg-wash p-4 sm:gap-6 sm:p-6"
+      >
         <Picture src={row.symbolSrc} />
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <LineEditor edit={edit} onDraft={onDraft} onSave={onSave} onCancel={onCancel} />
@@ -324,37 +304,42 @@ function LineRow({
     );
   }
   return (
-    <li className="flex items-start gap-4 p-4 sm:gap-6 sm:p-6">
+    <li id={lineElementId(row.id)} tabIndex={-1} className="flex scroll-mt-6 items-start gap-4 p-4 sm:gap-6 sm:p-6">
       <Picture src={row.symbolSrc} />
       <div className="flex min-w-0 flex-1 flex-col items-start gap-3">
-        <button
-          type="button"
-          aria-pressed={selected}
-          onClick={() => onSelect(row)}
+        {/*
+          Words in the line can be tapped for their meaning, so the line itself
+          can't be a button (no button inside a button). Clicking the text still
+          selects it with a mouse; "Show in the Original" is the same thing for
+          the keyboard and screen readers.
+        */}
+        <div
+          onClick={(event) => {
+            const target = event.target as HTMLElement;
+            if (target.closest("button, [role=dialog]") === null) onSelect(row);
+          }}
           className={cn(
             "min-h-20 w-full rounded-xl border-2 px-3 py-3 text-left text-2xl leading-normal",
-            "[-webkit-tap-highlight-color:transparent] hover:bg-tint",
-            selected ? "border-primary bg-accent-tint hover:bg-accent-tint" : "border-transparent",
+            selected ? "border-primary bg-accent-tint" : "border-transparent",
           )}
         >
+          {/*
+            No failed-rule badge on the line: readers get clean lines, and the
+            red pass count and the Check report keep every failure (R3.4).
+          */}
           <LineText pieces={row.pieces} styles={styles} />
-          {/* The failed rule in words with an icon, never colour alone. Shown at once, never animated. */}
-          {row.flagged && (
-            <span className="mt-2 block">
-              <Badge
-                variant="destructive"
-                className="h-auto min-h-9 border-destructive bg-red-50 px-3 py-1 text-lg font-semibold whitespace-normal text-destructive [&>svg]:size-5!"
-              >
-                <FlagIcon />
-                {lineMarkerLabel(row.failedRules)}
-              </Badge>
-            </span>
-          )}
-        </button>
-        <Button type="button" variant="outline" disabled={editDisabled} onClick={() => onEdit(row)}>
-          <Pencil aria-hidden strokeWidth={2} absoluteStrokeWidth data-icon="inline-start" />
-          Change this line
-        </Button>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <ListenButton id={row.id} text={row.text} label={`line ${index + 1}`} readAloud={readAloud} />
+          <Button type="button" variant="outline" aria-pressed={selected} onClick={() => onSelect(row)}>
+            <ScanSearch aria-hidden strokeWidth={2} absoluteStrokeWidth data-icon="inline-start" />
+            Show in the Original
+          </Button>
+          <Button type="button" variant="outline" disabled={editDisabled} onClick={() => onEdit(row)}>
+            <Pencil aria-hidden strokeWidth={2} absoluteStrokeWidth data-icon="inline-start" />
+            Change this line
+          </Button>
+        </div>
       </div>
     </li>
   );
@@ -457,19 +442,6 @@ function ResultFooter() {
   );
 }
 
-/** Saves a Blob as a file. The object URL is revoked once the download has started. */
-function saveBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.rel = "noopener";
-  document.body.append(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
-}
-
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
@@ -527,6 +499,7 @@ export function ResultView() {
   const sampleId = parseSampleId(useSearchParams().get("sample"));
   const { result, sample, setResult, startResult } = useConversion();
   const reduceMotion = useReducedMotion() ?? false;
+  const readAloud = useReadAloud();
   const [edit, setEdit] = useState<EditState | null>(null);
   const [history, setHistory] = useState<UndoHistory>(EMPTY_HISTORY);
   const [exporting, setExporting] = useState(false);
@@ -571,8 +544,30 @@ export function ResultView() {
     const c = container.getBoundingClientRect();
     const e = el.getBoundingClientRect();
     const top = scrollTopToReveal({ top: c.top, height: c.height, scrollTop: container.scrollTop }, e);
-    container.scrollTo({ top, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+    container.scrollTo({
+      top,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
   }, []);
+
+  /**
+   * From a line number in the Check report: select the line (so its sentence
+   * shows in the Original), scroll it into view and focus it. Called after
+   * the report has closed, so focus isn't sent back to the report button.
+   */
+  const onGoToLine = (lineId: string) => {
+    const row = layout?.rows.find((r) => r.id === lineId);
+    if (!row) return;
+    setSelectedLineId(row.id);
+    if (row.sourceSentenceId !== null) revealSentence(row.sourceSentenceId);
+    const el = document.getElementById(lineElementId(row.id));
+    if (el === null) return;
+    el.scrollIntoView({
+      block: "center",
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
+    el.focus({ preventScroll: true });
+  };
 
   /** Selecting the selected line again clears the selection. */
   const onSelect = (row: LineRowData) => {
@@ -583,6 +578,7 @@ export function ResultView() {
 
   const onEdit = (row: LineRowData) => {
     if (edit !== null) return;
+    readAloud.stop();
     setEdit({ lineId: row.id, draft: row.text, saving: false, error: null });
   };
 
@@ -612,6 +608,7 @@ export function ResultView() {
     }
     const after = applyCheckResponse(before, outcome.response);
     setHistory((h) => recordEdit(h, before, after));
+    readAloud.stop();
     setResult(after);
     setEdit(null);
     setExportError(null);
@@ -619,6 +616,7 @@ export function ResultView() {
 
   const undoAllowed = edit === null && canUndo(history, result);
   const blocked = blockSource(result, history);
+  const toDoItems = useMemo(() => (result && layout ? buildToDoItems(result, layout.rows) : []), [result, layout]);
   const failedFacts = useMemo(() => (result ? failedKeyFacts(result) : []), [result]);
 
   const exportAllowed = canExport(result);
@@ -639,6 +637,7 @@ export function ResultView() {
     const undone = undoEdit(history, result);
     if (undone === null) return;
     setHistory(undone.history);
+    readAloud.stop();
     setResult(undone.result);
     setExportError(null);
   };
@@ -655,8 +654,8 @@ export function ResultView() {
     <div className="flex flex-col gap-6">
       <SafetyNotice text={result.notice} />
       {sample !== null && <SampleLabel sample={sample} />}
+      <RuleReport input={result} synonyms={result.actionSynonyms} onGoToLine={onGoToLine} />
       <div className="flex flex-wrap items-center gap-3">
-        <RuleReport input={result} synonyms={result.actionSynonyms} />
         {/* When blocked, "Undo edit" is in the blocked state instead. */}
         {undoAllowed && blocked === null && (
           <Button type="button" variant="outline" onClick={onUndo}>
@@ -664,11 +663,7 @@ export function ResultView() {
           </Button>
         )}
         {/* R9.5: disabled while blocked, and while a line is being edited. */}
-        <Button
-          type="button"
-          disabled={!exportAllowed || exporting || edit !== null}
-          onClick={() => void onExport()}
-        >
+        <Button type="button" disabled={!exportAllowed || exporting || edit !== null} onClick={() => void onExport()}>
           {exporting && <LoaderCircle aria-hidden data-icon="inline-start" className="motion-safe:animate-spin" />}
           {exporting ? "Making the PDF…" : "Download PDF"}
         </Button>
@@ -693,8 +688,17 @@ export function ResultView() {
           </Alert>
         </motion.div>
       )}
+      {!layout.withheld && (
+        <ToDoBox items={toDoItems} styles={layout.factStyles} notice={result.notice} readAloud={readAloud} />
+      )}
       {/* Narrow screens stack the columns, Original first, so this skips to the Easy Read version. */}
-      <a href="#easy-read-heading" className={buttonVariants({ variant: "outline", className: "w-fit lg:hidden" })}>
+      <a
+        href="#easy-read-heading"
+        className={buttonVariants({
+          variant: "outline",
+          className: "w-fit lg:hidden",
+        })}
+      >
         Go to the Easy Read version
       </a>
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
@@ -732,9 +736,11 @@ export function ResultView() {
             </motion.div>
           ) : (
             <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
-              {layout.rows.map((row) => (
+              {layout.rows.map((row, index) => (
                 <LineRow
                   key={row.id}
+                  index={index}
+                  readAloud={readAloud}
                   row={row}
                   styles={layout.factStyles}
                   selected={row.id === selectedLineId}
