@@ -4,37 +4,41 @@
       "command": "uv",
       "args": [
         "--directory",
-        "/Users/wendyji/Developer/hackathons/easy-read-engine/checker",
+        "checker",
         "run",
         "python",
         "src/mcp_server.py"
       ],
       "disabled": false,
       "autoApprove": []
-    }
-  },
-  "aws-mcp": {
-    "command": "uvx",
-    "timeout": 100000,
-    "transport": "stdio",
-    "args": [
-      "mcp-proxy-for-aws-cli@latest",
-      "https://aws-mcp.us-east-1.api.aws/mcp",
-      "--metadata",
-      "AWS_REGION=eu-west-2"
-    ],
-    "env": { "AWS_PROFILE": "default" },
-    "disabled": false,
-    "autoApprove": []
-  },
-  "aws-docs": {
-    "command": "uvx",
-    "args": ["awslabs.aws-documentation-mcp-server@latest"],
-    "env": {
-      "FASTMCP_LOG_LEVEL": "ERROR",
-      "AWS_DOCUMENTATION_PARTITION": "aws"
     },
-    "disabled": false,
-    "autoApprove": []
+    "aws-mcp": {
+      "command": "uvx",
+      "timeout": 100000,
+      "transport": "stdio",
+      "args": [
+        "mcp-proxy-for-aws-cli@latest",
+        "https://aws-mcp.us-east-1.api.aws/mcp",
+        "--metadata",
+        "AWS_REGION=eu-west-2"
+      ],
+      "env": {
+        "AWS_PROFILE": "default"
+      },
+      "disabled": false,
+      "autoApprove": []
+    },
+    "aws-docs": {
+      "command": "uvx",
+      "args": [
+        "awslabs.aws-documentation-mcp-server@latest"
+      ],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR",
+        "AWS_DOCUMENTATION_PARTITION": "aws"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
   }
 }
