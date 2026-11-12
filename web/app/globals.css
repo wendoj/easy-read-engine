@@ -130,6 +130,15 @@
 }
 
 /*
+ * The letter boxes on the start page have no focus ring: it framed the whole
+ * box while pasting. The text cursor shows the box has focus. Unlayered and
+ * more specific than the rule above, so it wins.
+ */
+textarea.er-panel-field:focus-visible {
+  outline: none;
+}
+
+/*
  * Easy Read guidance says not to animate the screen. The app keeps only short
  * fades for status changes, and none of those under reduced motion. This also
  * stops the spinners and the Sheet and Select slide-ins.

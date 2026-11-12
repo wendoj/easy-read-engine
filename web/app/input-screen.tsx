@@ -65,9 +65,13 @@ function SendBar({ children }: { children: React.ReactNode }) {
 
 type Step = "enter" | "confirm";
 
-/** The letter field inside a panel: no box of its own, the panel is the boundary. */
+/**
+ * The letter field inside a panel: no box of its own, the panel is the
+ * boundary. `er-panel-field` drops the focus ring (globals.css): the blinking
+ * cursor in the box shows where typing goes.
+ */
 const PANEL_FIELD =
-  "min-h-72 resize-y rounded-none border-0 bg-transparent px-4 py-4 text-lg leading-normal sm:px-6 focus-visible:outline-offset-[-3px]";
+  "er-panel-field min-h-72 resize-y rounded-none border-0 bg-transparent px-4 py-4 text-lg leading-normal sm:px-6";
 
 type Busy = null | "reading" | "converting" | "sample";
 
