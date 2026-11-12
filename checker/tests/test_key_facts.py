@@ -324,6 +324,40 @@ def test_non_actions_are_ignored() -> None:
     assert _normalised("The council got your form.", "action") == []
 
 
+def test_note_after_a_dash_is_not_the_actions_object() -> None:
+    """Regression (Bedrock samples, November 2026): in "Please pay online now
+    if you can – details on the back." spaCy made "details" the object of
+    "pay", so P1 asked for "pay details" and blocked every faithful line."""
+    assert _normalised("Please pay online now if you can – details on the back.", "action") == ["pay||"]
+    assert _normalised("You should pay if you can - details on the back.", "action") == ["pay||"]
+    assert _normalised("Please pay online now.", "action") == ["pay||"]
+
+
+def test_action_before_a_dash_keeps_its_own_object_and_values() -> None:
+    """Still kept: the object, amount and date before the dash."""
+    assert _normalised("Please send the form by 14 March 2026 – details on the back.", "action") == [
+        "send|form|date=2026-03-14"
+    ]
+    assert _normalised("Pay £45 by 1 April 2026 – details on the back.", "action") == [
+        "pay||date=2026-04-01,money=GBP 4500"
+    ]
+
+
+def test_heading_question_is_not_an_action() -> None:
+    """Regression (Bedrock samples, November 2026): the heading "Need help with
+    council tax?" was a required action, and no faithful line could match it."""
+    assert _normalised("Need help with council tax?", "action") == []
+    assert _normalised("Moving home?", "action") == []
+
+
+def test_imperative_and_request_questions_are_still_actions() -> None:
+    """Still actions: the same verb as an instruction, and a "you must" or
+    "please" clause in a question."""
+    assert _normalised("Need help with council tax.", "action") == ["need|help|"]
+    assert _normalised("Please call us if you need help?", "action") != []
+    assert _normalised("You must pay £45 by 1 April 2026, can you?", "action") != []
+
+
 def test_active_request_extracts_the_same_action_as_the_passive() -> None:
     passive = _normalised("You are asked to send the form.", "action")
     assert passive == ["send|form|"]

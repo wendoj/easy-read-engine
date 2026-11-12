@@ -431,7 +431,10 @@ def _action_verb(tok: Token) -> Token | None:
     if tok.tag_ == "VB":
         no_subject = not any(c.dep_ in _SUBJECT_DEPS for c in children)
         only_do = all(c.lower_ == "do" for c in children if c.dep_ == "aux")
-        if tok.dep_ == "ROOT" and no_subject and only_do:
+        # A heading question ("Need help with council tax?") has the shape of
+        # an imperative but asks nothing of the reader.
+        question = tok.sent.text.rstrip().endswith("?")
+        if tok.dep_ == "ROOT" and no_subject and only_do and not question:
             return tok
         if any(c.lower_ == "please" for c in children):
             return tok
@@ -482,8 +485,23 @@ def _conj_verbs(verb: Token) -> list[Token]:
     return found
 
 
+_DASHES = frozenset({"-", "–", "—", "‒"})
+
+
+def _dash_after(verb: Token) -> int | None:
+    """Index of the first dash after `verb` that hangs off it, or None.
+
+    Letters add a note after a dash: "Please pay online now – details on the
+    back." spaCy parses the noun after the dash as the verb's object, so P1
+    asked for "pay details". The action stops at the dash.
+    """
+    return next((c.i for c in verb.children if c.dep_ == "punct" and c.text in _DASHES and c.i > verb.i), None)
+
+
 def _action_span(verb: Token) -> tuple[int, int]:
     """Character span of the action clause, without joined verbs or "if" clauses.
+
+    It also stops at a dash after the verb (`_dash_after`).
 
     The span also stops where a joined verb clause starts ("and you must pay
     ..."). spaCy sometimes attaches words after that clause, such as a date,
@@ -494,7 +512,7 @@ def _action_span(verb: Token) -> tuple[int, int]:
     """
     excluded: set[int] = set()
     joined_verb = any(c.dep_ == "conj" and c.pos_ in ("VERB", "AUX") for c in verb.children)
-    cut = None
+    cut = _dash_after(verb)
     for c in verb.children:
         if c.dep_ in ("conj", "cc", "advcl") or (c.dep_ == "punct" and c.i > verb.i):
             excluded.update(t.i for t in c.subtree)
@@ -577,7 +595,8 @@ def _action_candidates(
             def in_fact(t: Token) -> bool:
                 return any(f.start <= offset + t.idx < f.end for f in facts)
 
-            objects = [c for c in verb.children if c.dep_ in ("dobj", "obj")]
+            dash = _dash_after(verb)
+            objects = [c for c in verb.children if c.dep_ in ("dobj", "obj") and (dash is None or c.i < dash)]
             objects += [g for o in objects for g in o.conjuncts]
             object_lemmas = sorted(
                 {o.lemma_.lower() for o in objects if o.pos_ in ("NOUN", "PROPN") and not in_fact(o)}
