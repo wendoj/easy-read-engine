@@ -12,7 +12,9 @@ import {
   type TransportResponse,
   JUDGE_UNAVAILABLE,
   ModelOutputError,
+  REWRITE_CHUNK_SENTENCES,
   buildJudgeResults,
+  chunkSentences,
   buildRegenerateMessages,
   buildRewriteMessages,
   collectFailures,
@@ -189,6 +191,68 @@ describe("rewrite", () => {
     const err = await rewrite(m.client, { sentences, keyFacts }, { prompt: PROMPT, logger: m.logger }).catch((e) => e);
     expect(err).toBeInstanceOf(ModelOutputError);
     expect(err.requests).toBe(2);
+  });
+
+  it("splits a long letter into near-equal parts in order, and leaves a short one whole", () => {
+    const ids = Array.from({ length: 143 }, (_, i) => i);
+    const parts = chunkSentences(ids, REWRITE_CHUNK_SENTENCES);
+    expect(parts.map((p) => p.length)).toEqual([48, 48, 47]);
+    expect(parts.flat()).toEqual(ids);
+    expect(chunkSentences(ids.slice(0, REWRITE_CHUNK_SENTENCES), REWRITE_CHUNK_SENTENCES)).toEqual([
+      ids.slice(0, REWRITE_CHUNK_SENTENCES),
+    ]);
+    expect(chunkSentences([], 60)).toEqual([[]]);
+  });
+
+  it("rewrites a long letter in parts, each with only its own sentences and key facts", async () => {
+    const many: Sentence[] = Array.from({ length: REWRITE_CHUNK_SENTENCES + 1 }, (_, i) => ({
+      id: `s${i + 1}`,
+      text: `Sentence number ${i + 1}.`,
+      start: i * 20,
+      end: i * 20 + 19,
+    }));
+    const last = `s${many.length}`;
+    const facts: KeyFact[] = [
+      { ...keyFacts[0], sentence_id: "s2" },
+      { ...keyFacts[2], sentence_id: last },
+    ];
+    const part1 = { lines: [{ text: "Line from part 1.", sourceSentenceId: "s1", symbolQuery: "" }] };
+    const part2 = { lines: [{ text: "Line from part 2.", sourceSentenceId: last, symbolQuery: "" }] };
+    const m = fakeModel([
+      { tool: "submit_lines", args: part1 },
+      { tool: "submit_lines", args: part2 },
+    ]);
+    const result = await rewrite(m.client, { sentences: many, keyFacts: facts }, { prompt: PROMPT, logger: m.logger });
+    expect(result.lines).toEqual([...part1.lines, ...part2.lines]);
+    expect(result.requests).toBe(2);
+    expect(m.sent).toHaveLength(2);
+    expect(userText(m.sent[0])).toContain("s1: Sentence number 1.");
+    expect(userText(m.sent[0])).not.toContain(`${last}: `);
+    expect(userText(m.sent[0])).toContain("k1 (money, from s2)");
+    expect(userText(m.sent[0])).not.toContain("k3");
+    expect(userText(m.sent[1])).toContain(`${last}: Sentence number ${many.length}.`);
+    expect(userText(m.sent[1])).not.toContain("s1: ");
+    expect(userText(m.sent[1])).toContain(`k3 (reference, from ${last})`);
+  });
+
+  it("rejects a line in a later part that points at a sentence from an earlier part", async () => {
+    const many: Sentence[] = Array.from({ length: REWRITE_CHUNK_SENTENCES + 1 }, (_, i) => ({
+      id: `s${i + 1}`,
+      text: `Sentence number ${i + 1}.`,
+      start: i * 20,
+      end: i * 20 + 19,
+    }));
+    const ok = { lines: [{ text: "Line.", sourceSentenceId: "s1", symbolQuery: "" }] };
+    const m = fakeModel([
+      { tool: "submit_lines", args: ok },
+      { tool: "submit_lines", args: ok },
+      { tool: "submit_lines", args: ok },
+    ]);
+    const err = await rewrite(m.client, { sentences: many, keyFacts: [] }, { prompt: PROMPT, logger: m.logger }).catch(
+      (e) => e,
+    );
+    expect(err).toBeInstanceOf(ModelOutputError);
+    expect(err.issues.join(" ")).toContain("not a sentence ID from the list");
   });
 
   it("never logs prompts, letter text, model output or key-fact values", async () => {

@@ -221,6 +221,8 @@ OpenRouter and Gemini were removed. Any other provider name in a chain fails sta
 
 **Token budget.** These are estimates to check on day 1. A rewrite request is about 4,000 tokens: Easy Read rules, letter, key facts, output and a little reasoning. A judge request is about 3,000. One conversion therefore uses 4,000 to 12,000 tokens on the rewrite model and 3,000 to 9,000 on the judge model.
 
+- **Long letters:** a letter with more than 60 sentences is rewritten in near-equal parts of at most 60 sentences, one request each, in order (`REWRITE_CHUNK_SENTENCES` in `web/src/llm/rewrite.ts`). Each part gets only its own sentences and key facts. On a 143-sentence letter, gpt-oss-120b on Bedrock often answered a single request with almost no lines, which blocked the letter on P1 (November 2026).
+
 - **Live site:** Bedrock has per-minute token quotas but no daily cap, so cost, not quota, limits the conversion count. Groq's 200,000 tokens a day per model covers roughly 16 to 50 conversions if Bedrock is unavailable.
 - **Per minute:** on the Groq fallback, 8,000 tokens a minute allows about 2 requests a minute, so a 3-try conversion takes 1 to 3 minutes. That is why `/api/convert` streams progress.
 - **Letter length:** one request must fit under Groq's 8,000 tokens a minute, so the fallback still works. Letters are therefore limited to 1,500 words (R1.7), which covers typical 1 to 2 page letters.
