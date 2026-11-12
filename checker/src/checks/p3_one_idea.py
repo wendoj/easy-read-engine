@@ -33,8 +33,9 @@ recorded sample letters, where they failed plain one-idea lines):
   clause, whether the parse tags it `ccomp` or `advcl` ("Check **if you're
   due** benefits."), counts as a question only when "if" comes straight
   after a `QUESTION_VERBS` verb with no object. "Check your bill if you
-  moved." and "Tell us if you move house." still count 2. A "whether"
-  clause is always a question
+  moved.", "Tell us if you move house.", "Let us know if you move." and a
+  negated "Find out if you cannot pay." still count 2. A "whether" clause is
+  always a question
 - the clause after "let", "make", "help", "see" or "hear": "**Let us know.**",
   "Rule 6 status **lets you present** evidence."
 - a "that" clause after "it is ...": "**It is essential that you contact** us."
@@ -68,8 +69,10 @@ _QUESTION_MARKS = frozenset({"if", "whether"})
 _CAUSATIVE = frozenset({"let", "make", "help", "see", "hear", "watch"})
 THINKING_VERBS = frozenset({"think", "know", "feel", "believe", "hope", "worry", "wonder", "guess"})
 _SEEM_VERBS = frozenset({"look", "seem", "sound", "feel"})
-# Verbs that take an "if" question: "Check if ...", "Find out if ...".
-QUESTION_VERBS = frozenset({"check", "see", "find", "ask", "know", "wonder"})
+# Verbs that take an "if" question: "Check if ...", "Find out if ...". Not
+# "know": "Let us know if you move." is a condition, and "Let us know whether
+# ..." is still a question through "whether".
+QUESTION_VERBS = frozenset({"check", "see", "find", "ask", "wonder"})
 
 
 def _is_reporting(root: Token) -> bool:
@@ -97,8 +100,10 @@ def _is_question_after(head: Token, clause: Token) -> bool:
     can** get help." as `advcl`, and "see **if you are entitled**" as `ccomp`.
     Either way it is a question, not a condition,
     only when "if" or "whether" comes straight after a `QUESTION_VERBS` verb
-    (or its "out") and that verb has no object of its own. "Check your bill if
-    you moved." and "If you moved, check your bill." still count 2 clauses.
+    (or its "out") and that verb has no object of its own, and an "if" clause
+    is not negated. "Check your bill if you moved.", "If you moved, check your
+    bill.", "Let us know if you move." and "Find out if you cannot pay." still
+    count 2 clauses.
     """
     if head.lemma_.lower() not in QUESTION_VERBS:
         return False
@@ -106,6 +111,9 @@ def _is_question_after(head: Token, clause: Token) -> bool:
         return False
     mark = next((c for c in clause.children if c.dep_ == "mark" and c.lower_ in _QUESTION_MARKS), None)
     if mark is None:
+        return False
+    # A negated "if" clause is a condition: "Find out if you cannot pay."
+    if mark.lower_ == "if" and any(c.dep_ == "neg" for c in clause.children):
         return False
     between = head.doc[head.i + 1 : mark.i]
     return all(t.dep_ == "prt" and t.head == head for t in between)

@@ -232,3 +232,16 @@ def test_if_and_whether_questions_tagged_ccomp_still_pass() -> None:
         "Ask whether you can pay later.",
     ]:
         assert _p3_passes(text), text
+
+
+def test_if_condition_after_know_or_a_negated_find_out_fails() -> None:
+    """Regression (review v2): "know" was a question verb, so "Let us know if
+    you move." counted 1 clause, and "Find out if you cannot pay." read as a
+    question. Both are conditions."""
+    for text in ["Let us know if you move.", "Find out if you cannot pay."]:
+        assert not _p3_passes(text), text
+
+
+def test_whether_after_know_and_plain_let_us_know_still_pass() -> None:
+    for text in ["Let us know whether you can pay.", "Let us know.", "Find out if you can get help."]:
+        assert _p3_passes(text), text
