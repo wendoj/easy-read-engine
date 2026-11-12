@@ -30,7 +30,8 @@
  * - Task 26: each line has an Edit button that opens an inline `Textarea`. Save sends every line
  *   to `/api/check` and puts the checked result in context; "Undo edit" in the toolbar restores
  *   the result before the last edit from memory (`src/ui/line-edit.ts`). A failed check keeps
- *   the editor open with the draft, so the text isn't lost.
+ *   the editor open with the draft, so the text isn't lost. `/api/check` calls a model, so
+ *   without judge access (`GET /api/access` says denied or closed) the Edit button is hidden.
  * - Task 27: `BlockedState` shows no lines, the failed key facts with their values from the
  *   Original, and "Undo edit" (block from an edit) or "Start again" (block from the conversion).
  *   Logic is in `src/ui/blocked-state.ts`.
@@ -53,7 +54,9 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RECORDED_CHECKS_NOTE, type SampleInfo, recordedLabel } from "@/src/samples/sample";
 import { EXPORT_FILENAME } from "@/src/export/errors";
-import { checkEdit, exportPdf, loadSample } from "@/src/ui/api";
+import type { AccessState } from "@/src/access/errors";
+import { accessAfterError, isLocked } from "@/src/ui/access-lock";
+import { checkEdit, exportPdf, getAccess, loadSample } from "@/src/ui/api";
 import {
   BLOCKED_HEADING,
   BLOCKED_MESSAGES,
@@ -267,6 +270,7 @@ function LineRow({
   selected,
   onSelect,
   edit,
+  canEdit,
   editDisabled,
   onEdit,
   onDraft,
@@ -282,6 +286,8 @@ function LineRow({
   onSelect: (row: LineRowData) => void;
   /** Set when this line's editor is open. */
   edit: EditState | null;
+  /** False without judge access: checking an edit calls a model, so "Change this line" is hidden. */
+  canEdit: boolean;
   /** True while any line is being edited, so only 1 draft is open at a time. */
   editDisabled: boolean;
   onEdit: (row: LineRowData) => void;
@@ -335,10 +341,12 @@ function LineRow({
             <ScanSearch aria-hidden strokeWidth={2} absoluteStrokeWidth data-icon="inline-start" />
             Show in the Original
           </Button>
-          <Button type="button" variant="outline" disabled={editDisabled} onClick={() => onEdit(row)}>
-            <Pencil aria-hidden strokeWidth={2} absoluteStrokeWidth data-icon="inline-start" />
-            Change this line
-          </Button>
+          {canEdit && (
+            <Button type="button" variant="outline" disabled={editDisabled} onClick={() => onEdit(row)}>
+              <Pencil aria-hidden strokeWidth={2} absoluteStrokeWidth data-icon="inline-start" />
+              Change this line
+            </Button>
+          )}
         </div>
       </div>
     </li>
@@ -505,6 +513,9 @@ export function ResultView() {
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const [reloadError, setReloadError] = useState<string | null>(null);
+  // Judge access. Null until /api/access answers, or when it can't be reached;
+  // then Edit stays on, as /api/check checks access again.
+  const [access, setAccess] = useState<AccessState | null>(null);
   const layout = useMemo(() => (result ? resultLayout(result) : null), [result]);
   const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
   const originalRef = useRef<HTMLDivElement | null>(null);
@@ -521,6 +532,14 @@ export function ResultView() {
     });
     return () => controller.abort();
   }, [reloadSampleId, startResult]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void getAccess({ signal: controller.signal }).then((outcome) => {
+      if (outcome.ok) setAccess(outcome.access);
+    });
+    return () => controller.abort();
+  }, []);
 
   // The user's own letter can't come back after a reload, so the browser asks first.
   const userLetterShown = result !== null && sample === null;
@@ -603,6 +622,10 @@ export function ResultView() {
     setEdit({ ...edit, saving: true, error: null });
     const outcome = await checkEdit(buildCheckRequest(before, lineId, draft));
     if (!outcome.ok) {
+      // An access error keeps the editor open with the message and hides
+      // "Change this line" on the other lines.
+      const next = accessAfterError(outcome.error);
+      if (next !== null) setAccess(next);
       setEdit((e) => (e === null ? e : { ...e, saving: false, error: outcome.message }));
       return;
     }
@@ -746,6 +769,7 @@ export function ResultView() {
                   selected={row.id === selectedLineId}
                   onSelect={onSelect}
                   edit={edit?.lineId === row.id ? edit : null}
+                  canEdit={!isLocked(access)}
                   editDisabled={edit !== null}
                   onEdit={onEdit}
                   onDraft={onDraft}

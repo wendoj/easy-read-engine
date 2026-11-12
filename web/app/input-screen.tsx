@@ -42,6 +42,7 @@ import {
 } from "@/src/access/errors";
 import type { ProgressEvent } from "@/src/pipeline/types";
 import type { SampleInfo } from "@/src/samples/sample";
+import { accessAfterError, isLocked } from "@/src/ui/access-lock";
 import { convertLetter, extractText, getAccess, loadSample, sendAccessKey } from "@/src/ui/api";
 import { useConversion } from "@/src/ui/conversion-context";
 import { progressLabel, progressValue, stageRows } from "@/src/ui/convert-events";
@@ -329,9 +330,9 @@ export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] 
     return () => controller.abort();
   }, []);
 
-  const locked = access === "denied" || access === "closed";
+  const locked = isLocked(access);
   const accessNotice =
-    access === "denied" || access === "closed" ? (
+    isLocked(access) ? (
       <AccessNotice
         access={access}
         onAccess={(next) => {
@@ -372,8 +373,9 @@ export function InputScreen({ samples = [] }: { samples?: readonly SampleInfo[] 
 
   /** Shows the error. An access error locks the controls instead, and the access notice says why. */
   function failedWith(outcome: { error: string | null; message: string }) {
-    if (outcome.error === "access_required" || outcome.error === "access_closed") {
-      setAccess(outcome.error === "access_required" ? "denied" : "closed");
+    const next = accessAfterError(outcome.error);
+    if (next !== null) {
+      setAccess(next);
       setError(null);
       return;
     }
