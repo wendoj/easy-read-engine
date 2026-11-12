@@ -424,3 +424,13 @@ def test_joined_action_still_keeps_its_own_date() -> None:
     text = "You must pay £45 and send the form back by 3 March 2026."
     actions = [f.normalised for f in extract_key_facts(text) if f.type == "action"]
     assert actions == ["pay||money=GBP 4500", "send back|form|date=2026-03-03"]
+
+
+def test_short_label_lines_keep_their_own_action_and_date() -> None:
+    """Regression (review v2): short label and value lines merged into 1
+    sentence, so "Pay by 1 April 2026" lost its action and "Next instalment 1
+    May 2026" gave its date to the action in the line before."""
+    due = "Amount due now £120.00\nPay by 1 April 2026"
+    assert [f.normalised for f in extract_key_facts(due) if f.type == "action"] == ["pay||date=2026-04-01"]
+    balance = "Please pay the balance now\nNext instalment 1 May 2026"
+    assert [f.normalised for f in extract_key_facts(balance) if f.type == "action"] == ["pay|balance|"]

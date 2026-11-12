@@ -147,3 +147,45 @@ def test_short_layout_lines_and_web_addresses_still_split() -> None:
         "12345678",
         "Pay by\n1 April 2026",
     ]
+
+
+def test_short_label_and_value_lines_split_when_every_line_is_short() -> None:
+    """Regression (review v2): wrapped lines were measured only against the
+    widest line of the paragraph. In a paragraph of short label and value
+    lines every line is close to the widest, so none of them broke. "Pay by 1
+    April 2026" lost its action and "Next instalment 1 May 2026" bound its
+    date to "Please pay the balance now"."""
+    for text, expected in [
+        ("Amount due now £120.00\nPay by 1 April 2026", ["Amount due now £120.00", "Pay by 1 April 2026"]),
+        (
+            "Please pay the balance now\nNext instalment 1 May 2026",
+            ["Please pay the balance now", "Next instalment 1 May 2026"],
+        ),
+        (
+            "TOWN AND COUNTRY PLANNING ACT 1990\nAPPEAL UNDER SECTION 78",
+            ["TOWN AND COUNTRY PLANNING ACT 1990", "APPEAL UNDER SECTION 78"],
+        ),
+    ]:
+        assert [s.text for s in split_sentences(text)] == expected
+
+
+def test_label_and_value_lines_with_tabs_split() -> None:
+    """A tab separates a label from its value, so a line with a tab is a form
+    field, not wrapped prose, even when it is long."""
+    text = "Description of development:\t[Insert here]\nApplication reference:\t[Insert here]"
+    texts = [s.text for s in split_sentences(text)]
+    assert not any("[Insert here]\nApplication" in t for t in texts)
+
+
+def test_short_address_line_ending_on_a_name_runs_on() -> None:
+    """A short line close to the widest that ends on a capitalised word runs
+    on (a name or address over 2 lines), as before the wrapped-prose rule."""
+    text = "The Planning Inspectorate\nc/o QUADIENT\n69 Buckingham Avenue\nSlough\nSL1 4PN"
+    assert "69 Buckingham Avenue\nSlough" in [s.text for s in split_sentences(text)]
+
+
+def test_long_wrapped_prose_still_runs_on_in_a_short_paragraph() -> None:
+    """Still passes: the prose cases from review v1 are 40 or more characters
+    wide and stay 1 sentence without a longer line in the paragraph."""
+    text = "If you have not already paid, please contact\nCitizens Advice for free help."
+    assert [s.text for s in split_sentences(text)] == [text]

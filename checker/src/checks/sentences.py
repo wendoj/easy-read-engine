@@ -43,6 +43,10 @@ _BULLETS = frozenset("•◦▪‣*-–−")
 # shorter line followed by a capital is a layout line: a heading, a label or a
 # table cell.
 _SHORT_LINE = 0.8
+# A wrapped line of prose is also long in its own right. In a paragraph made
+# only of short label and value lines ("Amount due now £120.00\nPay by 1 April
+# 2026"), every line is close to the widest, but none of them is prose.
+_PROSE_WIDTH = 40
 
 
 @lru_cache(maxsize=1)
@@ -110,12 +114,18 @@ def _is_layout_break(prev: str, nxt: str, widest: int) -> bool:
     """Whether the line break between two non-empty lines ends a sentence.
 
     It does after a colon, a sentence end or a web address, and before a
-    bullet or a web address. A long, wrapped line of prose breaks only there:
-    a wrapped line that ends on an ordinary word runs on into the next line,
+    bullet or a web address. A wrapped line of prose breaks only there: a
+    wrapped line that ends on an ordinary word runs on into the next line,
     even before a capital or a digit ("please contact\nCitizens Advice", "pay
-    it before\n1 April 2026"). A shorter line (a heading, label or table cell)
-    also breaks before a capital or a digit, unless it ends on a word a
-    sentence can't end on ("contact the\nCouncil Tax team").
+    it before\n1 April 2026"). A line is wrapped prose when it is close to the
+    widest line of its paragraph, at least `_PROSE_WIDTH` characters long and
+    holds no tab (a tab separates a label from its value).
+
+    Any other line (a heading, label, address line or table cell) also breaks
+    before a capital or a digit, unless it ends on a word a sentence can't end
+    on ("contact the\nCouncil Tax team"), or it is close to the widest line and
+    ends on a capitalised word (a name running onto the next line: "69
+    Buckingham Avenue\nSlough").
     """
     if prev.endswith(":") or _TERMINAL.search(prev):
         return True
@@ -123,12 +133,15 @@ def _is_layout_break(prev: str, nxt: str, widest: int) -> bool:
         return True
     if _WEB_END.search(prev):
         return True
-    if _width(prev) >= _SHORT_LINE * widest:
+    near_widest = _width(prev) >= _SHORT_LINE * widest
+    if near_widest and _width(prev) >= _PROSE_WIDTH and "\t" not in prev:
         return False
     if not (nxt[0].isupper() or nxt[0].isdigit()):
         return False
     last = prev.split()[-1].strip(",;-–")
-    return not (prev.endswith((",", ";", "-", "–")) or last.lower() in _CONTINUING_WORDS)
+    if prev.endswith((",", ";", "-", "–")) or last.lower() in _CONTINUING_WORDS:
+        return False
+    return not (near_widest and last[:1].isupper())
 
 
 def _width(line: str) -> int:
