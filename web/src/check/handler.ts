@@ -300,10 +300,12 @@ export async function handleCheck(request: Request, deps: CheckHandlerDeps): Pro
       sentences,
       keyFacts,
       judgeAvailable,
-      models:
-        judged.provider !== undefined && judged.model !== undefined
-          ? [{ task: "judge", attempt: 1, provider: judged.provider, model: judged.model }]
-          : [],
+      models: (
+        judged.answers ??
+        (judged.provider !== undefined && judged.model !== undefined
+          ? [{ provider: judged.provider, model: judged.model }]
+          : [])
+      ).map((a) => ({ task: "judge" as const, attempt: 1, provider: a.provider, model: a.model })),
     };
     log({
       msg: "check_request",

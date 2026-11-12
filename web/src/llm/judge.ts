@@ -210,11 +210,26 @@ export function buildJudgeMessages(prompt: PromptTemplate, pairs: readonly Judge
 
 export interface JudgeResult {
   checks: [CheckResult, CheckResult];
-  /** False when the judge gave no valid answer and both rules were failed as "judge unavailable". */
+  /** False when the judge gave no valid answer for some or all lines, which then failed both rules as "judge unavailable". */
   available: boolean;
+  /**
+   * The judged lines that failed as "judge unavailable" (their batch got no
+   * valid answer). Empty when `available` is true. A fake may leave it out;
+   * then `available` false means every line.
+   */
+  unavailableLineIds?: string[];
+  /** The last batch that answered. */
   provider?: string;
   model?: string;
+  /** Who answered each batch that answered, in order. */
+  answers?: ModelAnswer[];
   requests: number;
+}
+
+/** Which provider and model answered one request. */
+export interface ModelAnswer {
+  provider: string;
+  model: string;
 }
 
 /**
@@ -291,8 +306,10 @@ async function judgeBatch(
 /**
  * Judges the lines in batches (`judgeBatches`), one request each, in order.
  * If any batch gets no valid answer, its lines fail both rules as "judge
- * unavailable" and `available` is false; the other batches keep their
- * verdicts. Results list lines in the order of `pairs`.
+ * unavailable", `available` is false and `unavailableLineIds` names them;
+ * the other batches keep their verdicts. Results list lines in the order of
+ * `pairs`. `answers` records who answered each batch, so a fallback on one
+ * batch is logged as such.
  */
 export async function judge(
   client: ModelClient,
@@ -300,7 +317,9 @@ export async function judge(
   options: LlmCallOptions = {},
 ): Promise<JudgeResult> {
   const lineIds = pairs.filter((p) => !p.contextOnly).map((p) => p.lineId);
-  if (lineIds.length === 0) return { checks: buildJudgeResults([], []), available: true, requests: 0 };
+  if (lineIds.length === 0) {
+    return { checks: buildJudgeResults([], []), available: true, unavailableLineIds: [], answers: [], requests: 0 };
+  }
   const prompt = options.prompt ?? (await loadPrompt("judge"));
   const outcomes: BatchOutcome[] = [];
   for (const batch of judgeBatches(pairs)) outcomes.push(await judgeBatch(client, prompt, batch, options));
@@ -316,11 +335,14 @@ export async function judge(
     const firstId = (d: string) => order.get(d.split(" ", 1)[0]) ?? 0;
     return { ...a, passed: ids.length === 0, line_ids: ids, details: details.sort((x, y) => firstId(x) - firstId(y)) };
   };
-  const answered = outcomes.filter((o) => o.ok).at(-1);
+  const answers = outcomes.flatMap((o) => (o.ok ? [{ provider: o.provider, model: o.model }] : []));
+  const answered = answers.at(-1);
   return {
     checks: [merge(judged9, missing9), merge(judged10, missing10)],
     available: unavailable.size === 0,
-    ...(answered?.ok ? { provider: answered.provider, model: answered.model } : {}),
+    unavailableLineIds: lineIds.filter((id) => unavailable.has(id)),
+    ...(answered ? { provider: answered.provider, model: answered.model } : {}),
+    answers,
     requests: outcomes.reduce((n, o) => n + o.requests, 0),
   };
 }

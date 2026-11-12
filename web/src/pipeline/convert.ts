@@ -26,20 +26,27 @@
  *   `lineFacts: []`, which only means no key-fact highlighting in the lines.
  * Both are logged by error name only.
  *
- * Judge outage: `judge()` fails P9 and P10 on every line with "judge
- * unavailable" when the judge gives no valid answer. That says nothing about
- * the lines, so it doesn't send lines to regenerate. P9 and P10 stay failed
- * and are flagged (never passed), and `judgeAvailable` is false in the result,
- * which also disables export. If other rules failed, the next try calls the
- * judge again anyway. If no other rule failed, the loop makes one more try
- * with the same lines and no regenerate, to give the judge a second chance,
- * once per conversion and only while tries are left. A second outage ends
- * the loop there instead of spending more requests.
+ * Judge outage: `judge()` fails P9 and P10 with "judge unavailable" on the
+ * lines of every batch that gets no valid answer (`unavailableLineIds`).
+ * That says nothing about those lines, so they aren't sent to regenerate for
+ * P9 or P10. Real verdicts from the batches that answered (advice included)
+ * still are. P9 and P10 stay failed on the unanswered lines and are flagged
+ * (never passed), and `judgeAvailable` is false in the result, which also
+ * disables export. If other rules failed, the next try calls the judge again
+ * anyway. If no other rule failed, the loop makes one more try with the same
+ * lines and no regenerate, to give the judge a second chance on only the
+ * unanswered lines, once per conversion and only while tries are left. A
+ * second outage ends the loop there instead of spending more requests.
+ *
+ * `models` gets one entry per rewrite part and per judge batch that
+ * answered, so a fallback on one part is recorded.
  */
 import type { CheckResult, Line } from "@/src/checker-client/schemas";
 import {
   type JudgePair,
+  type JudgeResult,
   type LlmCallOptions,
+  type ModelAnswer,
   type ModelClient,
   ModelOutputError,
   ProviderChainError,
@@ -48,7 +55,16 @@ import {
   regenerate,
   rewrite,
 } from "@/src/llm";
-import { MAX_ATTEMPTS, completeChecks, decide, failingLineIds, missingFacts, regenerationChecks } from "./decide";
+import { mergeJudgeChecks } from "@/src/check/merge";
+import {
+  type FailureContext,
+  MAX_ATTEMPTS,
+  completeChecks,
+  decide,
+  failingLineIds,
+  missingFacts,
+  regenerationChecks,
+} from "./decide";
 import { LineIds, type WorkingLine, applyRegeneration, fromDrafts, toLines } from "./lines";
 import { splitConditions } from "./split-conditions";
 import { attachSymbols } from "./symbols";
@@ -83,6 +99,12 @@ function judgePairs(lines: readonly WorkingLine[], sourceText: ReadonlyMap<strin
   }));
 }
 
+/** Who answered each part or batch, or the single answer a fake gives. */
+function answersOf(r: { provider?: string; model?: string; answers?: ModelAnswer[] }): ModelAnswer[] {
+  if (r.answers) return r.answers;
+  return r.provider !== undefined && r.model !== undefined ? [{ provider: r.provider, model: r.model }] : [];
+}
+
 const errorName = (err: unknown) => (err instanceof Error ? err.name : "unknown");
 
 /** One checked try: the lines and the rule results for them. */
@@ -110,6 +132,33 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
     checker.actionSynonyms(), // for the rule report
   ]);
   const sourceText = new Map(sentences.map((s) => [s.id, s.text]));
+
+  /**
+   * P9 and P10 for one try. On the judge's second chance (`rejudge`), only
+   * the lines that got no answer are judged, with their siblings as context,
+   * and the other lines keep the verdicts they already had.
+   */
+  const judgeTry = async (
+    current: readonly WorkingLine[],
+    rejudge: { checks: CheckResult[]; lineIds: ReadonlySet<string> } | null,
+  ): Promise<JudgeResult> => {
+    const pairs = judgePairs(current, sourceText);
+    if (rejudge === null) return model.judge(pairs);
+    const sentencesToJudge = new Set(pairs.filter((p) => rejudge.lineIds.has(p.lineId)).map((p) => p.sourceSentenceId));
+    const judged = await model.judge(
+      pairs
+        .filter((p) => sentencesToJudge.has(p.sourceSentenceId))
+        .map((p) => (rejudge.lineIds.has(p.lineId) ? p : { ...p, contextOnly: true })),
+    );
+    const carried = new Set(pairs.map((p) => p.lineId).filter((id) => !rejudge.lineIds.has(id)));
+    const unavailable = judged.unavailableLineIds ?? (judged.available ? [] : [...rejudge.lineIds]);
+    return {
+      ...judged,
+      checks: mergeJudgeChecks(rejudge.checks, judged.checks, carried),
+      available: unavailable.length === 0,
+      unavailableLineIds: unavailable,
+    };
+  };
 
   /** The latest checked try that passed P1, if any. */
   let lastP1Pass: CheckedTry | null = null;
@@ -150,10 +199,12 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
 
   progress("rewriting", 1);
   const drafted = await model.rewrite({ sentences, keyFacts }); // step 5
-  models.push({ task: "rewrite", attempt: 1, provider: drafted.provider, model: drafted.model });
+  for (const a of answersOf(drafted)) models.push({ task: "rewrite", attempt: 1, ...a });
   const ids = new LineIds();
   let lines = fromDrafts(splitConditions(drafted.lines), ids);
   let judgeRetried = false;
+  /** Set for the judge's second chance: the P9 and P10 results to keep, and the lines to judge again. */
+  let rejudge: { checks: CheckResult[]; lineIds: ReadonlySet<string> } | null = null;
 
   for (let attempt = 1; ; attempt++) {
     const tryStarted = now();
@@ -161,15 +212,19 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
     lines = await attachSymbols(lines, checker); // step 6
     const plain = toLines(lines);
     const ruleChecks = await checker.check({ original, key_facts: keyFacts, lines: plain }); // step 7, P1-P8
-    const judged = await model.judge(judgePairs(lines, sourceText)); // step 8, P9-P10
-    if (judged.provider !== undefined && judged.model !== undefined) {
-      models.push({ task: "judge", attempt, provider: judged.provider, model: judged.model });
-    }
+    const judged = await judgeTry(lines, rejudge); // step 8, P9-P10
+    rejudge = null;
+    for (const a of answersOf(judged)) models.push({ task: "judge", attempt, ...a });
     const checks: CheckResult[] = completeChecks([...ruleChecks.filter((c) => c.rule !== "P9" && c.rule !== "P10"), ...judged.checks]);
     const done: CheckedTry = { lines: plain, checks, attempt, judgeAvailable: judged.available };
     if (passesP1(done)) lastP1Pass = done;
 
-    const ctx = { lines: plain, keyFacts, judgeAvailable: judged.available };
+    const ctx: FailureContext = {
+      lines: plain,
+      keyFacts,
+      judgeAvailable: judged.available,
+      ...(judged.unavailableLineIds ? { judgeUnavailableLineIds: new Set(judged.unavailableLineIds) } : {}),
+    };
     const failed = failingLineIds(checks, ctx);
     const missing = missingFacts(checks, ctx);
     log({
@@ -187,6 +242,11 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
       // Nothing to regenerate. Give an unavailable judge one more chance on the same lines.
       if (judged.available || judgeRetried) return finish(done);
       judgeRetried = true;
+      // Judge again only the lines that got no answer, and keep the other verdicts.
+      rejudge = {
+        checks: judged.checks,
+        lineIds: new Set(judged.unavailableLineIds ?? plain.map((l) => l.id)),
+      };
       continue;
     }
 

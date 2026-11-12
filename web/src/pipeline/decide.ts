@@ -26,6 +26,20 @@ export interface FailureContext {
    * failures don't send lines to regenerate.
    */
   judgeAvailable: boolean;
+  /**
+   * The lines the judge gave no valid answer for, when it answered for some
+   * lines and not others (a failed batch). Only these lines' P9 and P10
+   * failures are skipped; real verdicts from the batches that answered,
+   * advice included, still send lines to regenerate. Left out with
+   * `judgeAvailable` false, every line's P9 and P10 failures are skipped.
+   */
+  judgeUnavailableLineIds?: ReadonlySet<string>;
+}
+
+/** True if a P9 or P10 failure on line `id` says nothing about the line ("judge unavailable"). */
+function judgeSkips(ctx: FailureContext, id: string): boolean {
+  if (ctx.judgeAvailable) return false;
+  return ctx.judgeUnavailableLineIds === undefined || ctx.judgeUnavailableLineIds.has(id);
 }
 
 /** Exactly one result per rule, P1 to P10 in order. A rule with no result fails. */
@@ -52,7 +66,8 @@ export function missingFacts(checks: readonly CheckResult[], ctx: FailureContext
 
 /**
  * IDs of the lines to regenerate:
- * - every line a failed rule names, except P9 and P10 when the judge was unavailable;
+ * - every line a failed rule names, except P9 and P10 on a line the judge
+ *   gave no answer for (`judgeUnavailableLineIds`);
  * - for a key fact P1 reports as missing, the lines from that fact's source sentence.
  * Only IDs of current lines are returned.
  */
@@ -61,8 +76,8 @@ export function failingLineIds(checks: readonly CheckResult[], ctx: FailureConte
   const out = new Set<string>();
   for (const c of checks) {
     if (c.passed) continue;
-    if (!ctx.judgeAvailable && JUDGE_RULES.has(c.rule)) continue;
-    for (const id of c.line_ids) if (current.has(id)) out.add(id);
+    const judgeRule = JUDGE_RULES.has(c.rule);
+    for (const id of c.line_ids) if (current.has(id) && !(judgeRule && judgeSkips(ctx, id))) out.add(id);
     if (c.rule === "P1") {
       const missing = new Set(
         c.details.map((d) => d.match(P1_MISSING)?.[1]).filter((id): id is string => id !== undefined),
@@ -77,7 +92,7 @@ export function failingLineIds(checks: readonly CheckResult[], ctx: FailureConte
 /**
  * The checks with the regeneration targets made explicit, for
  * `collectFailures`: P1 also names the lines mapped from missing facts, and
- * P9 and P10 are dropped when the judge was unavailable.
+ * P9 and P10 drop the lines the judge gave no answer for.
  */
 export function regenerationChecks(
   checks: readonly CheckResult[],
@@ -86,7 +101,11 @@ export function regenerationChecks(
 ): CheckResult[] {
   const out: CheckResult[] = [];
   for (const c of checks) {
-    if (!ctx.judgeAvailable && JUDGE_RULES.has(c.rule)) continue;
+    if (JUDGE_RULES.has(c.rule) && !ctx.judgeAvailable) {
+      const lineIds = c.line_ids.filter((id) => !judgeSkips(ctx, id));
+      if (lineIds.length > 0) out.push({ ...c, line_ids: lineIds });
+      continue;
+    }
     if (c.rule === "P1" && !c.passed) {
       // Add the failing lines from a failed fact's source sentence, so collectFailures gives them P1's details.
       const factSentences = new Set(

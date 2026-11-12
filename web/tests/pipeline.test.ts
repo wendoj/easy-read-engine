@@ -682,6 +682,124 @@ describe("convert: examples", () => {
     expect(result.judgeAvailable).toBe(true);
   });
 
+  it("flags and regenerates a line that fails only P9", async () => {
+    const s = scenarioOf({ drafts: [draft("a", "s1"), draft("b", "s2")], plans: [{ ...pass, p9: [1] }] });
+    const { result, rec } = await runOf(s);
+    expect(rec.regenerateInputs[0].failing.map((f) => f.line.id)).toEqual(["L2"]);
+    expect(rec.regenerateInputs[0].failing[0].failures.map((f) => f.rule)).toEqual(["P9"]);
+    expect(result.status).toBe("flagged");
+    expect(result.attempts).toBe(3);
+    expect(result.checks.find((c) => c.rule === "P9")?.passed).toBe(false);
+  });
+
+  /** Judge verdicts for `ids`: a P10 advice failure on `advice`, everything else passing. */
+  const verdictsFor = (ids: string[], advice: ReadonlySet<string> = new Set()) =>
+    ids.map((lineId) => ({
+      lineId,
+      meaning: { verdict: "pass" as const, reason: "" },
+      tone: { verdict: "pass" as const, reason: "" },
+      advice: advice.has(lineId) ? { verdict: "fail" as const, reason: "zqadvice" } : { verdict: "pass" as const, reason: "" },
+    }));
+
+  /** One batch answered for `answered` and one got no answer for `missing`. */
+  function partialOutage(answered: string[], missing: string[], advice: ReadonlySet<string>): JudgeResult {
+    const [a9, a10] = buildJudgeResults(answered, verdictsFor(answered, advice));
+    const [m9, m10] = judgeUnavailableResults(missing);
+    const join = (a: CheckResult, m: CheckResult): CheckResult => {
+      const ids = [...a.line_ids, ...m.line_ids];
+      return { ...a, passed: ids.length === 0, line_ids: ids, details: [...a.details, ...m.details] };
+    };
+    return {
+      checks: [join(a9, m9), join(a10, m10)],
+      available: false,
+      unavailableLineIds: missing,
+      provider: "fake",
+      model: "judge-model",
+      answers: [{ provider: "fake", model: "judge-model" }],
+      requests: 3,
+    };
+  }
+
+  it("regenerates an advice failure from a batch that answered while another batch got no answer (review v1)", async () => {
+    // Regression: one failed batch made every P9 and P10 failure count as "judge unavailable",
+    // so a real advice failure was never regenerated.
+    const s = scenarioOf({ drafts: [draft("a", "s1"), draft("b", "s2")], plans: [pass] });
+    const f = fakes(s);
+    const judgedPairs: JudgePair[][] = [];
+    const judge = f.model.judge;
+    f.model.judge = async (pairs) => {
+      judgedPairs.push(pairs);
+      if (judgedPairs.length === 1) return partialOutage(["L1"], ["L2"], new Set(["L1"]));
+      return judge(pairs);
+    };
+    const result = await convert(originalOf(s), { checker: f.checker, model: f.model, logger: () => {} });
+    expect(f.rec.regenerateInputs[0].failing.map((x) => x.line.id)).toEqual(["L1"]);
+    expect(f.rec.regenerateInputs[0].failing[0].failures.map((x) => x.rule)).toEqual(["P10"]);
+    expect(result.status).toBe("passed");
+    expect(result.judgeAvailable).toBe(true);
+  });
+
+  it("judges again only the lines that got no answer, and keeps the other verdicts (review v1)", async () => {
+    const s = scenarioOf({ drafts: [draft("a", "s1"), draft("b", "s1"), draft("c", "s2")], plans: [pass] });
+    const f = fakes(s);
+    const judgedPairs: JudgePair[][] = [];
+    f.model.judge = async (pairs) => {
+      judgedPairs.push(pairs);
+      if (judgedPairs.length === 1) return partialOutage(["L1", "L3"], ["L2"], new Set());
+      const ids = pairs.filter((p) => !p.contextOnly).map((p) => p.lineId);
+      return { checks: buildJudgeResults(ids, verdictsFor(ids)), available: true, provider: "groq", model: "judge-2", requests: 1 };
+    };
+    const result = await convert(originalOf(s), { checker: f.checker, model: f.model, logger: () => {} });
+    expect(f.rec.modelCalls.regenerate).toBe(0);
+    // L2 is judged with its sibling L1 as context only. L3 (another sentence) is not sent.
+    expect(judgedPairs[1].map((p) => [p.lineId, p.contextOnly === true])).toEqual([
+      ["L1", true],
+      ["L2", false],
+    ]);
+    expect(result.attempts).toBe(2);
+    expect(result.status).toBe("passed");
+    expect(result.judgeAvailable).toBe(true);
+    for (const rule of ["P9", "P10"] as Rule[]) expect(result.checks.find((c) => c.rule === rule)?.passed).toBe(true);
+  });
+
+  it("records a models entry for every rewrite part and judge batch that answered (review v1)", async () => {
+    // Regression: only the last part's and last batch's provider was kept, so a Groq fallback on part 1 was hidden.
+    const s = scenarioOf({ drafts: [draft("a", "s1"), draft("b", "s2")], plans: [pass] });
+    const f = fakes(s);
+    f.model.rewrite = async () => ({
+      lines: s.drafts,
+      provider: "bedrock",
+      model: "rewrite-bedrock",
+      answers: [
+        { provider: "groq", model: "rewrite-groq" },
+        { provider: "bedrock", model: "rewrite-bedrock" },
+      ],
+      requests: 3,
+    });
+    f.model.judge = async (pairs) => {
+      const ids = pairs.map((p) => p.lineId);
+      return {
+        checks: buildJudgeResults(ids, verdictsFor(ids)),
+        available: true,
+        unavailableLineIds: [],
+        provider: "bedrock",
+        model: "judge-bedrock",
+        answers: [
+          { provider: "bedrock", model: "judge-bedrock" },
+          { provider: "bedrock", model: "judge-bedrock" },
+        ],
+        requests: 2,
+      };
+    };
+    const result = await convert(originalOf(s), { checker: f.checker, model: f.model, logger: () => {} });
+    expect(result.models).toEqual([
+      { task: "rewrite", attempt: 1, provider: "groq", model: "rewrite-groq" },
+      { task: "rewrite", attempt: 1, provider: "bedrock", model: "rewrite-bedrock" },
+      { task: "judge", attempt: 1, provider: "bedrock", model: "judge-bedrock" },
+      { task: "judge", attempt: 1, provider: "bedrock", model: "judge-bedrock" },
+    ]);
+  });
+
   it("lets CheckerUnavailable through, so the route returns 503", async () => {
     const s = scenarioOf({ plans: [{ ...pass, rules: { P2: [0] } }] });
     const a = fakes(s, { failAnalyse: true });
@@ -718,6 +836,15 @@ describe("decide and helpers", () => {
     expect(r.checks.map((c) => c.rule)).toEqual(RULES);
     expect(r.checks.find((c) => c.rule === "P5")?.passed).toBe(false);
     expect(r.status).toBe("flagged");
+  });
+
+  it("flags a result where only P9 fails", () => {
+    const checks = RULES.map(ok).map((c) =>
+      c.rule === "P9" ? { ...c, passed: false, line_ids: ["L1"], details: ["L1 meaning: zq"] } : c,
+    );
+    expect(statusOf(checks)).toBe("flagged");
+    const ctx = { lines: [line("L1", "s1")], keyFacts: [], judgeAvailable: true };
+    expect([...failingLineIds(checks, ctx)]).toEqual(["L1"]);
   });
 
   it("finds missing facts only when no line comes from their sentence", () => {
