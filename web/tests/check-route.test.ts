@@ -86,7 +86,8 @@ function fakeModel(seen: Seen, opts: { judgeFails?: ReadonlySet<string>; judgeUn
   return {
     async judge(pairs) {
       seen.judged.push(structuredClone(pairs));
-      const ids = pairs.map((p) => p.lineId);
+      // Like the real judge: context-only pairs get no verdict.
+      const ids = pairs.filter((p) => !p.contextOnly).map((p) => p.lineId);
       if (opts.judgeUnavailable) {
         const make = (rule: "P9" | "P10"): CheckResult => ({
           rule,
@@ -241,8 +242,16 @@ describe("/api/check properties", () => {
         expect(res.status).toBe(200);
         const out = (await res.json()) as CheckResponse;
         expect(seen.judged).toHaveLength(1);
-        const judgedIds = seen.judged[0].map((p) => p.lineId).sort();
+        const judgedIds = seen.judged[0].filter((p) => !p.contextOnly).map((p) => p.lineId).sort();
         expect(judgedIds).toEqual([...s.edited].sort());
+        // Context-only pairs are the unedited lines from an edited line's sentence, and only those.
+        const editedSentences = new Set(s.lines.filter((l) => s.edited.includes(l.id)).map((l) => l.source_sentence_id));
+        const contextIds = seen.judged[0].filter((p) => p.contextOnly).map((p) => p.lineId).sort();
+        const expectedContext = s.lines
+          .filter((l) => !s.edited.includes(l.id) && editedSentences.has(l.source_sentence_id))
+          .map((l) => l.id)
+          .sort();
+        expect(contextIds).toEqual(expectedContext);
         // The fake judge passes every edited line, so P9 fails on exactly the unedited lines that failed before.
         const p9 = out.checks.find((c) => c.rule === "P9");
         const expected = previousFailing.filter((id) => !s.edited.includes(id)).sort();
@@ -360,6 +369,21 @@ describe("/api/check behaviour", () => {
     await handleCheck(checkRequest(body({ editedLineIds: ["L2"] })), deps);
     expect(seen.judged[0]).toHaveLength(1);
     expect(seen.judged[0][0].source === SENTENCES[1]).toBe(true);
+  });
+
+  it("sends the unedited lines from an edited line's sentence to the judge as context only", async () => {
+    // Regression (review v2): only edited lines reached the judge, so it could
+    // fail an edited line for leaving out a part an unedited sibling says.
+    const { seen, deps } = setup();
+    const ls = lines(["You must pay £45.", "Call 0300 123 4567.", "The council got your form.", "Pay it by 1 April 2026."]);
+    const res = await handleCheck(checkRequest(body({ lines: ls, editedLineIds: ["L1"] })), deps);
+    expect(res.status).toBe(200);
+    expect(seen.judged[0].map((p) => [p.lineId, p.contextOnly ?? false])).toEqual([
+      ["L1", false],
+      ["L4", true],
+    ]);
+    const out = (await res.json()) as CheckResponse;
+    expect(out.checks.find((c) => c.rule === "P9")?.passed).toBe(true);
   });
 
   it("flags a new P10 failure on an edited line, and keeps the user's symbol IDs", async () => {

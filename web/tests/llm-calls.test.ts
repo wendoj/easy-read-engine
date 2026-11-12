@@ -356,6 +356,35 @@ describe("judge", () => {
     expect(blocks[1]).not.toContain("L1:");
   });
 
+  it("shows a context-only line as a sibling but gives it no block", () => {
+    const { user } = buildJudgeMessages(JUDGE_PROMPT, [
+      { lineId: "L1", sourceSentenceId: "s1", source: "Pay £45 and send the form.", line: "You must pay £45." },
+      { lineId: "L2", sourceSentenceId: "s1", source: "Pay £45 and send the form.", line: "You must send the form.", contextOnly: true },
+    ]);
+    const blocks = user.split("\n\n");
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]).toContain("Line L1");
+    expect(blocks[0]).toContain("Other lines from this sentence: L2: You must send the form.");
+  });
+
+  it("asks for and returns verdicts for judged lines only, not context-only lines", async () => {
+    const m = fakeModel([
+      { tool: "submit_verdicts", args: { verdicts: [{ lineId: "L1", meaning: pass, tone: pass, advice: pass }] } },
+    ]);
+    const withContext = pairs.map((p) => (p.lineId === "L1" ? p : { ...p, contextOnly: true }));
+    const result = await judge(m.client, withContext, { prompt: JUDGE_PROMPT, logger: m.logger });
+    expect(result.requests).toBe(1);
+    expect(result.checks.every((c) => c.passed)).toBe(true);
+    expect(userText(m.sent[0])).not.toContain("Line L2");
+  });
+
+  it("makes no request when every pair is context only", async () => {
+    const m = fakeModel([]);
+    const result = await judge(m.client, pairs.map((p) => ({ ...p, contextOnly: true })), { prompt: JUDGE_PROMPT });
+    expect(result.requests).toBe(0);
+    expect(m.sent).toHaveLength(0);
+  });
+
   it("returns P9 and P10 with the failing line IDs", async () => {
     const m = fakeModel([
       {

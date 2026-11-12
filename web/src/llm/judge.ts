@@ -26,6 +26,13 @@ export interface JudgePair {
   source: string;
   /** Easy Read line text. */
   line: string;
+  /**
+   * Shown to the judge only as a sibling of the judged lines from the same
+   * sentence, never judged itself and given no verdict. `/api/check` sends
+   * the unedited lines this way, so an edited line isn't failed for a part
+   * that an unedited sibling says.
+   */
+  contextOnly?: boolean;
 }
 
 const verdictSchema = z.object({
@@ -159,12 +166,13 @@ export function judgeUnavailableResults(lineIds: readonly string[]): [CheckResul
  * each block also lists the other lines from the same source sentence. The
  * judge failed lines for leaving out what a sibling line says, because it
  * couldn't see the siblings. Siblings are grouped by sentence ID, so 2
- * sentences with the same text don't share siblings.
+ * sentences with the same text don't share siblings. A `contextOnly` pair
+ * gets no block of its own and appears only as a sibling.
  */
 export function buildJudgeMessages(prompt: PromptTemplate, pairs: readonly JudgePair[]): { system: string; user: string } {
   const bySentence = new Map<string, JudgePair[]>();
   for (const p of pairs) bySentence.set(p.sourceSentenceId, [...(bySentence.get(p.sourceSentenceId) ?? []), p]);
-  const blocks = pairs.map((p) => {
+  const blocks = pairs.filter((p) => !p.contextOnly).map((p) => {
     const others = (bySentence.get(p.sourceSentenceId) ?? []).filter((o) => o.lineId !== p.lineId);
     return [
       `Line ${p.lineId}`,
@@ -192,7 +200,7 @@ export async function judge(
   pairs: readonly JudgePair[],
   options: LlmCallOptions = {},
 ): Promise<JudgeResult> {
-  const lineIds = pairs.map((p) => p.lineId);
+  const lineIds = pairs.filter((p) => !p.contextOnly).map((p) => p.lineId);
   if (lineIds.length === 0) return { checks: buildJudgeResults([], []), available: true, requests: 0 };
   const prompt = options.prompt ?? (await loadPrompt("judge"));
   const { system, user } = buildJudgeMessages(prompt, pairs);

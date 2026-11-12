@@ -13,6 +13,8 @@
  * - P1 to P8 run on every line (`check`). Pictures aren't attached again: the
  *   user's `symbol_id`s are kept and P8 validates them.
  * - The judge runs on the edited lines only, so 1 edit costs 1 model request.
+ *   Unedited lines from the same source sentence go with them as context
+ *   only (`contextOnly`), so the judge can see the parts they say.
  *   P9 and P10 verdicts for the other lines come from `previousChecks`, which
  *   the client sends from its current result, and are merged here so the
  *   server decides the status from all 10 rules (`merge.ts`).
@@ -267,13 +269,17 @@ export async function handleCheck(request: Request, deps: CheckHandlerDeps): Pro
     const ruleChecks = await checker.check({ original, key_facts: keyFacts, lines }); // P1-P8, all lines
 
     const edited = new Set(editedLineIds);
+    // Unedited lines from an edited line's sentence go along as context only,
+    // so the judge sees every part of the sentence but judges only the edits.
+    const editedSentences = new Set(lines.filter((l) => edited.has(l.id)).map((l) => l.source_sentence_id));
     const pairs: JudgePair[] = lines
-      .filter((l) => edited.has(l.id))
+      .filter((l) => edited.has(l.id) || editedSentences.has(l.source_sentence_id))
       .map((l) => ({
         lineId: l.id,
         sourceSentenceId: l.source_sentence_id,
         source: sourceText.get(l.source_sentence_id) ?? "",
         line: l.text,
+        ...(edited.has(l.id) ? {} : { contextOnly: true }),
       }));
     const judged = await model.judge(pairs); // P9-P10, edited lines only
 
