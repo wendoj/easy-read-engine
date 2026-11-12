@@ -2,6 +2,8 @@
  * Error codes, statuses and messages for `/api/convert` (design "Error
  * Handling"). Messages are fixed text and never include letter content.
  */
+import { ACCESS_ERRORS } from "@/src/access/errors";
+
 export type ConvertErrorCode =
   | "invalid_request"
   | "empty"
@@ -12,6 +14,8 @@ export type ConvertErrorCode =
   | "model_output_invalid"
   | "rate_limited"
   | "daily_limit"
+  | "access_required"
+  | "access_closed"
   | "internal";
 
 /** Largest request body read. A 15,000-character letter fits with room for JSON escapes. */
@@ -45,6 +49,8 @@ export const CONVERT_ERRORS: Record<
     status: 502,
     message: "Converting the letter went wrong. Try again in a minute.",
   },
+  access_required: ACCESS_ERRORS.access_required,
+  access_closed: ACCESS_ERRORS.access_closed,
   internal: {
     status: 500,
     message: "Something went wrong. Try again in a minute.",

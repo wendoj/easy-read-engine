@@ -6,6 +6,8 @@
  * pipeline unchanged.
  *
  * Order, so that nothing spends model quota unless it can finish:
+ * 0. Judge access (`src/access`): 401 without a valid cookie, 503 when
+ *    production has no `ACCESS_KEY`. The body is not read.
  * 1. Body size, JSON and zod, then the 1,500-word limit (R1.7): 400 or 413.
  * 2. Checker health: 503 if it's down, because unchecked output is never shown.
  * 3. Model config, then the shared rate limits: 429, or 503 for the daily cap.
@@ -17,6 +19,7 @@
  * body, letter text, lines or key-fact values (R7.4).
  */
 import { z } from "zod";
+import { type AccessGate, requireAccess } from "@/src/access/key";
 import { CheckerUnavailable } from "@/src/checker-client/errors";
 import { ProviderChainError, ProviderRequestError } from "@/src/llm/client";
 import { ModelOutputError } from "@/src/llm/structured";
@@ -41,6 +44,8 @@ export interface ConvertHandlerDeps {
   getChecker: () => ConvertChecker;
   /** Built only after the checker and limits allow the request. */
   getModel: () => PipelineModel;
+  /** Judge access check. Runs first, so a denied request costs no rate-limit units. */
+  access?: AccessGate;
   rateLimit?: RateLimiter;
   /** Used once per conversion to wait for the shortest `Retry-After`. */
   sleep?: (ms: number) => Promise<void>;
@@ -227,6 +232,9 @@ export async function handleConvert(request: Request, deps: ConvertHandlerDeps):
     finish(f.error, f.status, false, err);
     return errorResponse(f);
   };
+
+  const denied = (deps.access ?? requireAccess)(request);
+  if (denied) return reject(failure(denied.error));
 
   const parsed = await parseRequest(request);
   if (!parsed.ok) return reject(parsed.failure);

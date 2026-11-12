@@ -18,6 +18,11 @@
  * starts a Chromium page) and is never charged to the daily model cap
  * (`DAILY_CAP_EXEMPT`).
  *
+ * `POST /api/access` (judge access key) makes no model call either. Each key
+ * attempt costs 1 from the per-client bucket, so a client gets at most 30
+ * tries an hour, and a judge who types the key once loses only 1 unit. It is
+ * also exempt from the daily cap.
+ *
  * A request is charged only when both limits allow it. State is in memory,
  * which is fine for the single instance on the VPS; it resets on restart.
  */
@@ -28,10 +33,10 @@ import type { LimitedRoute, RateLimitDecision, RateLimiter } from "./types";
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
 
-export const ROUTE_COSTS: Record<LimitedRoute, number> = { convert: 6, extract: 1, check: 1, export: 3 };
+export const ROUTE_COSTS: Record<LimitedRoute, number> = { convert: 6, extract: 1, check: 1, export: 3, access: 1 };
 
 /** Routes that make no model call, so they don't count against the daily model cap. */
-export const DAILY_CAP_EXEMPT: ReadonlySet<LimitedRoute> = new Set(["export"]);
+export const DAILY_CAP_EXEMPT: ReadonlySet<LimitedRoute> = new Set(["export", "access"]);
 
 /**
  * 30 units an hour per client: 5 conversions, or fewer conversions plus

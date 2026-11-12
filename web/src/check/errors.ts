@@ -3,6 +3,8 @@
  * Handling"). Messages are fixed text and never include letter content or
  * line text. No server imports, so client code can use the table too.
  */
+import { ACCESS_ERRORS } from "@/src/access/errors";
+
 export type CheckErrorCode =
   | "invalid_request"
   | "empty_line"
@@ -11,6 +13,8 @@ export type CheckErrorCode =
   | "checker_unavailable"
   | "rate_limited"
   | "daily_limit"
+  | "access_required"
+  | "access_closed"
   | "internal";
 
 /** Largest request body read: a 15,000-character letter, 400 lines and the previous checks. */
@@ -46,6 +50,11 @@ export const CHECK_ERRORS: Record<Exclude<CheckErrorCode, "rate_limited" | "dail
     status: 503,
     message: "The service that checks the Easy Read version isn't working right now. Try again in a few minutes.",
   },
+  access_required: {
+    status: ACCESS_ERRORS.access_required.status,
+    message: "Checking a changed line is open to hackathon judges only. You can still read the sample letters.",
+  },
+  access_closed: ACCESS_ERRORS.access_closed,
   internal: {
     status: 500,
     message: "Something went wrong. Try again in a minute.",

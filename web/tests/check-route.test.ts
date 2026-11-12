@@ -5,7 +5,8 @@
  */
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { type CheckLogEvent, type CheckModel, type CheckResponse, type CheckRouteChecker, handleCheck, mergeJudgeChecks } from "@/src/check";
+import { ACCESS_COOKIE, accessToken, checkAccess } from "@/src/access";
+import { CHECK_ERRORS, type CheckLogEvent, type CheckModel, type CheckResponse, type CheckRouteChecker, handleCheck, mergeJudgeChecks } from "@/src/check";
 import { CheckerUnavailable } from "@/src/checker-client/errors";
 import type { CheckResult, KeyFact, Line, Sentence } from "@/src/checker-client/schemas";
 import { JUDGE_UNAVAILABLE, type JudgePair, buildJudgeResults } from "@/src/llm/judge";
@@ -445,5 +446,41 @@ describe("mergeJudgeChecks", () => {
     const missing: CheckResult = { rule: "P9", passed: false, line_ids: [], failed_fact_ids: [], details: ["no result for this rule"] };
     const [p9] = mergeJudgeChecks([missing, result("P10", true)], [result("P9", true), result("P10", true)], new Set(["L1"]));
     expect(p9.passed).toBe(false);
+  });
+});
+
+describe("/api/check judge access", () => {
+  const KEY = "check-test-key";
+  const env = { ACCESS_KEY: KEY, APP_ENV: "production" };
+
+  it("returns 401 without a valid cookie, before any checker, model or rate-limit work", async () => {
+    const { seen, deps, limiter, logs } = setup();
+    const gated = { ...deps, access: (r: Request) => checkAccess(r, env) };
+    const res = await handleCheck(checkRequest(body()), gated);
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: "access_required", message: CHECK_ERRORS.access_required.message });
+    expect(seen.health).toBe(0);
+    expect(seen.getModel).toBe(0);
+    expect(seen.judged).toHaveLength(0);
+    expect(limiter.usedToday()).toBe(0);
+    expect(logs).toEqual([expect.objectContaining({ outcome: "access_required", status: 401 })]);
+
+    const withCookie = new Request("http://localhost/api/check", {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: `${ACCESS_COOKIE}=${accessToken(KEY)}` },
+      body: JSON.stringify(body()),
+    });
+    expect((await handleCheck(withCookie, gated)).status).toBe(200);
+  });
+
+  it("returns 503 access_closed in production with no ACCESS_KEY", async () => {
+    const { seen, deps } = setup();
+    const res = await handleCheck(checkRequest(body()), {
+      ...deps,
+      access: (r: Request) => checkAccess(r, { APP_ENV: "production" }),
+    });
+    expect(res.status).toBe(503);
+    expect((await res.json()).error).toBe("access_closed");
+    expect(seen.getModel).toBe(0);
   });
 });

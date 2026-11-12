@@ -1,4 +1,4 @@
-export type LimitedRoute = "extract" | "convert" | "check" | "export";
+export type LimitedRoute = "extract" | "convert" | "check" | "export" | "access";
 
 export type RateLimitDecision =
   | { allowed: true }

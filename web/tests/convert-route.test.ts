@@ -5,6 +5,7 @@
  */
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
+import { ACCESS_COOKIE, accessToken, checkAccess } from "@/src/access";
 import { CheckerUnavailable } from "@/src/checker-client/errors";
 import type { CheckResult } from "@/src/checker-client/schemas";
 import {
@@ -369,10 +370,63 @@ describe("shared rate limits", () => {
 
   it("logs a masked client only", async () => {
     const events: unknown[] = [];
-    const limiter = createRateLimiter({ capacity: 1, refillPerHour: 1, dailyCap: 1000, costs: { convert: 1, extract: 1, check: 1, export: 1 }, logger: (e) => events.push(e) });
+    const limiter = createRateLimiter({ capacity: 1, refillPerHour: 1, dailyCap: 1000, costs: { convert: 1, extract: 1, check: 1, export: 1, access: 1 }, logger: (e) => events.push(e) });
     await limiter.limit(limitRequest("203.0.113.77"), "check");
     await limiter.limit(limitRequest("203.0.113.77"), "check");
     expect(events).toEqual([{ msg: "rate_limit", route: "check", code: "rate_limited", client: "203.0.113.x" }]);
+  });
+});
+
+describe("/api/convert judge access", () => {
+  const KEY = "convert-test-key";
+  function withCookie(cookie: string | null): Request {
+    return new Request("http://localhost/api/convert", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-forwarded-for": "203.0.113.7",
+        ...(cookie !== null ? { cookie: `${ACCESS_COOKIE}=${cookie}` } : {}),
+      },
+      body: JSON.stringify({ original: LETTER }),
+    });
+  }
+
+  it("returns 401 without a valid cookie, before any checker, model or rate-limit work", async () => {
+    const env = { ACCESS_KEY: KEY, APP_ENV: "production" };
+    const { deps, calls, logs } = setup();
+    let limited = 0;
+    const gated = {
+      ...deps,
+      access: (r: Request) => checkAccess(r, env),
+      rateLimit: async () => {
+        limited += 1;
+        return { allowed: true as const };
+      },
+    };
+    for (const cookie of [null, "not-the-token", accessToken("an-old-key")]) {
+      const res = await handleConvert(withCookie(cookie), gated);
+      expect(res.status).toBe(401);
+      expect((await res.json()).error).toBe("access_required");
+    }
+    expect(limited).toBe(0);
+    expect(modelCalls(calls)).toBe(0);
+    expect(calls.health).toBe(0);
+    expect(logs).toContainEqual(expect.objectContaining({ msg: "convert_request", outcome: "access_required", status: 401 }));
+    expect(JSON.stringify(logs).includes(KEY)).toBe(false);
+
+    const ok = await handleConvert(withCookie(accessToken(KEY)), gated);
+    expect(ok.status).toBe(200);
+    expect(limited).toBe(1);
+  });
+
+  it("returns 503 access_closed in production with no ACCESS_KEY, and stays open in development", async () => {
+    const { deps, calls } = setup();
+    const closed = await handleConvert(withCookie(null), { ...deps, access: (r) => checkAccess(r, { APP_ENV: "production" }) });
+    expect(closed.status).toBe(503);
+    expect((await closed.json()).error).toBe("access_closed");
+    expect(modelCalls(calls)).toBe(0);
+    const open = await handleConvert(withCookie(null), { ...deps, access: (r) => checkAccess(r, { APP_ENV: "development" }) });
+    expect(open.status).toBe(200);
   });
 });
 

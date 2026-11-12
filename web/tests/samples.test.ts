@@ -167,6 +167,18 @@ describe("web/data/samples", () => {
 // --- loading a sample ---------------------------------------------------------
 
 describe("POST /api/sample", () => {
+  it("needs no judge access cookie, even with ACCESS_KEY set in production", async () => {
+    vi.stubEnv("ACCESS_KEY", "sample-test-key");
+    vi.stubEnv("APP_ENV", "production");
+    try {
+      const { checker } = fakeChecker();
+      const response = await handleSample(post("invented-test-letter"), deps(checker));
+      expect(response.status).toBe(200);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it("re-runs P1 to P8 on the recorded lines with no model call", async () => {
     const network = spyOnNetwork();
     const { checker, calls } = fakeChecker();

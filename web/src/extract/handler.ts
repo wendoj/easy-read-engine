@@ -5,8 +5,11 @@
  * Input: multipart form data with 1 field, `file`.
  * Output: `{ text, source }`, or `{ error, message }` with the status from
  * `EXTRACT_ERRORS`. Responses are never cached.
+ *
+ * Judge access (`src/access`) is checked first, then the rate limit.
  */
 import { z } from "zod";
+import { type AccessGate, requireAccess } from "@/src/access/key";
 import { type RateLimiter, rateLimit as defaultRateLimit } from "@/src/rate-limit";
 import { MAX_FILE_BYTES } from "./errors";
 import { type ExtractDeps, type ExtractFailure, extractText, failure } from "./extract";
@@ -22,6 +25,8 @@ const formSchema = z.object({
 });
 
 export interface ExtractHandlerDeps extends ExtractDeps {
+  /** Judge access check. Runs first, so a denied request costs no rate-limit units. */
+  access?: AccessGate;
   rateLimit?: RateLimiter;
 }
 
@@ -34,6 +39,9 @@ function errorResponse(outcome: ExtractFailure): Response {
 }
 
 export async function handleExtract(request: Request, deps: ExtractHandlerDeps): Promise<Response> {
+  const denied = (deps.access ?? requireAccess)(request);
+  if (denied) return errorResponse(failure(denied.error));
+
   const limit = await (deps.rateLimit ?? defaultRateLimit)(request, "extract");
   if (!limit.allowed) {
     const headers: Record<string, string> = { ...NO_STORE };

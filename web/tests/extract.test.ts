@@ -6,6 +6,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { checkAccess } from "@/src/access";
 import {
   type ExtractLogEvent,
   MAX_FILE_BYTES,
@@ -311,6 +312,33 @@ describe("rate limit hook", () => {
     });
     expect(res.status).toBe(429);
     expect((await body(res)).error).toBe("rate_limited");
+    NO_CALLS(client);
+  });
+});
+
+describe("judge access", () => {
+  it("returns 401 or 503 before the rate limit or any model call", async () => {
+    const client = fakeClient([]);
+    let limited = 0;
+    const rateLimit = async () => {
+      limited += 1;
+      return { allowed: true as const };
+    };
+    const denied = await handleExtract(upload(PNG_BYTES), {
+      ...deps(client),
+      rateLimit,
+      access: (r: Request) => checkAccess(r, { ACCESS_KEY: "extract-test-key", APP_ENV: "production" }),
+    });
+    expect(denied.status).toBe(401);
+    expect((await body(denied)).error).toBe("access_required");
+    const closed = await handleExtract(upload(PNG_BYTES), {
+      ...deps(client),
+      rateLimit,
+      access: (r: Request) => checkAccess(r, { APP_ENV: "production" }),
+    });
+    expect(closed.status).toBe(503);
+    expect((await body(closed)).error).toBe("access_closed");
+    expect(limited).toBe(0);
     NO_CALLS(client);
   });
 });

@@ -23,6 +23,7 @@
  *   The client keeps the version before the edit for "Undo edit".
  *
  * Order, so nothing spends quota unless it can finish:
+ * 0. Judge access (`src/access`): 401 or 503 before the body is read.
  * 1. Body size, JSON and zod: 400 or 413.
  * 2. Checker health: 503 if it's down, before any model call.
  * 3. Model config, then the shared rate limits (route "check", cost 1): 429 or 503.
@@ -32,6 +33,7 @@
  * the body, the Original, lines or key-fact values (R7.4).
  */
 import { z } from "zod";
+import { type AccessGate, requireAccess } from "@/src/access/key";
 import { CheckerUnavailable } from "@/src/checker-client/errors";
 import {
   type CheckResult,
@@ -74,6 +76,8 @@ export interface CheckHandlerDeps {
   getChecker: () => CheckRouteChecker;
   /** Built only after the checker and limits allow the request. */
   getModel: () => CheckModel;
+  /** Judge access check. Runs first, so a denied request costs no rate-limit units. */
+  access?: AccessGate;
   rateLimit?: RateLimiter;
   logger?: (event: CheckLogEvent) => void;
   now?: () => number;
@@ -216,6 +220,9 @@ export async function handleCheck(request: Request, deps: CheckHandlerDeps): Pro
     });
     return errorResponse(f);
   };
+
+  const denied = (deps.access ?? requireAccess)(request);
+  if (denied) return reject(failure(denied.error));
 
   const parsed = await parseRequest(request);
   if (!parsed.ok) return reject(parsed.failure);

@@ -3,6 +3,7 @@
  * (design "Web route handlers" and "Error Handling"). Messages are fixed text
  * and never include anything from the uploaded file.
  */
+import { ACCESS_ERRORS } from "@/src/access/errors";
 
 export type ExtractErrorCode =
   | "invalid_request"
@@ -13,7 +14,9 @@ export type ExtractErrorCode =
   | "handwriting"
   | "unreadable"
   | "model_output_invalid"
-  | "providers_unavailable";
+  | "providers_unavailable"
+  | "access_required"
+  | "access_closed";
 
 /** Largest file accepted. Matches Next.js's default buffered body size and keeps base64 images under Groq's 20 MB request limit. */
 export const MAX_FILE_BYTES = 10 * 1024 * 1024;
@@ -59,4 +62,6 @@ export const EXTRACT_ERRORS: Record<ExtractErrorCode, { status: number; message:
     status: 503,
     message: "The service that reads photos is busy. Try again in a few minutes, or paste the text.",
   },
+  access_required: ACCESS_ERRORS.access_required,
+  access_closed: ACCESS_ERRORS.access_closed,
 };
