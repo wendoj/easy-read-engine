@@ -250,7 +250,7 @@ Requirement numbers refer to `requirements.md`, properties P1 to P10 to its Corr
   - Chains as in design "Model provider"; `.env.example`, README, `docs/deploy.md` and steering updated
   - fast-check properties: entries tried in order with 401, 403 and 404 in the failure set; any provider other than `bedrock` or `groq` is rejected at start-up
   - _Requirements: 7.4, 7.5 (supports); design "Model provider"_
-- [ ] 35. Re-run the fixture letters on the Bedrock chain and compare pass counts with `docs/pass-rates.md`
+- [x] 35. Re-run the fixture letters on the Bedrock chain and compare pass counts with `docs/pass-rates.md`
   - _Requirements: none directly; design "Open Questions" 1_
 - [x] 36. Design pass and motion on the input and result screens
   - Motion (`motion/react`), values in `web/src/ui/motion.ts`, as in design "UI" (Motion)

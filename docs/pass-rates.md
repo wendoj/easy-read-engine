@@ -1,13 +1,12 @@
 # Pass rates
 
-> **Bedrock samples, 11 November 2026.** After this run, the 3 public sample letters were recorded on the Bedrock chain (`web/data/samples/`, `npm run record-samples`). Each ended flagged after 3 tries, with P1 passing on all 3. The 8-letter fixture run on Bedrock (spec task 35) is still to do, and will replace the numbers below.
+> **Bedrock fixture run, 12 November 2026 (spec task 35).** 8 letters: the 3 public sample letters and the 5 invented letters. Every letter finished with a checked result and every model request went to Bedrock. No letter passed all 10 rules: 6 ended flagged and 2 blocked. This is a run on 8 letters, not a pass rate on the planned 20 public letters.
 
-> **Partial: 8 of the planned 20 public letters (3 public, 5 invented).** Only 3 public sample letters are in `fixtures/letters/` so far, so this run also includes the 5 invented letters. 6 of the 8 letters ended with a provider or model-output error, not a rule result. Treat these numbers as a smoke test of the pipeline on free-tier providers, not as a pass rate.
-
-- **Date:** 2026-11-11, 16:41 to 16:49 UTC
-- **Command:** `cd web && FIXTURE_DELAY_MS=45000 npm run fixtures -- --all` (checker at `http://localhost:8000`, `APP_ENV=development`)
-- **Raw results:** `fixtures/results/20261111T164114Z-all.json`
-- **Exit code:** 1 (at least one letter hit a model error)
+- **Date:** 2026-11-12, 17:14 to 17:32 UTC
+- **Command:** `cd web && npm run fixtures -- --all` (checker at `http://localhost:8000`, `APP_ENV=development`, default 15 s pause between letters)
+- **Code:** commit `a8d723d` (the checker fix in `4023e6f`, which passes template placeholders and address lines in P5 and P7, came after this run)
+- **Raw results:** `fixtures/results/20261112T171407Z-all.json`
+- **Exit code:** 0
 
 This file and the JSON hold rule results and metadata only. No letter text, Easy Read lines or key-fact values.
 
@@ -15,62 +14,58 @@ This file and the JSON hold rule results and metadata only. No letter text, Easy
 
 | Role | Chain, in order | Answered in this run |
 | --- | --- | --- |
-| Rewrite and regenerate | `groq:openai/gpt-oss-120b`, then `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | Groq gpt-oss-120b gave every valid answer (7 rewrites, 7 regenerates). Nemotron answered 9 times, all invalid |
-| Judge (P9, P10) | `groq:qwen/qwen3.8-27b`, then `openrouter:thinkingmachines/inkling-small:free` | Groq qwen3.8-27b, 5 valid answers. 4 judge calls had no provider answer |
-| Vision | `groq:qwen/qwen3.8-27b`, then `openrouter:nvidia/nemotron-3.5-super-vl:free` | Not used (no photos in the set) |
+| Rewrite and regenerate | `bedrock:openai.gpt-oss-120b-1:0`, then `groq:openai/gpt-oss-120b` | Bedrock gpt-oss-120b, every rewrite and regenerate. 1 regenerate answer failed output validation and was retried on Bedrock |
+| Judge (P9, P10) | `bedrock:qwen.qwen3-235b-a22b-2507-v1:0`, then `groq:qwen/qwen3.8-27b` | Bedrock Qwen3 235B, every judge call |
+| Vision | `bedrock:qwen.qwen3-vl-235b-a22b`, then `groq:qwen/qwen3.8-27b` | Not used (no photos in the set) |
+
+Model requests: 49 in total, 49 answered by Bedrock, none rate-limited and none sent to Groq. The judge was available on every try.
 
 ## Results
 
-Status: **passed** means all 10 rules passed. **flagged** means the output is shown with failing rules flagged after 3 tries. **blocked** means P1 failed on all 3 tries. **error** means the letter stopped before a checked result.
+Status: **passed** means all 10 rules passed. **flagged** means the output is shown with failing rules flagged after 3 tries. **blocked** means P1 failed on all 3 tries, so no lines are shown. Each cell gives the failing-line count on the try the pipeline kept.
 
 ### Public sample letters (3)
 
-| Letter | Source | Status | Tries | P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 | Model requests (ok / rate-limited / client error) |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| council-tax-final-notice-east-cambridgeshire | pdf | error: model_output_invalid | – | – | – | – | – | – | – | – | – | – | – | 13 (4 / 4 / 5) |
-| manchester-missed-council-tax-payment | pdf | error: model_output_invalid | – | – | – | – | – | – | – | – | – | – | – | 3 (1 / 1 / 1) |
-| planning-appeal-notification-letter | txt | error: providers_unavailable | – | – | – | – | – | – | – | – | – | – | – | 11 (3 / 6 / 2) |
+| Letter | Source | Sentences | Status | Tries | Lines | P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| council-tax-final-notice-east-cambridgeshire | pdf | 89 | flagged | 3 | 67 | ok | 11 | 15 | 6 | 7 | ok | 5 | ok | 21 | ok |
+| manchester-missed-council-tax-payment | pdf | 143 | blocked | 3 | 0 | 1 fact | ok | 7 | ok | 14 | ok | 2 | ok | 24 | ok |
+| planning-appeal-notification-letter | txt | 51 | flagged | 3 | 67 | ok | ok | ok | 3 | 7 | ok | 1 | ok | 24 | ok |
+
+A blocked letter shows no lines, so its counts come from the last try, which failed P1 on 1 key fact. On Manchester the first rewrite came back in under 2 seconds with very few lines for a 143-sentence letter, and regenerate could not recover every missing key fact in 2 more tries.
 
 ### Invented letters (5)
 
-| Letter | Source | Status | Tries | P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 | Model requests (ok / rate-limited / client error) |
+| Letter | Sentences | Status | Tries | Lines | P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| invented-care-assessment | txt | flagged | 3 | ok | ok | ok | ok | FAIL (1 line) | ok | ok | ok | FAIL* | FAIL* | 8 (4 / 2 / 2) |
-| invented-council-tax-reminder | txt | error: model_output_invalid | – | – | – | – | – | – | – | – | – | – | – | 5 (3 / 1 / 1) |
-| invented-housing-benefit-change | txt | flagged | 3 | ok | ok | ok | ok | ok | ok | FAIL (1 line) | ok | FAIL* | FAIL* | 9 (4 / 2 / 3) |
-| invented-parking-penalty | txt | error: model_output_invalid | – | – | – | – | – | – | – | – | – | – | – | 9 (5 / 3 / 1) |
-| invented-repair-appointment | txt | error: model_output_invalid | – | – | – | – | – | – | – | – | – | – | – | 9 (5 / 3 / 1) |
-
-\* The judge was unavailable on the final try, so P9 and P10 are recorded as failed on every line. This is "judge unavailable", not a judged failure. The run records only the final try per letter, so there is no judged P9 or P10 result for these letters.
+| invented-care-assessment | 20 | flagged | 3 | 27 | ok | ok | 3 | ok | 7 | ok | ok | ok | 4 | 3 |
+| invented-council-tax-reminder | 16 | blocked | 3 | 0 | 1 fact | ok | ok | 1 | 2 | ok | ok | ok | 5 | ok |
+| invented-housing-benefit-change | 19 | flagged | 3 | 25 | ok | ok | 1 | ok | ok | ok | 1 | ok | 1 | ok |
+| invented-parking-penalty | 17 | flagged | 3 | 29 | ok | ok | 2 | 2 | 4 | ok | ok | ok | 4 | ok |
+| invented-repair-appointment | 17 | flagged | 3 | 25 | ok | ok | 2 | 1 | 6 | 1 | 1 | ok | 4 | ok |
 
 ### Totals
 
 | | Public (3) | Invented (5) | All (8) |
 | --- | --- | --- | --- |
-| Finished (passed, flagged or blocked) | 0 | 2 | 2 |
+| Finished (passed, flagged or blocked) | 3 | 5 | 8 |
 | Passed | 0 | 0 | 0 |
-| Flagged | 0 | 2 | 2 |
-| Blocked | 0 | 0 | 0 |
-| Error | 3 | 3 | 6 |
+| Flagged | 2 | 4 | 6 |
+| Blocked | 1 | 1 | 2 |
+| Error | 0 | 0 | 0 |
 
-Rule passes, counted over the 2 finished letters (both invented):
+Letters passing each rule, out of 8:
 
 | P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2/2 | 2/2 | 2/2 | 2/2 | 1/2 | 2/2 | 1/2 | 2/2 | 0/2* | 0/2* |
+| 6/8 | 7/8 | 2/8 | 3/8 | 1/8 | 7/8 | 3/8 | 8/8 | 0/8 | 7/8 |
 
-Model requests across the run: 67 total, 29 ok, 22 rate-limited, 16 client errors.
+## Compared with the earlier run
 
-## Known provider issues
+The earlier run (11 November 2026, `fixtures/results/20261111T164114Z-all.json`) used the free Groq and OpenRouter chains. 6 of its 8 letters stopped with a provider or model-output error, and only 2 invented letters finished, both flagged. On Bedrock every letter finished, nothing was rate-limited, and the judge answered every time. The rules are now the limit, not the providers.
 
-These were known before the run and were not changed for it.
+## What fails, and why
 
-- **Groq per-minute limits.** Groq returned 429 on 22 of 67 requests, even with a 45 s pause between letters. Each 429 sends the request to the OpenRouter fallback.
-- **Rewrite fallback output is invalid.** `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` answered 9 times and every answer failed output validation. When Groq is rate-limited during a rewrite or regenerate, the letter ends with `model_output_invalid`. This caused 5 of the 6 errors.
-- **Judge fallback returns 404.** `openrouter:thinkingmachines/inkling-small:free` returns 404, so a Groq 429 on a judge call leaves P9 and P10 unavailable for that try. This is why both flagged letters show P9 and P10 as failed.
-- **Both providers down for one letter.** The planning appeal letter ended with `providers_unavailable` after 6 rate-limited requests.
-
-## Notes on the run
-
-- An earlier attempt the same day was stopped by the shell tool's timeout during letter 3. It wrote no results file. It used about 11 model requests. The run above is the only complete run.
-- The rule results from the 2 finished letters are the only real pass-rate evidence here. A full run needs the 20 public letters, a working rewrite fallback and a working judge fallback, or a paid or higher Groq limit.
+- **P9 (meaning) fails on every letter.** It is the most common failure on the long public letters (21 to 24 lines). Earlier recorded samples show the judge failing lines for plain swaps of legal words ("amended" written as "changed") and for shortened official names. Some of those are real meaning changes and some are the judge being stricter than its rubric.
+- **P3, P4 and P5 are the main checker failures.** These are lines the model wrote: "... if you can" and "when you ..." clauses, copied passives ("is set out in"), and letter words left in.
+- **Blocks come from missing key facts.** Both blocked letters lost 1 key fact. On Manchester, the first rewrite was far too short for the letter.
