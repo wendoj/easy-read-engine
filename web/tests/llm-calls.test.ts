@@ -378,6 +378,56 @@ describe("judge", () => {
     expect(userText(m.sent[0])).not.toContain("Line L2");
   });
 
+  it("ignores a verdict for a context-only sibling and keeps the judged lines' verdicts", async () => {
+    // Regression: an extra verdict for a context-only line failed validation,
+    // so a valid edit came back as "judge unavailable" and export was turned off.
+    const m = fakeModel([
+      {
+        tool: "submit_verdicts",
+        args: {
+          verdicts: [
+            { lineId: "L1", meaning: fail("Adds a fact."), tone: pass, advice: pass },
+            { lineId: "L2", meaning: pass, tone: pass, advice: fail("Tells the reader to appeal.") },
+          ],
+        },
+      },
+    ]);
+    const withContext = pairs.map((p) => (p.lineId === "L1" ? p : { ...p, contextOnly: true }));
+    const result = await judge(m.client, withContext, { prompt: JUDGE_PROMPT, logger: m.logger });
+    const [p9, p10] = result.checks;
+    expect(result.available).toBe(true);
+    expect(result.requests).toBe(1);
+    expect(p9.line_ids).toEqual(["L1"]);
+    expect(p10.passed).toBe(true);
+    expect([...p9.details, ...p10.details].some((d) => d.startsWith("L2"))).toBe(false);
+  });
+
+  it("ignores a verdict for an unknown line ID", async () => {
+    const all = lines.map((l) => ({ lineId: l.id, meaning: pass, tone: pass, advice: pass }));
+    const m = fakeModel([
+      { tool: "submit_verdicts", args: { verdicts: [...all, { lineId: "L99", meaning: pass, tone: pass, advice: fail("x") }] } },
+    ]);
+    const result = await judge(m.client, pairs, { prompt: JUDGE_PROMPT, logger: m.logger });
+    expect(result.available).toBe(true);
+    expect(result.requests).toBe(1);
+    expect(result.checks.every((c) => c.passed)).toBe(true);
+  });
+
+  it("still fails as 'judge unavailable' when a judged line has no verdict, even with extra verdicts", async () => {
+    const extra = { lineId: "L2", meaning: pass, tone: pass, advice: pass };
+    const onlyContext = { tool: "submit_verdicts", args: { verdicts: [extra] } };
+    const m = fakeModel([onlyContext, onlyContext]);
+    const withContext = pairs.map((p) => (p.lineId === "L1" ? p : { ...p, contextOnly: true }));
+    const result = await judge(m.client, withContext, { prompt: JUDGE_PROMPT, logger: m.logger });
+    expect(result.available).toBe(false);
+    expect(result.requests).toBe(2);
+    for (const check of result.checks) {
+      expect(check.passed).toBe(false);
+      expect(check.line_ids).toEqual(["L1"]);
+      expect(check.details).toEqual([`L1 ${JUDGE_UNAVAILABLE}`]);
+    }
+  });
+
   it("makes no request when every pair is context only", async () => {
     const m = fakeModel([]);
     const result = await judge(m.client, pairs.map((p) => ({ ...p, contextOnly: true })), { prompt: JUDGE_PROMPT });

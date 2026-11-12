@@ -92,15 +92,27 @@ export const SUBMIT_VERDICTS_TOOL: ToolDefinition = {
   },
 };
 
-/** Exactly 1 verdict for every line ID sent, and no other IDs. */
+/**
+ * Exactly 1 verdict for every line ID sent. A verdict for any other line ID
+ * is dropped before validation: the model sometimes also judges a
+ * context-only sibling it was shown, and that extra verdict must not turn a
+ * valid answer into "judge unavailable". A missing verdict still fails.
+ */
 export function judgeSchema(lineIds: readonly string[]) {
-  return z.object({ verdicts: z.array(lineVerdictSchema) }).superRefine((value, ctx) => {
-    const wanted = new Set(lineIds);
+  const wanted = new Set(lineIds);
+  const isOtherLine = (item: unknown) =>
+    typeof item === "object" &&
+    item !== null &&
+    typeof (item as { lineId?: unknown }).lineId === "string" &&
+    !wanted.has((item as { lineId: string }).lineId.trim());
+  const verdicts = z.preprocess(
+    (raw) => (Array.isArray(raw) ? raw.filter((item) => !isOtherLine(item)) : raw),
+    z.array(lineVerdictSchema),
+  );
+  return z.object({ verdicts }).superRefine((value, ctx) => {
     const seen = new Set<string>();
     value.verdicts.forEach((v, i) => {
-      if (!wanted.has(v.lineId)) {
-        ctx.addIssue({ code: "custom", path: ["verdicts", i, "lineId"], message: "not a line ID from the list" });
-      } else if (seen.has(v.lineId)) {
+      if (seen.has(v.lineId)) {
         ctx.addIssue({ code: "custom", path: ["verdicts", i, "lineId"], message: "line ID given twice" });
       }
       seen.add(v.lineId);
