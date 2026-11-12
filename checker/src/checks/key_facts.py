@@ -488,14 +488,38 @@ def _conj_verbs(verb: Token) -> list[Token]:
 _DASHES = frozenset({"-", "–", "—", "‒"})
 
 
+def _is_spaced_dash(token: Token) -> bool:
+    """True if `token` is a dash with a space on both sides ("now – details")."""
+    return (
+        token.text in _DASHES
+        and token.i > 0
+        and bool(token.doc[token.i - 1].whitespace_)
+        and bool(token.whitespace_)
+    )
+
+
 def _dash_after(verb: Token) -> int | None:
-    """Index of the first dash after `verb` that hangs off it, or None.
+    """Index of the dash after `verb` that starts a trailing note, or None.
 
     Letters add a note after a dash: "Please pay online now – details on the
     back." spaCy parses the noun after the dash as the verb's object, so P1
     asked for "pay details". The action stops at the dash.
+
+    Only a dash with a space on both sides, and with no other spaced dash
+    after it in the sentence, starts a note. A pair of dashes holds an aside
+    inside the action ("You must send - by 1 April 2026 - the signed form."),
+    and a hyphen inside a number or word ("0300-123-4567") is not a break, so
+    neither cuts the action.
     """
-    return next((c.i for c in verb.children if c.dep_ == "punct" and c.text in _DASHES and c.i > verb.i), None)
+    dash = next(
+        (c for c in verb.children if c.dep_ == "punct" and c.i > verb.i and _is_spaced_dash(c)),
+        None,
+    )
+    if dash is None:
+        return None
+    if any(_is_spaced_dash(t) for t in dash.doc[dash.i + 1 :]):
+        return None
+    return dash.i
 
 
 def _action_span(verb: Token) -> tuple[int, int]:

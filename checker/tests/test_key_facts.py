@@ -343,6 +343,21 @@ def test_action_before_a_dash_keeps_its_own_object_and_values() -> None:
     ]
 
 
+def test_paired_dashes_and_hyphens_do_not_cut_the_action() -> None:
+    """Regression (review v1, 12 November 2026): the dash rule cut at the first
+    dash, so a pair of dashes around an aside lost the object and deadline,
+    and a hyphenated phone number was cut in the middle."""
+    assert _normalised("You must send - by 1 April 2026 - the signed form.", "action") == [
+        "send|form|date=2026-04-01"
+    ]
+    text = "Please call 0300-123-4567 to pay your bill."
+    actions = _facts_of_type(text, "action")
+    assert actions and actions[0].value.startswith("Please call 0300-123-4567"), "phone number cut"
+    assert _normalised("Please send the form-and-letter pack by 1 April 2026.", "action") == [
+        "send|pack|date=2026-04-01"
+    ]
+
+
 def test_heading_question_is_not_an_action() -> None:
     """Regression (Bedrock samples, November 2026): the heading "Need help with
     council tax?" was a required action, and no faithful line could match it."""
