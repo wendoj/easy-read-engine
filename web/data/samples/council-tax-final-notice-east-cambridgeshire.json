@@ -2,7 +2,7 @@
   "id": "council-tax-final-notice-east-cambridgeshire",
   "label": "Council Tax final notice (East Cambridgeshire)",
   "source": "council-tax-final-notice-east-cambridgeshire.pdf",
-  "recordedAt": "2026-11-11T23:37:26.749Z",
+  "recordedAt": "2026-11-12T18:19:29.105Z",
   "models": [
     "bedrock:openai.gpt-oss-120b-1:0",
     "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
@@ -921,385 +921,787 @@
     ],
     "lines": [
       {
-        "id": "L56",
-        "text": "Pay overdue amount.",
-        "source_sentence_id": "s10",
-        "symbol_id": "4630"
-      },
-      {
-        "id": "L57",
-        "text": "Pay full amount.",
-        "source_sentence_id": "s13",
-        "symbol_id": "4630"
-      },
-      {
         "id": "L1",
-        "text": "You have not paid your monthly Council Tax on time.",
+        "text": "Date of Issue:",
+        "source_sentence_id": "s1",
+        "symbol_id": "32488"
+      },
+      {
+        "id": "L2",
+        "text": "Property Band",
+        "source_sentence_id": "s2",
+        "symbol_id": "2317"
+      },
+      {
+        "id": "L3",
+        "text": "Your account reference is",
+        "source_sentence_id": "s3",
+        "symbol_id": null
+      },
+      {
+        "id": "L4",
+        "text": "Contact us: angliarevenues.gov.uk/eccontactus",
+        "source_sentence_id": "s4",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L5",
+        "text": "Or phone: 01842 756577",
+        "source_sentence_id": "s5",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L6",
+        "text": "More than 90% of residents pay their Council Tax on time.",
+        "source_sentence_id": "s6",
+        "symbol_id": "9014"
+      },
+      {
+        "id": "L7",
+        "text": "You are here",
+        "source_sentence_id": "s7",
+        "symbol_id": null
+      },
+      {
+        "id": "L8",
+        "text": "Bill Issued",
+        "source_sentence_id": "s8",
+        "symbol_id": "5995"
+      },
+      {
+        "id": "L9",
+        "text": "Reminder:",
+        "source_sentence_id": "s9",
+        "symbol_id": null
+      },
+      {
+        "id": "L10",
+        "text": "Pay overdue amount",
+        "source_sentence_id": "s10",
+        "symbol_id": "9014"
+      },
+      {
+        "id": "L11",
+        "text": "Final",
+        "source_sentence_id": "s11",
+        "symbol_id": null
+      },
+      {
+        "id": "L12",
+        "text": "Notice:",
+        "source_sentence_id": "s12",
+        "symbol_id": null
+      },
+      {
+        "id": "L13",
+        "text": "Pay full amount",
+        "source_sentence_id": "s13",
+        "symbol_id": "9014"
+      },
+      {
+        "id": "L14",
+        "text": "Court",
+        "source_sentence_id": "s14",
+        "symbol_id": "8147"
+      },
+      {
+        "id": "L15",
+        "text": "A summons is a letter that tells you to go to court.",
+        "source_sentence_id": "s15",
+        "symbol_id": null
+      },
+      {
+        "id": "L16",
+        "text": "Pay all plus costs",
+        "source_sentence_id": "s16",
+        "symbol_id": "9014"
+      },
+      {
+        "id": "L17",
+        "text": "XXXXXXXXX",
+        "source_sentence_id": "s17",
+        "symbol_id": null
+      },
+      {
+        "id": "L18",
+        "text": "B",
+        "source_sentence_id": "s18",
+        "symbol_id": null
+      },
+      {
+        "id": "L19",
+        "text": "Date: DD.MM.YYYY Council Tax.",
+        "source_sentence_id": "s19",
+        "symbol_id": null
+      },
+      {
+        "id": "L20",
+        "text": "Final Notice",
+        "source_sentence_id": "s20",
+        "symbol_id": null
+      },
+      {
+        "id": "L21",
+        "text": "DD.MM.YYYY to DD.MM.YYYY",
+        "source_sentence_id": "s21",
+        "symbol_id": "34799"
+      },
+      {
+        "id": "L22",
+        "text": "Council Tax payers.",
+        "source_sentence_id": "s22",
+        "symbol_id": null
+      },
+      {
+        "id": "L23",
+        "text": "Address1",
+        "source_sentence_id": "s23",
+        "symbol_id": "30231"
+      },
+      {
+        "id": "L24",
+        "text": "Address2",
+        "source_sentence_id": "s24",
+        "symbol_id": "30231"
+      },
+      {
+        "id": "L25",
+        "text": "Address3",
+        "source_sentence_id": "s25",
+        "symbol_id": "30231"
+      },
+      {
+        "id": "L26",
+        "text": "Address4",
+        "source_sentence_id": "s26",
+        "symbol_id": "30231"
+      },
+      {
+        "id": "L27",
+        "text": "Postcode (PC).",
+        "source_sentence_id": "s27",
+        "symbol_id": null
+      },
+      {
+        "id": "L28",
+        "text": "This notice is for:",
+        "source_sentence_id": "s28",
+        "symbol_id": null
+      },
+      {
+        "id": "L29",
+        "text": "Property address line 1.",
+        "source_sentence_id": "s29",
+        "symbol_id": "30231"
+      },
+      {
+        "id": "L30",
+        "text": "Prop Address2",
+        "source_sentence_id": "s30",
+        "symbol_id": "30231"
+      },
+      {
+        "id": "L31",
+        "text": "Property address line 3.",
+        "source_sentence_id": "s31",
+        "symbol_id": "30231"
+      },
+      {
+        "id": "L32",
+        "text": "Property address line 4.",
+        "source_sentence_id": "s32",
+        "symbol_id": "30231"
+      },
+      {
+        "id": "L33",
+        "text": "Postcode (PC).",
+        "source_sentence_id": "s33",
+        "symbol_id": null
+      },
+      {
+        "id": "L34",
+        "text": "Dear Sir or Madam.",
+        "source_sentence_id": "s34",
+        "symbol_id": "6963"
+      },
+      {
+        "id": "L35",
+        "text": "The council has not received your monthly Council Tax payment on time.",
         "source_sentence_id": "s35",
         "symbol_id": "35449"
       },
       {
-        "id": "L59",
+        "id": "L36",
         "text": "You now owe £XXX.XX.",
         "source_sentence_id": "s35",
         "symbol_id": "4630"
       },
       {
-        "id": "L2",
-        "text": "You owe £XXX.XX.",
-        "source_sentence_id": "s35",
-        "symbol_id": "4630"
-      },
-      {
-        "id": "L47",
-        "text": "You have not paid your Council Tax.",
-        "source_sentence_id": "s35",
+        "id": "L37",
+        "text": "Maybe you have paid your Council Tax.",
+        "source_sentence_id": "s36",
         "symbol_id": "35449"
       },
       {
-        "id": "L3",
-        "text": "Maybe you have already paid.",
+        "id": "L123",
+        "text": "Then there is nothing left to pay for the year.",
         "source_sentence_id": "s36",
         "symbol_id": null
       },
       {
-        "id": "L4",
+        "id": "L38",
         "text": "Then please ignore this reminder.",
         "source_sentence_id": "s36",
         "symbol_id": null
       },
       {
-        "id": "L5",
-        "text": "Maybe you have not paid.",
+        "id": "L39",
+        "text": "Maybe you have not yet paid all your Council Tax.",
         "source_sentence_id": "s37",
         "symbol_id": null
       },
       {
-        "id": "L6",
-        "text": "Then please pay £XXX.XX within the next 7 days.",
+        "id": "L40",
+        "text": "Maybe you have not yet paid all your Council Tax.",
         "source_sentence_id": "s37",
-        "symbol_id": "9014"
+        "symbol_id": "35449"
       },
       {
-        "id": "L7",
-        "text": "Please pay £XXX.XX within 7 days.",
+        "id": "L124",
+        "text": "Then please pay £XXX.XX within 7 days using one of the methods shown on the page.",
         "source_sentence_id": "s37",
         "symbol_id": "4630"
       },
       {
-        "id": "L8",
+        "id": "L41",
         "text": "Maybe you do not pay by DD.MM.YYYY.",
         "source_sentence_id": "s38",
         "symbol_id": null
       },
       {
-        "id": "L9",
-        "text": "Then we will send you a court summons.",
+        "id": "L42",
+        "text": "Maybe you do not pay by DD.MM.YYYY.",
         "source_sentence_id": "s38",
-        "symbol_id": "8147"
+        "symbol_id": "34799"
       },
       {
-        "id": "L10",
-        "text": "You will have to pay an additional £75.00 in costs.",
+        "id": "L125",
+        "text": "Then the council will send you a summons, a letter that tells you to go to court.",
+        "source_sentence_id": "s38",
+        "symbol_id": null
+      },
+      {
+        "id": "L43",
+        "text": "Then you will have to pay an additional £75.00 in costs.",
         "source_sentence_id": "s38",
         "symbol_id": "4630"
       },
       {
-        "id": "L11",
+        "id": "L44",
         "text": "Maybe you cannot pay what you owe.",
         "source_sentence_id": "s39",
         "symbol_id": null
       },
       {
-        "id": "L12",
-        "text": "Then you must tell us immediately.",
+        "id": "L45",
+        "text": "Then you need to tell us immediately.",
         "source_sentence_id": "s39",
-        "symbol_id": "2791"
+        "symbol_id": "27465"
       },
       {
-        "id": "L13",
-        "text": "Contact us on 01842 756577 to discuss options.",
+        "id": "L46",
+        "text": "Contact us on 01842 756577.",
         "source_sentence_id": "s40",
         "symbol_id": "2791"
       },
       {
-        "id": "L14",
-        "text": "You may also want to seek advice from Citizens Advice or Money Advice Service.",
+        "id": "L126",
+        "text": "Then we can discuss options with you.",
+        "source_sentence_id": "s40",
+        "symbol_id": null
+      },
+      {
+        "id": "L47",
+        "text": "Maybe you want advice from Citizens Advice or the Money Advice Service.",
         "source_sentence_id": "s41",
         "symbol_id": null
       },
       {
-        "id": "L15",
-        "text": "Maybe you have any questions.",
-        "source_sentence_id": "s42",
-        "symbol_id": null
-      },
-      {
-        "id": "L16",
-        "text": "Then please contact us using our contact form.",
-        "source_sentence_id": "s42",
-        "symbol_id": "9173"
-      },
-      {
-        "id": "L17",
-        "text": "Or call us on the phone number shown above.",
-        "source_sentence_id": "s42",
-        "symbol_id": "2791"
-      },
-      {
-        "id": "L18",
-        "text": "Always remember to tell us your account reference.",
-        "source_sentence_id": "s43",
-        "symbol_id": null
-      },
-      {
         "id": "L48",
-        "text": "You must tell us your account reference when you contact us.",
-        "source_sentence_id": "s43",
-        "symbol_id": null
-      },
-      {
-        "id": "L19",
-        "text": "Sign up now.",
-        "source_sentence_id": "s44",
+        "text": "Then you may also want to seek advice.",
+        "source_sentence_id": "s41",
         "symbol_id": null
       },
       {
         "id": "L49",
-        "text": "Or call us on 01842 756 567.",
+        "text": "Maybe you have any questions about this notice.",
+        "source_sentence_id": "s42",
+        "symbol_id": null
+      },
+      {
+        "id": "L50",
+        "text": "Then please contact us using our contact form.",
+        "source_sentence_id": "s42",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L51",
+        "text": "Then call us on the phone number shown above.",
+        "source_sentence_id": "s42",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L52",
+        "text": "Always remember to tell us your account reference when you contact us.",
+        "source_sentence_id": "s43",
+        "symbol_id": "38971"
+      },
+      {
+        "id": "L53",
+        "text": "Sign up now at or by calling us on 01842 756 567.",
         "source_sentence_id": "s44",
         "symbol_id": "2791"
       },
       {
-        "id": "L20",
-        "text": "We will protect your personal data under the UK General Data Protection Regulation.",
+        "id": "L54",
+        "text": "Any personal information shared with us about your Council Tax bill will be processed.",
         "source_sentence_id": "s45",
         "symbol_id": null
       },
       {
-        "id": "L60",
-        "text": "We will also protect it under the Data Protection Act 2018.",
+        "id": "L127",
+        "text": "Then we will protect it.",
+        "source_sentence_id": "s45",
+        "symbol_id": null
+      },
+      {
+        "id": "L128",
+        "text": "Then we will get rid of it when it is no longer needed.",
+        "source_sentence_id": "s45",
+        "symbol_id": null
+      },
+      {
+        "id": "L129",
+        "text": "This follows the UK General Data Protection Regulation and the Data Protection Act 2018.",
         "source_sentence_id": "s45",
         "symbol_id": "11473"
       },
       {
-        "id": "L21",
-        "text": "We may share your Council Tax information where the law requires us to.",
+        "id": "L55",
+        "text": "The council will get rid of personal information after it is no longer needed.",
+        "source_sentence_id": "s45",
+        "symbol_id": null
+      },
+      {
+        "id": "L56",
+        "text": "The council may share your Council Tax information.",
+        "source_sentence_id": "s46",
+        "symbol_id": "15361"
+      },
+      {
+        "id": "L57",
+        "text": "The council may share your data when the law requires it.",
         "source_sentence_id": "s46",
         "symbol_id": "11473"
       },
       {
-        "id": "L22",
-        "text": "We may use your data for electoral registration (adding you to the voter list).",
+        "id": "L58",
+        "text": "The council may share it with auditors, people who check the council's accounts.",
+        "source_sentence_id": "s46",
+        "symbol_id": "39622"
+      },
+      {
+        "id": "L59",
+        "text": "The council may share it for statistical analysis.",
+        "source_sentence_id": "s46",
+        "symbol_id": "32112"
+      },
+      {
+        "id": "L60",
+        "text": "The council may share it to prevent fraud, lying to get money.",
+        "source_sentence_id": "s46",
+        "symbol_id": null
+      },
+      {
+        "id": "L61",
+        "text": "The council may use your data for voting registration.",
         "source_sentence_id": "s47",
         "symbol_id": "6631"
       },
       {
-        "id": "L61",
-        "text": "This does not mean you will be automatically registered to vote.",
+        "id": "L62",
+        "text": "You will not be automatically added to the voter list.",
         "source_sentence_id": "s47",
-        "symbol_id": "9901"
+        "symbol_id": null
       },
       {
-        "id": "L50",
-        "text": "You will not automatically register yourself.",
-        "source_sentence_id": "s47",
-        "symbol_id": "9901"
-      },
-      {
-        "id": "L23",
+        "id": "L63",
         "text": "For more information go to.",
         "source_sentence_id": "s48",
         "symbol_id": null
       },
       {
-        "id": "L24",
-        "text": "We accept debit and credit card payments 365 days of the year.",
+        "id": "L64",
+        "text": "Visit angliarevenues.gov.uk/eastcambridgeshire.",
+        "source_sentence_id": "s49",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L65",
+        "text": "The council accepts debit and credit card payments 365 days a year.",
         "source_sentence_id": "s50",
         "symbol_id": "17208"
       },
       {
-        "id": "L25",
+        "id": "L66",
         "text": "Go to pay online any day, any time.",
         "source_sentence_id": "s51",
         "symbol_id": "2487"
       },
       {
-        "id": "L51",
-        "text": "Or call.",
+        "id": "L67",
+        "text": "Call the council.",
         "source_sentence_id": "s51",
         "symbol_id": "2791"
       },
       {
-        "id": "L26",
-        "text": "Call 0300 456 0692 to use the 24 hour phone payment line.",
+        "id": "L68",
+        "text": "Call 0300 456 0692.",
         "source_sentence_id": "s52",
         "symbol_id": "2791"
       },
       {
-        "id": "L62",
-        "text": "The line is automated, meaning it is done by a computer.",
+        "id": "L69",
+        "text": "The line works 24 hour automated.",
         "source_sentence_id": "s52",
-        "symbol_id": "2487"
+        "symbol_id": "2791"
       },
       {
-        "id": "L27",
-        "text": "You will need your credit or debit card and your Council Tax account reference from the front of this bill.",
+        "id": "L70",
+        "text": "You need your credit or debit card.",
         "source_sentence_id": "s53",
         "symbol_id": "17208"
       },
       {
-        "id": "L52",
-        "text": "You will need your Council Tax account reference from the front of this bill.",
+        "id": "L71",
+        "text": "You need your Council Tax account reference from the front of this bill.",
         "source_sentence_id": "s53",
+        "symbol_id": "2398"
+      },
+      {
+        "id": "L72",
+        "text": "Visit angliarevenues.gov.uk/eastcambridgeshire.",
+        "source_sentence_id": "s54",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L73",
+        "text": "Visit www.eastcambs.gov.uk/notices/privacy-notice.",
+        "source_sentence_id": "s55",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L74",
+        "text": "Do it online at angliarevenues.gov.uk/eastcambridgeshire.",
+        "source_sentence_id": "s56",
+        "symbol_id": "2487"
+      },
+      {
+        "id": "L75",
+        "text": "More than 80% of people pay Council Tax by Direct Debit.",
+        "source_sentence_id": "s57",
         "symbol_id": null
       },
       {
-        "id": "L28",
-        "text": "You can also pay by post. Send cheques to East Cambridgeshire District Council, The Grange, Nutholt Lane, Ely, Cambs, CB7 4EE.",
+        "id": "L76",
+        "text": "Direct Debit (DD) is the UK’s favourite way to pay bills.",
+        "source_sentence_id": "s57",
+        "symbol_id": "4630"
+      },
+      {
+        "id": "L77",
+        "text": "The Direct Debit Guarantee protects you if there is an error.",
+        "source_sentence_id": "s57",
+        "symbol_id": null
+      },
+      {
+        "id": "L78",
+        "text": "You can manage your Council Tax account at a time that suits you.",
+        "source_sentence_id": "s57",
+        "symbol_id": null
+      },
+      {
+        "id": "L79",
+        "text": "Direct Debit helps save trees and reduce carbon.",
+        "source_sentence_id": "s57",
+        "symbol_id": "2256"
+      },
+      {
+        "id": "L80",
+        "text": "Send cheques by post to East Cambridgeshire District Council, The Grange, Nutholt Lane, Ely, Cambs, CB7 4EE.",
         "source_sentence_id": "s58",
-        "symbol_id": "32540"
+        "symbol_id": "6963"
       },
       {
-        "id": "L29",
-        "text": "You must quote your Council Tax account reference on the back of your cheque.",
+        "id": "L81",
+        "text": "You must quote your Council Tax account reference as shown on the front of this bill on the back of your cheque.",
         "source_sentence_id": "s59",
-        "symbol_id": "16605"
+        "symbol_id": "5995"
       },
       {
-        "id": "L30",
-        "text": "Maybe you fall behind.",
+        "id": "L82",
+        "text": "You may be behind with your Council Tax payments.",
+        "source_sentence_id": "s60",
+        "symbol_id": "35449"
+      },
+      {
+        "id": "L83",
+        "text": "Maybe you fall behind with your Council Tax payments.",
+        "source_sentence_id": "s61",
+        "symbol_id": "5995"
+      },
+      {
+        "id": "L84",
+        "text": "Then you may lose the right to pay by smaller payments.",
         "source_sentence_id": "s61",
         "symbol_id": null
       },
       {
-        "id": "L31",
-        "text": "You may lose the right to pay by smaller payments.",
+        "id": "L85",
+        "text": "Then the council may ask you to pay all you owe straight away.",
         "source_sentence_id": "s61",
+        "symbol_id": "9014"
+      },
+      {
+        "id": "L86",
+        "text": "Then the council may take you to court.",
+        "source_sentence_id": "s61",
+        "symbol_id": "8147"
+      },
+      {
+        "id": "L87",
+        "text": "Tell us if you miss a payment.",
+        "source_sentence_id": "s62",
         "symbol_id": "16017"
       },
       {
-        "id": "L53",
-        "text": "Then you may have to pay all you owe straight away.",
-        "source_sentence_id": "s61",
-        "symbol_id": "4630"
+        "id": "L88",
+        "text": "We will try to help you stay in control of your bill.",
+        "source_sentence_id": "s63",
+        "symbol_id": "5995"
       },
       {
-        "id": "L32",
-        "text": "Tell us if you miss a payment.",
-        "source_sentence_id": "s62",
-        "symbol_id": "2791"
-      },
-      {
-        "id": "L33",
+        "id": "L89",
         "text": "Help with managing debt is also available at MoneyHelper.",
         "source_sentence_id": "s64",
-        "symbol_id": "4630"
+        "symbol_id": null
       },
       {
-        "id": "L34",
-        "text": "moneyhelper.org.uk/en",
+        "id": "L90",
+        "text": "To see if you are entitled to Council Tax support, go to.",
+        "source_sentence_id": "s65",
+        "symbol_id": "30008"
+      },
+      {
+        "id": "L91",
+        "text": "moneyhelper.org.uk/en.",
         "source_sentence_id": "s66",
         "symbol_id": null
       },
       {
-        "id": "L35",
-        "text": "Maybe you move home.",
+        "id": "L92",
+        "text": "Moving home may affect your Council Tax bill.",
         "source_sentence_id": "s67",
         "symbol_id": null
       },
       {
-        "id": "L36",
-        "text": "Then tell us as soon as you can at angliarevenues.gov.uk/eccontactus.",
+        "id": "L93",
+        "text": "People moving in or out may affect your Council Tax bill.",
         "source_sentence_id": "s67",
-        "symbol_id": "9861"
+        "symbol_id": null
       },
       {
-        "id": "L37",
-        "text": "You can pay your Council Tax in 12 smaller payments from April to March.",
+        "id": "L94",
+        "text": "You need to tell the council as soon as you can at angliarevenues.gov.uk/eccontactus.",
+        "source_sentence_id": "s67",
+        "symbol_id": null
+      },
+      {
+        "id": "L95",
+        "text": "Council Tax instalments.",
+        "source_sentence_id": "s68",
+        "symbol_id": "35449"
+      },
+      {
+        "id": "L96",
+        "text": "You can pay your Council Tax in 12 monthly instalments from April to March.",
         "source_sentence_id": "s69",
-        "symbol_id": "16017"
+        "symbol_id": "35449"
       },
       {
-        "id": "L38",
-        "text": "Maybe you wish to change to 12 smaller payments.",
+        "id": "L97",
+        "text": "You must tell the council if you wish to change to 12 monthly instalments.",
+        "source_sentence_id": "s70",
+        "symbol_id": "35449"
+      },
+      {
+        "id": "L98",
+        "text": "You must provide your Council Tax account reference.",
         "source_sentence_id": "s70",
         "symbol_id": null
       },
       {
-        "id": "L39",
-        "text": "Let us know your Council Tax account reference.",
-        "source_sentence_id": "s70",
-        "symbol_id": null
-      },
-      {
-        "id": "L40",
-        "text": "angliarevenues.gov.uk/contact",
+        "id": "L99",
+        "text": "angliarevenues.gov.uk/contact.",
         "source_sentence_id": "s71",
         "symbol_id": null
       },
       {
-        "id": "L58",
+        "id": "L100",
+        "text": "Council Tax information.",
+        "source_sentence_id": "s72",
+        "symbol_id": "35449"
+      },
+      {
+        "id": "L101",
+        "text": "Other ways to pay your Council Tax.",
+        "source_sentence_id": "s73",
+        "symbol_id": "35449"
+      },
+      {
+        "id": "L102",
+        "text": "Maybe you move home.",
+        "source_sentence_id": "s74",
+        "symbol_id": null
+      },
+      {
+        "id": "L103",
+        "text": "Then tell the council.",
+        "source_sentence_id": "s74",
+        "symbol_id": null
+      },
+      {
+        "id": "L104",
+        "text": "Maybe your circumstances change.",
+        "source_sentence_id": "s75",
+        "symbol_id": "28833"
+      },
+      {
+        "id": "L105",
+        "text": "Then tell the council.",
+        "source_sentence_id": "s75",
+        "symbol_id": null
+      },
+      {
+        "id": "L106",
         "text": "Let us know.",
         "source_sentence_id": "s76",
         "symbol_id": null
       },
       {
-        "id": "L41",
-        "text": "Maybe your smaller payments change.",
+        "id": "L107",
+        "text": "Data Protection and Data Sharing.",
+        "source_sentence_id": "s77",
+        "symbol_id": null
+      },
+      {
+        "id": "L108",
+        "text": "Phone calls from a BT landline are charged at the local rate.",
+        "source_sentence_id": "s78",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L109",
+        "text": "Charges may vary for other operators and mobile phones.",
+        "source_sentence_id": "s79",
+        "symbol_id": "2791"
+      },
+      {
+        "id": "L110",
+        "text": "Maybe your instalments change.",
         "source_sentence_id": "s80",
         "symbol_id": null
       },
       {
-        "id": "L42",
-        "text": "Then we must give you 14 days notice.",
+        "id": "L130",
+        "text": "Then we are required to give you 14 days notice.",
         "source_sentence_id": "s80",
-        "symbol_id": "32488"
+        "symbol_id": null
       },
       {
-        "id": "L43",
+        "id": "L111",
+        "text": "A missed instalment may affect later instalments.",
+        "source_sentence_id": "s81",
+        "symbol_id": null
+      },
+      {
+        "id": "L112",
         "text": "Go paperless.",
         "source_sentence_id": "s82",
         "symbol_id": "2398"
       },
       {
-        "id": "L44",
-        "text": "Sign up today to receive your bill by email or online.",
+        "id": "L113",
+        "text": "Sign up today to receive your bill electronically.",
         "source_sentence_id": "s83",
-        "symbol_id": "27355"
+        "symbol_id": "5995"
       },
       {
-        "id": "L45",
-        "text": "Tell your bank to make the payment at least 7 days before the due date.",
-        "source_sentence_id": "s89",
-        "symbol_id": "3062"
-      },
-      {
-        "id": "L63",
-        "text": "Give your Council Tax account reference XXXXXXXXX as the payment reference.",
-        "source_sentence_id": "s89",
+        "id": "L114",
+        "text": "Visit angliarevenues.gov.uk/eastcambridgeshire to make the switch today.",
+        "source_sentence_id": "s84",
         "symbol_id": null
       },
       {
-        "id": "L64",
-        "text": "Pay East Cambridgeshire District Council, sort code 52-41-19, account number 43136052.",
-        "source_sentence_id": "s89",
+        "id": "L115",
+        "text": "angliarevenues.gov.uk/eastcambridgeshire.",
+        "source_sentence_id": "s85",
+        "symbol_id": null
+      },
+      {
+        "id": "L116",
+        "text": "Set up a Direct Debit.",
+        "source_sentence_id": "s86",
         "symbol_id": "4630"
       },
       {
-        "id": "L54",
-        "text": "Give your Council Tax account reference as the payment reference.",
-        "source_sentence_id": "s89",
+        "id": "L131",
+        "text": "Then you will not forget to pay your Council Tax bill again.",
+        "source_sentence_id": "s86",
+        "symbol_id": "5995"
+      },
+      {
+        "id": "L117",
+        "text": "Online banking payments.",
+        "source_sentence_id": "s87",
+        "symbol_id": "3062"
+      },
+      {
+        "id": "L118",
+        "text": "Maybe you choose online banking to pay.",
+        "source_sentence_id": "s88",
+        "symbol_id": "3062"
+      },
+      {
+        "id": "L119",
+        "text": "Then you must:",
+        "source_sentence_id": "s88",
         "symbol_id": null
       },
       {
-        "id": "L55",
-        "text": "Pay East Cambridgeshire District Council, sort code 52-41-19, account number 43136052.",
+        "id": "L120",
+        "text": "Tell your bank to make the payment at least 7 days earlier than the due date.",
         "source_sentence_id": "s89",
         "symbol_id": "3062"
       },
       {
-        "id": "L46",
+        "id": "L121",
+        "text": "Give your Council Tax account reference of XXXXXXXXX as the payment reference.",
+        "source_sentence_id": "s89",
+        "symbol_id": null
+      },
+      {
+        "id": "L122",
         "text": "Pay East Cambridgeshire District Council, sort code 52-41-19, account number 43136052.",
         "source_sentence_id": "s89",
         "symbol_id": "3062"
@@ -1317,74 +1719,132 @@
         "rule": "P2",
         "passed": false,
         "line_ids": [
-          "L27"
+          "L124",
+          "L125",
+          "L80",
+          "L81",
+          "L120"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L27 has a sentence of 20 words (limit 15)"
+          "L124 has a sentence of 16 words (limit 15)",
+          "L125 has a sentence of 17 words (limit 15)",
+          "L80 has a sentence of 17 words (limit 15)",
+          "L81 has a sentence of 22 words (limit 15)",
+          "L120 has a sentence of 16 words (limit 15)"
         ]
       },
       {
         "rule": "P3",
         "passed": false,
         "line_ids": [
-          "L48",
-          "L61",
-          "L62"
+          "L52",
+          "L128",
+          "L55",
+          "L57",
+          "L77",
+          "L87",
+          "L90",
+          "L94",
+          "L97"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L48 has a sentence with 2 main clauses (limit 1)",
-          "L61 has a sentence with 2 main clauses (limit 1)",
-          "L62 has a sentence with 2 main clauses (limit 1)"
+          "L52 has a sentence with 2 main clauses (limit 1)",
+          "L128 has a sentence with 2 main clauses (limit 1)",
+          "L55 has a sentence with 2 main clauses (limit 1)",
+          "L57 has a sentence with 2 main clauses (limit 1)",
+          "L77 has a sentence with 2 main clauses (limit 1)",
+          "L87 has a sentence with 2 main clauses (limit 1)",
+          "L90 has a sentence with 2 main clauses (limit 1)",
+          "L94 has a sentence with 2 main clauses (limit 1)",
+          "L97 has a sentence with 2 main clauses (limit 1)"
         ]
       },
       {
         "rule": "P4",
         "passed": false,
         "line_ids": [
-          "L61",
-          "L62"
+          "L54",
+          "L128",
+          "L55",
+          "L62",
+          "L108",
+          "L130"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L61 uses the passive voice",
-          "L62 uses the passive voice"
+          "L54 uses the passive voice",
+          "L128 uses the passive voice",
+          "L55 uses the passive voice",
+          "L62 uses the passive voice",
+          "L108 uses the passive voice",
+          "L130 uses the passive voice"
         ]
       },
       {
         "rule": "P5",
         "passed": false,
         "line_ids": [
-          "L9",
+          "L19",
           "L22",
-          "L62"
+          "L58",
+          "L59",
+          "L60",
+          "L69",
+          "L95",
+          "L96",
+          "L97",
+          "L108",
+          "L110",
+          "L111",
+          "L113"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L9 has 1 words that are not common and not explained",
+          "L19 has 1 words that are not common and not explained",
           "L22 has 1 words that are not common and not explained",
-          "L62 has 1 words that are not common and not explained"
+          "L58 has 1 words that are not common and not explained",
+          "L59 has 1 words that are not common and not explained",
+          "L60 has 1 words that are not common and not explained",
+          "L69 has 1 words that are not common and not explained",
+          "L95 has 1 words that are not common and not explained",
+          "L96 has 1 words that are not common and not explained",
+          "L97 has 1 words that are not common and not explained",
+          "L108 has 1 words that are not common and not explained",
+          "L110 has 1 words that are not common and not explained",
+          "L111 has 2 words that are not common and not explained",
+          "L113 has 1 words that are not common and not explained"
         ]
       },
       {
         "rule": "P6",
-        "passed": true,
-        "line_ids": [],
+        "passed": false,
+        "line_ids": [
+          "L124"
+        ],
         "failed_fact_ids": [],
-        "details": []
+        "details": [
+          "L124 has 1 numbers written in words"
+        ]
       },
       {
         "rule": "P7",
         "passed": false,
         "line_ids": [
-          "L20",
-          "L63"
+          "L27",
+          "L33",
+          "L129",
+          "L76",
+          "L108"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L20 has 1 abbreviations that are not explained",
-          "L63 has 1 abbreviations that are not explained"
+          "L27 has 1 abbreviations that are not explained",
+          "L33 has 1 abbreviations that are not explained",
+          "L129 has 1 abbreviations that are not explained",
+          "L76 has 1 abbreviations that are not explained",
+          "L108 has 1 abbreviations that are not explained"
         ]
       },
       {
@@ -1398,53 +1858,25 @@
         "rule": "P9",
         "passed": false,
         "line_ids": [
-          "L1",
-          "L59",
-          "L2",
-          "L47",
-          "L7",
-          "L19",
-          "L49",
-          "L20",
-          "L60",
-          "L22",
-          "L61",
-          "L50",
-          "L25",
-          "L51",
-          "L52",
-          "L39",
-          "L45",
-          "L63",
-          "L64",
-          "L54",
           "L55",
-          "L46"
+          "L69",
+          "L82",
+          "L90",
+          "L102",
+          "L104",
+          "L111",
+          "L114"
         ],
         "failed_fact_ids": [],
         "details": [
-          "L1 meaning: Leaves out 'you now owe £XXX.XX' which other lines cover.",
-          "L59 meaning: Leaves out 'you have not paid on time' which other lines cover.",
-          "L2 meaning: Leaves out 'you have not paid on time' which other lines cover.",
-          "L47 meaning: Leaves out 'on time' and 'you now owe £XXX.XX' from source.",
-          "L7 meaning: Omits 'using one of the methods shown' from source.",
-          "L19 meaning: Omits 'by calling us on 01842 756 567' from source.",
-          "L49 meaning: Omits 'sign up now at' from source.",
-          "L20 meaning: Leaves out 'processed, protected and disposed of' and 'Data Protection Act 2018'.",
-          "L60 meaning: Leaves out 'processed, protected and disposed of' and 'UK General Data Protection Regulation'.",
-          "L22 meaning: Leaves out 'this does not mean you will be automatically registered to vote'.",
-          "L61 meaning: Leaves out 'We may use your data for electoral registration'.",
-          "L50 meaning: Leaves out 'We may use your data for electoral registration'.",
-          "L25 meaning: Omits 'or call' and phone number from source.",
-          "L51 meaning: Omits 'Go to to pay online' from source.",
-          "L52 meaning: Leaves out 'You will need your credit or debit card'.",
-          "L39 meaning: Leaves out 'if you wish to change to 12 monthly instalments'.",
-          "L45 meaning: Omits 'give your Council Tax account reference' and bank details.",
-          "L63 meaning: Omits 'at least 7 days earlier than the due date' and bank details.",
-          "L64 meaning: Omits 'tell your bank' and payment timing instructions.",
-          "L54 meaning: Omits 'at least 7 days earlier' and bank details.",
-          "L55 meaning: Omits 'tell your bank' and payment timing instructions.",
-          "L46 meaning: Omits 'tell your bank' and payment timing instructions."
+          "L55 meaning: Says the council will get rid of information, but source says it will be disposed of in accordance with law.",
+          "L69 meaning: Says the line works 24 hour automated, but source says it is a 24 hour automated phone payment line.",
+          "L82 meaning: Says 'may be' instead of stating the question directly.",
+          "L90 meaning: Leaves out where to go.",
+          "L102 meaning: Rephrases question as uncertain statement.",
+          "L104 meaning: Rephrases question as uncertain statement.",
+          "L111 meaning: Says 'a missed instalment' instead of 'an instalment is missed'.",
+          "L114 meaning: Adds 'Visit' and 'to', changes structure."
         ]
       },
       {
@@ -1576,283 +2008,271 @@
     ],
     "lineFacts": [
       {
-        "line_id": "L56",
+        "line_id": "L4",
+        "fact_id": "k1",
+        "start": 0,
+        "end": 45
+      },
+      {
+        "line_id": "L5",
+        "fact_id": "k2",
+        "start": 10,
+        "end": 22
+      },
+      {
+        "line_id": "L10",
         "fact_id": "k3",
         "start": 0,
         "end": 18
       },
       {
-        "line_id": "L57",
+        "line_id": "L13",
         "fact_id": "k4",
         "start": 0,
         "end": 15
       },
       {
-        "line_id": "L4",
+        "line_id": "L16",
+        "fact_id": "k5",
+        "start": 0,
+        "end": 18
+      },
+      {
+        "line_id": "L38",
         "fact_id": "k6",
         "start": 0,
         "end": 32
       },
       {
-        "line_id": "L6",
+        "line_id": "L124",
         "fact_id": "k7",
         "start": 0,
-        "end": 46
+        "end": 37
       },
       {
-        "line_id": "L6",
+        "line_id": "L124",
         "fact_id": "k8",
+        "start": 24,
+        "end": 37
+      },
+      {
+        "line_id": "L43",
+        "fact_id": "k9",
+        "start": 19,
+        "end": 55
+      },
+      {
+        "line_id": "L43",
+        "fact_id": "k10",
         "start": 40,
         "end": 46
       },
       {
-        "line_id": "L7",
-        "fact_id": "k7",
-        "start": 0,
-        "end": 32
-      },
-      {
-        "line_id": "L7",
-        "fact_id": "k8",
-        "start": 19,
-        "end": 32
-      },
-      {
-        "line_id": "L10",
-        "fact_id": "k9",
-        "start": 14,
-        "end": 50
-      },
-      {
-        "line_id": "L10",
-        "fact_id": "k10",
-        "start": 35,
-        "end": 41
-      },
-      {
-        "line_id": "L12",
+        "line_id": "L45",
         "fact_id": "k11",
-        "start": 0,
-        "end": 33
+        "start": 14,
+        "end": 36
       },
       {
-        "line_id": "L13",
+        "line_id": "L46",
         "fact_id": "k12",
         "start": 0,
         "end": 26
       },
       {
-        "line_id": "L13",
+        "line_id": "L46",
         "fact_id": "k13",
         "start": 14,
         "end": 26
       },
       {
-        "line_id": "L16",
+        "line_id": "L50",
         "fact_id": "k14",
         "start": 0,
         "end": 22
       },
       {
-        "line_id": "L17",
+        "line_id": "L51",
         "fact_id": "k14",
-        "start": 3,
-        "end": 42
+        "start": 0,
+        "end": 44
       },
       {
-        "line_id": "L18",
+        "line_id": "L52",
         "fact_id": "k16",
         "start": 0,
-        "end": 49
+        "end": 69
       },
       {
-        "line_id": "L48",
-        "fact_id": "k11",
-        "start": 0,
-        "end": 39
-      },
-      {
-        "line_id": "L19",
+        "line_id": "L53",
         "fact_id": "k17",
         "start": 0,
-        "end": 11
+        "end": 48
       },
       {
-        "line_id": "L49",
-        "fact_id": "k1",
-        "start": 3,
-        "end": 27
-      },
-      {
-        "line_id": "L49",
+        "line_id": "L53",
         "fact_id": "k18",
-        "start": 14,
-        "end": 27
+        "start": 35,
+        "end": 48
       },
       {
-        "line_id": "L60",
+        "line_id": "L129",
         "fact_id": "k19",
-        "start": 54,
-        "end": 58
+        "start": 83,
+        "end": 87
       },
       {
-        "line_id": "L23",
+        "line_id": "L63",
         "fact_id": "k20",
         "start": 0,
         "end": 26
       },
       {
-        "line_id": "L24",
+        "line_id": "L65",
         "fact_id": "k21",
-        "start": 41,
-        "end": 49
+        "start": 51,
+        "end": 59
       },
       {
-        "line_id": "L25",
+        "line_id": "L66",
         "fact_id": "k22",
         "start": 0,
         "end": 34
       },
       {
-        "line_id": "L51",
+        "line_id": "L67",
         "fact_id": "k23",
-        "start": 3,
-        "end": 7
+        "start": 0,
+        "end": 16
       },
       {
-        "line_id": "L26",
+        "line_id": "L68",
         "fact_id": "k1",
         "start": 0,
-        "end": 56
+        "end": 18
       },
       {
-        "line_id": "L26",
+        "line_id": "L68",
         "fact_id": "k24",
         "start": 5,
         "end": 18
       },
       {
-        "line_id": "L26",
+        "line_id": "L69",
         "fact_id": "k25",
-        "start": 30,
-        "end": 37
+        "start": 15,
+        "end": 22
       },
       {
-        "line_id": "L28",
+        "line_id": "L80",
         "fact_id": "k26",
-        "start": 26,
-        "end": 125
+        "start": 0,
+        "end": 107
       },
       {
-        "line_id": "L28",
+        "line_id": "L80",
         "fact_id": "k27",
-        "start": 118,
-        "end": 125
+        "start": 100,
+        "end": 107
       },
       {
-        "line_id": "L29",
+        "line_id": "L81",
         "fact_id": "k28",
         "start": 0,
-        "end": 76
+        "end": 49
       },
       {
-        "line_id": "L53",
+        "line_id": "L85",
         "fact_id": "k29",
-        "start": 18,
-        "end": 50
+        "start": 29,
+        "end": 61
       },
       {
-        "line_id": "L32",
+        "line_id": "L87",
         "fact_id": "k30",
         "start": 0,
         "end": 29
       },
       {
-        "line_id": "L36",
+        "line_id": "L90",
+        "fact_id": "k31",
+        "start": 51,
+        "end": 56
+      },
+      {
+        "line_id": "L94",
         "fact_id": "k32",
-        "start": 0,
-        "end": 68
+        "start": 9,
+        "end": 84
       },
       {
-        "line_id": "L37",
+        "line_id": "L96",
         "fact_id": "k33",
-        "start": 57,
-        "end": 71
+        "start": 60,
+        "end": 74
       },
       {
-        "line_id": "L39",
-        "fact_id": "k34",
+        "line_id": "L97",
+        "fact_id": "k11",
         "start": 0,
-        "end": 46
+        "end": 25
       },
       {
-        "line_id": "L58",
+        "line_id": "L103",
+        "fact_id": "k11",
+        "start": 0,
+        "end": 21
+      },
+      {
+        "line_id": "L105",
+        "fact_id": "k11",
+        "start": 0,
+        "end": 21
+      },
+      {
+        "line_id": "L106",
         "fact_id": "k34",
         "start": 0,
         "end": 11
       },
       {
-        "line_id": "L42",
+        "line_id": "L130",
         "fact_id": "k35",
-        "start": 22,
-        "end": 29
+        "start": 33,
+        "end": 40
       },
       {
-        "line_id": "L43",
+        "line_id": "L112",
         "fact_id": "k36",
         "start": 0,
         "end": 12
       },
       {
-        "line_id": "L44",
+        "line_id": "L113",
         "fact_id": "k37",
         "start": 0,
         "end": 13
       },
       {
-        "line_id": "L45",
+        "line_id": "L120",
         "fact_id": "k38",
         "start": 0,
-        "end": 70
+        "end": 76
       },
       {
-        "line_id": "L45",
+        "line_id": "L120",
         "fact_id": "k39",
         "start": 44,
         "end": 50
       },
       {
-        "line_id": "L64",
+        "line_id": "L122",
         "fact_id": "k40",
         "start": 52,
         "end": 60
       },
       {
-        "line_id": "L64",
-        "fact_id": "k41",
-        "start": 77,
-        "end": 85
-      },
-      {
-        "line_id": "L55",
-        "fact_id": "k40",
-        "start": 52,
-        "end": 60
-      },
-      {
-        "line_id": "L55",
-        "fact_id": "k41",
-        "start": 77,
-        "end": 85
-      },
-      {
-        "line_id": "L46",
-        "fact_id": "k40",
-        "start": 52,
-        "end": 60
-      },
-      {
-        "line_id": "L46",
+        "line_id": "L122",
         "fact_id": "k41",
         "start": 77,
         "end": 85
