@@ -440,6 +440,18 @@ def test_action_stops_where_a_joined_verb_clause_starts() -> None:
     ]
 
 
+def test_amount_tagged_as_a_verb_stays_in_the_action() -> None:
+    """Regression (Hypothesis, 12 November 2026): spaCy tagged "84,811.60" as
+    a verb heading an "advcl", so the first action lost its amount and date,
+    and swapping dates between the 2 payments passed P1."""
+    text = "You must pay £84,811.60 by 1 January 2020 and you must pay £1 by 2 January 2020."
+    actions = [f.normalised for f in extract_key_facts(text) if f.type == "action"]
+    assert actions == [
+        "pay||date=2020-01-01,money=GBP 8481160",
+        "pay||date=2020-01-02,money=GBP 100",
+    ]
+
+
 def test_wrapped_action_keeps_its_object_and_date() -> None:
     """Regression: layout line breaks split wrapped prose, so "please
     contact\\nCitizens Advice" gave no action and "before\\n1 April 2026" lost

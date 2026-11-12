@@ -538,6 +538,10 @@ def _action_span(verb: Token) -> tuple[int, int]:
     joined_verb = any(c.dep_ == "conj" and c.pos_ in ("VERB", "AUX") for c in verb.children)
     cut = _dash_after(verb)
     for c in verb.children:
+        # spaCy sometimes tags an amount ("84,811.60") as a verb heading an
+        # "advcl". A number never starts a clause, so it stays in the action.
+        if c.dep_ == "advcl" and c.like_num:
+            continue
         if c.dep_ in ("conj", "cc", "advcl") or (c.dep_ == "punct" and c.i > verb.i):
             excluded.update(t.i for t in c.subtree)
         if joined_verb and c.dep_ in ("conj", "cc") and c.i > verb.i:
