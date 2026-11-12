@@ -16,11 +16,13 @@ it is used. A word token passes if any of these is true:
   its own is checked like any other word, so "Enforcement Agent" and
   "Committal Order" fail unless explained
 - it is part of the address lines just before a postcode that is in one of
-  the Original's address key facts: the capitalised words, numbers and
+  the Original's address key facts (`checks/address_lines.py`): the capitalised words, numbers and
   commas back to the first other word ("The Grange, Nutholt Lane, Ely, CB7
   4EE")
 - it is a single capital letter used as a label ("Band A")
 - it is a web or email address
+- it is a placeholder of 3 or more X's that the Original also has, such as
+  "£XXX.XX" in a template letter (see `p7_abbreviations.is_placeholder`)
 - it is an abbreviation in capitals; P7 checks those
 - it has been defined on first use (below)
 - it is joined by hyphens from common words. spaCy splits "cross-examine" at
@@ -55,9 +57,10 @@ from pathlib import Path
 
 from spacy.tokens import Span, Token
 
+from checks.address_lines import address_postcodes, address_words
 from checks.config import DEFINING_VERBS, NAME_ENTITY_LABELS, NAMES_FILE, WORDLIST_FILES
 from checks.models import CheckResult, KeyFact, Line
-from checks.p7_abbreviations import abbreviation_of
+from checks.p7_abbreviations import abbreviation_of, is_placeholder
 from checks.sentences import get_nlp
 
 WORDLIST_DIR = Path(__file__).parent / "wordlist"
@@ -72,8 +75,6 @@ _CONTRACTIONS = {"'ll": "will", "n't": "not", "'re": "be", "'ve": "have", "'d": 
 _CLITICS = frozenset({"'s", "'"})
 # What can follow "means" in a definition: "X means the money ...", "X means you ...".
 _MEANING_DEPS = frozenset({"dobj", "attr", "ccomp", "xcomp"})
-# A UK postcode, as P1's address key facts find it ("CB7 4EE").
-_POSTCODE = re.compile(r"(?i)\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[ABD-HJLNP-UW-Z]{2}\b")
 
 
 @lru_cache(maxsize=1)
@@ -98,38 +99,6 @@ def listed_names() -> frozenset[str]:
     """Names in `NAMES_FILE`, exactly as written there (see the file's comments)."""
     text = (WORDLIST_DIR / NAMES_FILE).read_text(encoding="utf-8")
     return frozenset(r.strip() for r in text.splitlines() if r.strip() and not r.lstrip().startswith("#"))
-
-
-def _address_postcodes(key_facts: list[KeyFact]) -> frozenset[str]:
-    """Postcodes of the Original's address key facts, upper case without spaces."""
-    return frozenset(
-        re.sub(r"\s", "", m.group()).upper()
-        for f in key_facts
-        if f.type == "address"
-        for m in _POSTCODE.finditer(f.value)
-    )
-
-
-def _address_words(sent: Span, postcodes: frozenset[str]) -> set[int]:
-    """Token indexes of the address lines before a key-fact postcode.
-
-    Walks back from the postcode over capitalised words, numbers and commas,
-    and stops at the first other word: in "Send it to The Grange, Nutholt
-    Lane, Ely, CB7 4EE." that is "to". P1 checks the postcode but not these
-    words, so a changed address part would go unnoticed.
-    """
-    found: set[int] = set()
-    for m in _POSTCODE.finditer(sent.text):
-        if re.sub(r"\s", "", m.group()).upper() not in postcodes:
-            continue
-        start = sent.start_char + m.start()
-        tokens = [t for t in sent if t.idx < start]
-        for token in reversed(tokens):
-            if token.text == "," or token.text[:1].isupper() or token.text[:1].isdigit():
-                found.add(token.i)
-            else:
-                break
-    return found
 
 
 def _key_fact_words(key_facts: list[KeyFact]) -> frozenset[str]:
@@ -215,12 +184,11 @@ def check_p5(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
     """Fail every line with a word that is not common and not yet defined.
 
     `key_facts` are the Original's key facts; their non-action words pass.
-    `original` is unused. It is kept so every checker has the same signature.
+    `original` is used only to pass placeholders copied from it ("£XXX.XX").
     """
-    del original
     words = common_words()
     fact_words = _key_fact_words(key_facts)
-    postcodes = _address_postcodes(key_facts)
+    postcodes = address_postcodes(key_facts)
     defined: set[str] = set()
     failing: list[str] = []
     details: list[str] = []
@@ -230,9 +198,11 @@ def check_p5(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
         for sent in doc.sents:
             for token in _defined_words(sent):
                 defined.update(_forms(token))
-            address = _address_words(sent, postcodes) if postcodes else set()
+            address = address_words(sent, postcodes) if postcodes else set()
             for token in sent:
                 if token.i in address or not _needs_checking(token, fact_words):
+                    continue
+                if is_placeholder(token, original):
                     continue
                 forms = _forms(token)
                 if forms & words or forms & defined or forms & _CLITICS or _common_parts(token, words):

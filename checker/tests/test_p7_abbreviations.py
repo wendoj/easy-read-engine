@@ -1,7 +1,7 @@
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from checks.models import Line
+from checks.models import KeyFact, Line
 from checks.p7_abbreviations import check_p7
 
 # All text here is invented. No real letters or personal data.
@@ -135,3 +135,49 @@ def test_references_and_postcodes_are_not_abbreviations() -> None:
 
 def test_no_lines_pass() -> None:
     assert check_p7("", [], []).passed
+
+
+def _address_fact(original: str, value: str) -> KeyFact:
+    start = original.index(value)
+    return KeyFact(
+        id="f1", type="address", value=value, normalised=value.replace(" ", ""),
+        start=start, end=start + len(value), sentence_id="s1",
+    )  # fmt: skip
+
+
+def test_address_lines_before_a_key_fact_postcode_pass() -> None:
+    """Regression (Bedrock samples, November 2026): a council address printed
+    "PO BOX 3" and the line that copied it failed P7. P5 already passes these
+    words; the model must not reword an address."""
+    original = "Write to PO BOX 3, Northbridge, NB1 9ZZ."
+    fact = _address_fact(original, "NB1 9ZZ")
+    assert check_p7(original, [fact], _lines(["Write to PO BOX 3, Northbridge, NB1 9ZZ."])).passed
+
+
+def test_capitals_away_from_a_key_fact_address_still_fail() -> None:
+    """Still fails: with no address key fact, a postcode that isn't one, or
+    capitals outside the address run."""
+    original = "Write to PO BOX 3, Northbridge, NB1 9ZZ."
+    line = "Write to PO BOX 3, Northbridge, NB1 9ZZ."
+    assert not check_p7(original, [], _lines([line])).passed
+    other = _address_fact("Write to LS1 4AB.", "LS1 4AB")
+    assert not check_p7(original, [other], _lines([line])).passed
+    fact = _address_fact(original, "NB1 9ZZ")
+    for text in ["You MUST write to PO BOX 3, NB1 9ZZ.", "The DWP is at NB1 9ZZ.", "PO BOX 3."]:
+        assert not check_p7(original, [fact], _lines([text])).passed, text
+
+
+def test_placeholder_copied_from_the_original_passes() -> None:
+    """Regression (Bedrock samples, November 2026): a template letter prints
+    "XXXXXXXXX" for the account reference, and the copied line failed P7."""
+    original = "Quote your reference XXXXXXXXX when you pay."
+    assert check_p7(original, [], _lines(["Give your reference XXXXXXXXX when you pay."])).passed
+
+
+def test_placeholder_not_in_the_original_fails() -> None:
+    """Still fails: a run of X's the Original lacks, 2 X's, and a real
+    abbreviation next to a copied placeholder."""
+    original = "Quote your reference XXXXXXXXX."
+    assert not check_p7(original, [], _lines(["Give the reference XXXXXX."])).passed
+    assert not check_p7("Box XX.", [], _lines(["Write to Box XX."])).passed
+    assert not check_p7(original, [], _lines(["Give PIP reference XXXXXXXXX."])).passed

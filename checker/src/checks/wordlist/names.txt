@@ -17,3 +17,6 @@ GOV.UK
 Inspector
 Inspectorate
 Manchester
+# The sender "East Cambridgeshire District Council", a county name spaCy did
+# not tag in the payee line of the Bedrock samples (November 2026).
+Cambridgeshire

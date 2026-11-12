@@ -21,14 +21,42 @@ abbreviation that has not been expanded yet, in that line or an earlier one.
 All-caps words used for emphasis ("You MUST pay") also fail; Easy Read
 doesn't use capitals for emphasis.
 
+Two kinds of capitals are copied from the letter, so they pass:
+- the address lines just before a postcode that is in one of the Original's
+  address key facts ("PO BOX 3, Manchester, M15 5BA"), the same run that P5
+  passes (`checks/address_lines.py`). The model must not reword an address
+- a placeholder of 3 or more X's that the Original also has ("XXXXXXXXX" for
+  an account reference in a template letter). It stands for a value, not a
+  word. A run of X's the Original doesn't have still fails
+
 This module never logs, and `details` hold line IDs and counts, never text (R7.4).
 """
 
+import re
+
 from spacy.tokens import Doc, Token
 
+from checks.address_lines import address_postcodes, address_words
 from checks.config import ABBREVIATION_LINK_WORDS, MIN_ABBREVIATION_LETTERS
 from checks.models import CheckResult, KeyFact, Line
 from checks.sentences import get_nlp
+
+# X's, with "." or "," between them ("XXX.XX", "XX,XXX"). At least 3 X's in all.
+_PLACEHOLDER = re.compile(r"(?i)x+(?:[.,]x+)*")
+
+
+def is_placeholder(token: Token, original: str) -> bool:
+    """True if `token` is a run of X's that also appears in `original`.
+
+    Template letters print "£XXX.XX" or "XXXXXXXXX" where a real letter has an
+    amount or a reference. "XX" alone and a run the Original lacks don't count.
+    """
+    text = token.text.strip("£$€.,")
+    return (
+        bool(_PLACEHOLDER.fullmatch(text))
+        and sum(c in "xX" for c in text) >= 3
+        and re.search(rf"(?<![\w.,]){re.escape(text)}(?![Xx]|[.,][Xx])", original) is not None
+    )
 
 
 def abbreviation_of(token: Token) -> str | None:
@@ -87,19 +115,25 @@ def is_expanded_here(token: Token, abbreviation: str) -> bool:
 def check_p7(original: str, key_facts: list[KeyFact], lines: list[Line]) -> CheckResult:
     """Fail every line that uses an abbreviation before it has been expanded.
 
-    `original` and `key_facts` are unused. They are kept so every checker has
-    the same signature.
+    `original` and `key_facts` are used only for the capitals copied from the
+    letter (module docstring): placeholders and address lines.
     """
-    del original, key_facts
+    postcodes = address_postcodes(key_facts)
     expanded: set[str] = set()
     failing: list[str] = []
     details: list[str] = []
     docs = get_nlp().pipe(line.text for line in lines)
     for line, doc in zip(lines, docs):
         unexplained = 0
+        address: set[int] = set()
+        if postcodes:
+            for sent in doc.sents:
+                address |= address_words(sent, postcodes)
         for token in doc:
             abbreviation = abbreviation_of(token)
             if abbreviation is None or abbreviation in expanded:
+                continue
+            if token.i in address or is_placeholder(token, original):
                 continue
             if is_expanded_here(token, abbreviation):
                 expanded.add(abbreviation)

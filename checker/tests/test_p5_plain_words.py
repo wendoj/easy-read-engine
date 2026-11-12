@@ -259,6 +259,23 @@ def test_address_words_need_a_key_fact_postcode() -> None:
         assert not check_p5("", [fact], _lines([text])).passed, text
 
 
+def test_placeholder_copied_from_the_original_passes() -> None:
+    """Regression (Bedrock samples, November 2026): a template letter prints
+    "£XXX.XX" for the amount, and the line that copied it failed P5."""
+    original = "You now owe £XXX.XX. Quote reference XXXXXXXXX."
+    assert check_p5(original, [], _lines(["You now owe £XXX.XX.", "Your reference is XXXXXXXXX."])).passed
+
+
+def test_placeholder_needs_to_be_in_the_original() -> None:
+    """Still fails: a run of X's the Original doesn't have, or fewer than 3 X's,
+    and a hard word next to a copied placeholder."""
+    original = "You now owe £XXX.XX."
+    for text in ["You now owe £XXXX.XX.", "You owe xxx money."]:
+        assert not check_p5(original, [], _lines([text])).passed, text
+    assert not check_p5("XX", [], _lines(["You owe XX in arrears."])).passed
+    assert not check_p5(original, [], _lines(["You owe £XXX.XX in arrears."])).passed
+
+
 def test_title_case_jargon_still_fails_next_to_listed_names() -> None:
     for text in [
         "The Planning Inspectorate can apply for a Committal Order.",
