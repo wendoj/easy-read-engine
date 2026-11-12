@@ -41,10 +41,15 @@ A checker compares your lines with the key-fact list. A changed or missing key f
 - **One idea.** Each sentence has 1 main verb. Split "and", "but", "because", "so", "if", "when" and "unless" clauses into separate lines. Do not start a line with "The letter says", "This means that" or "Please note that". These add a second clause. Write the fact itself.
   - Letter: "We have received your form and we will respond by 14 March 2026."
   - Lines: "The council got your form." and "The council will reply by 14 March 2026."
-- **"If" sentences.** Never write "If ..., ..." in 1 line. Write the condition as its own line, then start the result line with "Then". Keep "must", "can" and "not" exactly as the letter has them. An instruction stays an instruction: "please ignore" becomes "ignore", not "you can ignore".
+- **"If" sentences.** Never write "If ..., ..." in 1 line. Write the condition as its own line starting with "Maybe", then start the result line with "Then". A condition line without "Maybe" ("You do not pay.") states the condition as a fact. Keep "must", "can" and "not" exactly as the letter has them. An instruction stays an instruction: "please ignore" becomes "ignore", not "you can ignore".
   - Letter: "If you cannot pay, you must tell us." Lines: "Maybe you cannot pay." and "Then you must tell the council."
   - Letter: "If you have already paid, please ignore this letter." Lines: "Maybe you have already paid." and "Then ignore this letter."
   - Letter: "If you do not pay by 1 April 2026, we will take you to court." Lines: "Maybe you do not pay by 1 April 2026." and "Then the council will take you to court."
+- **"If" and "when" at the end.** These count as a second clause too. "If you can" becomes "if possible": "Please pay by direct debit if you can." becomes "Please pay by direct debit if possible." "As soon as you can" becomes "as soon as possible". Any other "if" or "when" at the end becomes a condition line:
+  - Letter: "Tell us if you miss a payment." Lines: "Maybe you miss a payment." and "Then tell the council."
+  - Letter: "You must quote your reference when you contact us." Lines: "Maybe you contact the council." and "Then you must give your account reference."
+- **"Then" only after "Maybe".** Start a line with "Then" only when the line before it starts with "Maybe". A list of steps does not use "Then".
+- **Name things.** Do not start a line with "It", "They" or "This" when the thing is named in another line. Name it again: "The council will reply." not "They will reply."
 - **"So" sentences.** Split them too: "Pay now so you do not pay more." becomes "You must pay now." and "Then you will not pay more."
 - **Headings and list items.** Turn each one into a full sentence with its own verb. Write its "if" part as a condition line too.
   - Letter: "Ways to pay". Line: "You can pay in different ways."
@@ -56,12 +61,15 @@ A checker compares your lines with the key-fact list. A changed or missing key f
   - Letter: "Payment must be received by 1 April 2026." Line: "The council must get your payment by 1 April 2026."
   - Letter: "A bill was issued on 3 March 2026." Line: "The council sent you a bill on 3 March 2026."
   - Letter: "This letter is addressed to the occupier." Line: "This letter is for the person who lives at this address."
+  - Letter: "The procedure is set out in the 2009 Regulations, as amended." Lines: "The 2009 rules say how the appeal works." and "These rules include later changes."
+  - Letter: "This line is automated." Line: "A computer answers this phone line."
+  - Letter: "Appeal reference: [Insert here]" (a blank in a template letter). Line: "The letter does not give the appeal reference." Never write "is not provided".
   - "You are required to" becomes "You must". "You are entitled to" becomes "You can get".
   - When "by" names a way of doing something, not a person, name who does it: "Your appeal will be decided by written comments." becomes "The council will decide your appeal from written comments."
 - **Plain words.** Use common, everyday words. If you must use a harder word, explain it the first time: "Your rent is the money you pay to live in your home."
   - Official letters are full of hard words. Swap them for plain words, or explain them once in their own line. For example: "arrears" becomes "money you owe". "Instalments" becomes "smaller amounts each month". "A summons is a letter that tells you to go to court." "The appellant is the person who made the appeal."
 - **Numbers as digits.** Write "3 weeks", not "three weeks". "one month" becomes "1 month".
-- **Abbreviations.** Write the full words the first time, with the short form in brackets: "Penalty Charge Notice (PCN)". Or do not use the short form. Do not write whole words in capital letters.
+- **Abbreviations.** Write the full words the first time, with the short form in brackets: "Penalty Charge Notice (PCN)". Or do not use the short form. Do not write whole words in capital letters: "You MUST quote your reference" becomes "You must quote your reference."
 - **Speak to the reader as "you".** Name the sender: "The council", "Your doctor". Never write "we", "us" or "our". Replace them with the sender's name.
 
 ### 4. Tone
