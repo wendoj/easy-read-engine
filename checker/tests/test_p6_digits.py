@@ -1,12 +1,10 @@
 from hypothesis import given, settings
 from hypothesis import strategies as st
+from strategies import text_lines
 
-from checks.models import Line
 from checks.p6_digits import check_p6
 
 # All text here is invented. No real letters or personal data.
-
-# --- generators --------------------------------------------------------------
 
 _UNITS = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
 _TEENS = ["ten", "eleven", "twelve", "thirteen", "fifteen", "eighteen", "nineteen"]
@@ -48,21 +46,11 @@ def _with_words(draw: st.DrawFn) -> str:
     return draw(st.sampled_from(_TEMPLATES)).format(n=draw(_number_words()), d=d)
 
 
-def _lines(texts: list[str]) -> list[Line]:
-    return [
-        Line(id=f"l{i}", text=t, source_sentence_id="s1", symbol_id=None)
-        for i, t in enumerate(texts, start=1)
-    ]
-
-
-# --- properties --------------------------------------------------------------
-
-
 @settings(max_examples=50, deadline=None)
 @given(st.lists(_with_digits(), min_size=1, max_size=5))
 def test_numbers_in_digits_pass(texts: list[str]) -> None:
     """**Validates: Requirements 3.1; P6**"""
-    result = check_p6("", [], _lines(texts))
+    result = check_p6("", [], text_lines(texts))
     assert result.rule == "P6"
     assert result.passed, result.details
     assert result.line_ids == []
@@ -74,18 +62,15 @@ def test_numbers_in_words_fail(rows: list[tuple[str, str, bool]], data: st.DataO
     """**Validates: Requirements 3.1; P6**"""
     flags = [f for _, _, f in rows]
     flags[data.draw(st.integers(min_value=0, max_value=len(rows) - 1))] = True
-    lines = _lines([words if f else digits for (digits, words, _), f in zip(rows, flags)])
+    lines = text_lines([words if f else digits for (digits, words, _), f in zip(rows, flags)])
     result = check_p6("", [], lines)
     assert not result.passed
     assert result.line_ids == [line.id for line, f in zip(lines, flags) if f]
 
 
-# --- checker-must-fail cases and examples ------------------------------------
-
-
 def test_spelled_out_number_fails() -> None:
     """Checker-must-fail case from the Easy Read rules. **Validates: Requirements 3.1; P6**"""
-    result = check_p6("", [], _lines(["You have three weeks."]))
+    result = check_p6("", [], text_lines(["You have three weeks."]))
     assert not result.passed
     assert result.line_ids == ["l1"]
     assert result.details == ["l1 has 1 numbers written in words"]
@@ -93,16 +78,16 @@ def test_spelled_out_number_fails() -> None:
 
 def test_compound_number_word_fails() -> None:
     """Checker-must-fail case. **Validates: Requirements 3.1; P6**"""
-    assert not check_p6("", [], _lines(["You must pay within twenty-one days."])).passed
+    assert not check_p6("", [], text_lines(["You must pay within twenty-one days."])).passed
 
 
 def test_digits_pass() -> None:
-    lines = _lines(["You have 3 weeks.", "Pay £45 by 14 March 2026.", "Phone 0300 123 4567."])
+    lines = text_lines(["You have 3 weeks.", "Pay £45 by 14 March 2026.", "Phone 0300 123 4567."])
     assert check_p6("", [], lines).passed
 
 
 def test_ordinal_words_pass() -> None:
-    assert check_p6("", [], _lines(["This is the first letter.", "Wait a second."])).passed
+    assert check_p6("", [], text_lines(["This is the first letter.", "Wait a second."])).passed
 
 
 def test_no_lines_pass() -> None:

@@ -1,49 +1,24 @@
-"""P1: every key fact in the Original appears unchanged in the output.
+"""P1: every key fact from the Original appears unchanged in the output.
 
-Key facts come from the Original (R2.4). The output lines go through the same
-extractor, and each fact in the Original is looked for among the output facts
-of the same type (R2.3, R2.6):
+The lines, joined by line breaks with one "sentence" per line, go through the
+same extractor. Each Original fact is looked for among output facts of its
+type:
+- Non-action facts match by normalised value. An Original date with no year
+  ("--03-01") also matches the same day and month with a year added, never
+  the reverse.
+- An action matches an output action with the same verb phrase (after
+  `ACTION_SYNONYMS`, "not" kept) whose group (its lines plus every line from
+  the same source sentence) holds the Original's object nouns and its dates
+  and amounts. So "Pay £45 by 1 April 2026." may be split over 2 lines.
+  Pronoun objects are ignored. Within a group, each date and amount stays
+  tied to its own action (see `_Matcher._units`), so swapping 2 payments'
+  amounts fails.
 
-- Dates, times, money, references, phones and addresses match by normalised
-  value, so "1 March 2026" and "1/3/2026" match while a changed digit does
-  not. One exception: an Original date with no year ("1 March", normalised
-  "--03-01") also matches an output date with the same day and month and a
-  year added ("1 March 2026"). The reverse is not allowed: if the Original
-  has a year, the output must keep it.
-- A required action matches when an output action has the same verb phrase
-  (after `ACTION_SYNONYMS`, with "not" kept), and that action's group of lines
-  holds the rest of it. The group is the line with the verb plus every line
-  that shares its source sentence. Every object noun of the Original action
-  must appear as a noun in the group, and every date or amount inside the
-  Original action must appear in the group with a matching value. So "Pay £45
-  by 1 April 2026." may be split into "You must pay £45." and "Pay it by 1
-  April 2026." to meet P3. Pronoun objects ("it", "them", "this", "that") are
-  ignored on both sides. Dropping the action, negating it or changing its verb
-  to a word that is not a listed synonym still fails.
-  Each date and amount stays tied to its own action. Within a group, the
-  actions with the same verb phrase are split into units in line order, and a
-  new unit starts when an action repeats a value type or object. A unit must
-  carry the Original action's own values, and lines that belong to a sibling
-  unit are not searched. A line in the group with no action of that phrase
-  ("The deadline is 1 May 2026.") belongs to the nearest unit before it when
-  no such line with a key fact comes before the first action, or to the
-  nearest unit after it when none comes after the last action. If both
-  happen, a line between 2 units belongs to neither. So when one sentence
-  holds 2 payments, swapping their amounts or dates between the lines fails.
+Failing lines: for a changed fact, the lines with an unmatched output value
+of that type (preferring the fact's source sentence); for a missing fact, the
+lines from its source sentence, or none.
 
-The lines are joined with line breaks and extracted as one text, with one
-"sentence" per line. Facts never run across a line break, except an address,
-which may keep its first line and postcode on separate lines as it can in the
-Original. Each output fact is mapped back to the lines it covers.
-
-Reported line IDs (design "Checkers"):
-- a changed fact: the lines holding an output value of the same type that
-  matches nothing in the Original, preferring lines from the fact's source
-  sentence;
-- a missing fact: the lines whose source sentence holds that fact. If there
-  are none, no line is reported and the pipeline asks for a new line.
-
-This module never logs, and `details` hold fact IDs and types, never values (R7.4).
+`details` hold fact IDs and types, never values.
 """
 
 import re
@@ -135,11 +110,6 @@ def _parse_action(normalised: str) -> _Action:
 
 
 def _value_matches(kind: str, original: str, output: str) -> bool:
-    """Whether an output value shows an Original value of type `kind`.
-
-    Equal normalised values match. An Original date with no year also matches
-    an output date with the same day and month and a year added.
-    """
     if original == output:
         return True
     return (
@@ -151,12 +121,11 @@ def _value_matches(kind: str, original: str, output: str) -> bool:
 
 
 class _Matcher:
-    """Finds the output facts that show each key fact from the Original."""
-
     def __init__(self, lines: list[Line], output: list[_OutputFact]) -> None:
         self._lines = lines
         self._output = output
         self._source = {line.id: line.source_sentence_id for line in lines}
+        self._order = {line.id: n for n, line in enumerate(lines)}
         self._nouns: dict[str, frozenset[str]] | None = None
         self._actions = {
             i: _parse_action(o.normalised) for i, o in enumerate(output) if o.type == "action"
@@ -183,9 +152,9 @@ class _Matcher:
         at an action that repeats a value type or an object the current unit
         already has, so "You must pay £45." and "Pay it by 1 April 2026." form
         one unit, while "Pay £45 by 1 May 2026." and "Pay £20 by 1 April 2026."
-        form two. This keeps each date and amount tied to its own action.
+        form two.
         """
-        order = {line.id: n for n, line in enumerate(self._lines)}
+        order = self._order
         members = sorted(
             (
                 i
@@ -227,7 +196,7 @@ class _Matcher:
         A line with no unit on the side the layout points to holds no key fact,
         so it is shared by every unit.
         """
-        order = {line.id: n for n, line in enumerate(self._lines)}
+        order = self._order
         owner: dict[str, int] = {}
         for n, u in enumerate(units):
             for i in u:
@@ -313,16 +282,11 @@ class _Matcher:
 
 
 def line_fact_spans(key_facts: list[KeyFact], lines: list[Line]) -> list[LineFactSpan]:
-    """Where each key fact from the Original appears in the output lines.
+    """Where each Original key fact appears in the lines, exactly when P1 counts it.
 
-    Uses the same extraction and matching as P1, so a span is returned exactly
-    when P1 counts that output value as the fact. Values that match no fact in
-    the Original are left out. A fact that runs over a line break (an address)
-    gets one span per line.
-
-    When several facts in the Original match one output value, the span names
-    the one from the line's source sentence, or else the first in `key_facts`.
-    Spans are in line order, then by start offset.
+    A fact over a line break (an address) gets one span per line. When several
+    Original facts match one output value, the span names the one from the
+    line's source sentence, else the first in `key_facts`.
     """
     output = _output_facts(lines)
     matcher = _Matcher(lines, output)
@@ -349,11 +313,6 @@ def line_fact_spans(key_facts: list[KeyFact], lines: list[Line]) -> list[LineFac
 
 
 def check_p1(original: str, key_facts: list[KeyFact], lines: list[Line]) -> CheckResult:
-    """Fail if any key fact from the Original is missing or changed in `lines`.
-
-    `original` is unused: `key_facts` were already extracted from it. It is
-    kept so every checker has the same signature.
-    """
     del original
     output = _output_facts(lines)
     matcher = _Matcher(lines, output)

@@ -1,32 +1,23 @@
-"""P4: no line uses the passive voice.
+"""P4: no line uses the passive voice (an `auxpass` or `nsubjpass` dependency).
 
-A line fails if spaCy's dependency parse gives any token the label `auxpass`
-(a passive auxiliary, "was" in "The form was sent") or `nsubjpass` (a passive
-subject, "form" in the same sentence).
+Statal passives pass: a `STATAL_PARTICIPLES` verb with "you" as subject, a
+following "to" and no "by ..." agent ("You are entitled to Housing Benefit.").
 
-Statal passives are allowed: "You are entitled to Housing Benefit." and "You
-are required to pay." describe the reader's state, and have no plain active
-form. A passive passes when its verb is in `STATAL_PARTICIPLES`, its subject is
-"you", a "to" follows (a "to" phrase or a "to" verb), and it has no "by ..."
-agent. "A letter will be sent to you." and "The form was sent." still fail.
-
-Known limit: with no "by ..." agent, the small model sometimes reads a past
-participle as an adjective ("Your account was closed.") and the line passes.
-
-This module never logs, and `details` hold line IDs, never text (R7.4).
+Known limit: with no agent, the small model sometimes reads a past participle
+as an adjective ("Your account was closed.") and the line passes.
 """
 
 from spacy.tokens import Token
 
 from checks.config import STATAL_PARTICIPLES
 from checks.models import CheckResult, KeyFact, Line
+from checks.results import line_result
 from checks.sentences import get_nlp
 
 PASSIVE_DEPS = frozenset({"auxpass", "nsubjpass"})
 
 
 def _is_statal(verb: Token) -> bool:
-    """Whether `verb` is an allowed statal passive ("you are entitled to ...")."""
     if verb.lemma_.lower() not in STATAL_PARTICIPLES:
         return False
     children = list(verb.children)
@@ -48,11 +39,6 @@ def _is_passive(token: Token) -> bool:
 
 
 def check_p4(original: str, key_facts: list[KeyFact], lines: list[Line]) -> CheckResult:
-    """Fail every line with an `auxpass` or `nsubjpass` dependency, except statal passives.
-
-    `original` and `key_facts` are unused. They are kept so every checker has
-    the same signature.
-    """
     del original, key_facts
     failing: list[str] = []
     details: list[str] = []
@@ -61,10 +47,4 @@ def check_p4(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
         if any(_is_passive(token) for token in doc):
             failing.append(line.id)
             details.append(f"{line.id} uses the passive voice")
-    return CheckResult(
-        rule="P4",
-        passed=not failing,
-        line_ids=failing,
-        failed_fact_ids=[],
-        details=details,
-    )
+    return line_result("P4", failing, details)

@@ -1,54 +1,20 @@
-"""P5: plain words.
+"""P5: every word is common, or explained the first time it is used.
 
-Every word in the output must be a common word, or be explained the first time
-it is used. A word token passes if any of these is true:
+A word passes if its lemma or form is in the `WORDLIST_FILES`, or it holds a
+digit, is in a non-action key fact's value, is a name (an entity in
+`NAME_ENTITY_LABELS`, a word with an inner capital like "StepChange", or a
+name in `names.txt` written exactly as listed), is an address word copied
+before a key-fact postcode (`address_lines`), is a single-capital label
+("Band A"), a web or email address, a placeholder the Original also has, an
+abbreviation (P7 checks those), or is joined by hyphens from common words.
+A Title Case word on its own is checked, so "Enforcement Agent" fails. Add a
+word to `names.txt` only if it is a name.
 
-- its lemma or its written form (lower case) is in the common-word list
-  (`WORDLIST_FILES` in `checks/wordlist/`, sources in its README)
-- it is a number, or holds a digit ("£45", "14", "AB123456")
-- it is part of a key fact's value, for every key-fact type except "action"
-  (an address's street name, for example). Actions are excluded because their
-  wording is meant to change, and P1 already compares them by lemma
-- it is part of a name: a spaCy entity labelled `NAME_ENTITY_LABELS`
-  ("Manchester City Council", "Citizens Advice"), a word with a capital
-  inside it ("StepChange", "PayPoint"), or a name in `wordlist/names.txt`
-  written exactly as listed ("Inspectorate", "GOV.UK"). A Title Case word on
-  its own is checked like any other word, so "Enforcement Agent" and
-  "Committal Order" fail unless explained
-- it is part of the address lines just before a postcode that is in one of
-  the Original's address key facts (`checks/address_lines.py`): the capitalised words, numbers and
-  commas back to the first other word ("The Grange, Nutholt Lane, Ely, CB7
-  4EE"). Each word must be in the Original's address text before that postcode
-- it is a single capital letter used as a label ("Band A")
-- it is a web or email address
-- it is a placeholder of 3 or more X's that the Original also has, such as
-  "£XXX.XX" in a template letter (see `p7_abbreviations.is_placeholder`)
-- it is an abbreviation in capitals; P7 checks those
-- it has been defined on first use (below)
-- it is joined by hyphens from common words. spaCy splits "cross-examine" at
-  an ASCII hyphen but not at a non-breaking one (U+2011), so this treats both
-  the same. "pre‑inquiry" still fails: "pre" is not a word on the list
+A sentence whose root is "mean" or "be" + noun defines the words in its
+subject for that line and every later line ("Your rent is the money ...").
+"Your arrears are £120." defines nothing.
 
-Defined on first use. A sentence whose main verb is "mean" or "be" defines
-the words in its subject: "**Your rent** is the money you pay to live in your
-home." After that sentence, those words pass in the same line and every later
-line. A hard word used before its definition fails. "X is ..." counts only
-when a noun follows "is", so "Your arrears are £120." defines nothing.
-
-Known limits: any "X is a <noun> ..." sentence counts as a definition, even
-one that explains little ("Your liability is a problem."). The words of the
-definition itself are checked like any other words. A place or service name
-that spaCy doesn't tag as an entity and that isn't in `names.txt` fails.
-That fails closed: add the name to `names.txt` only if it is a name. The
-address rule passes a Title Case term written straight before an address
-("the Enforcement Agent, CB7 4EE") only when the Original's own address
-text before that postcode has those words.
-
-Punctuation, symbols and spaces are not words. Short forms ("'ll", "n't",
-"'re", "'ve", with straight or curly apostrophes) are checked as the word they
-stand for.
-
-This module never logs, and `details` hold line IDs and counts, never text (R7.4).
+`details` hold line IDs and counts, never the word.
 """
 
 import re
@@ -61,6 +27,7 @@ from checks.address_lines import address_postcodes, address_words
 from checks.config import DEFINING_VERBS, NAME_ENTITY_LABELS, NAMES_FILE, WORDLIST_FILES
 from checks.models import CheckResult, KeyFact, Line
 from checks.p7_abbreviations import abbreviation_of, is_placeholder
+from checks.results import line_result
 from checks.sentences import get_nlp
 
 WORDLIST_DIR = Path(__file__).parent / "wordlist"
@@ -79,11 +46,7 @@ _MEANING_DEPS = frozenset({"dobj", "attr", "ccomp", "xcomp"})
 
 @lru_cache(maxsize=1)
 def common_words() -> frozenset[str]:
-    """All words in the common-word list files, lower case.
-
-    The NGSL files are CSV rows of a headword and its forms, with `##`
-    comment lines. `extra.txt` has one word per line and `#` comments.
-    """
+    """Lower-case words from the list files: NGSL CSV rows (headword, forms) and `extra.txt` lines."""
     words: set[str] = set()
     for name in WORDLIST_FILES:
         text = (WORDLIST_DIR / name).read_text(encoding="utf-8-sig")
@@ -96,7 +59,6 @@ def common_words() -> frozenset[str]:
 
 @lru_cache(maxsize=1)
 def listed_names() -> frozenset[str]:
-    """Names in `NAMES_FILE`, exactly as written there (see the file's comments)."""
     text = (WORDLIST_DIR / NAMES_FILE).read_text(encoding="utf-8")
     return frozenset(r.strip() for r in text.splitlines() if r.strip() and not r.lstrip().startswith("#"))
 
@@ -115,9 +77,8 @@ def _forms(token: Token) -> set[str]:
 def _common_parts(token: Token, words: frozenset[str]) -> bool:
     """Whether a hyphenated token is made only of common words.
 
-    spaCy splits "cross-examine" at an ASCII hyphen and checks each part, but
-    keeps "cross‑examine" (non-breaking hyphen, U+2011) as 1 token. This checks
-    that token's parts the same way.
+    spaCy splits at an ASCII hyphen but keeps "cross‑examine" (U+2011) as 1
+    token, so its parts are checked here.
     """
     text = token.lower_.translate(_APOSTROPHES)
     parts = [p for p in text.split("-") if p]
@@ -125,13 +86,9 @@ def _common_parts(token: Token, words: frozenset[str]) -> bool:
 
 
 def _needs_checking(token: Token, fact_words: frozenset[str]) -> bool:
-    """False for tokens that pass whatever they say (see the module docstring).
-
-    Address lines before a postcode are handled in `check_p5`, which knows the
-    sentence.
-    """
+    """False for tokens that pass whatever they say. Address words are handled in `check_p5`."""
     if not any(c.isalpha() for c in token.text):
-        return False  # punctuation, symbols, spaces and plain numbers
+        return False
     if any(c.isdigit() for c in token.text) or token.like_num:
         return False
     if token.like_url or token.like_email:
@@ -160,12 +117,7 @@ def _needs_checking(token: Token, fact_words: frozenset[str]) -> bool:
 
 
 def _defined_words(sent: Span) -> list[Token]:
-    """The subject words that `sent` defines, or [] if it is not a definition.
-
-    "X means ..." needs an object or clause after "means". "X is ..." needs a
-    noun after "is" ("the money ..."), so "Your arrears are £120." and "Your
-    liability is high." don't count as definitions.
-    """
+    """The subject words that `sent` defines, or [] if it is not a definition."""
     root = sent.root
     lemma = root.lemma_.lower()
     if lemma not in DEFINING_VERBS:
@@ -181,12 +133,6 @@ def _defined_words(sent: Span) -> list[Token]:
 
 
 def check_p5(original: str, key_facts: list[KeyFact], lines: list[Line]) -> CheckResult:
-    """Fail every line with a word that is not common and not yet defined.
-
-    `key_facts` are the Original's key facts; their non-action words pass.
-    `original` is used only to pass text copied from it: placeholders
-    ("£XXX.XX") and the address words before a key-fact postcode.
-    """
     words = common_words()
     fact_words = _key_fact_words(key_facts)
     postcodes = address_postcodes(original, key_facts)
@@ -212,10 +158,4 @@ def check_p5(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
         if hard:
             failing.append(line.id)
             details.append(f"{line.id} has {hard} words that are not common and not explained")
-    return CheckResult(
-        rule="P5",
-        passed=not failing,
-        line_ids=failing,
-        failed_fact_ids=[],
-        details=details,
-    )
+    return line_result("P5", failing, details)

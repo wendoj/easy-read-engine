@@ -1,63 +1,30 @@
-"""P3: one idea per sentence.
+"""P3: one idea per sentence (at most `MAX_CLAUSES_PER_SENTENCE` main clauses).
 
-Each line is parsed with spaCy, and each of its sentences may have no more
-than `MAX_CLAUSES_PER_SENTENCE` main verb clauses. A line may hold more than
-one sentence; it fails if any of them has too many clauses.
-
-What counts as a main verb clause:
-- the sentence's `ROOT`
-- each verb (`VERB` or `AUX`) with the label `conj` whose head is the root:
-  "pay £45 **and send** the form", "we got your form **and** we **will reply**"
-- each `ccomp` or `advcl` head that has its own subject: "**if** you
-  **cannot pay**", "**because** your bill **is** wrong", "the letter says you
-  **must pay**"
-
-A `ccomp` or `advcl` with no subject of its own is not counted. These are
-mostly "to" clauses that finish the main idea ("the money you pay **to live**
-in your home"), and counting them would fail plain one-idea sentences. A "to"
-verb is not counted even when the parse gives it a subject ("The council
-expects **you to sign** the form").
-
-A `ccomp` after a reporting verb (`REPORTING_VERBS`: "say", "tell", ...) is not
-counted either when the root's subject is a noun ("the letter", "the
-council") or "it". "The letter says you must pay £45." is one idea: what the
-letter says. Verbs joined to that `ccomp` by "and" still count, and so does
-any `advcl`, so "The letter says you must pay because you missed a payment."
-still fails.
-
-Clauses that finish the main idea are not counted either (found on the
+Main clauses are the root, each `conj` verb on the root ("pay £45 and send
+the form"), and each `ccomp` or `advcl` with its own subject ("if you cannot
+pay"). These are not counted, because they finish the main idea (found on the
 recorded sample letters, where they failed plain one-idea lines):
-
-- an embedded question or "what" clause: "see **if you are entitled**",
-  "pay **what you owe**", "discuss **how evidence will be heard**". An "if"
-  clause, whether the parse tags it `ccomp` or `advcl` ("Check **if you're
-  due** benefits."), counts as a question only when "if" comes straight
-  after a `QUESTION_VERBS` verb with no object. "Check your bill if you
-  moved.", "Tell us if you move house.", "Let us know if you move." and a
-  negated "Find out if you cannot pay." still count 2. A "whether" clause is
-  always a question
-- the clause after "let", "make", "help", "see" or "hear": "**Let us know.**",
-  "Rule 6 status **lets you present** evidence."
-- a "that" clause after "it is ...": "**It is essential that you contact** us."
-- the clause after a thinking verb (`THINKING_VERBS`) with no subject of
-  its own: "**Think you'll miss** more payments?" ("You think you must pay"
-  still counts: the reader thinking it is a second idea.)
-- "like" or "as if" after "look", "seem", "sound" or "feel": "**It looks like
-  you missed** a payment."
-
-An "if", "because", "so" or "when" clause still counts, as the rule asks.
+- "to" verbs, even when the parse gives them a subject ("expects you to sign")
+- the first `ccomp` of a reporting verb whose subject is a noun or "it" ("The
+  letter says you must pay"). Verbs joined to it and any `advcl` still count
+- embedded questions and "what" clauses ("pay what you owe"). An "if" clause
+  is a question only straight after a `QUESTION_VERBS` verb with no object
+  and no negation ("Check if you're due", not "Tell us if you move")
+- the clause after "let", "make", "help", "see" or "hear" ("Let us know.")
+- a "that" clause after "it is ..." ("It is essential that you contact us.")
+- the clause after a thinking verb with no subject ("Think you'll miss more
+  payments?"). "You think you must pay" still counts 2
+- "like" or "as if" after "look", "seem", "sound" or "feel"
 
 Known limit: the small model sometimes tags a sentence-initial verb as a noun
-("Phone the council ..."). The root still counts as 1 clause, so this only
-matters when a later clause is also mislabelled.
-
-This module never logs, and `details` hold line IDs and counts, never text (R7.4).
+("Phone the council ..."). The root still counts as 1 clause.
 """
 
 from spacy.tokens import Span, Token
 
 from checks.config import MAX_CLAUSES_PER_SENTENCE, REPORTING_VERBS
 from checks.models import CheckResult, KeyFact, Line
+from checks.results import line_result
 from checks.sentences import get_nlp
 
 _VERB_POS = frozenset({"VERB", "AUX"})
@@ -76,7 +43,6 @@ QUESTION_VERBS = frozenset({"check", "see", "find", "ask", "wonder"})
 
 
 def _is_reporting(root: Token) -> bool:
-    """Whether `root` is a reporting verb whose subject is a noun or "it"."""
     if root.lemma_.lower() not in REPORTING_VERBS:
         return False
     return any(
@@ -85,25 +51,14 @@ def _is_reporting(root: Token) -> bool:
 
 
 def _is_infinitive(verb: Token) -> bool:
-    """A "to" verb such as "sign" in "The council expects you to sign the form".
-
-    The small model sometimes gives such a verb "you" as its own subject, but
-    it finishes the main idea, so it is not counted as a clause.
-    """
     return verb.tag_ == "VB" and any(c.dep_ == "aux" and c.lower_ == "to" for c in verb.children)
 
 
 def _is_question_after(head: Token, clause: Token) -> bool:
-    """Whether an "if" clause is the question a verb like "check" asks.
+    """Whether an "if"/"whether" clause is the question a verb like "check" asks.
 
-    The parse tags "Check **if you're due** benefits." and "Find out **if you
-    can** get help." as `advcl`, and "see **if you are entitled**" as `ccomp`.
-    Either way it is a question, not a condition,
-    only when "if" or "whether" comes straight after a `QUESTION_VERBS` verb
-    (or its "out") and that verb has no object of its own, and an "if" clause
-    is not negated. "Check your bill if you moved.", "If you moved, check your
-    bill.", "Let us know if you move." and "Find out if you cannot pay." still
-    count 2 clauses.
+    The parse may tag it `advcl` ("Check if you're due benefits.") or `ccomp`
+    ("see if you are entitled"), so both are handled here.
     """
     if head.lemma_.lower() not in QUESTION_VERBS:
         return False
@@ -120,7 +75,6 @@ def _is_question_after(head: Token, clause: Token) -> bool:
 
 
 def _finishes_main_idea(clause: Token) -> bool:
-    """Whether a subject-bearing `ccomp` or `advcl` is part of its head's idea (see above)."""
     head = clause.head
     marks = {c.lower_ for c in clause.children if c.dep_ == "mark"}
     if clause.dep_ == "advcl":
@@ -144,7 +98,6 @@ def _finishes_main_idea(clause: Token) -> bool:
 
 
 def count_clauses(sent: Span) -> int:
-    """Number of main verb clauses in one parsed sentence, as defined above."""
     root = sent.root
     reporting = _is_reporting(root)
     reported = None
@@ -167,11 +120,6 @@ def count_clauses(sent: Span) -> int:
 
 
 def check_p3(original: str, key_facts: list[KeyFact], lines: list[Line]) -> CheckResult:
-    """Fail every line with a sentence of more than `MAX_CLAUSES_PER_SENTENCE` clauses.
-
-    `original` and `key_facts` are unused. They are kept so every checker has
-    the same signature.
-    """
     del original, key_facts
     failing: list[str] = []
     details: list[str] = []
@@ -183,10 +131,4 @@ def check_p3(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
             details.append(
                 f"{line.id} has a sentence with {most} main clauses (limit {MAX_CLAUSES_PER_SENTENCE})"
             )
-    return CheckResult(
-        rule="P3",
-        passed=not failing,
-        line_ids=failing,
-        failed_fact_ids=[],
-        details=details,
-    )
+    return line_result("P3", failing, details)

@@ -1,12 +1,11 @@
 from hypothesis import given, settings
 from hypothesis import strategies as st
+from strategies import text_lines
 
-from checks.models import KeyFact, Line
+from checks.models import KeyFact
 from checks.p7_abbreviations import check_p7
 
 # All text here is invented. No real letters or personal data.
-
-# --- generators --------------------------------------------------------------
 
 _NAME_WORDS = ["Personal", "Housing", "Health", "Support", "Payment", "Service", "Council",
                "Benefit", "Care", "Money", "Office", "Water", "Energy", "Advice", "Team"]  # fmt: skip
@@ -39,16 +38,6 @@ def _use(draw: st.DrawFn, abbreviation: str) -> str:
     return draw(st.sampled_from(_USES)).format(a=abbreviation)
 
 
-def _lines(texts: list[str]) -> list[Line]:
-    return [
-        Line(id=f"l{i}", text=t, source_sentence_id="s1", symbol_id=None)
-        for i, t in enumerate(texts, start=1)
-    ]
-
-
-# --- properties --------------------------------------------------------------
-
-
 @settings(max_examples=50, deadline=None)
 @given(_expansions(), st.integers(min_value=0, max_value=4), st.data())
 def test_abbreviation_expanded_on_first_use_passes(
@@ -58,7 +47,7 @@ def test_abbreviation_expanded_on_first_use_passes(
     full, abbreviation = expansion
     texts = [data.draw(_explained(full, abbreviation))]
     texts += [data.draw(_use(abbreviation)) for _ in range(uses)]
-    result = check_p7("", [], _lines(texts))
+    result = check_p7("", [], text_lines(texts))
     assert result.rule == "P7"
     assert result.passed, result.details
     assert result.line_ids == []
@@ -74,7 +63,7 @@ def test_abbreviation_used_before_its_expansion_fails(
     texts = [data.draw(_use(abbreviation)) for _ in range(before)]
     texts.append(data.draw(_explained(full, abbreviation)))
     texts += [data.draw(_use(abbreviation)) for _ in range(after)]
-    lines = _lines(texts)
+    lines = text_lines(texts)
     result = check_p7("", [], lines)
     assert not result.passed
     assert result.line_ids == [line.id for line in lines[:before]]
@@ -87,18 +76,15 @@ def test_abbreviation_never_expanded_fails_every_use(
 ) -> None:
     """**Validates: Requirements 3.1; P7**"""
     _, abbreviation = expansion
-    lines = _lines([data.draw(_use(abbreviation)) for _ in range(uses)])
+    lines = text_lines([data.draw(_use(abbreviation)) for _ in range(uses)])
     result = check_p7("", [], lines)
     assert not result.passed
     assert result.line_ids == [line.id for line in lines]
 
 
-# --- checker-must-fail cases and examples ------------------------------------
-
-
 def test_unexplained_abbreviation_fails() -> None:
     """Checker-must-fail case from the Easy Read rules. **Validates: Requirements 3.1; P7**"""
-    result = check_p7("", [], _lines(["You can get PIP."]))
+    result = check_p7("", [], text_lines(["You can get PIP."]))
     assert not result.passed
     assert result.line_ids == ["l1"]
     assert result.details == ["l1 has 1 abbreviations that are not explained"]
@@ -106,21 +92,21 @@ def test_unexplained_abbreviation_fails() -> None:
 
 def test_wrong_expansion_fails() -> None:
     """Checker-must-fail case. **Validates: Requirements 3.1; P7**"""
-    assert not check_p7("", [], _lines(["You can get Housing Benefit (PIP)."])).passed
+    assert not check_p7("", [], text_lines(["You can get Housing Benefit (PIP)."])).passed
 
 
 def test_capitals_for_emphasis_fail() -> None:
     """Checker-must-fail case. **Validates: Requirements 3.1; P7**"""
-    assert not check_p7("", [], _lines(["You MUST quote your reference."])).passed
+    assert not check_p7("", [], text_lines(["You MUST quote your reference."])).passed
 
 
 def test_plural_abbreviation_fails_until_expanded() -> None:
-    assert not check_p7("", [], _lines(["Ask one of our GPs."])).passed
-    assert check_p7("", [], _lines(["Our general practitioners (GPs) can help."])).passed
+    assert not check_p7("", [], text_lines(["Ask one of our GPs."])).passed
+    assert check_p7("", [], text_lines(["Our general practitioners (GPs) can help."])).passed
 
 
 def test_both_expansion_patterns_pass() -> None:
-    lines = _lines([
+    lines = text_lines([
         "You can get Personal Independence Payment (PIP).",
         "PIP is money from the government.",
         "The DWP (Department for Work and Pensions) will phone you.",
@@ -129,7 +115,7 @@ def test_both_expansion_patterns_pass() -> None:
 
 
 def test_references_and_postcodes_are_not_abbreviations() -> None:
-    lines = _lines(["Your reference is AB123456.", "Send it to 1 High Street, LS1 4AB."])
+    lines = text_lines(["Your reference is AB123456.", "Send it to 1 High Street, LS1 4AB."])
     assert check_p7("", [], lines).passed
 
 
@@ -146,12 +132,11 @@ def _address_fact(original: str, value: str) -> KeyFact:
 
 
 def test_address_lines_before_a_key_fact_postcode_pass() -> None:
-    """Regression (Bedrock samples, November 2026): a council address printed
-    "PO BOX 3" and the line that copied it failed P7. P5 already passes these
-    words; the model must not reword an address."""
+    """Regression: a line that copied "PO BOX 3" from an address failed P7.
+    The model must not reword an address."""
     original = "Write to PO BOX 3, Northbridge, NB1 9ZZ."
     fact = _address_fact(original, "NB1 9ZZ")
-    assert check_p7(original, [fact], _lines(["Write to PO BOX 3, Northbridge, NB1 9ZZ."])).passed
+    assert check_p7(original, [fact], text_lines(["Write to PO BOX 3, Northbridge, NB1 9ZZ."])).passed
 
 
 def test_capitals_away_from_a_key_fact_address_still_fail() -> None:
@@ -159,40 +144,37 @@ def test_capitals_away_from_a_key_fact_address_still_fail() -> None:
     capitals outside the address run."""
     original = "Write to PO BOX 3, Northbridge, NB1 9ZZ."
     line = "Write to PO BOX 3, Northbridge, NB1 9ZZ."
-    assert not check_p7(original, [], _lines([line])).passed
+    assert not check_p7(original, [], text_lines([line])).passed
     other = _address_fact("Write to LS1 4AB.", "LS1 4AB")
-    assert not check_p7(original, [other], _lines([line])).passed
+    assert not check_p7(original, [other], text_lines([line])).passed
     fact = _address_fact(original, "NB1 9ZZ")
     for text in ["You MUST write to PO BOX 3, NB1 9ZZ.", "The DWP is at NB1 9ZZ.", "PO BOX 3."]:
-        assert not check_p7(original, [fact], _lines([text])).passed, text
+        assert not check_p7(original, [fact], text_lines([text])).passed, text
 
 
 def test_address_capitals_the_original_lacks_still_fail() -> None:
-    """Still fails (review v1, 12 November 2026): the address run passed every
-    capitalised word before the postcode, so an abbreviation the model added
-    to an address passed P7."""
+    """The address run must not pass an abbreviation the model added to an address."""
     original = "Please write to PO Box 3, Manchester, M15 5BA."
     fact = _address_fact(original, "M15 5BA")
-    assert check_p7(original, [fact], _lines(["Write to PO Box 3, Manchester, M15 5BA."])).passed
+    assert check_p7(original, [fact], text_lines(["Write to PO Box 3, Manchester, M15 5BA."])).passed
     for text in ["Write to DWP HMRC, PO Box 3, Manchester, M15 5BA.", "Write to DWP, M15 5BA."]:
-        assert not check_p7(original, [fact], _lines([text])).passed, text
+        assert not check_p7(original, [fact], text_lines([text])).passed, text
     # Capitals elsewhere in the letter are not part of the address.
     original = "The DWP sent this. Please write to PO Box 3, Manchester, M15 5BA."
     fact = _address_fact(original, "M15 5BA")
-    assert not check_p7(original, [fact], _lines(["Write to DWP, M15 5BA."])).passed
+    assert not check_p7(original, [fact], text_lines(["Write to DWP, M15 5BA."])).passed
 
 
 def test_placeholder_copied_from_the_original_passes() -> None:
-    """Regression (Bedrock samples, November 2026): a template letter prints
-    "XXXXXXXXX" for the account reference, and the copied line failed P7."""
+    """Regression: a template letter prints "XXXXXXXXX", and the copied line failed P7."""
     original = "Quote your reference XXXXXXXXX when you pay."
-    assert check_p7(original, [], _lines(["Give your reference XXXXXXXXX when you pay."])).passed
+    assert check_p7(original, [], text_lines(["Give your reference XXXXXXXXX when you pay."])).passed
 
 
 def test_placeholder_not_in_the_original_fails() -> None:
     """Still fails: a run of X's the Original lacks, 2 X's, and a real
     abbreviation next to a copied placeholder."""
     original = "Quote your reference XXXXXXXXX."
-    assert not check_p7(original, [], _lines(["Give the reference XXXXXX."])).passed
-    assert not check_p7("Box XX.", [], _lines(["Write to Box XX."])).passed
-    assert not check_p7(original, [], _lines(["Give PIP reference XXXXXXXXX."])).passed
+    assert not check_p7(original, [], text_lines(["Give the reference XXXXXX."])).passed
+    assert not check_p7("Box XX.", [], text_lines(["Write to Box XX."])).passed
+    assert not check_p7(original, [], text_lines(["Give PIP reference XXXXXXXXX."])).passed

@@ -1,30 +1,14 @@
-"""Pictogram search over the committed ARASAAC index (design "Symbols").
-
-`find_symbol` ranks pictograms by lemma overlap between the query (a line's
-`symbolQuery`, 1 or 2 words) and each pictogram's keywords, plurals and tags,
-with a bonus for an exact keyword match:
+"""Pictogram search over the committed ARASAAC index.
 
     score = (keyword hits + TAG_WEIGHT * tag-only hits) / query lemmas
           + SPECIFICITY_WEIGHT * keyword hits / pictogram lemmas
           + EXACT_BONUS if the query equals one of the pictogram's keywords or plurals
 
-- "keyword hits": query lemmas found in the pictogram's `lemmas` (built from
-  its keywords and plurals by scripts/build_symbol_index.py).
-- "tag-only hits": the other query lemmas found in the lemmas of its tags.
-  Tags are broad ("animal", "work"), so they count for less and can never
-  reach the web app's threshold on their own.
-- The specificity term prefers "money" over "money box" for the query "money".
-
-Scores are between 0 and 1 + SPECIFICITY_WEIGHT + EXACT_BONUS. The web app
-takes the top match only above its threshold (`SYMBOL_MIN_SCORE` in
-web/src/pipeline/symbols.ts); otherwise the line has no picture (R4.2).
-
-The query is lemmatised the same way as the index (`phrase_lemmas`, shared
-with the build script), except that a query of stop words only has no lemmas
-and so no matches. Every returned ID comes from the index, so P8 passes (R4.3).
-
-The index and an inverted index (lemma to pictograms) are built once per
-process. Nothing here logs or stores the query (R7.4).
+Keyword hits are query lemmas in the entry's `lemmas` (from its keywords and
+plurals). Tags are broad, so they count for less and can never reach the web
+app's `SYMBOL_MIN_SCORE` on their own. The specificity term prefers "money"
+over "money box" for the query "money". Queries are lemmatised with the same
+helper as the build script. Every returned ID is in the index, so P8 passes.
 """
 
 import json

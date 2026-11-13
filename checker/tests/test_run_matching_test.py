@@ -1,4 +1,4 @@
-"""Tests for scripts/run_matching_test.py (task 20 on-save hook)."""
+"""Tests for scripts/run_matching_test.py (the on-save hook)."""
 
 from __future__ import annotations
 

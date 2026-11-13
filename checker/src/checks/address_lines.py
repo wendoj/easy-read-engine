@@ -1,18 +1,9 @@
-"""Address lines before a key-fact postcode, shared by P5 and P7.
+"""Address lines before a key-fact postcode, which P5 and P7 let pass.
 
-P1 finds an address by its postcode, so the address key fact holds only the
-postcode ("CB7 4EE"). The lines before it ("The Grange, Nutholt Lane, Ely")
-are copied from the letter, so P5 and P7 don't fail them: the model must not
-reword an address to pass a plain-words or abbreviation check ("PO BOX 3,
-Manchester, M15 5BA").
-
-Only words the Original has in its own address text pass: the text just
-before that postcode in the Original (`ADDRESS_WINDOW_CHARS`, back to the
-last sentence end or blank line). A word the model added ("Write to DWP,
-M15 5BA." when the letter says "PO Box 3, Manchester, M15 5BA") stops the run
-and is checked like any other word.
-
-This module never logs (R7.4).
+The address key fact holds only the postcode, but the model must copy the
+lines before it, not reword them to pass P5 or P7. Only words the Original
+has in its own address text before that postcode pass, so a word the model
+added ("Write to DWP, M15 5BA.") is checked like any other.
 """
 
 import re

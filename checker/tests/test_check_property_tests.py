@@ -1,8 +1,5 @@
-"""Tests for scripts/check_property_tests.py (task 20 PostTaskExec hook).
-
-Each test builds a throwaway git repo, commits a baseline, changes the working
-tree and checks what the script reports.
-"""
+"""Tests for scripts/check_property_tests.py. Each test commits a baseline in a
+throwaway git repo, changes the working tree and checks what the script reports."""
 
 from __future__ import annotations
 

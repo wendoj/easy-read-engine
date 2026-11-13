@@ -30,9 +30,6 @@ def _assert_round_trip(context: str, formatted: str, kind: str, expected: str) -
     assert [f.normalised for f in facts] == [expected], (formatted, facts)
     assert facts[0].value == formatted
 
-
-# --- dates -------------------------------------------------------------------
-
 _dates = st.dates(min_value=date(2000, 1, 1), max_value=date(2099, 12, 31))
 
 
@@ -85,9 +82,6 @@ def test_date_formats_share_normalised_value(d: date) -> None:
     for formatted in _date_formats(d):
         _assert_round_trip("You must reply by {}.", formatted, "date", d.isoformat())
 
-
-# --- money -------------------------------------------------------------------
-
 _pence = st.one_of(st.integers(0, 99), st.integers(0, 10_000), st.integers(0, 10**9))
 
 
@@ -124,9 +118,6 @@ def test_money_formats_share_normalised_value(pence: int) -> None:
     """**Validates: Requirements 2.1, 2.2**"""
     for formatted in _money_formats(pence):
         _assert_round_trip("The total is {}.", formatted, "money", f"GBP {pence}")
-
-
-# --- references --------------------------------------------------------------
 
 
 @st.composite
@@ -167,9 +158,6 @@ def test_reference_formats_share_normalised_value(ref: tuple[str, str, str]) -> 
     """**Validates: Requirements 2.1, 2.2**"""
     for formatted in _reference_formats(*ref):
         _assert_round_trip("Your reference is {}.", formatted, "reference", "".join(ref))
-
-
-# --- phones ------------------------------------------------------------------
 
 
 @st.composite
@@ -217,9 +205,6 @@ def test_phone_formats_share_normalised_value(number: str) -> None:
     """**Validates: Requirements 2.1, 2.2**"""
     for formatted in _phone_formats(number):
         _assert_round_trip("Call us on {}.", formatted, "phone", number)
-
-
-# --- unit tests --------------------------------------------------------------
 
 
 def _normalised(text: str, kind: str) -> list[str]:
@@ -325,9 +310,7 @@ def test_non_actions_are_ignored() -> None:
 
 
 def test_note_after_a_dash_is_not_the_actions_object() -> None:
-    """Regression (Bedrock samples, November 2026): in "Please pay online now
-    if you can – details on the back." spaCy made "details" the object of
-    "pay", so P1 asked for "pay details" and blocked every faithful line."""
+    """Regression: spaCy made "details" the object of "pay", so P1 blocked every faithful line."""
     assert _normalised("Please pay online now if you can – details on the back.", "action") == ["pay||"]
     assert _normalised("You should pay if you can - details on the back.", "action") == ["pay||"]
     assert _normalised("Please pay online now.", "action") == ["pay||"]
@@ -344,9 +327,8 @@ def test_action_before_a_dash_keeps_its_own_object_and_values() -> None:
 
 
 def test_paired_dashes_and_hyphens_do_not_cut_the_action() -> None:
-    """Regression (review v1, 12 November 2026): the dash rule cut at the first
-    dash, so a pair of dashes around an aside lost the object and deadline,
-    and a hyphenated phone number was cut in the middle."""
+    """Regression: the dash rule cut at the first dash, losing the object after
+    an aside and cutting a hyphenated phone number."""
     assert _normalised("You must send - by 1 April 2026 - the signed form.", "action") == [
         "send|form|date=2026-04-01"
     ]
@@ -359,15 +341,12 @@ def test_paired_dashes_and_hyphens_do_not_cut_the_action() -> None:
 
 
 def test_heading_question_is_not_an_action() -> None:
-    """Regression (Bedrock samples, November 2026): the heading "Need help with
-    council tax?" was a required action, and no faithful line could match it."""
+    """Regression: a question heading was a required action no faithful line could match."""
     assert _normalised("Need help with council tax?", "action") == []
     assert _normalised("Moving home?", "action") == []
 
 
 def test_imperative_and_request_questions_are_still_actions() -> None:
-    """Still actions: the same verb as an instruction, and a "you must" or
-    "please" clause in a question."""
     assert _normalised("Need help with council tax.", "action") == ["need|help|"]
     assert _normalised("Please call us if you need help?", "action") != []
     assert _normalised("You must pay £45 by 1 April 2026, can you?", "action") != []
@@ -429,9 +408,8 @@ def test_glued_pdf_text_is_not_an_action() -> None:
 
 
 def test_action_stops_where_a_joined_verb_clause_starts() -> None:
-    """Regression: spaCy attached "4 April 2034" to the first "pay", after the
-    "and you must pay £5" clause, so the first action held both dates and P1
-    failed lines that kept each date with its own amount."""
+    """Regression: spaCy attached the second date to the first "pay", so the
+    first action held both dates."""
     text = "You must pay £1 by 1 January 2020 and you must pay £5 by 4 April 2034."
     actions = [f.normalised for f in extract_key_facts(text) if f.type == "action"]
     assert actions == [
@@ -441,9 +419,8 @@ def test_action_stops_where_a_joined_verb_clause_starts() -> None:
 
 
 def test_amount_tagged_as_a_verb_stays_in_the_action() -> None:
-    """Regression (Hypothesis, 12 November 2026): spaCy tagged "84,811.60" as
-    a verb heading an "advcl", so the first action lost its amount and date,
-    and swapping dates between the 2 payments passed P1."""
+    """Regression: spaCy tagged "84,811.60" as a verb heading an "advcl", so the
+    first action lost its amount and date."""
     text = "You must pay £84,811.60 by 1 January 2020 and you must pay £1 by 2 January 2020."
     actions = [f.normalised for f in extract_key_facts(text) if f.type == "action"]
     assert actions == [
@@ -453,9 +430,7 @@ def test_amount_tagged_as_a_verb_stays_in_the_action() -> None:
 
 
 def test_wrapped_action_keeps_its_object_and_date() -> None:
-    """Regression: layout line breaks split wrapped prose, so "please
-    contact\\nCitizens Advice" gave no action and "before\\n1 April 2026" lost
-    its date."""
+    """Regression: layout line breaks split wrapped prose and lost the action or its date."""
     contact = "If you have not already paid, please contact\nCitizens Advice for free help."
     assert [f.normalised for f in extract_key_facts(contact) if f.type == "action"] != []
     pay = (
@@ -488,9 +463,7 @@ def test_joined_action_still_keeps_its_own_date() -> None:
 
 
 def test_short_label_lines_keep_their_own_action_and_date() -> None:
-    """Regression (review v2): short label and value lines merged into 1
-    sentence, so "Pay by 1 April 2026" lost its action and "Next instalment 1
-    May 2026" gave its date to the action in the line before."""
+    """Regression: short label and value lines merged into 1 sentence and mixed up actions and dates."""
     due = "Amount due now £120.00\nPay by 1 April 2026"
     assert [f.normalised for f in extract_key_facts(due) if f.type == "action"] == ["pay||date=2026-04-01"]
     balance = "Please pay the balance now\nNext instalment 1 May 2026"
@@ -498,9 +471,7 @@ def test_short_label_lines_keep_their_own_action_and_date() -> None:
 
 
 def test_weekday_ranges_share_one_value_across_dash_and_to() -> None:
-    """Regression (Manchester, 12 November 2026): "Monday—Friday" gave the date
-    "friday" and the rewrite's "Monday to Friday" gave "monday to friday", so
-    P1 blocked the letter on a date that was kept."""
+    """Regression: "Monday—Friday" and "Monday to Friday" normalised differently, so P1 blocked a kept date."""
     texts = ["Call us, Monday—Friday.", "Call us, Monday to Friday.", "Call us, Mon - Fri.", "Call us, Monday–Friday."]
     values = {f.normalised for t in texts for f in _facts_of_type(t, "date")}
     assert values == {"mon to fri"}
@@ -508,9 +479,7 @@ def test_weekday_ranges_share_one_value_across_dash_and_to() -> None:
 
 
 def test_bullets_the_sender_offers_are_not_required_actions() -> None:
-    """Regression (Manchester, 12 November 2026): "We could:" then "• Change your
-    payment plan." gave required actions the rewrite rightly did not write as
-    orders to the reader, and P1 blocked the letter."""
+    """Regression: bullets after "We could:" became required actions, and P1 blocked the letter."""
     offered = "Struggling to pay?\nWe could:\n• Change your payment plan.\n• Offer special support if you’re vulnerable.\n"
     assert _facts_of_type(offered, "action") == []
     required = "You must do these:\n• Change your payment plan.\n"
@@ -518,25 +487,20 @@ def test_bullets_the_sender_offers_are_not_required_actions() -> None:
 
 
 def test_no_duty_is_not_a_required_action() -> None:
-    """Regression (Manchester, 12 November 2026): "so you don’t have to pay the
-    whole year’s bill" gave the action "pay the whole year’s bill"."""
+    """Regression: "you don’t have to pay" gave a required action."""
     text = "Act now so you don’t have to pay the whole year’s bill."
     assert [f.value for f in _facts_of_type(text, "action")] == ["Act now"]
     assert [f.value for f in _facts_of_type("You have to pay the bill.", "action")] == ["to pay the bill"]
 
 
 def test_a_noun_heading_tagged_as_a_verb_is_not_an_action() -> None:
-    """Regression (invented council tax letter, 13 November 2026): the heading
-    "Council Tax reminder notice" gave the action "notice", which no rewrite
-    could keep, so P1 blocked the letter on every try."""
+    """Regression: the heading gave the action "notice", so P1 blocked the letter on every try."""
     assert _facts_of_type("Council Tax reminder notice", "action") == []
     assert [f.value for f in _facts_of_type("Pay your Council Tax.", "action")] == ["Pay your Council Tax"]
 
 
 def test_bullets_the_reader_may_choose_are_not_required_actions() -> None:
-    """Regression (Manchester, 13 November 2026): "It’s easy to sort out your
-    council tax online:" then "• Check your account" gave required actions for
-    options the letter only offers, and P1 blocked the letter."""
+    """Regression: options the letter only offers became required actions, and P1 blocked the letter."""
     for lead in ["It’s easy to sort out your council tax online:", "It’s easy to sort it out online at www.example.gov.uk", "You can do this online:"]:
         text = f"Start here.\n{lead}\n• Apply for money off your bill\n• Check your account\n"
         values = [f.value for f in _facts_of_type(text, "action")]
