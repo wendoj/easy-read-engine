@@ -230,6 +230,6 @@ Both guides say to involve people with learning disabilities and test with them 
 ## Status and known limitations
 
 - [docs/day1-results.md](docs/day1-results.md): day 1 spike results.
-- [docs/pass-rates.md](docs/pass-rates.md): the latest 8-letter run (13 November 2026) ended with 0 passed, 6 flagged and 2 blocked on P1. P9 passed on 3 of 8 letters. Extractor fixes since cleared both blocks, and the invented council tax letter passed all 10 rules in one later run. The full run has not been repeated.
+- [docs/pass-rates.md](docs/pass-rates.md): the latest 8-letter run (13 November 2026) ended with 0 passed and 8 flagged. P1 passed on all 8 letters, and P9 on 2. One invented letter passed all 10 rules in a single run. The P3 code split has had no live run.
 - The 3 public samples in `web/data/samples/` are all flagged. None passes all 10 rules.
 - [docs/deploy.md](docs/deploy.md): the Chromium sandbox is turned off for PDF export in the container. The live deploy is still pending.

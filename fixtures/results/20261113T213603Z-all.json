@@ -1,0 +1,1141 @@
+{
+  "kind": "easy-read-fixture-run",
+  "version": 1,
+  "startedAt": "2026-11-13T21:36:03.637Z",
+  "finishedAt": "2026-11-13T21:56:43.830Z",
+  "set": "all",
+  "lettersDir": "fixtures/letters",
+  "appEnv": "development",
+  "chains": {
+    "rewrite": [
+      "bedrock:openai.gpt-oss-120b-1:0",
+      "groq:openai/gpt-oss-120b"
+    ],
+    "judge": [
+      "bedrock:qwen.qwen3-235b-a22b-2507-v1:0",
+      "groq:qwen/qwen3.8-27b"
+    ],
+    "vision": [
+      "bedrock:qwen.qwen3-vl-235b-a22b",
+      "groq:qwen/qwen3.8-27b"
+    ]
+  },
+  "letters": [
+    {
+      "letter": "council-tax-final-notice-east-cambridgeshire.pdf",
+      "source": "pdf",
+      "ms": 274365,
+      "requests": {
+        "total": 14,
+        "ok": 14,
+        "outcomes": {
+          "ok": 14
+        }
+      },
+      "status": "flagged",
+      "attempts": 3,
+      "judgeAvailable": true,
+      "sentenceCount": 89,
+      "keyFactCount": 41,
+      "lineCount": 123,
+      "rules": {
+        "P1": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P2": {
+          "passed": false,
+          "failingLines": 2,
+          "failedFacts": 0
+        },
+        "P3": {
+          "passed": false,
+          "failingLines": 3,
+          "failedFacts": 0
+        },
+        "P4": {
+          "passed": false,
+          "failingLines": 3,
+          "failedFacts": 0
+        },
+        "P5": {
+          "passed": false,
+          "failingLines": 6,
+          "failedFacts": 0
+        },
+        "P6": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P7": {
+          "passed": false,
+          "failingLines": 4,
+          "failedFacts": 0
+        },
+        "P8": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P9": {
+          "passed": false,
+          "failingLines": 15,
+          "failedFacts": 0
+        },
+        "P10": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        }
+      },
+      "failedRules": [
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P7",
+        "P9"
+      ],
+      "models": [
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        }
+      ],
+      "answeredBy": [
+        "bedrock:openai.gpt-oss-120b-1:0",
+        "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
+      ]
+    },
+    {
+      "letter": "invented-care-assessment.txt",
+      "source": "txt",
+      "ms": 59951,
+      "requests": {
+        "total": 6,
+        "ok": 6,
+        "outcomes": {
+          "ok": 6
+        }
+      },
+      "status": "flagged",
+      "attempts": 3,
+      "judgeAvailable": true,
+      "sentenceCount": 20,
+      "keyFactCount": 12,
+      "lineCount": 20,
+      "rules": {
+        "P1": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P2": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P3": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P4": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P5": {
+          "passed": false,
+          "failingLines": 3,
+          "failedFacts": 0
+        },
+        "P6": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P7": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P8": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P9": {
+          "passed": false,
+          "failingLines": 7,
+          "failedFacts": 0
+        },
+        "P10": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        }
+      },
+      "failedRules": [
+        "P3",
+        "P5",
+        "P9"
+      ],
+      "models": [
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        }
+      ],
+      "answeredBy": [
+        "bedrock:openai.gpt-oss-120b-1:0",
+        "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
+      ]
+    },
+    {
+      "letter": "invented-council-tax-reminder.txt",
+      "source": "txt",
+      "ms": 63857,
+      "requests": {
+        "total": 6,
+        "ok": 6,
+        "outcomes": {
+          "ok": 6
+        }
+      },
+      "status": "flagged",
+      "attempts": 3,
+      "judgeAvailable": true,
+      "sentenceCount": 16,
+      "keyFactCount": 17,
+      "lineCount": 23,
+      "rules": {
+        "P1": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P2": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P3": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P4": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P5": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P6": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P7": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P8": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P9": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P10": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        }
+      },
+      "failedRules": [
+        "P5"
+      ],
+      "models": [
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        }
+      ],
+      "answeredBy": [
+        "bedrock:openai.gpt-oss-120b-1:0",
+        "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
+      ]
+    },
+    {
+      "letter": "invented-housing-benefit-change.txt",
+      "source": "txt",
+      "ms": 73221,
+      "requests": {
+        "total": 6,
+        "ok": 6,
+        "outcomes": {
+          "ok": 6
+        }
+      },
+      "status": "flagged",
+      "attempts": 3,
+      "judgeAvailable": true,
+      "sentenceCount": 19,
+      "keyFactCount": 17,
+      "lineCount": 23,
+      "rules": {
+        "P1": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P2": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P3": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P4": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P5": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P6": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P7": {
+          "passed": false,
+          "failingLines": 2,
+          "failedFacts": 0
+        },
+        "P8": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P9": {
+          "passed": false,
+          "failingLines": 2,
+          "failedFacts": 0
+        },
+        "P10": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        }
+      },
+      "failedRules": [
+        "P3",
+        "P6",
+        "P7",
+        "P9"
+      ],
+      "models": [
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        }
+      ],
+      "answeredBy": [
+        "bedrock:openai.gpt-oss-120b-1:0",
+        "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
+      ]
+    },
+    {
+      "letter": "invented-parking-penalty.txt",
+      "source": "txt",
+      "ms": 66617,
+      "requests": {
+        "total": 6,
+        "ok": 6,
+        "outcomes": {
+          "ok": 6
+        }
+      },
+      "status": "flagged",
+      "attempts": 3,
+      "judgeAvailable": true,
+      "sentenceCount": 17,
+      "keyFactCount": 15,
+      "lineCount": 27,
+      "rules": {
+        "P1": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P2": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P3": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P4": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P5": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P6": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P7": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P8": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P9": {
+          "passed": false,
+          "failingLines": 3,
+          "failedFacts": 0
+        },
+        "P10": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        }
+      },
+      "failedRules": [
+        "P3",
+        "P5",
+        "P9"
+      ],
+      "models": [
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        }
+      ],
+      "answeredBy": [
+        "bedrock:openai.gpt-oss-120b-1:0",
+        "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
+      ]
+    },
+    {
+      "letter": "invented-repair-appointment.txt",
+      "source": "txt",
+      "ms": 74172,
+      "requests": {
+        "total": 6,
+        "ok": 6,
+        "outcomes": {
+          "ok": 6
+        }
+      },
+      "status": "flagged",
+      "attempts": 3,
+      "judgeAvailable": true,
+      "sentenceCount": 17,
+      "keyFactCount": 13,
+      "lineCount": 17,
+      "rules": {
+        "P1": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P2": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P3": {
+          "passed": false,
+          "failingLines": 3,
+          "failedFacts": 0
+        },
+        "P4": {
+          "passed": false,
+          "failingLines": 2,
+          "failedFacts": 0
+        },
+        "P5": {
+          "passed": false,
+          "failingLines": 6,
+          "failedFacts": 0
+        },
+        "P6": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P7": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P8": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P9": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P10": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        }
+      },
+      "failedRules": [
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7"
+      ],
+      "models": [
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        }
+      ],
+      "answeredBy": [
+        "bedrock:openai.gpt-oss-120b-1:0",
+        "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
+      ]
+    },
+    {
+      "letter": "manchester-missed-council-tax-payment.pdf",
+      "source": "pdf",
+      "ms": 359301,
+      "requests": {
+        "total": 21,
+        "ok": 21,
+        "outcomes": {
+          "ok": 21
+        }
+      },
+      "status": "flagged",
+      "attempts": 3,
+      "judgeAvailable": true,
+      "sentenceCount": 143,
+      "keyFactCount": 68,
+      "lineCount": 189,
+      "rules": {
+        "P1": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P2": {
+          "passed": false,
+          "failingLines": 7,
+          "failedFacts": 0
+        },
+        "P3": {
+          "passed": false,
+          "failingLines": 8,
+          "failedFacts": 0
+        },
+        "P4": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P5": {
+          "passed": false,
+          "failingLines": 4,
+          "failedFacts": 0
+        },
+        "P6": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P7": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P8": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P9": {
+          "passed": false,
+          "failingLines": 22,
+          "failedFacts": 0
+        },
+        "P10": {
+          "passed": false,
+          "failingLines": 2,
+          "failedFacts": 0
+        }
+      },
+      "failedRules": [
+        "P2",
+        "P3",
+        "P5",
+        "P9",
+        "P10"
+      ],
+      "models": [
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        }
+      ],
+      "answeredBy": [
+        "bedrock:openai.gpt-oss-120b-1:0",
+        "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
+      ]
+    },
+    {
+      "letter": "planning-appeal-notification-letter.txt",
+      "source": "txt",
+      "ms": 163695,
+      "requests": {
+        "total": 10,
+        "ok": 10,
+        "outcomes": {
+          "ok": 10
+        }
+      },
+      "status": "flagged",
+      "attempts": 3,
+      "judgeAvailable": true,
+      "sentenceCount": 51,
+      "keyFactCount": 6,
+      "lineCount": 68,
+      "rules": {
+        "P1": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P2": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P3": {
+          "passed": false,
+          "failingLines": 2,
+          "failedFacts": 0
+        },
+        "P4": {
+          "passed": false,
+          "failingLines": 9,
+          "failedFacts": 0
+        },
+        "P5": {
+          "passed": false,
+          "failingLines": 2,
+          "failedFacts": 0
+        },
+        "P6": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P7": {
+          "passed": false,
+          "failingLines": 1,
+          "failedFacts": 0
+        },
+        "P8": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        },
+        "P9": {
+          "passed": false,
+          "failingLines": 4,
+          "failedFacts": 0
+        },
+        "P10": {
+          "passed": true,
+          "failingLines": 0,
+          "failedFacts": 0
+        }
+      },
+      "failedRules": [
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P7",
+        "P9"
+      ],
+      "models": [
+        {
+          "task": "rewrite",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 1,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "regenerate",
+          "attempt": 2,
+          "provider": "bedrock",
+          "model": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        },
+        {
+          "task": "judge",
+          "attempt": 3,
+          "provider": "bedrock",
+          "model": "qwen.qwen3-235b-a22b-2507-v1:0"
+        }
+      ],
+      "answeredBy": [
+        "bedrock:openai.gpt-oss-120b-1:0",
+        "bedrock:qwen.qwen3-235b-a22b-2507-v1:0"
+      ]
+    }
+  ],
+  "totals": {
+    "letters": 8,
+    "finished": 8,
+    "errors": 0,
+    "passed": 0,
+    "flagged": 8,
+    "blocked": 0,
+    "rulePasses": {
+      "P1": 8,
+      "P2": 4,
+      "P3": 1,
+      "P4": 5,
+      "P5": 1,
+      "P6": 6,
+      "P7": 4,
+      "P8": 8,
+      "P9": 2,
+      "P10": 7
+    }
+  }
+}

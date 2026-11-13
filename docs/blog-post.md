@@ -41,9 +41,9 @@ The spec came first: 9 requirements, 47 acceptance criteria and 36 tasks. Steeri
 
 ## Where it stands
 
-No letter has passed all 10 rules in a full run. In the 8-letter run on 13 November 2026 (`docs/pass-rates.md`), 6 letters ended flagged and 2 blocked on P1. The meaning check (P9) passed on 3 of the 8 letters, up from none the day before, after I tuned the judge rubric.
+No letter has passed all 10 rules in a full run. In the 8-letter run on 13 November 2026 (`docs/pass-rates.md`), all 8 letters ended flagged and none was blocked: P1 passed on every letter. The meaning check (P9) passed on 2 of 8 letters in that run and on 3 of 8 in the run before it, up from none the day before, after I tuned the judge rubric.
 
-The checker caused both blocks. It read a heading ("Council Tax reminder notice") as a command, treated a list of things the council could do as orders to the reader, and read "Monday—Friday" and "Monday to Friday" as different dates. I fixed each with a regression test, and P1 still compares every fact. After the fixes, the invented council tax letter passed all 10 rules once, and Manchester ended flagged instead of blocked. Those are single runs, and the latest change (splitting "if" and ", and" clauses in code for P3) has had no live run.
+The earlier run blocked 2 letters, and the checker caused both blocks. It read a heading ("Council Tax reminder notice") as a command, treated a list of things the council could do as orders to the reader, and read "Monday—Friday" and "Monday to Friday" as different dates. I fixed each with a regression test, and P1 still compares every fact. One invented letter passed all 10 rules in a single run. The latest change, splitting "if" and ", and" clauses in code for P3, has had no live run.
 
 One Easy Read checker tried the app and said it was easy to use and helped a lot. That is one informal check. Testing with readers, which both guides ask for, has not happened.
 
