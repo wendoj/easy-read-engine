@@ -495,3 +495,31 @@ def test_short_label_lines_keep_their_own_action_and_date() -> None:
     assert [f.normalised for f in extract_key_facts(due) if f.type == "action"] == ["pay||date=2026-04-01"]
     balance = "Please pay the balance now\nNext instalment 1 May 2026"
     assert [f.normalised for f in extract_key_facts(balance) if f.type == "action"] == ["pay|balance|"]
+
+
+def test_weekday_ranges_share_one_value_across_dash_and_to() -> None:
+    """Regression (Manchester, 12 November 2026): "Monday—Friday" gave the date
+    "friday" and the rewrite's "Monday to Friday" gave "monday to friday", so
+    P1 blocked the letter on a date that was kept."""
+    texts = ["Call us, Monday—Friday.", "Call us, Monday to Friday.", "Call us, Mon - Fri.", "Call us, Monday–Friday."]
+    values = {f.normalised for t in texts for f in _facts_of_type(t, "date")}
+    assert values == {"mon to fri"}
+    assert {f.normalised for f in _facts_of_type("Call us on Friday.", "date")} == {"friday"}
+
+
+def test_bullets_the_sender_offers_are_not_required_actions() -> None:
+    """Regression (Manchester, 12 November 2026): "We could:" then "• Change your
+    payment plan." gave required actions the rewrite rightly did not write as
+    orders to the reader, and P1 blocked the letter."""
+    offered = "Struggling to pay?\nWe could:\n• Change your payment plan.\n• Offer special support if you’re vulnerable.\n"
+    assert _facts_of_type(offered, "action") == []
+    required = "You must do these:\n• Change your payment plan.\n"
+    assert "Change your payment plan" in [f.value for f in _facts_of_type(required, "action")]
+
+
+def test_no_duty_is_not_a_required_action() -> None:
+    """Regression (Manchester, 12 November 2026): "so you don’t have to pay the
+    whole year’s bill" gave the action "pay the whole year’s bill"."""
+    text = "Act now so you don’t have to pay the whole year’s bill."
+    assert [f.value for f in _facts_of_type(text, "action")] == ["Act now"]
+    assert [f.value for f in _facts_of_type("You have to pay the bill.", "action")] == ["to pay the bill"]

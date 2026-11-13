@@ -41,6 +41,12 @@ _WEEKDAY = (
 _WEEKDAY_PREFIX = rf"(?:{_WEEKDAY},?{_H}+)?"
 _DAY = r"(?P<d>[0-3]?\d)(?:st|nd|rd|th)?"
 
+# "Monday-Friday", "Monday – Friday", "Monday to Friday". The dash and "to"
+# forms are one date, so a rewrite that changes one into the other still matches.
+_DATE_WEEKDAY_RANGE = re.compile(
+    rf"(?i)\b(?P<a>{_WEEKDAY})(?:{_H}*[-\u2010-\u2015]{_H}*|{_H}+(?:to|until|through|till){_H}+)(?P<b>{_WEEKDAY})\b"
+)
+
 # "Monday 1 March 2026", "1st of March", "the 1st March 2026"
 _DATE_DMY = re.compile(
     rf"(?i)\b{_WEEKDAY_PREFIX}(?:the{_H}+)?{_DAY}(?:{_H}+of)?{_H}+(?P<m>{_MONTH})\b"
@@ -305,6 +311,9 @@ def _regex_candidates(text: str) -> list[_Candidate]:
         for m in regex.finditer(text):
             add("date", m.start(), m.end(),
                 _iso_date(m.group("d"), int(m.group("m")), m.group("y")), _RANK_DATE)  # fmt: skip
+    for m in _DATE_WEEKDAY_RANGE.finditer(text):
+        add("date", m.start(), m.end(), f"{m.group('a')[:3].lower()} to {m.group('b')[:3].lower()}",
+            _RANK_DATE)  # fmt: skip
     for m in _DATE_RELATIVE.finditer(text):
         add("date", m.start(), m.end(), _relative_date(m.group("n"), m.group("q"), m.group("u")),
             _RANK_DATE)  # fmt: skip
@@ -443,6 +452,9 @@ def _action_verb(tok: Token) -> Token | None:
         ):
             return tok
     if tok.lemma_.lower() in ("need", "have") and _has_you_subject(tok):
+        # "so you don't have to pay" says there is no duty: not a required action.
+        if any(c.dep_ == "neg" for c in tok.children):
+            return None
         return _xcomp_verb(tok)
     if tok.lemma_.lower() in ("require", "ask", "expect") and (
         _has_you_subject(tok, ("nsubjpass",)) or _has_you_object(tok)
@@ -640,6 +652,29 @@ def _action_candidates(
     return out
 
 
+# A bullet list the sender offers ("We could:" then "• Change your payment
+# plan."). Its imperatives say what the sender may do, not what the reader must.
+_OFFER_LEAD_IN = re.compile(
+    r"(?i)\b(?:we|the council|the team|they)\s+(?:could|can|may|might|would)\s*:\s*$"
+)
+_BULLET_LINE = re.compile(r"^\s*[\u2022\u25cf\u25aa*\-\u2013]\s")
+
+
+def _in_offer_list(text: str, start: int) -> bool:
+    """Whether `start` is in a bullet whose list opens with an offer lead-in."""
+    line_start = text.rfind("\n", 0, start) + 1
+    if not _BULLET_LINE.match(text[line_start : line_start + 4]):
+        return False
+    lines = text[:line_start].rstrip("\n").split("\n")
+    for prev in reversed(lines):
+        if not prev.strip():
+            return False
+        if _BULLET_LINE.match(prev):
+            continue
+        return _OFFER_LEAD_IN.search(prev) is not None
+    return False
+
+
 # --- public API --------------------------------------------------------------
 
 
@@ -676,7 +711,7 @@ def extract_key_facts(text: str, sentences: list[Sentence] | None = None) -> lis
     facts = _resolve_overlaps(
         _regex_candidates(text) + _address_candidates(text, facilities) + _ner_candidates(docs)
     )
-    facts += _action_candidates(docs, facts)
+    facts += [c for c in _action_candidates(docs, facts) if not _in_offer_list(text, c.start)]
     facts.sort(key=lambda c: (c.start, c.end, c.type))
 
     return [
