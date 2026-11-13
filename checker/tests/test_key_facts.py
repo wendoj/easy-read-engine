@@ -523,3 +523,23 @@ def test_no_duty_is_not_a_required_action() -> None:
     text = "Act now so you don’t have to pay the whole year’s bill."
     assert [f.value for f in _facts_of_type(text, "action")] == ["Act now"]
     assert [f.value for f in _facts_of_type("You have to pay the bill.", "action")] == ["to pay the bill"]
+
+
+def test_a_noun_heading_tagged_as_a_verb_is_not_an_action() -> None:
+    """Regression (invented council tax letter, 13 November 2026): the heading
+    "Council Tax reminder notice" gave the action "notice", which no rewrite
+    could keep, so P1 blocked the letter on every try."""
+    assert _facts_of_type("Council Tax reminder notice", "action") == []
+    assert [f.value for f in _facts_of_type("Pay your Council Tax.", "action")] == ["Pay your Council Tax"]
+
+
+def test_bullets_the_reader_may_choose_are_not_required_actions() -> None:
+    """Regression (Manchester, 13 November 2026): "It’s easy to sort out your
+    council tax online:" then "• Check your account" gave required actions for
+    options the letter only offers, and P1 blocked the letter."""
+    for lead in ["It’s easy to sort out your council tax online:", "It’s easy to sort it out online at www.example.gov.uk", "You can do this online:"]:
+        text = f"Start here.\n{lead}\n• Apply for money off your bill\n• Check your account\n"
+        values = [f.value for f in _facts_of_type(text, "action")]
+        assert "Apply for money off your bill" not in values and "Check your account" not in values, lead
+    text = "You must do these:\n• Apply for money off your bill\n"
+    assert "Apply for money off your bill" in [f.value for f in _facts_of_type(text, "action")]

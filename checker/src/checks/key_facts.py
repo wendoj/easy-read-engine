@@ -443,7 +443,10 @@ def _action_verb(tok: Token) -> Token | None:
         # A heading question ("Need help with council tax?") has the shape of
         # an imperative but asks nothing of the reader.
         question = tok.sent.text.rstrip().endswith("?")
-        if tok.dep_ == "ROOT" and no_subject and only_do and not question:
+        # A noun phrase heading the small model tags as a verb ("Council Tax
+        # reminder notice"): words that modify it come before it.
+        heading = any(c.dep_ == "compound" and c.i < tok.i for c in children)
+        if tok.dep_ == "ROOT" and no_subject and only_do and not question and not heading:
             return tok
         if any(c.lower_ == "please" for c in children):
             return tok
@@ -655,7 +658,11 @@ def _action_candidates(
 # A bullet list the sender offers ("We could:" then "• Change your payment
 # plan."). Its imperatives say what the sender may do, not what the reader must.
 _OFFER_LEAD_IN = re.compile(
-    r"(?i)\b(?:we|the council|the team|they)\s+(?:could|can|may|might|would)\s*:\s*$"
+    r"(?i)(?:\b(?:we|the council|the team|they)\s+(?:could|can|may|might|would)\s*:"
+    r"|\byou\s+(?:can|may|could|might)\b[^:\n]*:"
+    # "It's easy to sort out your account online:" (the colon may be missing
+    # when the line ends on a web address).
+    r"|\b(?:it['\u2019]s|it is)\s+(?:easy|simple|quick)\s+to\b[^:\n]*:?)\s*$"
 )
 _BULLET_LINE = re.compile(r"^\s*[\u2022\u25cf\u25aa*\-\u2013]\s")
 
