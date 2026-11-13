@@ -66,6 +66,7 @@ import {
   regenerationChecks,
 } from "./decide";
 import { LineIds, type WorkingLine, applyRegeneration, fromDrafts, toLines } from "./lines";
+import { judgeSourceText } from "./source-text";
 import { splitConditions } from "./split-conditions";
 import { attachSymbols } from "./symbols";
 import type {
@@ -131,7 +132,7 @@ export async function convert(original: string, deps: PipelineDeps): Promise<Con
     checker.analyse(original), // step 4
     checker.actionSynonyms(), // for the rule report
   ]);
-  const sourceText = new Map(sentences.map((s) => [s.id, s.text]));
+  const sourceText = judgeSourceText(sentences);
 
   /**
    * P9 and P10 for one try. On the judge's second chance (`rejudge`), only

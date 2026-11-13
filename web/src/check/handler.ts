@@ -47,6 +47,7 @@ import { readBody } from "@/src/convert/handler";
 import { letterLengthProblem } from "@/src/convert/word-count";
 import type { JudgePair, JudgeResult } from "@/src/llm/judge";
 import { completeChecks, statusOf } from "@/src/pipeline/decide";
+import { judgeSourceText } from "@/src/pipeline/source-text";
 import type { ModelUse, Rule, Status } from "@/src/pipeline/types";
 import { type RateLimiter, rateLimit as defaultRateLimit } from "@/src/rate-limit";
 import {
@@ -268,7 +269,7 @@ export async function handleCheck(request: Request, deps: CheckHandlerDeps): Pro
   try {
     // Key facts and sentences from the Original, never from the client (R2.4).
     const { sentences, key_facts: keyFacts } = await checker.analyse(original);
-    const sourceText = new Map(sentences.map((s) => [s.id, s.text]));
+    const sourceText = judgeSourceText(sentences);
     if (lines.some((l) => !sourceText.has(l.source_sentence_id))) {
       return reject(failure("invalid_request"), counts);
     }
