@@ -24,3 +24,7 @@ next-env.d.ts
 
 # Runtime caches (pictogram PNGs only)
 symbol-cache/
+
+# Agent and planning scratch files
+.plans/
+.agents/
