@@ -1,15 +1,4 @@
-/**
- * Pure client logic for editing lines (task 26, R9.1 to R9.3).
- *
- * - `editLine` changes the text of 1 line and nothing else.
- * - `buildCheckRequest` is the `/api/check` body: the Original, every current
- *   line, the edited line's ID and the current checks, whose P9 and P10
- *   verdicts the server carries over for the lines that weren't edited.
- * - `applyCheckResponse` puts the checked result in place of the old one.
- * - `UndoHistory` keeps earlier results in memory only, so "Undo edit"
- *   restores one exactly, without a server call: it was checked already.
- *   Nothing is written to storage (R7.4).
- */
+/** Edit history lives in memory only, so "Undo edit" restores a result that was already checked. */
 import { z } from "zod";
 import {
   type Line,
@@ -20,8 +9,8 @@ import {
 } from "@/src/checker-client/schemas";
 import { MAX_EDIT_LINE_CHARS } from "@/src/check/errors";
 import type { ConversionResult } from "@/src/pipeline/types";
+import { lineSchema } from "./convert-events";
 
-/** Most results kept for "Undo edit". */
 export const MAX_UNDO = 20;
 
 export interface CheckRequestBody {
@@ -31,14 +20,7 @@ export interface CheckRequestBody {
   previousChecks: ConversionResult["checks"];
 }
 
-const lineSchema = z.object({
-  id: z.string(),
-  text: z.string(),
-  source_sentence_id: z.string(),
-  symbol_id: z.string().nullable(),
-});
-
-/** The 200 body of `/api/check` (`CheckResponse` in src/check/handler.ts). */
+/** `CheckResponse` in src/check/handler.ts. */
 export const checkResponseSchema = z.object({
   status: z.enum(["passed", "flagged", "blocked"]),
   checks: z.array(checkResultSchema),
@@ -61,7 +43,6 @@ export type CheckResponseBody = z.infer<typeof checkResponseSchema>;
 
 export type EditProblem = "empty" | "too_long" | "unchanged" | "no_line";
 
-/** Why a draft can't be sent, or null when it can. Checked before any request. */
 export function editProblem(lines: readonly Line[], lineId: string, text: string): EditProblem | null {
   const line = lines.find((l) => l.id === lineId);
   if (!line) return "no_line";
@@ -76,11 +57,12 @@ export const EDIT_PROBLEM_MESSAGES: Record<Exclude<EditProblem, "unchanged" | "n
   too_long: `A line can have up to ${MAX_EDIT_LINE_CHARS} characters. Make the line shorter.`,
 };
 
-/** The lines with 1 line's text replaced. Order, IDs, sources and pictures stay the same. */
+/** Only the text of 1 line changes. Order, IDs, sources and pictures stay the same. */
 export function editLine(lines: readonly Line[], lineId: string, text: string): Line[] {
   return lines.map((l) => (l.id === lineId ? { ...l, text } : { ...l }));
 }
 
+/** The server carries over P9 and P10 verdicts from `previousChecks` for lines that weren't edited. */
 export function buildCheckRequest(result: ConversionResult, lineId: string, text: string): CheckRequestBody {
   return {
     original: result.original.text,
@@ -90,7 +72,7 @@ export function buildCheckRequest(result: ConversionResult, lineId: string, text
   };
 }
 
-/** The result after a checked edit. The Original text is kept as it was (R1.6). */
+/** The Original text is kept as it was. */
 export function applyCheckResponse(previous: ConversionResult, response: CheckResponseBody): ConversionResult {
   return {
     ...previous,
@@ -106,9 +88,8 @@ export function applyCheckResponse(previous: ConversionResult, response: CheckRe
 }
 
 /**
- * Earlier results, newest last, for the result they lead to. If the shown
- * result is replaced some other way (a new conversion), `current` no longer
- * matches it and the history doesn't apply.
+ * Earlier results, newest last. If the shown result is replaced some other way
+ * (a new conversion), `current` no longer matches it and the history doesn't apply.
  */
 export interface UndoHistory {
   past: ConversionResult[];
@@ -117,7 +98,6 @@ export interface UndoHistory {
 
 export const EMPTY_HISTORY: UndoHistory = { past: [], current: null };
 
-/** Record that `before` was replaced by `after` through an edit. */
 export function recordEdit(history: UndoHistory, before: ConversionResult, after: ConversionResult): UndoHistory {
   const base = history.current === before ? history.past : [];
   return { past: [...base, before].slice(-MAX_UNDO), current: after };
@@ -127,7 +107,6 @@ export function canUndo(history: UndoHistory, shown: ConversionResult | null): b
   return shown !== null && history.current === shown && history.past.length > 0;
 }
 
-/** The result before the last edit, and the history after undoing it. Null when there is nothing to undo. */
 export function undoEdit(
   history: UndoHistory,
   shown: ConversionResult | null,

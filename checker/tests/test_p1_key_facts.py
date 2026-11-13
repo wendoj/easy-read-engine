@@ -16,8 +16,6 @@ from checks.sentences import split_sentences
 
 # All text here is invented. No real letters or personal data.
 
-# --- generators --------------------------------------------------------------
-
 _SENTENCES = [
     ("You must pay {money} by {date}.", ("money", "date")),
     ("Your reference number is {reference}.", ("reference",)),
@@ -28,7 +26,6 @@ _SENTENCES = [
     ("Please send the form back within 14 days.", ()),
     ("The council looked at your claim again.", ()),
 ]
-_SLOTS = FACT_VALUES
 
 
 @st.composite
@@ -37,7 +34,7 @@ def _letters(draw: st.DrawFn) -> str:
     templates = draw(st.lists(st.sampled_from(_SENTENCES), min_size=2, max_size=6))
     parts = []
     for template, slots in templates:
-        parts.append(template.format(**{slot: draw(_SLOTS[slot]) for slot in slots}))
+        parts.append(template.format(**{slot: draw(FACT_VALUES[slot]) for slot in slots}))
     return " ".join(parts)
 
 
@@ -64,9 +61,6 @@ def _faithful_lines(
                  source_sentence_id=s.id, symbol_id=None),  # fmt: skip
         )
     return lines
-
-
-# --- properties --------------------------------------------------------------
 
 
 @settings(max_examples=40, deadline=None)
@@ -193,8 +187,6 @@ def test_year_added_to_a_date_passes_and_a_changed_day_or_month_fails(
     assert date_fact.id in failed.failed_fact_ids
 
 
-# --- examples ----------------------------------------------------------------
-
 _ORIGINAL = "The council wrote to you on 2 March 2026. You owe £45 for your council tax."
 
 
@@ -237,7 +229,7 @@ def test_changed_amount_reports_the_line_holding_it() -> None:
     result = check_p1(_ORIGINAL, facts, lines)
     assert result.failed_fact_ids == [money.id]
     assert result.line_ids == ["l2"]
-    # Details name the fact, never its value (R7.4).
+    # Details name the fact, never its value.
     assert all("45" not in d and "54" not in d for d in result.details)
 
 
@@ -267,8 +259,7 @@ def test_no_key_facts_passes() -> None:
     assert result.failed_fact_ids == []
 
 
-# --- rules that must not contradict each other (P1 with P3 and P4) -----------
-
+# P1 must not contradict P3 and P4.
 
 def _p1(original: str, texts: list[str]) -> tuple[list[KeyFact], CheckResult]:
     sentences, facts = _analyse(original)
@@ -306,8 +297,7 @@ def test_split_action_with_a_changed_date_fails() -> None:
 
 
 def test_dates_swapped_between_two_payments_fail() -> None:
-    # Reproduced in review v1: this passed when values were looked up anywhere
-    # in the source sentence's lines.
+    # This passed when values were looked up anywhere in the source sentence's lines.
     facts, result = _p1(
         "You must pay £45 by 1 April 2026 and you must pay £20 by 1 May 2026.",
         ["You must pay £45 by 1 May 2026.", "You must pay £20 by 1 April 2026."],
@@ -317,8 +307,7 @@ def test_dates_swapped_between_two_payments_fail() -> None:
 
 
 def test_deadlines_swapped_on_statement_lines_fail() -> None:
-    # Reproduced in review v2: a date on a line with no action was shared by
-    # both payments, so swapping the deadline statements passed.
+    # A date on a line with no action was shared by both payments, so this passed.
     original = "You must pay £45 by 1 April 2026 and you must pay £20 by 1 May 2026."
     facts, result = _p1(
         original,
@@ -336,8 +325,7 @@ def test_deadlines_swapped_on_statement_lines_fail() -> None:
 
 
 def test_deadlines_swapped_before_their_payments_fail() -> None:
-    # Reproduced in review v3: each deadline line went to the payment before
-    # it, so the swapped lines passed and the faithful lines failed.
+    # Each deadline line went to the payment before it, so the swapped lines passed.
     original = "You must pay £45 by 1 April 2026 and you must pay £20 by 1 May 2026."
     facts, result = _p1(
         original,

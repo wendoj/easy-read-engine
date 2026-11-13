@@ -1,15 +1,10 @@
 /**
- * Hard words that official letters use, each with a plain swap.
+ * Hard words that official letters use, each with a plain swap. P5 reasons
+ * never name the words (checker details hold no letter text), so the rewrite
+ * and regenerate prompts get the entries for the words in the text they see.
  *
- * P5 fails a line for "N words that are not common", but its reasons never
- * name the words (checker details hold no text, R7.4), so the model had to
- * guess which word to change. The recorded samples kept "summons",
- * "appellant", "authority" and "hardship" through 3 tries. The rewrite and
- * regenerate prompts now get the entries for the words in the text they see.
- *
- * Every word here fails P5 (it is not on the checker's common-word list), and
- * every swap passes P5. Check both with the checker before adding an entry.
- * A swap is a suggestion: the prompts tell the model to keep the meaning.
+ * Every word here fails P5 and every swap passes it. Check both with the
+ * checker before adding an entry.
  */
 export interface PlainWord {
   /** The forms to look for, lower case. The first is shown to the model. */
@@ -63,7 +58,7 @@ export const PLAIN_WORDS: readonly PlainWord[] = [
 
 const BY_FORM = new Map(PLAIN_WORDS.flatMap((entry) => entry.forms.map((form) => [form, entry] as const)));
 
-/** The entries whose words appear in `texts`, in list order, each once. */
+/** In list order, each once. */
 export function findPlainWords(texts: readonly string[]): PlainWord[] {
   const found = new Set<PlainWord>();
   for (const text of texts) {
@@ -76,7 +71,6 @@ export function findPlainWords(texts: readonly string[]): PlainWord[] {
   return PLAIN_WORDS.filter((entry) => found.has(entry));
 }
 
-/** Prompt text for the entries found in `texts`, one per line, or "(none)". */
 export function formatPlainWords(texts: readonly string[]): string {
   const found = findPlainWords(texts);
   if (found.length === 0) return "(none)";

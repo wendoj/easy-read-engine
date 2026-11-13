@@ -15,8 +15,6 @@ from checks.sentences import split_sentences
 
 RULES = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"]
 
-# --- generators --------------------------------------------------------------
-
 _symbol_ids = st.one_of(
     st.none(),
     st.sampled_from(sorted(symbol_ids())),
@@ -26,8 +24,7 @@ _symbol_ids = st.one_of(
 
 @st.composite
 def _lines(draw: st.DrawFn, sentences: list[Sentence]) -> list[Line]:
-    """Any output lines: copied sentences, short passive or active sentences,
-    or free text, with any source IDs and symbol IDs."""
+    """Any output lines, with any source IDs and symbol IDs."""
     texts = st.one_of(
         st.sampled_from([s.text for s in sentences]),
         passive_active_pairs().flatmap(lambda pair: st.sampled_from(pair)),
@@ -41,9 +38,6 @@ def _lines(draw: st.DrawFn, sentences: list[Sentence]) -> list[Line]:
     ]
 
 
-# --- properties --------------------------------------------------------------
-
-
 @settings(max_examples=40, deadline=None)
 @given(synthetic_letters(), st.data())
 def test_returns_one_result_per_rule_in_order(original: str, data: st.DataObject) -> None:
@@ -52,9 +46,6 @@ def test_returns_one_result_per_rule_in_order(original: str, data: st.DataObject
     lines = data.draw(_lines(analysis.sentences))
     results = check_easy_read(original, analysis.key_facts, lines)
     assert [r.rule for r in results] == RULES
-
-
-# --- examples ----------------------------------------------------------------
 
 _ORIGINAL = (
     "Following a recent review of your council tax account, a payment of £45 will be "
@@ -106,9 +97,6 @@ def test_find_symbol_is_the_symbol_search() -> None:
     assert 1 <= len(find_symbol("doctor")) <= 5
     assert len(find_symbol("pay money", limit=1)) == 1
     assert find_symbol("the") == []
-
-
-# --- synthetic letter generator ----------------------------------------------
 
 
 def test_long_passive_sentences_are_long_passive_and_hold_their_facts() -> None:

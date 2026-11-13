@@ -1,12 +1,10 @@
 /**
  * The source text the judge sees for each sentence.
  *
- * The sentence splitter ends an address block before its postcode line, so
- * the postcode becomes a sentence of its own. An Easy Read line that gives the
- * whole address then looks like it adds a postcode, and the judge fails it
- * for meaning (P9). The postcode line is added to the sentence above it for
- * the judge only. The sentences themselves, their IDs and every key fact are
- * unchanged, so recorded samples stay valid.
+ * The sentence splitter makes a postcode line a sentence of its own, so a
+ * line that gives the whole address looked like it added a postcode and
+ * failed P9. The postcode is joined to the sentence above it for the judge
+ * only. Sentences, their IDs and key facts are unchanged.
  */
 import type { Sentence } from "@/src/checker-client/schemas";
 

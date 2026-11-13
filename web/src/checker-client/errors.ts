@@ -1,7 +1,7 @@
 /**
- * Checker client errors. Messages hold only the route path, the HTTP status and
- * field locations or error types. Never letter text, line text, key-fact values
- * or the `/symbols` query (R7.4).
+ * Messages hold only the route path, the HTTP status and field locations or
+ * error types. Never letter text, line text, key-fact values or the
+ * `/symbols` query.
  */
 import type { ValidationIssue } from "./schemas";
 
@@ -16,11 +16,7 @@ export type CheckerRoute =
 
 export type UnavailableReason = "network" | "timeout" | "server_error" | "invalid_response";
 
-/**
- * The checker can't be used: network error, timeout, 5xx (including `/health`
- * reporting "starting") or a response that fails validation. Route handlers
- * return 503, so unchecked output is never shown.
- */
+/** Routes return 503 on this, so unchecked output is never shown. 5xx includes `/health` reporting "starting". */
 export class CheckerUnavailable extends Error {
   readonly route: CheckerRoute;
   readonly reason: UnavailableReason;
@@ -35,10 +31,7 @@ export class CheckerUnavailable extends Error {
   }
 }
 
-/**
- * The checker rejected the request (4xx). `issues` holds field locations and
- * error types only, as returned by the checker's 422 handler.
- */
+/** A 4xx. `issues` holds field locations and error types only. */
 export class CheckerRequestError extends Error {
   readonly route: CheckerRoute;
   readonly status: number;

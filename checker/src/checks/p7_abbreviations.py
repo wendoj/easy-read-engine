@@ -1,38 +1,14 @@
 """P7: no unexplained abbreviations.
 
-An abbreviation is an alphabetic all-caps token of at least
-`MIN_ABBREVIATION_LETTERS` letters ("PIP", "NHS"), or the same with a plural
-"s" ("GPs"). Tokens with digits, such as references and postcodes ("AB123456",
-"LS1"), are not abbreviations.
+An abbreviation is an all-caps alphabetic token of at least
+`MIN_ABBREVIATION_LETTERS` letters, optionally with a plural "s" ("GPs").
+Its first use must read "Full Words (ABBR)" or "ABBR (Full Words)", where the
+words start with its letters in order, with `ABBREVIATION_LINK_WORDS` allowed
+between. All-caps emphasis ("You MUST pay") fails too.
 
-The first time an abbreviation appears in the output (lines in order), it must
-be expanded in one of 2 ways:
-- the full words, then the abbreviation in brackets:
-  "Personal Independence Payment (PIP)"
-- the abbreviation, then the full words in brackets:
-  "PIP (Personal Independence Payment)"
-
-The full words must start with the abbreviation's letters, in order. Small link
-words with no letter of their own may appear between them
-("Department for Work and Pensions (DWP)"); see `ABBREVIATION_LINK_WORDS`.
-After that, the abbreviation may appear on its own. A line fails if it uses an
-abbreviation that has not been expanded yet, in that line or an earlier one.
-
-All-caps words used for emphasis ("You MUST pay") also fail; Easy Read
-doesn't use capitals for emphasis.
-
-Two kinds of capitals are copied from the letter, so they pass:
-- the address lines just before a postcode that is in one of the Original's
-  address key facts ("PO BOX 3, Manchester, M15 5BA"), the same run that P5
-  passes (`checks/address_lines.py`). Each capitalised word must be in the
-  Original's address text before that postcode, so an abbreviation the model
-  adds to an address ("DWP, M15 5BA") still fails. The model must not reword
-  an address
-- a placeholder of 3 or more X's that the Original also has ("XXXXXXXXX" for
-  an account reference in a template letter). It stands for a value, not a
-  word. A run of X's the Original doesn't have still fails
-
-This module never logs, and `details` hold line IDs and counts, never text (R7.4).
+Capitals copied from the letter pass: address words before a key-fact
+postcode (`address_lines`, so "DWP, M15 5BA" added by the model still fails)
+and X placeholders the Original also has.
 """
 
 import re
@@ -42,6 +18,7 @@ from spacy.tokens import Doc, Token
 from checks.address_lines import address_postcodes, address_words
 from checks.config import ABBREVIATION_LINK_WORDS, MIN_ABBREVIATION_LETTERS
 from checks.models import CheckResult, KeyFact, Line
+from checks.results import line_result
 from checks.sentences import get_nlp
 
 # X's, with "." or "," between them ("XXX.XX", "XX,XXX"). At least 3 X's in all.
@@ -49,11 +26,7 @@ _PLACEHOLDER = re.compile(r"(?i)x+(?:[.,]x+)*")
 
 
 def is_placeholder(token: Token, original: str) -> bool:
-    """True if `token` is a run of X's that also appears in `original`.
-
-    Template letters print "£XXX.XX" or "XXXXXXXXX" where a real letter has an
-    amount or a reference. "XX" alone and a run the Original lacks don't count.
-    """
+    """True if `token` is a run of 3+ X's ("£XXX.XX" in a template letter) that also appears in `original`."""
     text = token.text.strip("£$€.,")
     return (
         bool(_PLACEHOLDER.fullmatch(text))
@@ -77,8 +50,8 @@ def abbreviation_of(token: Token) -> str | None:
 def _initials_match(letters: str, words: list[str]) -> bool:
     """True if `words` start with `letters` in order, allowing link words between.
 
-    Every word must either give the next letter or be a link word. A link word
-    may also give a letter ("Office of Others (OO)"), so both choices are tried.
+    A link word may also give a letter ("Office of Others (OO)"), so both
+    choices are tried.
     """
 
     def match(i: int, j: int) -> bool:
@@ -97,7 +70,6 @@ def _words(doc: Doc, start: int, end: int) -> list[str]:
 
 
 def is_expanded_here(token: Token, abbreviation: str) -> bool:
-    """True if `token` sits in one of the 2 expansion patterns in the module docstring."""
     doc, i = token.doc, token.i
     sent_start = token.sent.start
     # "Full Words (ABBR)": the words just before "(" end with the expansion.
@@ -116,11 +88,6 @@ def is_expanded_here(token: Token, abbreviation: str) -> bool:
 
 
 def check_p7(original: str, key_facts: list[KeyFact], lines: list[Line]) -> CheckResult:
-    """Fail every line that uses an abbreviation before it has been expanded.
-
-    `original` and `key_facts` are used only for the capitals copied from the
-    letter (module docstring): placeholders and address lines.
-    """
     postcodes = address_postcodes(original, key_facts)
     expanded: set[str] = set()
     failing: list[str] = []
@@ -145,10 +112,4 @@ def check_p7(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
         if unexplained:
             failing.append(line.id)
             details.append(f"{line.id} has {unexplained} abbreviations that are not explained")
-    return CheckResult(
-        rule="P7",
-        passed=not failing,
-        line_ids=failing,
-        failed_fact_ids=[],
-        details=details,
-    )
+    return line_result("P7", failing, details)

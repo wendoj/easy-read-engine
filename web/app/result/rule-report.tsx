@@ -1,17 +1,5 @@
 "use client";
-/**
- * Pass count and rule report panel (task 24, R3.4, R6.1 to R6.3).
- *
- * A "Checks" strip leads with the key-fact result (P1), then the pass count
- * and a "See the check report" button that opens the report in a Sheet. The report
- * lists every rule with its result, the lines it applied to and its reasons,
- * then P1's action synonym table. Failed rules are red and also say "Failed",
- * so colour is never the only signal. The logic is in `src/ui/rule-report.ts`.
- *
- * Lines on screen carry no failed-rule badge, so this report is where a carer
- * finds failures (R3.4). Each line number is a button: it closes the report,
- * then `onGoToLine` scrolls to that line, focuses it and selects it.
- */
+/** Lines carry no failed-rule marker, so this report is where every failure is shown. */
 import { ChevronRight, CircleCheck } from "lucide-react";
 import { useRef, useState } from "react";
 import { ProblemIcon } from "@/components/status-icons";
@@ -133,7 +121,7 @@ export function RuleReport({
 }: {
   input: ReportInput;
   synonyms: ActionSynonym[];
-  /** Called after the report has closed, with the line to go to. */
+  /** Called after the report has closed. */
   onGoToLine: (lineId: string) => void;
 }) {
   const count = passCount(input);
@@ -148,12 +136,6 @@ export function RuleReport({
   };
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      {/*
-        The key-fact result leads: it is the promise that matters most (no
-        date, amount or instruction changed). The pass count stays in plain
-        words beside it, and the report button opens every rule (R3.4). A
-        failed P1 is red with an icon, so colour is never the only signal.
-      */}
       <section
         aria-label="Checks"
         className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-6"
@@ -181,7 +163,6 @@ export function RuleReport({
           </SheetTrigger>
         </div>
       </section>
-      {/* No description: the title and the tables say what this is (ui.md). */}
       <SheetContent
         aria-describedby={undefined}
         onCloseAutoFocus={(event) => {

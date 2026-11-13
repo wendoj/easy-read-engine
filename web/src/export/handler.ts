@@ -1,46 +1,19 @@
 /**
- * `POST /api/export` as a plain `Request -> Response` function (task 28; R8.1
- * to R8.3, R7.1, R4.4, R9.5). Body: the `ConversionResult` on screen.
- * Response: `application/pdf`, A4, as `easy-read.pdf`.
+ * `POST /api/export`: renders the result on screen as an A4 PDF (R8.1 to R8.3).
  *
- * How the print page gets the data without storing it (R7.4): the result
- * arrives in the request body, is turned into a `PrintDocument`, rendered to
- * one static HTML string (`print-html.ts`) and handed to headless Chromium
- * with `page.setContent`. Pictures are inlined as `data:` URIs read from the
- * pictogram cache. The letter text is never in a URL, a file or a cache, and
- * the Chromium page has JavaScript off and every request aborted.
- *
- * The client's `status` is never trusted (R9.5):
- * 1. Body size, JSON and zod: 413 or 400.
- * 2. A result the client itself calls blocked, or one with no lines: 409,
- *    with no checker call and no render. A result whose judge didn't answer
- *    (`judgeAvailable` false, a P9 or P10 "judge unavailable" detail, or no
- *    P9 or P10 result at all): 409 `not_judged`, because P10 (no advice)
- *    never ran on its lines.
- * 3. Checker health: 503 if it's down.
- * 4. Shared rate limit (route "export", cost 3, no daily model cap): 429.
- * 5. Re-verify on the server: `analyse` the Original again and run P1 to P8 on
- *    the lines. A line whose source sentence isn't in that analysis is a 400.
- *    P1 failing is a 409, with no render.
- * 6. Render in the export queue (2 at once, the rest wait): 503 when the
- *    queue is full or the wait is too long, 503 when no browser is available,
- *    500 when the render fails.
- *
- * What the PDF shows: the lines as sent, the server's R7.1 notice (`NOTICE`,
- * not the client's text), the pass count and failed checks from P1 to P8 run
- * now plus the client's P9 and P10 (as `/api/check` and `/api/sample` carry
- * them), and the ARASAAC attribution.
- *
- * Logs hold counts, rule results, status, size and time. Never the body,
- * the Original, lines or key-fact values (R7.4).
+ * The client's status is never trusted (R9.5). A blocked or unjudged result
+ * is refused, then the server analyses the Original again and re-runs P1 to
+ * P8 before rendering. The result reaches Chromium as 1 static HTML string
+ * with pictures inlined as `data:` URIs, so letter text is never in a URL,
+ * file or cache (R7.4).
  */
 import { z } from "zod";
 import { MAX_CHECK_LINES, MAX_EDIT_LINE_CHARS, MAX_ID_CHARS } from "@/src/check/errors";
 import { judgeAvailableAfterMerge, mergeJudgeChecks } from "@/src/check/merge";
 import { CheckerUnavailable } from "@/src/checker-client/errors";
 import { type CheckResult, type KeyFact, type Line, type Sentence, checkResultSchema } from "@/src/checker-client/schemas";
-import { readBody } from "@/src/convert/handler";
 import { letterLengthProblem } from "@/src/convert/word-count";
+import { type RouteFailure, NO_STORE, errorName, errorResponse, rateLimitFailure, readJson } from "@/src/http/response";
 import { NOTICE, completeChecks } from "@/src/pipeline/decide";
 import type { Rule } from "@/src/pipeline/types";
 import { type RateLimiter, rateLimit as defaultRateLimit } from "@/src/rate-limit";
@@ -108,25 +81,13 @@ export const exportBodySchema = conversionResultSchema
 
 export type ExportBody = z.infer<typeof exportBodySchema>;
 
-const NO_STORE = { "cache-control": "no-store" };
 
 const defaultLogger = (event: ExportLogEvent) => console.info(JSON.stringify(event));
 
-interface Failure {
-  error: ExportErrorCode;
-  status: number;
-  message: string;
-  retryAfterSeconds?: number;
-}
+type Failure = RouteFailure<ExportErrorCode>;
 
 function failure(error: keyof typeof EXPORT_ERRORS): Failure {
   return { error, ...EXPORT_ERRORS[error] };
-}
-
-function errorResponse(f: Failure): Response {
-  const headers: Record<string, string> = { ...NO_STORE };
-  if (f.retryAfterSeconds !== undefined) headers["retry-after"] = String(f.retryAfterSeconds);
-  return Response.json({ error: f.error, message: f.message }, { status: f.status, headers });
 }
 
 /** The error's own message is never used: it could quote letter content. */
@@ -140,18 +101,10 @@ function classifyError(err: unknown): Failure {
 type Parsed = { ok: true; body: ExportBody } | { ok: false; failure: Failure };
 
 async function parseRequest(request: Request): Promise<Parsed> {
-  const declared = Number(request.headers.get("content-length"));
-  if (Number.isFinite(declared) && declared > MAX_EXPORT_BODY_BYTES) return { ok: false, failure: failure("too_large") };
-  const raw = await readBody(request, MAX_EXPORT_BODY_BYTES);
-  if (raw === null) return { ok: false, failure: failure("too_large") };
-  let json: unknown;
-  try {
-    json = JSON.parse(raw);
-  } catch {
-    return { ok: false, failure: failure("invalid_request") };
-  }
+  const read = await readJson(request, MAX_EXPORT_BODY_BYTES);
+  if (!read.ok) return { ok: false, failure: failure(read.reason === "too_large" ? "too_large" : "invalid_request") };
   // zod issues are not passed on: some quote the received value.
-  const parsed = exportBodySchema.safeParse(json);
+  const parsed = exportBodySchema.safeParse(read.json);
   if (!parsed.success) return { ok: false, failure: failure("invalid_request") };
   if (letterLengthProblem(parsed.data.original.text) !== null) return { ok: false, failure: failure("invalid_request") };
   return { ok: true, body: parsed.data };
@@ -169,7 +122,7 @@ export async function handleExport(request: Request, deps: ExportHandlerDeps): P
       outcome: f.error,
       status: f.status,
       ...extra,
-      ...((f.error === "internal" || f.error === "export_failed") && err instanceof Error ? { errorName: err.name } : {}),
+      ...(f.error === "internal" || f.error === "export_failed" ? errorName(err) : {}),
       ms: ms(),
     });
     return errorResponse(f);
@@ -208,15 +161,7 @@ export async function handleExport(request: Request, deps: ExportHandlerDeps): P
 
   const limit = await (deps.rateLimit ?? defaultRateLimit)(request, "export");
   if (!limit.allowed) {
-    return reject(
-      {
-        error: limit.code,
-        status: limit.status,
-        message: limit.message,
-        ...(limit.retryAfterSeconds !== undefined ? { retryAfterSeconds: limit.retryAfterSeconds } : {}),
-      },
-      counts,
-    );
+    return reject(rateLimitFailure(limit), counts);
   }
 
   let checks: CheckResult[];

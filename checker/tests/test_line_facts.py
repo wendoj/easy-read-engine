@@ -1,7 +1,4 @@
-"""Key-fact spans in output lines, for highlighting (task 25, R5.3).
-
-All text here is invented. No real letters or personal data.
-"""
+# All text here is invented. No real letters or personal data.
 
 from hypothesis import given, settings
 from hypothesis import strategies as st

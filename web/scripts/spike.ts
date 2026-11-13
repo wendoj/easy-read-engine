@@ -38,11 +38,12 @@ import {
   loadModelConfig,
   parseChain,
 } from "../src/llm";
+import { loadPrompt } from "../src/llm/prompts";
+import { parseJsonLoose } from "../src/llm/structured";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../..");
 const LETTERS_DIR = path.join(ROOT, "fixtures/letters");
-const PROMPT_FILE = path.join(ROOT, "prompts/rewrite.md");
 const CHECKER_DIR = path.join(ROOT, "checker");
 const OUT_DIR = path.join(ROOT, "web/.spike-output");
 
@@ -96,17 +97,6 @@ function runChecker<T>(command: "analyse" | "score", input: unknown): Promise<T>
 
 // --- prompt and output parsing -------------------------------------------------
 
-async function loadPrompt(): Promise<{ system: string; user: string }> {
-  const raw = (await readFile(PROMPT_FILE, "utf8")).replace(/<!--[\s\S]*?-->/g, "");
-  const sys = raw.indexOf("## System");
-  const usr = raw.indexOf("## User");
-  if (sys < 0 || usr < 0) throw new Error("prompts/rewrite.md needs '## System' and '## User' sections");
-  return {
-    system: raw.slice(sys + "## System".length, usr).trim(),
-    user: raw.slice(usr + "## User".length).trim(),
-  };
-}
-
 const draftLines = z.object({
   lines: z
     .array(
@@ -145,16 +135,6 @@ const SUBMIT_TOOL = {
     },
   },
 };
-
-function parseJsonLoose(text: string): unknown {
-  const cleaned = text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
-  const fenced = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/);
-  const body = fenced ? fenced[1] : cleaned;
-  const start = body.indexOf("{");
-  const end = body.lastIndexOf("}");
-  if (start < 0 || end <= start) throw new Error("no JSON object");
-  return JSON.parse(body.slice(start, end + 1));
-}
 
 /** Pull lines from a tool call, or from JSON in the message content. */
 function parseLines(result: ChatResult): { lines: DraftLine[]; via: "tool" | "content" } | null {
@@ -479,7 +459,7 @@ async function main() {
   console.log(`Letter set: ${set} (${letters.length} letters)`);
   const letterFilter = option("letter");
   if (letterFilter) letters = letters.filter((f) => f.includes(letterFilter));
-  const prompt = await loadPrompt();
+  const prompt = await loadPrompt("rewrite", path.join(ROOT, "prompts"));
 
   const runs: LetterRun[] = [];
   let firstCall = true;

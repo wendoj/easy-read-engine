@@ -59,13 +59,8 @@
 }
 
 /*
- * Easy Read theme (ui.md "Accessibility"). Light only: dark text on an
- * off-white page, which glares less than pure white (DH 2010 A7: dark text
- * on a white or light cream background). Contrast on the page
- * background (#fbfaf7) and on white cards:
- * - text: foreground 16:1, muted text 8.9:1, primary blue 8.7:1, red 6.5:1
- * - white on the primary blue: 8.7:1
- * - borders 3.4:1 and form fields 5.4:1, so edges are always visible
+ * Contrast on #fbfaf7 and white: text 16:1, muted 8.9:1, primary 8.7:1, red
+ * 6.5:1, white on primary 8.7:1, borders 3.4:1, form fields 5.4:1.
  */
 :root {
   --background: #fbfaf7;
@@ -130,19 +125,14 @@
 }
 
 /*
- * The letter boxes on the start page have no focus ring: it framed the whole
- * box while pasting. The text cursor shows the box has focus. Unlayered and
- * more specific than the rule above, so it wins.
+ * The letter boxes have no focus ring (it framed the whole box while pasting);
+ * the text cursor shows focus. More specific than the rule above, so it wins.
  */
 textarea.er-panel-field:focus-visible {
   outline: none;
 }
 
-/*
- * Easy Read guidance says not to animate the screen. The app keeps only short
- * fades for status changes, and none of those under reduced motion. This also
- * stops the spinners and the Sheet and Select slide-ins.
- */
+/* Also stops the spinners and the Sheet and Select slide-ins. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

@@ -29,7 +29,6 @@
  */
 import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { type CheckerClient, CheckerConfigError, CheckerUnavailable, createCheckerClient } from "../src/checker-client";
 import { classifyError, withRetryAfterOnce } from "../src/convert/handler";
 import { letterLengthProblem } from "../src/convert/word-count";
@@ -52,36 +51,10 @@ import {
 } from "../src/fixtures/report";
 import { type ModelConfig, type Role, createModelClient, loadModelConfig } from "../src/llm";
 import { convert, modelFromClient } from "../src/pipeline";
+import { CHECKER_START, LETTERS_DIR, ROOT, SetupError, sleep, waitForChecker } from "./shared";
 
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(HERE, "../..");
-const LETTERS_DIR = path.join(ROOT, "fixtures/letters");
 const RESULTS_DIR = path.join(ROOT, "fixtures/results");
-const CHECKER_START = "cd checker && uv run uvicorn http_app:app --app-dir src";
 const DELAY_MS = Number(process.env.FIXTURE_DELAY_MS ?? 15_000);
-/** spaCy takes a few seconds to load; wait this long for "starting" to become "ok". */
-const CHECKER_START_WAIT_MS = 30_000;
-
-const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-
-class SetupError extends Error {}
-
-async function waitForChecker(checker: CheckerClient): Promise<void> {
-  const deadline = Date.now() + CHECKER_START_WAIT_MS;
-  for (;;) {
-    try {
-      const health = await checker.health();
-      if (health.status === "ok") return;
-    } catch (err) {
-      if (err instanceof CheckerUnavailable) {
-        throw new SetupError(`The checker service is not reachable at ${process.env.CHECKER_URL}. Start it with:\n  ${CHECKER_START}`);
-      }
-      throw err;
-    }
-    if (Date.now() > deadline) throw new SetupError("The checker service is still starting. Try again in a moment.");
-    await sleep(1000);
-  }
-}
 
 async function chooseLetters(set: LetterSet): Promise<{ dir: string; letters: FixtureLetter[] }> {
   if (set === "all") {

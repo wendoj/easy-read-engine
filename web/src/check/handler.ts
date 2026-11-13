@@ -1,36 +1,9 @@
 /**
- * `POST /api/check` as a plain `Request -> Response` function, so tests can
- * call it without Next.js (R9.1 to R9.4, design "Web route handlers").
- *
- * Called when the user saves an edit. Input:
- * `{ original, lines, editedLineIds, previousChecks }`.
- *
- * - The user's text is never changed. `lines` go to the checker and the judge
- *   as sent, and come back unchanged (or not at all when blocked).
- * - Key facts and sentences are taken again from the Original with the
- *   checker's `analyse`, never from the client, so P1 always compares the
- *   output with the Original (R2.1, R2.4). The response returns them.
- * - P1 to P8 run on every line (`check`). Pictures aren't attached again: the
- *   user's `symbol_id`s are kept and P8 validates them.
- * - The judge runs on the edited lines only, so 1 edit costs 1 model request.
- *   Unedited lines from the same source sentence go with them as context
- *   only (`contextOnly`), so the judge can see the parts they say.
- *   P9 and P10 verdicts for the other lines come from `previousChecks`, which
- *   the client sends from its current result, and are merged here so the
- *   server decides the status from all 10 rules (`merge.ts`).
- * - Status follows the same rules as `/api/convert` (`statusOf`). "blocked"
- *   whenever P1 fails, and a blocked response holds no lines (R2.5, R9.3).
- *   The client keeps the version before the edit for "Undo edit".
- *
- * Order, so nothing spends quota unless it can finish:
- * 0. Judge access (`src/access`): 401 or 503 before the body is read.
- * 1. Body size, JSON and zod: 400 or 413.
- * 2. Checker health: 503 if it's down, before any model call.
- * 3. Model config, then the shared rate limits (route "check", cost 1): 429 or 503.
- * 4. `analyse`, `check`, the judge on edited lines, then `lineFacts`.
- *
- * Nothing is stored. Logs hold counts, rule results, status and time. Never
- * the body, the Original, lines or key-fact values (R7.4).
+ * `POST /api/check`: re-checks the lines after a user edit, without changing
+ * them. P1 to P8 run on every line. The judge runs only on edited lines, and
+ * P9 and P10 for the rest are carried over from `previousChecks`. Access,
+ * body, checker health and rate limits are checked in that order, so nothing
+ * spends quota unless it can finish.
  */
 import { z } from "zod";
 import { type AccessGate, requireAccess } from "@/src/access/key";
@@ -43,32 +16,28 @@ import {
   type Sentence,
   checkResultSchema,
 } from "@/src/checker-client/schemas";
-import { readBody } from "@/src/convert/handler";
 import { letterLengthProblem } from "@/src/convert/word-count";
+import {
+  type RouteFailure,
+  NO_STORE,
+  errorName,
+  errorResponse,
+  logJson,
+  rateLimitFailure,
+  readJson,
+  stopwatch,
+} from "@/src/http/response";
 import type { JudgePair, JudgeResult } from "@/src/llm/judge";
-import { completeChecks, statusOf } from "@/src/pipeline/decide";
+import { statusOf } from "@/src/pipeline/decide";
 import { judgeSourceText } from "@/src/pipeline/source-text";
 import type { ModelUse, Rule, Status } from "@/src/pipeline/types";
 import { type RateLimiter, rateLimit as defaultRateLimit } from "@/src/rate-limit";
-import {
-  CHECK_ERRORS,
-  type CheckErrorCode,
-  MAX_CHECK_BODY_BYTES,
-  MAX_CHECK_LINES,
-  MAX_EDIT_LINE_CHARS,
-  MAX_ID_CHARS,
-} from "./errors";
-import { judgeAvailableAfterMerge, mergeJudgeChecks } from "./merge";
+import { CHECK_ERRORS, type CheckErrorCode, MAX_CHECK_BODY_BYTES, MAX_CHECK_LINES, MAX_EDIT_LINE_CHARS } from "./errors";
+import { judgeAvailableAfterMerge, mergeJudgeChecks, withJudgeChecks } from "./merge";
+import { type RouteChecker, copyLines, idSchema } from "./recheck";
 
-export interface CheckRouteChecker {
-  /** Throws `CheckerUnavailable` when the service is down or starting. */
-  health(): Promise<{ status: "ok" | "starting" }>;
-  analyse(original: string): Promise<{ sentences: Sentence[]; key_facts: KeyFact[] }>;
-  check(request: { original: string; key_facts: KeyFact[]; lines: Line[] }): Promise<CheckResult[]>;
-  lineFacts(request: { key_facts: KeyFact[]; lines: Line[] }): Promise<LineFactSpan[]>;
-}
+export type CheckRouteChecker = RouteChecker;
 
-/** The only model call this route makes. */
 export interface CheckModel {
   judge(pairs: JudgePair[]): Promise<JudgeResult>;
 }
@@ -77,32 +46,29 @@ export interface CheckHandlerDeps {
   getChecker: () => CheckRouteChecker;
   /** Built only after the checker and limits allow the request. */
   getModel: () => CheckModel;
-  /** Judge access check. Runs first, so a denied request costs no rate-limit units. */
+  /** Runs first, so a denied request costs no rate-limit units. */
   access?: AccessGate;
   rateLimit?: RateLimiter;
   logger?: (event: CheckLogEvent) => void;
   now?: () => number;
 }
 
-/** The 200 body. */
 export interface CheckResponse {
   status: Status;
-  /** All 10 rules, P1 to P10 in order. */
   checks: CheckResult[];
-  /** The lines exactly as sent. Empty when `status` is "blocked" (R2.5). */
+  /** The lines exactly as sent. Empty when blocked. */
   lines: Line[];
-  /** Key-fact spans in `lines` (R5.3). Empty when blocked. */
+  /** Empty when blocked. */
   lineFacts: LineFactSpan[];
-  /** From `analyse` on the Original. P1 used these key facts. */
+  /** From `analyse` on the Original, never from the client. */
   sentences: Sentence[];
   keyFacts: KeyFact[];
   /** False when any P9 or P10 result, new or carried over, is "judge unavailable". */
   judgeAvailable: boolean;
-  /** Provider and model of the judge call, when it answered. */
   models: ModelUse[];
 }
 
-/** Log event. Counts and rule results only, no letter content, no client address. */
+/** Counts and rule results only. No letter content, no client address. */
 export interface CheckLogEvent {
   msg: "check_request";
   outcome: "ok" | CheckErrorCode;
@@ -116,8 +82,6 @@ export interface CheckLogEvent {
   ms: number;
 }
 
-const idSchema = z.string().min(1).max(MAX_ID_CHARS).regex(/^\S+$/u);
-
 const lineSchema = z.object({
   id: idSchema,
   text: z.string(),
@@ -130,7 +94,7 @@ export const checkBodySchema = z
     original: z.string(),
     lines: z.array(lineSchema).min(1).max(MAX_CHECK_LINES),
     editedLineIds: z.array(idSchema).min(1).max(MAX_CHECK_LINES),
-    /** The client's checks before this edit. Must hold P9 and P10. */
+    /** Must hold P9 and P10. */
     previousChecks: z.array(checkResultSchema).max(20),
   })
   .superRefine((body, ctx) => {
@@ -154,28 +118,12 @@ export const checkBodySchema = z
 
 export type CheckBody = z.infer<typeof checkBodySchema>;
 
-const NO_STORE = { "cache-control": "no-store" };
-
-const defaultLogger = (event: CheckLogEvent) => console.info(JSON.stringify(event));
-
-interface Failure {
-  error: CheckErrorCode;
-  status: number;
-  message: string;
-  retryAfterSeconds?: number;
-}
+type Failure = RouteFailure<CheckErrorCode>;
 
 function failure(error: keyof typeof CHECK_ERRORS): Failure {
   return { error, ...CHECK_ERRORS[error] };
 }
 
-function errorResponse(f: Failure): Response {
-  const headers: Record<string, string> = { ...NO_STORE };
-  if (f.retryAfterSeconds !== undefined) headers["retry-after"] = String(f.retryAfterSeconds);
-  return Response.json({ error: f.error, message: f.message }, { status: f.status, headers });
-}
-
-/** The error's own message is never used: it could quote the body. */
 function classifyError(err: unknown): Failure {
   return err instanceof CheckerUnavailable ? failure("checker_unavailable") : failure("internal");
 }
@@ -183,21 +131,13 @@ function classifyError(err: unknown): Failure {
 type Parsed = { ok: true; body: CheckBody } | { ok: false; failure: Failure };
 
 async function parseRequest(request: Request): Promise<Parsed> {
-  const declared = Number(request.headers.get("content-length"));
-  if (Number.isFinite(declared) && declared > MAX_CHECK_BODY_BYTES) return { ok: false, failure: failure("too_large") };
-  const raw = await readBody(request, MAX_CHECK_BODY_BYTES);
-  if (raw === null) return { ok: false, failure: failure("too_large") };
-  let json: unknown;
-  try {
-    json = JSON.parse(raw);
-  } catch {
-    return { ok: false, failure: failure("invalid_request") };
-  }
+  const read = await readJson(request, MAX_CHECK_BODY_BYTES);
+  if (!read.ok) return { ok: false, failure: failure(read.reason === "too_large" ? "too_large" : "invalid_request") };
   // zod issues are not passed on: some quote the received value.
-  const parsed = checkBodySchema.safeParse(json);
+  const parsed = checkBodySchema.safeParse(read.json);
   if (!parsed.success) return { ok: false, failure: failure("invalid_request") };
   const body = parsed.data;
-  // The Original passed this limit at /api/convert, so failing it now means the body isn't from this app.
+  // The Original already passed this limit at /api/convert.
   if (letterLengthProblem(body.original) !== null) return { ok: false, failure: failure("invalid_request") };
   if (body.lines.some((l) => l.text.trim() === "")) return { ok: false, failure: failure("empty_line") };
   if (body.lines.some((l) => l.text.length > MAX_EDIT_LINE_CHARS)) return { ok: false, failure: failure("too_long") };
@@ -205,10 +145,8 @@ async function parseRequest(request: Request): Promise<Parsed> {
 }
 
 export async function handleCheck(request: Request, deps: CheckHandlerDeps): Promise<Response> {
-  const log = deps.logger ?? defaultLogger;
-  const now = deps.now ?? (() => performance.now());
-  const started = now();
-  const ms = () => Math.round(now() - started);
+  const log = deps.logger ?? logJson;
+  const ms = stopwatch(deps.now);
 
   const reject = (f: Failure, extra: Partial<CheckLogEvent> = {}, err?: unknown) => {
     log({
@@ -216,7 +154,7 @@ export async function handleCheck(request: Request, deps: CheckHandlerDeps): Pro
       outcome: f.error,
       status: f.status,
       ...extra,
-      ...(f.error === "internal" && err instanceof Error ? { errorName: err.name } : {}),
+      ...(f.error === "internal" ? errorName(err) : {}),
       ms: ms(),
     });
     return errorResponse(f);
@@ -228,13 +166,7 @@ export async function handleCheck(request: Request, deps: CheckHandlerDeps): Pro
   const parsed = await parseRequest(request);
   if (!parsed.ok) return reject(parsed.failure);
   const { original, editedLineIds, previousChecks } = parsed.body;
-  // Fresh copies with exactly the 4 line fields, never altered below.
-  const lines: Line[] = parsed.body.lines.map((l) => ({
-    id: l.id,
-    text: l.text,
-    source_sentence_id: l.source_sentence_id,
-    symbol_id: l.symbol_id,
-  }));
+  const lines = copyLines(parsed.body.lines);
   const counts = { lines: lines.length, edited: editedLineIds.length };
 
   let checker: CheckRouteChecker;
@@ -254,27 +186,16 @@ export async function handleCheck(request: Request, deps: CheckHandlerDeps): Pro
   }
 
   const limit = await (deps.rateLimit ?? defaultRateLimit)(request, "check");
-  if (!limit.allowed) {
-    return reject(
-      {
-        error: limit.code,
-        status: limit.status,
-        message: limit.message,
-        ...(limit.retryAfterSeconds !== undefined ? { retryAfterSeconds: limit.retryAfterSeconds } : {}),
-      },
-      counts,
-    );
-  }
+  if (!limit.allowed) return reject(rateLimitFailure(limit), counts);
 
   try {
-    // Key facts and sentences from the Original, never from the client (R2.4).
     const { sentences, key_facts: keyFacts } = await checker.analyse(original);
     const sourceText = judgeSourceText(sentences);
     if (lines.some((l) => !sourceText.has(l.source_sentence_id))) {
       return reject(failure("invalid_request"), counts);
     }
 
-    const ruleChecks = await checker.check({ original, key_facts: keyFacts, lines }); // P1-P8, all lines
+    const ruleChecks = await checker.check({ original, key_facts: keyFacts, lines });
 
     const edited = new Set(editedLineIds);
     // Unedited lines from an edited line's sentence go along as context only,
@@ -289,11 +210,11 @@ export async function handleCheck(request: Request, deps: CheckHandlerDeps): Pro
         line: l.text,
         ...(edited.has(l.id) ? {} : { contextOnly: true }),
       }));
-    const judged = await model.judge(pairs); // P9-P10, edited lines only
+    const judged = await model.judge(pairs);
 
     const carried = new Set(lines.map((l) => l.id).filter((id) => !edited.has(id)));
     const judgeChecks = mergeJudgeChecks(previousChecks, judged.checks, carried);
-    const checks = completeChecks([...ruleChecks.filter((c) => c.rule !== "P9" && c.rule !== "P10"), ...judgeChecks]);
+    const checks = withJudgeChecks(ruleChecks, judgeChecks);
     const status = statusOf(checks);
     const blocked = status === "blocked";
     const judgeAvailable = judgeAvailableAfterMerge(judgeChecks, judged.available);

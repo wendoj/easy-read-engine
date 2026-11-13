@@ -1,7 +1,4 @@
-/**
- * HTTP transport for chat completions. Injectable so tests use a fake and
- * never touch the network.
- */
+/** Injectable HTTP transport for chat completions, so tests never touch the network. */
 export interface TransportRequest {
   url: string;
   headers: Record<string, string>;
@@ -11,14 +8,13 @@ export interface TransportRequest {
 
 export interface TransportResponse {
   status: number;
-  /** Lower-case header names. */
+  /** Lower-case names. */
   headers: Record<string, string>;
   json: unknown;
 }
 
 export type Transport = (req: TransportRequest) => Promise<TransportResponse>;
 
-/** Default transport built on `fetch`. Throws if the signal aborts. */
 export const fetchTransport: Transport = async ({ url, headers, body, signal }) => {
   const res = await fetch(url, {
     method: "POST",

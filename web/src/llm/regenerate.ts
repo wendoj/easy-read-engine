@@ -1,7 +1,4 @@
 /**
- * Regenerate: replace only the failing lines (pipeline retry step).
- * Prompt: `prompts/regenerate.md`.
- *
  * The model gets only the failing lines, the rules each one failed with the
  * checker's details, their source sentences and the key facts from those
  * sentences. It returns replacement lines for those line IDs, and new lines
@@ -10,10 +7,16 @@
 import { z } from "zod";
 import type { CheckResult, KeyFact, Line, Sentence } from "@/src/checker-client/schemas";
 import type { ModelClient } from "./client";
-import { DRAFT_LINE_PARAMETERS, type DraftLine, draftLineSchema, formatKeyFacts, formatSentences } from "./lines";
+import {
+  DRAFT_LINE_PARAMETERS,
+  type DraftLine,
+  type LlmCallOptions,
+  draftLineSchema,
+  formatKeyFacts,
+  formatSentences,
+} from "./lines";
 import { formatPlainWords } from "./plain-words";
-import { type PromptTemplate, loadPrompt, oneLine, renderTemplate } from "./prompts";
-import type { LlmCallOptions } from "./rewrite";
+import { type PromptTemplate, loadPrompt, oneLine, renderPrompt } from "./prompts";
 import { type ToolDefinition, callStructured } from "./structured";
 
 export const REGENERATE_MAX_TOKENS = 2000;
@@ -22,7 +25,7 @@ export type Rule = CheckResult["rule"];
 
 export interface LineFailure {
   rule: Rule;
-  /** Checker or judge details for this line. Never letter values for P1 to P8. */
+  /** Never letter values for P1 to P8. */
   details: string[];
 }
 
@@ -57,12 +60,13 @@ export interface RegenerateResult {
 }
 
 const P1_FACT_ID = /^(\S+) \(/;
+const p1FactId = (detail: string) => detail.match(P1_FACT_ID)?.[1];
 
 /**
- * Group failed check results by line. A detail belongs to a line when it
- * starts with that line's ID, as every checker writes them. P1 details start
- * with a fact ID, so they go to lines from that fact's sentence, or to every
- * P1 line if the fact's sentence has no line.
+ * A detail belongs to a line when it starts with that line's ID, as every
+ * checker writes them. P1 details start with a fact ID instead, so they go to
+ * lines from that fact's sentence, or to every P1 line if the fact's sentence
+ * has no line.
  */
 export function collectFailures(lines: Line[], checks: CheckResult[], keyFacts: KeyFact[]): FailingLine[] {
   const factSentence = new Map(keyFacts.map((f) => [f.id, f.sentence_id]));
@@ -74,7 +78,7 @@ export function collectFailures(lines: Line[], checks: CheckResult[], keyFacts: 
       let details: string[];
       if (check.rule === "P1") {
         const own = check.details.filter((d) => {
-          const id = d.match(P1_FACT_ID)?.[1];
+          const id = p1FactId(d);
           return id !== undefined && factSentence.get(id) === line.source_sentence_id;
         });
         details = own.length > 0 ? own : check.details;
@@ -112,10 +116,9 @@ export const SUBMIT_REPLACEMENTS_TOOL: ToolDefinition = {
 };
 
 /**
- * Regenerate output. The shape is strict; the line IDs are not. With 30 or
- * more failing lines the model often mislabels or skips one, and rejecting
- * the whole reply for that threw away every good replacement (the pipeline
- * then stopped with the last checked try). So:
+ * The shape is strict; the line IDs are not. With 30 or more failing lines
+ * the model often mislabels or skips one, and rejecting the whole reply threw
+ * away every good replacement. So:
  *
  * - a replacement for an ID that isn't failing, or a second one for the same
  *   ID, is dropped (the first wins);
@@ -167,7 +170,7 @@ function formatFailingLines(failing: FailingLine[]): string {
     .join("\n\n");
 }
 
-/** Sentences and key facts the regenerate prompt needs, and nothing else. */
+/** Only the sentences and key facts the regenerate prompt needs. */
 export function selectContext(input: RegenerateInput): { sentences: Sentence[]; keyFacts: KeyFact[] } {
   const missing = input.missingFacts ?? [];
   const sentenceIds = new Set([
@@ -178,7 +181,7 @@ export function selectContext(input: RegenerateInput): { sentences: Sentence[]; 
     input.failing.flatMap((f) =>
       f.failures
         .filter((x) => x.rule === "P1")
-        .flatMap((x) => x.details.map((d) => d.match(P1_FACT_ID)?.[1]).filter((id): id is string => !!id)),
+        .flatMap((x) => x.details.map(p1FactId).filter((id): id is string => !!id)),
     ),
   );
   return {
@@ -192,16 +195,13 @@ export function buildRegenerateMessages(
   input: RegenerateInput,
 ): { system: string; user: string } {
   const { sentences, keyFacts } = selectContext(input);
-  return {
-    system: prompt.system,
-    user: renderTemplate(prompt.user, {
-      failing_lines: formatFailingLines(input.failing),
-      sentences: formatSentences(sentences),
-      key_facts: formatKeyFacts(keyFacts),
-      missing_facts: formatKeyFacts(input.missingFacts ?? []),
-      plain_words: formatPlainWords([...input.failing.map((f) => f.line.text), ...sentences.map((s) => s.text)]),
-    }),
-  };
+  return renderPrompt(prompt, {
+    failing_lines: formatFailingLines(input.failing),
+    sentences: formatSentences(sentences),
+    key_facts: formatKeyFacts(keyFacts),
+    missing_facts: formatKeyFacts(input.missingFacts ?? []),
+    plain_words: formatPlainWords([...input.failing.map((f) => f.line.text), ...sentences.map((s) => s.text)]),
+  });
 }
 
 export async function regenerate(
@@ -230,7 +230,7 @@ export async function regenerate(
     },
     options,
   );
-  // A replacement stays on the failing line's source sentence, so the line keeps its trace to the Original (R5.2).
+  // A replacement stays on the failing line's source sentence, so the line keeps its trace to the Original.
   const byId = new Map(result.data.replacements.map((r) => [r.lineId, r.lines]));
   const replacements = input.failing.map(({ line }) => ({
     lineId: line.id,

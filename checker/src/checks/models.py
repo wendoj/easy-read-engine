@@ -1,6 +1,7 @@
-"""Data models shared by the checkers and both adapters (design "Data Models").
+"""Models shared by the checkers and both adapters.
 
-The web app's TypeScript types are generated from these via the OpenAPI schema.
+Class docstrings appear in the OpenAPI schema, and the web app's TypeScript
+types are generated from it, so editing them changes `web/src/types/checker.ts`.
 """
 
 from typing import Literal

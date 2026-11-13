@@ -1,8 +1,6 @@
-"""MCP adapter tests (task 13).
+"""Spawns `src/mcp_server.py` over stdio with the MCP SDK's client, as Kiro does.
 
-Spawns `src/mcp_server.py` over stdio with the MCP SDK's client, as Kiro does,
-and makes one call to each tool. All text here is invented, with no real
-personal data.
+All text here is invented. No real letters or personal data.
 """
 
 import json

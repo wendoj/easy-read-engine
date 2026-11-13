@@ -1,27 +1,14 @@
 /**
- * Split "If X, Y." lines into "Maybe X." and "Then Y." without a model call.
+ * Split "If X, Y." lines into "Maybe X." and "Then Y." in code, because the
+ * model still wrote them after 3 tries and P3 fails them. A trailing "Y if X."
+ * becomes "Maybe X." and "Then y.". The words are kept; only "If" becomes
+ * "Maybe" and "Then" is added.
  *
- * P3 allows 1 main verb clause per sentence, and an "if" clause with its own
- * subject counts as a second one. The prompts ask for this split, but the
- * recorded samples (November 2026) still had "If you can't pay, we can help."
- * lines after 3 tries. This is the same pattern the prompts teach
- * ("You may not be able to pay." / "Then you must tell the council."), done
- * in code on the model's lines before they are checked.
- *
- * A line that ends in an "if" clause ("You can claim help if your income is
- * low.") is split the other way round: "Maybe your income is low." then "Then
- * you can claim help." It is left alone when the "if" is "even if", when the
- * condition ends on a bare helper verb ("... if you can."), when the main part
- * ends on a word that takes "if" as its object ("Check if ..."), when the
- * line has a web address, or when its first word is not one a lower-case
- * "Then ..." can safely follow (a name, for example).
- *
- * Only a line that starts with "If " and has ", " after a condition of at
- * least 2 words is split. The result must be at least 2 words and end the
- * sentence, and it must not start with "and", "or", "but" or "nor" (then the
- * comma was inside the condition). Lines with more than 1 sentence are left
- * alone. The words are kept; only "If" becomes "Maybe" and "Then" is added.
- * The checks run on the split lines as on any other.
+ * A line is left alone when the comma may be inside the condition (the result
+ * starts with "and", "or", "but" or "nor") or when it has more than 1
+ * sentence. A trailing "if" line is also left alone on "even if",
+ * "Check if ...", a bare "if you can", a web address, or a first word that a
+ * lower-case "Then" can't safely follow.
  */
 import type { DraftLine } from "@/src/llm";
 

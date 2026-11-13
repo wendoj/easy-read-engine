@@ -1,16 +1,12 @@
-/**
- * Line IDs and applying regeneration results. Only failing lines change;
- * every other line keeps its ID, text and place (design "Pipeline orchestrator").
- */
 import type { Line, Sentence } from "@/src/checker-client/schemas";
 import type { DraftLine, RegenerateResult } from "@/src/llm";
 
-/** A line inside the pipeline. `symbolQuery` is kept for `attachSymbols`. */
+/** `symbolQuery` is kept for `attachSymbols`. */
 export interface WorkingLine extends Line {
   symbolQuery: string;
 }
 
-/** Hands out line IDs L1, L2, ... that are never reused within a conversion. */
+/** IDs are never reused within a conversion. */
 export class LineIds {
   private n = 0;
   next(): string {
@@ -27,7 +23,6 @@ export function fromDrafts(drafts: readonly DraftLine[], ids: LineIds): WorkingL
   return drafts.map((d) => toWorking(d, ids.next()));
 }
 
-/** Plain `Line` objects, for the checker and the result. */
 export function toLines(lines: readonly WorkingLine[]): Line[] {
   return lines.map(({ id, text, source_sentence_id, symbol_id }) => ({ id, text, source_sentence_id, symbol_id }));
 }

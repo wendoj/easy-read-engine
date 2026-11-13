@@ -1,15 +1,12 @@
 /**
- * Pure: carry P9 and P10 verdicts over for lines that weren't edited, and add
- * the judge's new verdicts for the edited lines (R9.2).
- *
- * Judge results name failing lines in `line_ids`, and every detail starts with
- * its line ID (see `buildJudgeResults`). A carried-over failure is kept only
- * for a line that is still in the output and wasn't edited. A previous result
- * that failed without naming any line (for example "no result for this rule")
- * stays failed, so a gap is never turned into a pass.
+ * Carries P9 and P10 over for lines that weren't edited and adds the judge's
+ * new verdicts for the edited ones. A carried-over failure is kept only for a
+ * line that is still there and unedited. A failure that names no line (such as
+ * "no result for this rule") stays failed, so a gap never turns into a pass.
  */
 import type { CheckResult } from "@/src/checker-client/schemas";
 import { JUDGE_UNAVAILABLE } from "@/src/llm/judge";
+import { completeChecks } from "@/src/pipeline/decide";
 
 export type JudgeRule = "P9" | "P10";
 export const JUDGE_RULES: readonly JudgeRule[] = ["P9", "P10"];
@@ -47,9 +44,7 @@ function mergeOne(
 }
 
 /**
- * P9 and P10 for the whole output after an edit.
- *
- * @param previous the checks the client had before the edit (all 10 rules; only P9 and P10 are read)
+ * @param previous the client's checks before the edit (only P9 and P10 are read)
  * @param judged the judge's P9 and P10 for the edited lines only
  * @param carried IDs of current lines that weren't edited
  */
@@ -67,6 +62,11 @@ export function mergeJudgeChecks(
     ),
   );
   return [p9, p10];
+}
+
+/** The checker's P1 to P8 plus the merged P9 and P10, as all 10 rules in order. */
+export function withJudgeChecks(ruleChecks: readonly CheckResult[], judgeChecks: readonly CheckResult[]): CheckResult[] {
+  return completeChecks([...ruleChecks.filter((c) => c.rule !== "P9" && c.rule !== "P10"), ...judgeChecks]);
 }
 
 /** False when any P9 or P10 failure, new or carried over, is "judge unavailable". */

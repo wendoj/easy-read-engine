@@ -1,50 +1,24 @@
-"""Pipeline property (task 30, design "Testing Strategy", "Pipeline property").
+"""Pipeline property: posts `synthetic_letters()` to the running web app's
+`POST /api/convert`, then rechecks the returned lines here against key facts
+from the Original, so the property doesn't rely on the pipeline's own report.
 
-Requirements, Correctness Properties, "Property-based testing" item 2:
-
-    "A generator SHALL produce synthetic letters with random dates, amounts,
-    reference numbers, and long, passive sentences. For every generated
-    letter, the pipeline's output SHALL satisfy P1 to P8."
-
-Wiring. Hypothesis drives: each example is a `synthetic_letters()` letter
-(task 11), posted to the running web app's `POST /api/convert`, which runs the
-real pipeline (rewrite, check, regenerate, judge). The returned lines are then
-checked again here, in process, with `check_easy_read` against key facts taken
-from the Original by `analyse`, so the property doesn't rely on the pipeline's
-own report. It needs the web app (WEB_URL, default http://localhost:3000) and
-the checker service it calls, plus model keys, so it is marked `needs_model`
-and deselected by default (`addopts` in pyproject.toml):
+It needs the web app (WEB_URL), the checker and model keys, so it is marked
+`needs_model` and deselected by default:
 
     cd checker && uv run pytest -m needs_model     # or: cd web && npm run fixtures:property
 
-Deselection is not a skip or xfail: the test is never marked skip, and when
-it runs, a missing web app or provider is a failure, not a skip.
+Deselection is not a skip. When it runs, a missing web app or provider fails.
 
-What "satisfy P1 to P8" means here, read strictly:
-- `passed`: every one of P1 to P8 passes, in the pipeline's report and here.
-- `flagged`: allowed only when every flagged rule is P9 or P10. A flagged P2
-  to P8 is output shown with a P1 to P8 failure, so it fails the property.
-- `blocked`: fails the property. Blocking (R2.5) is the safe response to a P1
-  failure, but it means the pipeline gave no output that satisfies P1.
-- Any pipeline error (model output invalid, internal) fails the property.
-- Provider or quota errors (429, 503, providers_unavailable) are not a
-  counterexample, but they still fail the run with `ProviderUnavailable`, so a
-  run cut short by limits is never reported as passing.
+Read strictly: `flagged` passes only when every flagged rule is P9 or P10, and
+`blocked` fails. Provider or quota errors are not a counterexample but still
+fail the run, so a run cut short by limits never reports as passing.
 
-Settings and why:
-- `max_examples` 5 by default (PIPELINE_PROPERTY_EXAMPLES): each example is
-  a full conversion, several model calls on free tiers.
-- `deadline=None`: one conversion takes 10 to 60 seconds.
-- No shrink phase: shrinking would send many more letters to a live,
-  nondeterministic model, burning quota and giving flaky minimal examples.
-  The falsifying letter is still printed (it is invented text). Results are
-  memoised per letter for the session, so Hypothesis's final replay of a
-  failing example makes no new model call and can't turn flaky.
-- PIPELINE_PROPERTY_DELAY_S (default 20) pauses between conversions to stay
-  under per-minute provider limits.
+No shrink phase: shrinking would send many more letters to a live,
+nondeterministic model. Results are memoised per letter, so Hypothesis's final
+replay of a failing example makes no new model call and can't turn flaky.
 
-Logging (R7.4): failure messages hold status, attempts, rule IDs and line IDs
-only. Model output lines are never printed.
+Failure messages hold status, attempts, rule IDs and line IDs only, never
+model output lines.
 """
 
 import json
@@ -160,8 +134,8 @@ def _summary(result: dict[str, Any]) -> str:
 @settings(
     max_examples=EXAMPLES,
     deadline=None,
-    # No shrink (see the module docstring), and no example database: replaying
-    # saved letters would spend quota on letters this run didn't choose.
+    # No shrink, and no example database: replaying saved letters would spend
+    # quota on letters this run didn't choose.
     phases=(Phase.explicit, Phase.generate),
     database=None,
 )

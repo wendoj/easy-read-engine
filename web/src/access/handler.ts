@@ -1,20 +1,10 @@
 /**
- * `/api/access` as plain `Request -> Response` functions, so tests can call
- * them without Next.js.
- *
- * - GET: `{ access }`, the `AccessState` for this request, so the input
- *   screen knows whether to offer the convert controls.
- * - POST `{ key }`: on a match, sets the `er_access` cookie (HttpOnly,
- *   SameSite=Strict, Secure in production) and returns `{ access: "granted" }`.
- *   A wrong key gets 401. Each attempt is charged to the shared per-client
- *   rate limit (route "access"), to slow guessing.
- * - DELETE: clears the cookie.
- *
- * Logs hold the method, outcome, status and time. Never the submitted key,
- * the cookie or `ACCESS_KEY`.
+ * `/api/access`. GET returns the `AccessState`. POST `{ key }` sets the
+ * `er_access` cookie on a match, and each try is rate limited to slow
+ * guessing. DELETE clears the cookie. Never log the key or the cookie.
  */
 import { z } from "zod";
-import { readBody } from "@/src/convert/handler";
+import { NO_STORE, errorResponse as failureResponse, rateLimitFailure, readJson } from "@/src/http/response";
 import { type RateLimiter, rateLimit as defaultRateLimit } from "@/src/rate-limit";
 import { ACCESS_ERRORS, type AccessErrorCode, type AccessState, MAX_ACCESS_KEY_CHARS } from "./errors";
 import {
@@ -45,13 +35,11 @@ const MAX_ACCESS_BODY_BYTES = 4 * 1024;
 
 const bodySchema = z.object({ key: z.string().min(1).max(MAX_ACCESS_KEY_CHARS) });
 
-const NO_STORE = { "cache-control": "no-store" };
 
 const defaultLogger = (event: AccessLogEvent) => console.info(JSON.stringify(event));
 
-function errorResponse(code: AccessErrorCode, headers: Record<string, string> = {}): Response {
-  const { status, message } = ACCESS_ERRORS[code];
-  return Response.json({ error: code, message }, { status, headers: { ...NO_STORE, ...headers } });
+function errorResponse(code: AccessErrorCode): Response {
+  return failureResponse({ error: code, ...ACCESS_ERRORS[code] });
 }
 
 export function handleAccessGet(request: Request, deps: AccessHandlerDeps = {}): Response {
@@ -80,20 +68,12 @@ export async function handleAccessPost(request: Request, deps: AccessHandlerDeps
   const limit = await (deps.rateLimit ?? defaultRateLimit)(request, "access");
   if (!limit.allowed) {
     log(limit.code, limit.status);
-    const headers: Record<string, string> = { ...NO_STORE };
-    if (limit.retryAfterSeconds !== undefined) headers["retry-after"] = String(limit.retryAfterSeconds);
-    return Response.json({ error: limit.code, message: limit.message }, { status: limit.status, headers });
+    return failureResponse(rateLimitFailure(limit));
   }
 
-  const raw = await readBody(request, MAX_ACCESS_BODY_BYTES);
-  let json: unknown = null;
-  try {
-    json = raw === null ? null : JSON.parse(raw);
-  } catch {
-    json = null;
-  }
+  const read = await readJson(request, MAX_ACCESS_BODY_BYTES);
   // zod issues are not passed on: they could quote the key.
-  const parsed = bodySchema.safeParse(json);
+  const parsed = bodySchema.safeParse(read.ok ? read.json : null);
   if (!parsed.success) {
     log("invalid_request", 400);
     return errorResponse("invalid_request");

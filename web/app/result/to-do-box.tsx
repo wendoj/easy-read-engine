@@ -1,18 +1,7 @@
 "use client";
 /**
- * "What you need to do": the lines that hold a required action, as a
- * checklist at the top of the Easy Read side. See `src/ui/to-do-list.ts`.
- *
- * It starts closed, showing only the heading and "N things to do", so the
- * Easy Read lines are reachable without scrolling. The open or closed state
- * is not saved. Ticks live in this component, so they survive closing.
- * Opening animates height and opacity (200ms, strong ease-out); under
- * reduced motion it only fades. Items carry no failed-rule badge: failures
- * are in the Check report (R3.4).
- *
- * The ticks are only on this screen. They are not saved anywhere (R7.4).
- * "Add to calendar" downloads an .ics file for the line's deadline, made in
- * the browser.
+ * Starts closed, so the Easy Read lines are reachable without scrolling.
+ * Ticks live in this component, so they survive closing, and are never saved.
  */
 import { CalendarPlus, ChevronDown } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -37,7 +26,7 @@ export function ToDoBox({
 }: {
   items: ToDoItem[];
   styles: ReadonlyMap<string, FactStyle>;
-  /** The R7.1 notice, put in the calendar file. */
+  /** The simplified-version notice, put in the calendar file. */
   notice: string;
   readAloud: ReadAloud;
 }) {

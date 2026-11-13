@@ -1,4 +1,4 @@
-"""HTTP adapter tests (task 12). All text here is invented, with no real personal data."""
+# All text here is invented. No real letters or personal data.
 
 import logging
 
@@ -34,9 +34,6 @@ def _lines() -> list[dict]:
         {"id": "l2", "text": "You must pay £45 by 1 April 2026.", "source_sentence_id": "s2", "symbol_id": None},
         {"id": "l3", "text": "You can phone 0300 123 4567 with questions.", "source_sentence_id": "s3", "symbol_id": None},
     ]
-
-
-# --- routes return the expected shape ----------------------------------------
 
 
 def test_health_reports_spacy_loaded(client: TestClient) -> None:
@@ -125,9 +122,6 @@ def test_action_synonyms_lists_the_config_table(client: TestClient) -> None:
     assert len(res.json()) == len(ACTION_SYNONYMS)
 
 
-# --- invalid and oversized input ---------------------------------------------
-
-
 def _assert_no_echo(res) -> None:
     assert SECRET not in res.text
     for issue in res.json()["detail"]:
@@ -192,9 +186,6 @@ def test_overlong_symbol_query_is_rejected(client: TestClient) -> None:
     res = client.get("/symbols", params={"q": SECRET + "a" * MAX_SYMBOL_QUERY_CHARS})
     assert res.status_code == 422
     _assert_no_echo(res)
-
-
-# --- logging -----------------------------------------------------------------
 
 
 def test_access_log_filter_strips_query_string() -> None:

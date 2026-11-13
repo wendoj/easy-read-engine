@@ -1,7 +1,6 @@
-"""Pure checker functions shared by the HTTP and MCP adapters (design "Checker service").
+"""Pure checker functions shared by the HTTP and MCP adapters.
 
-The adapters call only the functions below. Nothing here calls a model, logs,
-or stores letter text (R7.4).
+Nothing here calls a model, logs, or stores letter text.
 """
 
 from collections.abc import Callable

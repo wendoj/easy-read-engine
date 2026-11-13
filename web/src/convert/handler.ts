@@ -1,26 +1,16 @@
 /**
- * `POST /api/convert` as a plain `Request -> Response` function, so tests can
- * call it without Next.js. The route file only wires in the real clients.
+ * `POST /api/convert`: streams the conversion as newline-delimited JSON
+ * (`progress` events, then 1 `result` or `error` event).
  *
- * Input: `{ original: string }`, the confirmed text (R1.6). It is passed to the
- * pipeline unchanged.
- *
- * Order, so that nothing spends model quota unless it can finish:
- * 0. Judge access (`src/access`): 401 without a valid cookie, 503 when
- *    production has no `ACCESS_KEY`. The body is not read.
- * 1. Body size, JSON and zod, then the 1,500-word limit (R1.7): 400 or 413.
- * 2. Checker health: 503 if it's down, because unchecked output is never shown.
- * 3. Model config, then the shared rate limits: 429, or 503 for the daily cap.
- * 4. Stream newline-delimited JSON: `progress` events, then 1 `result` event
- *    with the `ConversionResult`. A failure after the stream starts is sent as
- *    a final `error` event holding the status the route would have returned.
- *
- * Nothing is stored. Logs hold the outcome, the status and the time. Never the
- * body, letter text, lines or key-fact values (R7.4).
+ * Access, body, checker health and rate limits are checked in that order, so
+ * nothing spends model quota unless it can finish. A failure after the stream
+ * starts is sent as a final `error` event with the status the route would
+ * have returned.
  */
 import { z } from "zod";
 import { type AccessGate, requireAccess } from "@/src/access/key";
 import { CheckerUnavailable } from "@/src/checker-client/errors";
+import { type RouteFailure, errorName, errorResponse, rateLimitFailure, readJson } from "@/src/http/response";
 import { ProviderChainError, ProviderRequestError } from "@/src/llm/client";
 import { ModelOutputError } from "@/src/llm/structured";
 import {
@@ -84,7 +74,6 @@ export interface ConvertLogEvent {
 
 const bodySchema = z.object({ original: z.string() });
 
-const NO_STORE = { "cache-control": "no-store" };
 
 const STREAM_HEADERS = {
   "content-type": "application/x-ndjson; charset=utf-8",
@@ -98,22 +87,12 @@ const STREAM_HEADERS = {
 const defaultLogger = (event: ConvertLogEvent) => console.info(JSON.stringify(event));
 const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-interface Failure {
-  error: ConvertErrorCode;
-  status: number;
-  message: string;
-  retryAfterSeconds?: number;
-}
+type Failure = RouteFailure<ConvertErrorCode>;
 
 function failure(error: keyof typeof CONVERT_ERRORS, retryAfterSeconds?: number): Failure {
   return { error, ...CONVERT_ERRORS[error], ...(retryAfterSeconds !== undefined ? { retryAfterSeconds } : {}) };
 }
 
-function errorResponse(f: Failure): Response {
-  const headers: Record<string, string> = { ...NO_STORE };
-  if (f.retryAfterSeconds !== undefined) headers["retry-after"] = String(f.retryAfterSeconds);
-  return Response.json({ error: f.error, message: f.message }, { status: f.status, headers });
-}
 
 /** Map a pipeline error to a failure. The error's own message is never used. */
 export function classifyError(err: unknown): Failure {
@@ -151,55 +130,14 @@ export function withRetryAfterOnce(model: PipelineModel, sleep: (ms: number) => 
   };
 }
 
-/** Read at most `limit` bytes of the body. Null when it is longer or can't be read. Also used by `/api/check`. */
-export async function readBody(request: Request, limit: number): Promise<string | null> {
-  if (!request.body) return "";
-  const reader = request.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let size = 0;
-  try {
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      size += value.byteLength;
-      if (size > limit) {
-        await reader.cancel().catch(() => {});
-        return null;
-      }
-      chunks.push(value);
-    }
-  } catch {
-    return null;
-  }
-  const bytes = new Uint8Array(size);
-  let offset = 0;
-  for (const c of chunks) {
-    bytes.set(c, offset);
-    offset += c.byteLength;
-  }
-  try {
-    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-  } catch {
-    return null;
-  }
-}
 
 type Parsed = { ok: true; original: string } | { ok: false; failure: Failure };
 
 async function parseRequest(request: Request): Promise<Parsed> {
-  const declared = Number(request.headers.get("content-length"));
-  if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) return { ok: false, failure: failure("too_large") };
-
-  const raw = await readBody(request, MAX_BODY_BYTES);
-  if (raw === null) return { ok: false, failure: failure("too_large") };
-  let json: unknown;
-  try {
-    json = JSON.parse(raw);
-  } catch {
-    return { ok: false, failure: failure("invalid_request") };
-  }
+  const read = await readJson(request, MAX_BODY_BYTES);
+  if (!read.ok) return { ok: false, failure: failure(read.reason === "too_large" ? "too_large" : "invalid_request") };
   // zod issues are not passed on: some quote the received value.
-  const parsed = bodySchema.safeParse(json);
+  const parsed = bodySchema.safeParse(read.json);
   if (!parsed.success) return { ok: false, failure: failure("invalid_request") };
 
   const { original } = parsed.data;
@@ -225,7 +163,7 @@ export async function handleConvert(request: Request, deps: ConvertHandlerDeps):
       outcome,
       status,
       streamed,
-      ...(outcome === "internal" && err instanceof Error ? { errorName: err.name } : {}),
+      ...(outcome === "internal" ? errorName(err) : {}),
       ms: Math.round(now() - started),
     });
   const reject = (f: Failure, err?: unknown) => {
@@ -258,12 +196,7 @@ export async function handleConvert(request: Request, deps: ConvertHandlerDeps):
 
   const limit = await (deps.rateLimit ?? defaultRateLimit)(request, "convert");
   if (!limit.allowed) {
-    return reject({
-      error: limit.code,
-      status: limit.status,
-      message: limit.message,
-      ...(limit.retryAfterSeconds !== undefined ? { retryAfterSeconds: limit.retryAfterSeconds } : {}),
-    });
+    return reject(rateLimitFailure(limit));
   }
 
   const encoder = new TextEncoder();

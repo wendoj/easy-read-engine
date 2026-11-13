@@ -40,8 +40,7 @@ def test_letter_splits_into_sentences_with_offsets() -> None:
 
 
 def test_phone_number_stays_inside_one_sentence() -> None:
-    """Regression: spaCy split "0300 020 0040." into "0300 020" and "0040."
-    (found by the P1 property, task 5, during task 23)."""
+    """Regression: spaCy split "0300 020 0040." into "0300 020" and "0040."."""
     text = (
         "The council made this decision on 1 January 2020. "
         "Please call the council on 0300 020 0040. "
@@ -72,10 +71,8 @@ def test_spacy_model_is_loaded_once() -> None:
 
 
 def test_layout_lines_are_separate_sentences() -> None:
-    """Regression: PDF letters put labels, table cells and headings on their
-    own lines with no full stop. spaCy joined them into one "sentence", so the
-    key-fact extractor found actions like "Pay ... Notice" across table cells
-    that no rewrite could keep (P1 blocked every council tax sample)."""
+    """Regression: spaCy joined PDF labels and table cells into one sentence,
+    so key-fact actions spanned cells and P1 blocked every council tax sample."""
     text = (
         "Date of Issue:\nProperty Band\nContact us:  example.gov.uk/contact\n"
         "Or phone: 01842 756577\nMore than 90% of residents pay on time."
@@ -121,10 +118,8 @@ def test_bullets_headings_and_web_addresses_start_new_sentences() -> None:
 
 
 def test_wrapped_line_before_a_capital_or_digit_stays_one_sentence() -> None:
-    """Regression: a wrapped prose line that ended on an ordinary word ended
-    the sentence whenever the next line started with a capital or a digit.
-    "please contact\\nCitizens Advice" lost its action and "before\\n1 April
-    2026" took the date away from the action, which weakened P1."""
+    """Regression: a capital or digit after a line break ended the sentence,
+    which split actions from their objects and dates and weakened P1."""
     for text in [
         "If you have not already paid, please contact\nCitizens Advice for free help.",
         "If you have not already paid, you must pay the full amount shown on this notice before\n"
@@ -150,11 +145,8 @@ def test_short_layout_lines_and_web_addresses_still_split() -> None:
 
 
 def test_short_label_and_value_lines_split_when_every_line_is_short() -> None:
-    """Regression (review v2): wrapped lines were measured only against the
-    widest line of the paragraph. In a paragraph of short label and value
-    lines every line is close to the widest, so none of them broke. "Pay by 1
-    April 2026" lost its action and "Next instalment 1 May 2026" bound its
-    date to "Please pay the balance now"."""
+    """Regression: lines were measured only against the widest line, so in a
+    paragraph of short lines none of them broke."""
     for text, expected in [
         ("Amount due now £120.00\nPay by 1 April 2026", ["Amount due now £120.00", "Pay by 1 April 2026"]),
         (
@@ -185,7 +177,6 @@ def test_short_address_line_ending_on_a_name_runs_on() -> None:
 
 
 def test_long_wrapped_prose_still_runs_on_in_a_short_paragraph() -> None:
-    """Still passes: the prose cases from review v1 are 40 or more characters
-    wide and stay 1 sentence without a longer line in the paragraph."""
+    """Prose lines of 40 or more characters stay 1 sentence with no longer line beside them."""
     text = "If you have not already paid, please contact\nCitizens Advice for free help."
     assert [s.text for s in split_sentences(text)] == [text]

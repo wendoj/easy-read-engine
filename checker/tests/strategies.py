@@ -1,9 +1,4 @@
-"""Shared Hypothesis strategies.
-
-`synthetic_letters` builds invented letters with random dates, amounts and
-reference numbers in long, passive sentences. It is used by the
-`check_easy_read` property and kept for the pipeline property in task 30
-(design "Testing Strategy").
+"""Shared Hypothesis strategies and helpers.
 
 All text here is invented. No real letters or personal data.
 """
@@ -12,10 +7,19 @@ from datetime import date
 
 from hypothesis import strategies as st
 
+from checks.models import Line
+
 MONTHS = ["January", "February", "March", "April", "May", "June", "July",
           "August", "September", "October", "November", "December"]  # fmt: skip
 
-# --- key-fact values ---------------------------------------------------------
+
+def text_lines(texts: list[str]) -> list[Line]:
+    """Lines l1, l2, ... from sentence s1, with no symbol."""
+    return [
+        Line(id=f"l{i}", text=t, source_sentence_id="s1", symbol_id=None)
+        for i, t in enumerate(texts, start=1)
+    ]
+
 
 dates = st.dates(min_value=date(2020, 1, 1), max_value=date(2035, 12, 31)).flatmap(
     lambda d: st.sampled_from(
@@ -42,10 +46,8 @@ times = st.sampled_from(["9am", "10:30am", "2pm", "14:30", "11.15am"])
 FACT_VALUES = {"money": money, "date": dates, "reference": references, "phone": phones,
                "time": times}  # fmt: skip
 
-# --- required actions --------------------------------------------------------
-
-# Verbs and objects for "You are asked to V the O." and its active form. Each
-# verb parses as a verb with "the O" as its object in both forms.
+# Each verb parses as a verb with "the O" as its object in both the passive
+# "You are asked to V the O." and its active form.
 ACTION_VERBS = ["send", "sign", "check", "return", "complete", "bring", "post", "keep"]
 ACTION_OBJECTS = ["form", "letter", "bill", "card", "application", "payment slip"]
 SENDERS = ["council", "office", "bank", "doctor", "landlord", "team"]
@@ -53,11 +55,7 @@ SENDERS = ["council", "office", "bank", "doctor", "landlord", "team"]
 
 @st.composite
 def split_payment_actions(draw: st.DrawFn) -> tuple[str, str, str]:
-    """A required payment with an amount and a date, and a two-line split of it.
-
-    Returns (Original sentence, first line, second line). The split is the
-    kind of rewrite P3 asks for: the amount on one line, the date on the next.
-    """
+    """(Original sentence, amount line, date line): the split P3 asks for."""
     amount, when = draw(money), draw(dates)
     original = draw(st.sampled_from([
         "You must pay {m} by {d}.", "Please pay {m} by {d}.", "You need to pay {m} by {d}.",
@@ -69,13 +67,10 @@ def split_payment_actions(draw: st.DrawFn) -> tuple[str, str, str]:
 
 @st.composite
 def two_payment_swaps(draw: st.DrawFn) -> tuple[str, list[str], list[str]]:
-    """One sentence with 2 payments, its faithful lines and lines that swap a value.
+    """(Original sentence with 2 payments, faithful lines, lines that swap the amounts or dates).
 
-    Returns (Original sentence, faithful lines, swapped lines). The swapped
-    lines exchange the amounts or the dates between the 2 payments. The lines
-    are one line per payment, a P3 split of each payment over 2 lines, or a
-    split where each date is a statement with no action ("The deadline is D."),
-    placed after or before its payment.
+    The lines put each payment on one line, split it over 2 lines, or give
+    its date as a statement with no action, before or after the payment.
     """
     m1, m2 = draw(st.lists(money, min_size=2, max_size=2, unique_by=_money_key))
     d1, d2 = draw(st.lists(dates, min_size=2, max_size=2, unique_by=_date_key))
@@ -97,13 +92,11 @@ def two_payment_swaps(draw: st.DrawFn) -> tuple[str, list[str], list[str]]:
 
 
 def _money_key(text: str) -> str:
-    """Amounts that normalise to the same value count as equal."""
     pounds, _, pence = text.lstrip("£").replace(",", "").partition(".")
     return f"{int(pounds)}.{int(pence or 0):02d}"
 
 
 def _date_key(text: str) -> tuple[int, int, int]:
-    """Dates in either generated format count as equal when the day is the same."""
     if "/" in text:
         day, month, year = (int(p) for p in text.split("/"))
     else:
@@ -130,7 +123,6 @@ def day_months(draw: st.DrawFn) -> tuple[int, int]:
     """A (day, month) that exists in every year: day 1 to 28."""
     return draw(st.integers(min_value=1, max_value=28)), draw(st.integers(min_value=1, max_value=12))
 
-# --- passive sentences and their active forms ---------------------------------
 
 # (base, past tense, past participle, -ing form)
 VERBS = [
@@ -151,7 +143,7 @@ VERBS = [
 OBJECTS = ["letter", "form", "claim", "payment", "account", "application", "bill", "request"]
 AGENTS = ["council", "office", "team", "bank", "doctor", "landlord"]
 
-# (passive form, its active form). Each pair says the same thing.
+# (passive form, its active form)
 _PAIR_TEMPLATES = [
     ("The {o} was {pp} by the {a}.", "The {a} {past} the {o}."),
     ("Your {o} will be {pp} by the {a}.", "The {a} will {base} your {o}."),
@@ -176,11 +168,9 @@ def passive_active_pairs(draw: st.DrawFn) -> tuple[str, str]:
     return passive.format(**slots), active.format(**slots)
 
 
-# --- synthetic letters ----------------------------------------------------------
-
-# Long, passive sentences. Each has more than 15 words before its key-fact
-# values are filled in, so every one breaks P2, and each uses a passive verb,
-# so every one breaks P4. The tuple lists the key-fact slots it holds.
+# Each sentence has more than 15 words before its key-fact values are filled
+# in, so it breaks P2, and uses a passive verb, so it breaks P4. The tuple
+# lists the key-fact slots it holds.
 LONG_PASSIVE_SENTENCES: list[tuple[str, tuple[str, ...]]] = [
     ("Following a recent review of your council tax account, a payment of {money} "
      "will be collected from your bank account on {date}.", ("money", "date")),
@@ -202,7 +192,6 @@ _REQUIRED = (0, 2)
 
 
 def fill_sentence(template: str, slots: tuple[str, ...], draw: st.DrawFn) -> str:
-    """Fill a long passive sentence with random key-fact values and words."""
     pp = draw(st.sampled_from([v for v in VERBS if v[0] not in _ADJECTIVE_LIKE]))[2]
     words = {"o": draw(st.sampled_from(OBJECTS)), "a": draw(st.sampled_from(AGENTS)), "pp": pp}
     return template.format(**words, **{slot: draw(FACT_VALUES[slot]) for slot in slots})
@@ -210,11 +199,8 @@ def fill_sentence(template: str, slots: tuple[str, ...], draw: st.DrawFn) -> str
 
 @st.composite
 def synthetic_letters(draw: st.DrawFn, max_extra: int = 4) -> str:
-    """An invented letter of long, passive sentences with random key facts.
-
-    It always has at least one date, money amount and reference number, plus up
-    to `max_extra` more sentences that may add times and phone numbers.
-    """
+    """An invented letter of long, passive sentences with at least one date,
+    amount and reference, plus up to `max_extra` more sentences."""
     extra = draw(st.lists(st.integers(0, len(LONG_PASSIVE_SENTENCES) - 1), max_size=max_extra))
     order = draw(st.permutations([*_REQUIRED, *extra]))
     return " ".join(fill_sentence(*LONG_PASSIVE_SENTENCES[i], draw) for i in order)

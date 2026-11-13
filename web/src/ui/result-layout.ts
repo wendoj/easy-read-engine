@@ -1,10 +1,4 @@
-/**
- * Pure helpers behind the result screen (task 22, R5.1, R5.2).
- *
- * The Original is rendered by slicing its text at the sentence spans from
- * `analyse`, so every character, including whitespace and line breaks, is
- * shown exactly as confirmed (R1.6). Nothing here rewrites the Original.
- */
+// The Original is only ever sliced, never rewritten, so it shows exactly as confirmed.
 import type { Line, Sentence } from "@/src/checker-client/schemas";
 import type { ConversionResult, Rule, Status } from "@/src/pipeline/types";
 import {
@@ -17,21 +11,14 @@ import {
 } from "./key-fact-highlight";
 import { lineMarkers } from "./rule-report";
 
-/** A run of the Original: either a sentence from `analyse`, or text between sentences. */
 export type OriginalSegment =
   | { kind: "text"; start: number; end: number; text: string }
   | { kind: "sentence"; start: number; end: number; text: string; sentenceId: string };
 
 /**
- * Splits the Original into segments that cover it exactly, in order, with no
- * gaps, overlaps or empty segments. Joining the segment texts gives back the
- * Original.
- *
- * Spans are used as given when they are in range and don't overlap. Otherwise
- * they are clamped to the text, and a span that overlaps an earlier one keeps
- * only the part after it. A span with nothing left is dropped.
- *
- * `highlightSegments` (key-fact-highlight.ts) splits these further at key-fact spans.
+ * Segments cover the Original exactly, in order, with no gaps, overlaps or
+ * empty segments. Out-of-range spans are clamped, and a span that overlaps an
+ * earlier one keeps only the part after it.
  */
 export function originalSegments(text: string, sentences: readonly Sentence[]): OriginalSegment[] {
   const length = text.length;
@@ -54,10 +41,7 @@ export function originalSegments(text: string, sentences: readonly Sentence[]): 
   return segments;
 }
 
-/**
- * The ID of the Original sentence a line came from, or null when the line
- * isn't in `lines` or its source sentence isn't one of `sentences`.
- */
+/** Null when the line isn't in `lines` or its source sentence isn't one of `sentences`. */
 export function sentenceIdForLine(
   lineId: string,
   lines: readonly Line[],
@@ -68,35 +52,30 @@ export function sentenceIdForLine(
   return sentences.some((s) => s.id === line.source_sentence_id) ? line.source_sentence_id : null;
 }
 
-/** URL of a pictogram served by the symbols route (task 23). */
 export function symbolSrc(symbolId: string): string {
   return `/symbols/${encodeURIComponent(symbolId)}`;
 }
 
-/** One row on the Easy Read side: picture, then line. */
 export interface LineRow {
   id: string;
   text: string;
-  /** Null when the line has no picture. The row keeps an empty picture slot so lines stay aligned. */
   symbolSrc: string | null;
   /** Null when the source sentence isn't in the Original; selecting the line then highlights nothing. */
   sourceSentenceId: string | null;
-  /** True when a failed rule names this line. */
   flagged: boolean;
-  /** The failed rules that name this line, in rule order (task 24). */
+  /** In rule order. */
   failedRules: Rule[];
-  /** The line text split at its key facts (task 25). Joining the piece texts gives `text`. */
+  /** Joining the piece texts gives `text`. */
   pieces: HighlightPiece[];
 }
 
 export interface ResultLayout {
   status: Status;
-  /** True when the output is blocked: no lines are shown (R2.5). Task 27 builds the full blocked state. */
+  /** Blocked: no lines are shown. */
   withheld: boolean;
-  /** The Original split at sentences, then at key facts (task 25). */
   segments: HighlightedSegment[];
   rows: LineRow[];
-  /** Colour, type label and failed flag per key fact ID, shared by both columns (R5.3). */
+  /** Shared by both columns, so each fact has the same colour in each. */
   factStyles: Map<string, FactStyle>;
 }
 
@@ -129,13 +108,9 @@ export function resultLayout(result: ConversionResult): ResultLayout {
 }
 
 /**
- * The `scrollTop` that brings an element into view inside a scroll container,
- * about a third of the way down. Returns the current `scrollTop` when the
- * element is already fully visible. Positions are viewport coordinates, as
- * from `getBoundingClientRect`.
- *
- * Scrolling only the container keeps the page still, so the selected line
- * stays where the user is looking.
+ * The container `scrollTop` that puts the element about a third of the way
+ * down, or the current one when it is already fully visible. Positions are
+ * viewport coordinates from `getBoundingClientRect`.
  */
 export function scrollTopToReveal(
   container: { top: number; height: number; scrollTop: number },

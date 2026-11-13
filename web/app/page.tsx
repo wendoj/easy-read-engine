@@ -1,13 +1,8 @@
 import { sampleCatalog } from "@/src/samples/catalog";
 import { InputScreen } from "./input-screen";
 
-/**
- * One heading, one sentence, then the task. Readers come here to do one
- * thing, so there is no marketing copy to read first (ui.md: "Keep copy
- * short. Use a heading and the controls"). Nothing animates on load.
- */
 export default function Home() {
-  // IDs and labels only. A sample's text and lines are sent when it is loaded (/api/sample).
+  // IDs and labels only. A sample's text is sent when it is loaded.
   const samples = sampleCatalog().list();
   return (
     <main className="flex flex-1 flex-col px-4 pt-10 pb-24 sm:pt-14">

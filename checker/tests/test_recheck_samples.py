@@ -56,9 +56,8 @@ def test_a_sample_that_matches_the_current_split_has_no_drift() -> None:
 
 
 def test_reports_line_source_ids_missing_from_the_current_split(tmp_path: Path, capsys) -> None:
-    """Regression (review v2): a splitter change made the planning sample's
-    lines point at s49 to s51, which no longer existed. The web app refused it
-    with `sample_outdated`, but this script still printed clean numbers."""
+    """Regression: after a splitter change, lines pointed at sentence IDs that no
+    longer existed, and this script still printed clean numbers."""
     sample = copy.deepcopy(SAMPLE)
     sample["result"]["lines"][1]["source_sentence_id"] = "s9"
     assert rs.sentence_drift(sample) == (["s9"], [])

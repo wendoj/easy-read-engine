@@ -27,9 +27,6 @@ _queries = st.one_of(
 )
 
 
-# --- properties --------------------------------------------------------------
-
-
 @settings(max_examples=200, deadline=None)
 @given(_queries, st.integers(min_value=1, max_value=20))
 def test_find_symbol_returns_only_index_ids_sorted_and_bounded(query: str, limit: int) -> None:
@@ -46,9 +43,6 @@ def test_find_symbol_returns_only_index_ids_sorted_and_bounded(query: str, limit
     scores = [m.score for m in matches]
     assert scores == sorted(scores, reverse=True)
     assert all(s > 0 for s in scores)
-
-
-# --- examples ----------------------------------------------------------------
 
 
 def _keywords(symbol_id: str) -> list[str]:

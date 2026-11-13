@@ -1,30 +1,14 @@
 /**
- * `POST /api/sample` as a plain `Request -> Response` function (task 29,
- * design "Protecting the live quota"). Body: `{ id }`.
- *
- * Loads a recorded sample and re-runs P1 to P8 on its recorded lines through
- * the checker, so the checks shown are current. There is no model call, so a
- * sample spends no model quota. That is why this route is separate from
- * `/api/check`, which always judges the edited lines, and why it isn't under
- * the shared model rate limits.
- *
- * - Sentences and key facts come from `analyse` on the recorded Original, as
- *   for every other result, so P1 compares the lines with the Original.
- * - P9 and P10 are the recorded judge verdicts, carried over unchanged
- *   (`mergeJudgeChecks` with no new verdicts). The response says so with
- *   `judgeRecorded: true`, and the result screen labels them.
- * - Status comes from all 10 rules (`statusOf`). If a re-check now fails P1,
- *   the result is blocked and holds no lines, as for any result (R2.5).
- * - Checker down or starting: 503. Unchecked output is never shown.
- *
- * Samples are public template letters, but logs still hold only the sample
- * ID, counts, rule results and time.
+ * `POST /api/sample` `{ id }`: a recorded sample, re-checked with P1 to P8 so
+ * the checks shown are current. P9 and P10 are the recorded judge verdicts
+ * (`judgeRecorded: true`). There is no model call, so this route spends no
+ * model quota and has no model rate limit.
  */
 import { z } from "zod";
 import { CheckerUnavailable } from "@/src/checker-client/errors";
 import type { ActionSynonym, CheckResult, KeyFact, Line, LineFactSpan, Sentence } from "@/src/checker-client/schemas";
 import { mergeJudgeChecks } from "@/src/check/merge";
-import { readBody } from "@/src/convert/handler";
+import { errorName, errorResponse, NO_STORE, readJson } from "@/src/http/response";
 import { NOTICE, completeChecks, statusOf } from "@/src/pipeline/decide";
 import type { ConversionResult, Rule, Status } from "@/src/pipeline/types";
 import type { SampleCatalog } from "./catalog";
@@ -68,7 +52,6 @@ export interface SampleLogEvent {
 
 export const sampleBodySchema = z.object({ id: sampleIdSchema });
 
-const NO_STORE = { "cache-control": "no-store" };
 
 const defaultLogger = (event: SampleLogEvent) => console.info(JSON.stringify(event));
 
@@ -130,21 +113,15 @@ export async function handleSample(request: Request, deps: SampleHandlerDeps): P
       outcome: error,
       status,
       ...extra,
-      ...(error === "internal" && err instanceof Error ? { errorName: err.name } : {}),
+      ...(error === "internal" ? errorName(err) : {}),
       ms: ms(),
     });
-    return Response.json({ error, message }, { status, headers: NO_STORE });
+    return errorResponse({ error, status, message });
   };
 
-  const raw = await readBody(request, MAX_SAMPLE_BODY_BYTES);
-  if (raw === null) return reject("invalid_request");
-  let json: unknown;
-  try {
-    json = JSON.parse(raw);
-  } catch {
-    return reject("invalid_request");
-  }
-  const parsed = sampleBodySchema.safeParse(json);
+  const read = await readJson(request, MAX_SAMPLE_BODY_BYTES);
+  if (!read.ok) return reject("invalid_request");
+  const parsed = sampleBodySchema.safeParse(read.json);
   if (!parsed.success) return reject("invalid_request");
   const id = parsed.data.id;
 

@@ -9,8 +9,6 @@ from checks.p8_symbols import check_p8, symbol_ids
 
 # All text here is invented. No real letters or personal data.
 
-# --- generators --------------------------------------------------------------
-
 _KNOWN = sorted(symbol_ids())
 
 _known_ids = st.sampled_from(_KNOWN)
@@ -39,9 +37,6 @@ def _lines(ids: list[str | None]) -> list[Line]:
     ]
 
 
-# --- properties --------------------------------------------------------------
-
-
 @settings(max_examples=100, deadline=None)
 @given(st.lists(st.one_of(_known_ids, st.none()), min_size=1, max_size=8))
 def test_ids_from_index_and_null_ids_pass(ids: list[str | None]) -> None:
@@ -56,15 +51,11 @@ def test_ids_from_index_and_null_ids_pass(ids: list[str | None]) -> None:
 @given(st.lists(_slot, min_size=1, max_size=8), _unknown_ids, st.data())
 def test_ids_outside_index_fail(slots: list[tuple[str, str | None]], unknown: str, data: st.DataObject) -> None:
     """**Validates: Requirements 4.3; P8**"""
-    # Make sure at least one line has an unknown ID.
     slots[data.draw(st.integers(min_value=0, max_value=len(slots) - 1))] = ("unknown", unknown)
     lines = _lines([s for _, s in slots])
     result = check_p8("", [], lines)
     assert not result.passed
     assert result.line_ids == [line.id for line, (kind, _) in zip(lines, slots) if kind == "unknown"]
-
-
-# --- checker-must-fail cases and examples ------------------------------------
 
 
 def test_made_up_id_fails() -> None:
@@ -84,7 +75,7 @@ def test_no_lines_pass() -> None:
 
 
 def test_index_format() -> None:
-    """The index is non-empty, uses string IDs and records the set and licence. **Validates: Requirements 4.4**"""
+    """**Validates: Requirements 4.4**"""
     entries = json.loads(SYMBOL_INDEX_PATH.read_text(encoding="utf-8"))
     assert len(entries) > 10_000
     assert all(isinstance(e["id"], str) for e in entries)

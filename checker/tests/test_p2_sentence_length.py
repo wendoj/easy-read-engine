@@ -7,8 +7,6 @@ from checks.p2_sentence_length import check_p2, count_words
 
 # All text here is invented. No real letters or personal data.
 
-# --- generators --------------------------------------------------------------
-
 # Sentences of 1 to 4 words, with their word counts.
 _SHORT = {
     1: ["Thanks."],
@@ -57,9 +55,6 @@ _short_lengths = st.integers(min_value=1, max_value=MAX_SENTENCE_WORDS)
 _long_lengths = st.integers(min_value=MAX_SENTENCE_WORDS + 1, max_value=40)
 
 
-# --- properties --------------------------------------------------------------
-
-
 @settings(max_examples=60, deadline=None)
 @given(st.lists(_short_lengths, min_size=1, max_size=4), _long_lengths, st.data())
 def test_any_sentence_of_16_or_more_words_fails(
@@ -90,9 +85,6 @@ def test_any_sentence_of_15_or_fewer_words_passes(lengths: list[int], data: st.D
     result = check_p2("", [], lines)
     assert result.passed, result.details
     assert result.line_ids == []
-
-
-# --- checker-must-fail cases and examples ------------------------------------
 
 _SIXTEEN = "Following our review of your account you are now required to pay the full balance today."
 _FIFTEEN = "Following our review of your account you are now required to pay the balance today."

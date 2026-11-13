@@ -1,8 +1,4 @@
-/**
- * Validates the events in the `/api/convert` stream and turns progress events
- * into a label and a percentage for the input screen. Browser-safe: imports
- * only zod schemas and types.
- */
+// Browser-safe: imports only zod schemas and types.
 import { z } from "zod";
 import {
   actionSynonymSchema,
@@ -23,7 +19,7 @@ const progressSchema = z.object({
   maxAttempts: z.number().int().min(1),
 });
 
-const lineSchema = z.object({
+export const lineSchema = z.object({
   id: z.string(),
   text: z.string(),
   source_sentence_id: z.string(),
@@ -63,7 +59,6 @@ const errorSchema = z.object({
 
 const eventSchema = z.discriminatedUnion("type", [progressSchema, resultSchema, errorSchema]);
 
-/** One stream event, or null when the value doesn't match any event shape. */
 export function parseConvertEvent(value: unknown): ConvertEvent | null {
   const parsed = eventSchema.safeParse(value);
   if (!parsed.success) return null;
@@ -79,20 +74,14 @@ const STAGE_LABELS: Record<PipelineStage, string> = {
   regenerating: "Rewriting the lines that failed a check",
 };
 
-/**
- * Plain status line. The first try names the stage ("Checking the Easy Read
- * version"); later tries say so, for example "Checking again (try 2 of 3)".
- */
+/** Later tries say so, for example "Checking again (try 2 of 3)". */
 export function progressLabel(event: ProgressEvent): string {
   if (event.stage === "analysing" || event.attempt <= 1) return STAGE_LABELS[event.stage];
   const label = event.stage === "checking" ? "Checking again" : STAGE_LABELS[event.stage];
   return `${label} (try ${event.attempt} of ${event.maxAttempts})`;
 }
 
-/**
- * Percentage for the Progress bar. The steps are: analyse, then a write and a
- * check for each try. The bar never reaches 100 before the result arrives.
- */
+/** Steps are analyse, then a write and a check per try. Never reaches 100 before the result. */
 export function progressValue(event: ProgressEvent): number {
   const maxAttempts = Math.max(1, event.maxAttempts);
   const attempt = Math.min(Math.max(1, event.attempt), maxAttempts);
@@ -111,7 +100,7 @@ export interface StageRow {
   id: StageId;
   label: string;
   state: StageState;
-  /** "Try 2 of 3" on the current Check or Fix row from the second try, otherwise null. */
+  /** "Try 2 of 3" on the current Check or Fix row from the second try. */
   tag: string | null;
 }
 
@@ -122,12 +111,7 @@ const STAGE_ROWS: { id: StageId; stage: PipelineStage; label: string }[] = [
   { id: "fix", stage: "regenerating", label: "Fixing lines that failed a check" },
 ];
 
-/**
- * Rows for the stage list on the input screen. At most 4 rows: the Fix row is
- * shown only once a `regenerating` event has been seen (`sawFix`). Before the
- * first event, Read is current. When Check runs again after a fix, Fix shows
- * as done.
- */
+/** The Fix row appears once a `regenerating` event has been seen, and shows as done when Check runs again. */
 export function stageRows(event: ProgressEvent | null, sawFix: boolean): StageRow[] {
   const current = event === null ? 0 : STAGE_ROWS.findIndex((r) => r.stage === event.stage);
   const showFix = sawFix || event?.stage === "regenerating";

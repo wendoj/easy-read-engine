@@ -1,11 +1,8 @@
 /**
- * Typed HTTP client for the checker service (design "Checker client").
- *
- * - Base URL from `CHECKER_URL`; every request has a timeout.
- * - Network errors, timeouts, 5xx and invalid responses throw
- *   `CheckerUnavailable`, so route handlers return 503 and unchecked output is
- *   never shown. 4xx throws `CheckerRequestError`.
- * - Nothing here logs, and no error carries request or response content (R7.4).
+ * Network errors, timeouts, 5xx and invalid responses throw
+ * `CheckerUnavailable`, so routes return 503 and unchecked output is never
+ * shown. 4xx throws `CheckerRequestError`. Nothing here logs, and no error
+ * carries request or response content.
  */
 import type { z } from "zod";
 import { type CheckerRoute, CheckerRequestError, CheckerUnavailable } from "./errors";
@@ -47,7 +44,7 @@ export interface CheckerClient {
   analyse(original: string): Promise<Analysis>;
   keyFacts(text: string): Promise<KeyFact[]>;
   check(request: CheckRequest): Promise<CheckResult[]>;
-  /** Where each key fact appears in the lines, matched by P1's normalised values (R5.3). */
+  /** Matched by P1's normalised values. */
   lineFacts(request: LineFactsRequest): Promise<LineFactSpan[]>;
   symbols(q: string, limit?: number): Promise<SymbolMatch[]>;
   /** P1's action synonym table, for the rule report. */
@@ -99,7 +96,10 @@ export function createCheckerClient(options: CheckerClientOptions = {}): Checker
     try {
       const res = await fetchFn(url, {
         method: init.method,
-        headers: init.body === undefined ? { accept: "application/json" } : { accept: "application/json", "content-type": "application/json" },
+        headers: {
+          accept: "application/json",
+          ...(init.body === undefined ? {} : { "content-type": "application/json" }),
+        },
         body: init.body === undefined ? undefined : JSON.stringify(init.body),
         signal,
       });

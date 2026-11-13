@@ -1,61 +1,41 @@
 /**
- * Judge: P9 (meaning) and P10 (tone and advice) for every line, in batches
- * of up to `JUDGE_BATCH_LINES` lines, 1 request each (design "Judges").
- * Prompt: `prompts/judge.md`.
- *
- * A line fails P10 if its tone verdict or its advice verdict fails (R7.3).
- * If the judge gives no valid answer, both rules fail with "judge
- * unavailable", so they are flagged, not hidden (design "Error Handling").
+ * P9 (meaning) and P10 (tone and advice) for every line, in batches.
+ * If a batch gets no valid answer, its lines fail both rules with
+ * "judge unavailable", so they are flagged, not hidden.
  */
 import { z } from "zod";
 import type { CheckResult } from "@/src/checker-client/schemas";
 import { type ModelClient, ProviderChainError, ProviderRequestError } from "./client";
-import { type PromptTemplate, loadPrompt, oneLine, renderTemplate } from "./prompts";
-import type { LlmCallOptions } from "./rewrite";
+import { type LineVerdict, buildJudgeResults, judgeUnavailableResults, lineVerdictSchema } from "./judge-results";
+import type { LlmCallOptions, ModelAnswer } from "./lines";
+import { type PromptTemplate, loadPrompt, oneLine, renderPrompt } from "./prompts";
 import { ModelOutputError, type ToolDefinition, callStructured } from "./structured";
 
+export * from "./judge-results";
+export type { ModelAnswer } from "./lines";
+
 export const JUDGE_MAX_TOKENS = 2500;
-/** Longest reason kept in a check result. */
-export const MAX_REASON_CHARS = 200;
-export const JUDGE_UNAVAILABLE = "judge unavailable";
 
 export interface JudgePair {
   lineId: string;
-  /** ID of the line's source sentence. Sibling lines are grouped by this, not by text. */
+  /** Sibling lines are grouped by this, not by text. */
   sourceSentenceId: string;
   /** Source sentence text from the Original. */
   source: string;
   /** Easy Read line text. */
   line: string;
   /**
-   * Shown to the judge only as a sibling of the judged lines from the same
-   * sentence, never judged itself and given no verdict. `/api/check` sends
-   * the unedited lines this way, so an edited line isn't failed for a part
-   * that an unedited sibling says.
+   * Shown only as a sibling of the judged lines from the same sentence, never
+   * judged itself. `/api/check` sends the unedited lines this way, so an
+   * edited line isn't failed for a part that an unedited sibling says.
    */
   contextOnly?: boolean;
 }
 
-const verdictSchema = z.object({
-  reason: z.string().default(""),
-  verdict: z.enum(["pass", "fail"]),
-});
-
-export const lineVerdictSchema = z.object({
-  lineId: z.string().trim(),
-  meaning: verdictSchema,
-  tone: verdictSchema,
-  advice: verdictSchema,
-});
-
-export type Verdict = z.infer<typeof verdictSchema>;
-export type LineVerdict = z.infer<typeof lineVerdictSchema>;
-
 /**
  * `reason` comes before `verdict`, so the model writes the problem before it
- * decides. With the verdict first, the recorded samples (November 2026) had
- * fails whose own reason described a pass ("Leaves out X, which other lines
- * cover").
+ * decides. With the verdict first, fails often came with a reason that
+ * described a pass.
  */
 const VERDICT_PARAMETERS = {
   type: "object",
@@ -96,8 +76,8 @@ export const SUBMIT_VERDICTS_TOOL: ToolDefinition = {
 /**
  * Exactly 1 verdict for every line ID sent. A verdict for any other line ID
  * is dropped before validation: the model sometimes also judges a
- * context-only sibling it was shown, and that extra verdict must not turn a
- * valid answer into "judge unavailable". A missing verdict still fails.
+ * context-only sibling, and that must not turn a valid answer into
+ * "judge unavailable". A missing verdict still fails.
  */
 export function judgeSchema(lineIds: readonly string[]) {
   const wanted = new Set(lineIds);
@@ -124,72 +104,12 @@ export function judgeSchema(lineIds: readonly string[]) {
   });
 }
 
-function reasonText(kind: string, v: Verdict): string {
-  const reason = oneLine(v.reason).slice(0, MAX_REASON_CHARS);
-  return reason ? `${kind}: ${reason}` : kind;
-}
+const judgedLineIds = (pairs: readonly JudgePair[]) => pairs.filter((p) => !p.contextOnly).map((p) => p.lineId);
 
 /**
- * Pure: turn per-line verdicts into the P9 and P10 check results.
- *
- * - P9 fails on a line whose meaning verdict fails.
- * - P10 fails on a line whose tone verdict or advice verdict fails.
- * - A line with no verdict fails both rules, so a gap is never a pass.
- * - Verdicts for line IDs not in `lineIds` are ignored.
- * - `line_ids` lists the failing lines, and every detail starts with its line ID.
- */
-export function buildJudgeResults(lineIds: readonly string[], verdicts: readonly LineVerdict[]): [CheckResult, CheckResult] {
-  const byId = new Map<string, LineVerdict>();
-  for (const v of verdicts) if (!byId.has(v.lineId)) byId.set(v.lineId, v);
-
-  const p9: CheckResult = { rule: "P9", passed: true, line_ids: [], failed_fact_ids: [], details: [] };
-  const p10: CheckResult = { rule: "P10", passed: true, line_ids: [], failed_fact_ids: [], details: [] };
-
-  for (const id of lineIds) {
-    const v = byId.get(id);
-    if (!v) {
-      p9.line_ids.push(id);
-      p9.details.push(`${id} has no verdict from the judge`);
-      p10.line_ids.push(id);
-      p10.details.push(`${id} has no verdict from the judge`);
-      continue;
-    }
-    if (v.meaning.verdict === "fail") {
-      p9.line_ids.push(id);
-      p9.details.push(`${id} ${reasonText("meaning", v.meaning)}`);
-    }
-    const toneFailed = v.tone.verdict === "fail";
-    const adviceFailed = v.advice.verdict === "fail";
-    if (toneFailed || adviceFailed) {
-      p10.line_ids.push(id);
-      if (toneFailed) p10.details.push(`${id} ${reasonText("tone", v.tone)}`);
-      if (adviceFailed) p10.details.push(`${id} ${reasonText("advice", v.advice)}`);
-    }
-  }
-  p9.passed = p9.line_ids.length === 0;
-  p10.passed = p10.line_ids.length === 0;
-  return [p9, p10];
-}
-
-/** Both rules fail on every line, with the reason "judge unavailable". */
-export function judgeUnavailableResults(lineIds: readonly string[]): [CheckResult, CheckResult] {
-  const make = (rule: "P9" | "P10"): CheckResult => ({
-    rule,
-    passed: lineIds.length === 0,
-    line_ids: [...lineIds],
-    failed_fact_ids: [],
-    details: lineIds.map((id) => `${id} ${JUDGE_UNAVAILABLE}`),
-  });
-  return [make("P9"), make("P10")];
-}
-
-/**
- * One block per line. A long sentence is split over several lines (P3), so
- * each block also lists the other lines from the same source sentence. The
- * judge failed lines for leaving out what a sibling line says, because it
- * couldn't see the siblings. Siblings are grouped by sentence ID, so 2
- * sentences with the same text don't share siblings. A `contextOnly` pair
- * gets no block of its own and appears only as a sibling.
+ * One block per judged line. Each block also lists the other lines from the
+ * same source sentence: without them the judge failed lines for leaving out
+ * what a sibling line says.
  */
 export function buildJudgeMessages(prompt: PromptTemplate, pairs: readonly JudgePair[]): { system: string; user: string } {
   const bySentence = new Map<string, JudgePair[]>();
@@ -205,17 +125,16 @@ export function buildJudgeMessages(prompt: PromptTemplate, pairs: readonly Judge
         : []),
     ].join("\n");
   });
-  return { system: prompt.system, user: renderTemplate(prompt.user, { pairs: blocks.join("\n\n") }) };
+  return renderPrompt(prompt, { pairs: blocks.join("\n\n") });
 }
 
 export interface JudgeResult {
   checks: [CheckResult, CheckResult];
-  /** False when the judge gave no valid answer for some or all lines, which then failed both rules as "judge unavailable". */
+  /** False when some or all lines failed both rules as "judge unavailable". */
   available: boolean;
   /**
-   * The judged lines that failed as "judge unavailable" (their batch got no
-   * valid answer). Empty when `available` is true. A fake may leave it out;
-   * then `available` false means every line.
+   * Empty when `available` is true. A fake may leave it out; then `available`
+   * false means every line.
    */
   unavailableLineIds?: string[];
   /** The last batch that answered. */
@@ -226,24 +145,17 @@ export interface JudgeResult {
   requests: number;
 }
 
-/** Which provider and model answered one request. */
-export interface ModelAnswer {
-  provider: string;
-  model: string;
-}
-
 /**
  * Most judged lines in 1 request. With 158 lines, the Bedrock judge's answer
- * was invalid twice (cut off), so every line failed as "judge unavailable"
- * (re-recorded samples, November 2026). About 100 lines still worked.
+ * was cut off twice, so every line failed as "judge unavailable".
  */
 export const JUDGE_BATCH_LINES = 40;
 
 /**
- * Split `pairs` into batches of whole sentences, in order: every pair from a
- * sentence (judged or context-only) goes in the same batch, so the judge
- * always sees a line's siblings. A batch holds at most `size` judged lines,
- * unless 1 sentence alone has more. Sentences with no judged line are left out.
+ * Every pair from a sentence (judged or context-only) goes in the same batch,
+ * so the judge always sees a line's siblings. A batch holds at most `size`
+ * judged lines, unless 1 sentence alone has more. Sentences with no judged
+ * line are left out.
  */
 export function judgeBatches(pairs: readonly JudgePair[], size: number = JUDGE_BATCH_LINES): JudgePair[][] {
   const judgedPerSentence = new Map<string, number>();
@@ -276,7 +188,7 @@ async function judgeBatch(
   pairs: readonly JudgePair[],
   options: LlmCallOptions,
 ): Promise<BatchOutcome> {
-  const lineIds = pairs.filter((p) => !p.contextOnly).map((p) => p.lineId);
+  const lineIds = judgedLineIds(pairs);
   const { system, user } = buildJudgeMessages(prompt, pairs);
   try {
     const result = await callStructured(
@@ -304,19 +216,16 @@ async function judgeBatch(
 }
 
 /**
- * Judges the lines in batches (`judgeBatches`), one request each, in order.
- * If any batch gets no valid answer, its lines fail both rules as "judge
- * unavailable", `available` is false and `unavailableLineIds` names them;
- * the other batches keep their verdicts. Results list lines in the order of
- * `pairs`. `answers` records who answered each batch, so a fallback on one
- * batch is logged as such.
+ * Batches run in order. A batch with no valid answer fails its lines as
+ * "judge unavailable"; the other batches keep their verdicts. Results list
+ * lines in the order of `pairs`.
  */
 export async function judge(
   client: ModelClient,
   pairs: readonly JudgePair[],
   options: LlmCallOptions = {},
 ): Promise<JudgeResult> {
-  const lineIds = pairs.filter((p) => !p.contextOnly).map((p) => p.lineId);
+  const lineIds = judgedLineIds(pairs);
   if (lineIds.length === 0) {
     return { checks: buildJudgeResults([], []), available: true, unavailableLineIds: [], answers: [], requests: 0 };
   }
