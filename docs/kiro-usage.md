@@ -82,8 +82,10 @@ The brief planned to compare "the first day of vibe-coded prompts with the spec-
 | Sample re-recording, Bedrock chain, 12 November 2026 | All 10 | 3 public | East Cambridgeshire and the planning letter flagged. Manchester blocked on P1 on every try, so its 11 November recording is kept. 0 letters passed all 10 | `web/data/samples/`, `58055db` |
 | Fixture run, Bedrock chain, `66a8d0b` (before the `657bd8f` checker fix), 12 November 2026 | All 10 | 8 (3 public, 5 invented) | All 8 finished, no provider errors. 0 passed, 6 flagged, 2 blocked (1 and 3 missing key facts). P9 failed on all 8, P8 passed on all 8 | `docs/pass-rates.md`, `fixtures/results/20261112T195656Z-all.json` |
 | Sample re-recording, Bedrock chain, `66a8d0b` (before the `657bd8f` checker fix), 12 November 2026 | All 10 | 3 public | East Cambridgeshire and the planning letter flagged. Manchester blocked on P1 on every try again, so its 11 November recording is kept. 0 letters passed all 10 | `web/data/samples/`, `a107eeb` |
+| Fixture run, Bedrock chain, `bbcb1f4` area, 13 November 2026 | All 10 | 8 (3 public, 5 invented) | All 8 finished, no provider errors. 0 passed, 6 flagged, 2 blocked on P1. P9 passed on 3 of 8 (0 of 8 before the judge rubric change) | `docs/pass-rates.md`, `fixtures/results/20261113T103145Z-all.json` |
+| Single letter runs after the P1 extractor fixes (`83092cd`), 13 November 2026 | All 10 | 2 (1 invented, 1 public) | Invented council tax letter passed all 10 rules on try 2. Manchester flagged, with P1 passing on all 3 tries. 1 run each, so not a pass rate | `docs/pass-rates.md` |
 
-None of these runs is a pass rate: no letter has passed all 10 rules. On Bedrock the providers are no longer the limit. The rules are, P9 most of all.
+None of these runs is a pass rate. Across the full fixture runs no letter has passed all 10 rules; one invented letter did in a single run after the 13 November fixes. On Bedrock the providers are no longer the limit. The rules are, and P3, P5 and P9 most of all.
 
 ## Prior art
 

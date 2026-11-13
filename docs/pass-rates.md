@@ -1,5 +1,54 @@
 # Pass rates
 
+## Latest: fixture run of 13 November 2026, and fixes after it
+
+> **No letter has passed all 10 rules in a full fixture run.** The run on 13 November 2026 (8 letters, Bedrock, `fixtures/results/20261113T103145Z-all.json`, started 10:31 UTC) ended with 0 passed, 6 flagged and 2 blocked on P1. That is the same split as the 12 November runs. It is 8 letters, not a pass rate on the planned 20 public letters. The run was made after the judge rubric change (`9ad9ef1`) and before the P1 and P3 fixes listed below.
+
+Rules that passed, out of 8 letters: P1 6, P2 4, P3 1, P4 5, P5 2, P6 7, P7 3, P8 8, P9 3, P10 6. Against the 12 November run on `66a8d0b`, **P9 went from 0 of 8 to 3 of 8**. P2 passed on 1 fewer letter, P3 on the same 1, and P1, P5 and P8 were unchanged. With 3 tries from a model that answers differently each time, a change of 1 letter is within run-to-run variation.
+
+| Letter | Status | Failing rules (lines) |
+| --- | --- | --- |
+| council-tax-final-notice-east-cambridgeshire | flagged | P2 11, P3 14, P4 6, P5 13, P7 5, P9 10 |
+| manchester-missed-council-tax-payment | blocked | P1 10, P2 1, P3 10, P5 5, P9 29, P10 2 |
+| planning-appeal-notification-letter | flagged | P2 2, P3 6, P4 5, P5 3, P7 1, P9 17, P10 6 |
+| invented-care-assessment | flagged | P3 1, P5 2, P7 1, P9 2 |
+| invented-council-tax-reminder | blocked | P1 1, P7 2 |
+| invented-housing-benefit-change | flagged | P3 1, P7 1 |
+| invented-parking-penalty | flagged | P3 1, P5 2 |
+| invented-repair-appointment | flagged | P2 1, P3 2, P4 2, P5 4, P6 1, P9 5 |
+
+### Why the 2 letters were blocked, and what changed after
+
+Both blocks came from the key-fact extractor reading things as required actions that the letter does not require. The rules were not relaxed: P1 still compares every date, amount, reference, phone number and address, and it still compares actions. The fixes, all with regression tests:
+
+- **Weekday ranges** ("Monday—Friday" and "Monday to Friday") now have one value (`a3876d2`).
+- **Offers are not orders.** Bullets under "We could:", "You can ...:" or "It's easy to ...:" are options the letter gives, not actions (`a3876d2`, `83092cd`). Bullets under "You must ...:" are still required.
+- **"So you don't have to pay"** is no duty, so it is not an action (`a3876d2`).
+- **A noun heading the language model tags as a verb** ("Council Tax reminder notice") is not an action (`83092cd`). This was the whole block on the invented council tax letter.
+- **P9 judge.** The rubric no longer fails a line for repeating another line, accepts correct definitions of words and abbreviations from the sentence, and accepts a label on a letter header. The judge also sees the postcode line that the sentence splitter separates from an address (`9ad9ef1`).
+- **P3 in code.** A line that ends in an "if" clause, or has 2 clauses joined by ", and" with their own subjects, is split before the checks, as "If X, Y." lines already were (`0f5bff9`). On the 20 lines that failed P3 in the recorded samples, this alone fixes 7.
+
+### Live results after those fixes (single runs, not a pass rate)
+
+These are one run per letter, made after `83092cd` and before `0f5bff9`, with the full pipeline on Bedrock:
+
+- **invented-council-tax-reminder: passed all 10 rules** on the second try. This is the only time any letter has passed all 10, and it is 1 run.
+- **Manchester: flagged, not blocked.** P1 passed on all 3 tries. After try 3, P2 (4 lines), P3 (25), P9 (24) and P10 (1) still failed. Its re-recorded sample (`web/data/samples/`) is flagged, with P3, P5, P9 and P10 failing. In the 13 November fixture run the same letter was blocked, so it can still miss P1 from run to run.
+
+The P3 split in `0f5bff9` has had no live run. The full fixture run was not repeated after these fixes, so the table above does not include them.
+
+### What is not done
+
+- No reader testing with Easy Read readers, and 3 of the planned 20 public letters.
+- Every sentence in the Original getting a line, or a "left out" marker, is not checked.
+- Long letters are still slow (Manchester takes about 6 minutes) and run their parts one after another.
+
+---
+
+## Earlier: fixture run of 12 November 2026 (superseded)
+
+The sections below describe the run on `66a8d0b`. Its numbers are kept as a record and are not current.
+
 > **Bedrock fixture run on `66a8d0b`, 12 November 2026.** The checker fix `657bd8f` came after this run and has had no live run (see "Changes after this run"). 8 letters: the 3 public sample letters and the 5 invented letters. Every letter finished with a checked result and every model request went to Bedrock. No letter passed all 10 rules: 6 ended flagged and 2 blocked, the same split as the run on `a8d723d`. This is a run on 8 letters, not a pass rate on the planned 20 public letters.
 
 - **Date:** 2026-11-12, 19:56 to 20:18 UTC
