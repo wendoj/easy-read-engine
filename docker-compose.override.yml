@@ -1,7 +1,7 @@
 # Local testing only. `docker compose up` merges this file automatically and
 # publishes web on 127.0.0.1:3000. On the server, Dokploy routes through
 # Traefik and should run docker-compose.yml only; check its Preview Compose
-# shows no `ports:` (docs/deploy.md). The checker stays unpublished here too.
+# shows no `ports:`. The checker stays unpublished here too.
 services:
   web:
     ports:

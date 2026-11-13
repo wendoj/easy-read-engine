@@ -28,3 +28,9 @@ symbol-cache/
 # Agent and planning scratch files
 .plans/
 .agents/
+
+# Write-ups posted separately (kept locally)
+docs/deploy.md
+docs/blog-post.md
+docs/social-post.md
+docs/kiro-usage.md

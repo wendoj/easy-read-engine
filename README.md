@@ -57,7 +57,7 @@ Anyone can open the sample letters, read them in Easy Read and export them as PD
 
 Live conversion (paste, upload, convert and line edits) calls a paid model, so it needs the judge access key. Hackathon judges get the key through the private Devpost form. On the input screen, select **I have an access key** and type it. The server sets a cookie that lasts 30 days.
 
-The key is set in `ACCESS_KEY` (see `.env.example` and [docs/deploy.md](docs/deploy.md)). With `ACCESS_KEY` empty, every route is open in development (`APP_ENV=development`, or `npm run dev` and Vitest when `APP_ENV` is unset), and live conversion is closed everywhere else, including `npm start` without `APP_ENV`.
+The key is set in `ACCESS_KEY` (see `.env.example`). With `ACCESS_KEY` empty, every route is open in development (`APP_ENV=development`, or `npm run dev` and Vitest when `APP_ENV` is unset), and live conversion is closed everywhere else, including `npm start` without `APP_ENV`.
 
 To run both services in Docker instead:
 
@@ -161,7 +161,7 @@ Each role (rewrite, judge, vision) has an ordered list of `provider:model` entri
 
 ## Kiro setup
 
-The `.kiro/` folder holds the spec, steering, hooks and MCP config used to build this project. [docs/kiro-usage.md](docs/kiro-usage.md) describes how each was used.
+The `.kiro/` folder holds the spec, steering, hooks and MCP config used to build this project.
 
 - **MCP server.** `.kiro/settings/mcp.json` starts `easy-read-checker` with `uv --directory checker`, a path relative to the workspace root, so it works in any clone. If your Kiro starts MCP servers from a different folder, change `checker` to the full path of the `checker` folder.
 - **Kiro Power.** `power-easy-read/` packages the checker MCP server and the Easy Read rules as a [Kiro Power](https://kiro.dev/docs/powers/create/), so other Kiro projects can use the same checks. It needs a clone of this repository. See `power-easy-read/README.md`.
@@ -232,4 +232,4 @@ Both guides say to involve people with learning disabilities and test with them 
 - [docs/day1-results.md](docs/day1-results.md): day 1 spike results.
 - [docs/pass-rates.md](docs/pass-rates.md): the latest 8-letter run (13 November 2026) ended with 0 passed and 8 flagged. P1 passed on all 8 letters, and P9 on 2. One invented letter passed all 10 rules in a single run. The P3 code split has had no live run.
 - The 3 public samples in `web/data/samples/` are all flagged. None passes all 10 rules.
-- [docs/deploy.md](docs/deploy.md): the Chromium sandbox is turned off for PDF export in the container. The live deploy is still pending.
+- The Chromium sandbox is turned off for PDF export in the container. The live deploy is still pending.
