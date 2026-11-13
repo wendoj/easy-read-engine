@@ -1,8 +1,6 @@
 /**
- * Loads prompt files from `prompts/` and fills their `{{placeholders}}`.
- *
- * Each prompt file has a `## System` and a `## User` section. HTML comments
- * are notes for maintainers and are removed before sending.
+ * Prompt files in `prompts/` have a `## System` and a `## User` section.
+ * HTML comments are maintainer notes and are removed before sending.
  */
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
@@ -47,9 +45,9 @@ export async function loadPrompt(name: PromptName, dir: string = defaultPromptsD
 }
 
 /**
- * Replace every `{{name}}` with its value. Throws if the template uses a name
- * that has no value, or a value is given that the template never uses.
- * A replacer function is used so `$` in letter text is never treated as a pattern.
+ * Throws if the template uses a name that has no value, or a value is given
+ * that the template never uses. A replacer function is used so `$` in letter
+ * text is never treated as a pattern.
  */
 export function renderTemplate(template: string, vars: Record<string, string>): string {
   const used = new Set<string>();
@@ -65,7 +63,12 @@ export function renderTemplate(template: string, vars: Record<string, string>): 
   return out;
 }
 
-/** One line of prompt text, with runs of whitespace (including newlines) collapsed. */
+/** The system section as is, and the user section with `vars` filled in. */
+export function renderPrompt(prompt: PromptTemplate, vars: Record<string, string>): PromptTemplate {
+  return { system: prompt.system, user: renderTemplate(prompt.user, vars) };
+}
+
+/** Collapses runs of whitespace, including newlines. */
 export function oneLine(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }

@@ -1,11 +1,7 @@
 /**
- * Plain messages for errors from `/api/extract`, `/api/convert`, `/api/check`,
- * `/api/sample`, `/api/export` and `/api/access`.
- *
- * Fixed messages come from the same tables the routes use. Messages that hold
- * numbers (the word limit, the rate-limit wait) come from the server. When the
- * body isn't one of ours (for example a proxy error page), the HTTP status
- * picks the message. Messages never include letter content.
+ * Fixed messages come from the routes' own tables. Messages with numbers come
+ * from the server. A body that isn't ours (a proxy error page) falls back to
+ * the HTTP status. Messages never include letter content.
  */
 import { ACCESS_ERRORS } from "@/src/access/errors";
 import { CHECK_ERRORS } from "@/src/check/errors";
@@ -57,10 +53,7 @@ function messageForStatus(route: ApiRoute, status: number): string {
   return GENERIC_MESSAGE;
 }
 
-/**
- * The message to show for an error. `body` is the parsed JSON body of a
- * non-200 response, or an `error` event from the convert stream.
- */
+/** `body` is a parsed non-200 body, or an `error` event from the convert stream. */
 export function errorMessage(route: ApiRoute, status: number, body: unknown): string {
   const record = body !== null && typeof body === "object" ? (body as Record<string, unknown>) : {};
   const code = typeof record.error === "string" ? record.error : null;
@@ -77,7 +70,6 @@ export function errorMessage(route: ApiRoute, status: number, body: unknown): st
   return messageForStatus(route, status);
 }
 
-/** Reads a non-200 response body as JSON, or null when it isn't JSON. */
 export async function readErrorBody(response: Response): Promise<unknown> {
   try {
     return await response.json();

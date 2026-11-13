@@ -1,33 +1,18 @@
-/**
- * Pure logic behind the blocked state (task 27, R2.5, R9.3, R9.5).
- *
- * - `failedKeyFacts` lists the key facts P1 names as failed, with the values
- *   from the Original. Showing them on screen is the point of R2.5; they are
- *   never logged (R7.4), and nothing here logs.
- * - `blockSource` says whether the block came from a user edit (offer "Undo
- *   edit") or from the conversion (offer "Start again").
- * - `canExport` is false whenever the result is blocked (R9.5) or the judge
- *   was unavailable, so P10 never ran. Task 28's Export button uses it.
- */
+// Failed key-fact values are shown on screen but must never be logged.
 import type { KeyFact } from "@/src/checker-client/schemas";
 import type { ConversionResult } from "@/src/pipeline/types";
 import { FACT_TYPE_LABELS, type KeyFactType } from "./key-fact-highlight";
 import { type UndoHistory, canUndo } from "./line-edit";
 
-/** One key fact P1 couldn't find unchanged in the Easy Read version. */
 export interface FailedFact {
   id: string;
   type: KeyFactType;
-  /** "date", "amount", "phone number" and so on. */
   typeLabel: string;
-  /** The value as written in the Original. */
+  /** As written in the Original. */
   value: string;
 }
 
-/**
- * The key facts named in P1's `failed_fact_ids`, each once, in the order they
- * appear in the Original. IDs that aren't in `result.keyFacts` are dropped.
- */
+/** P1's failed facts, each once, in Original order. Unknown IDs are dropped. */
 export function failedKeyFacts(result: Pick<ConversionResult, "checks" | "keyFacts">): FailedFact[] {
   const failedIds = new Set(result.checks.find((c) => c.rule === "P1")?.failed_fact_ids ?? []);
   const byId = new Map<string, { fact: KeyFact; index: number }>();
@@ -41,26 +26,17 @@ export function failedKeyFacts(result: Pick<ConversionResult, "checks" | "keyFac
 
 export type BlockSource = "edit" | "conversion";
 
-/**
- * Where the block came from, or null when the result isn't blocked. A blocked
- * result that the undo history leads to came from an edit; any other blocked
- * result came from the conversion.
- */
+/** A blocked result the undo history leads to came from an edit. Null when not blocked. */
 export function blockSource(result: ConversionResult | null, history: UndoHistory): BlockSource | null {
   if (result === null || result.status !== "blocked") return null;
   return canUndo(history, result) ? "edit" : "conversion";
 }
 
-/**
- * False when there is no result, it is blocked (R9.5), or the judge gave no
- * answer. Without the judge, P10 (no advice) never ran on these lines, so
- * the lines must not leave the screen as if they had been checked.
- */
+/** Without the judge, P10 (no advice) never ran, so the lines must not leave the screen as if checked. */
 export function canExport(result: Pick<ConversionResult, "status" | "lines" | "judgeAvailable"> | null): boolean {
   return result !== null && result.status !== "blocked" && result.lines.length > 0 && result.judgeAvailable;
 }
 
-/** Shown next to the disabled Export button when the judge gave no answer. */
 export const NOT_JUDGED_EXPORT_MESSAGE = "You cannot save this yet, because the advice check did not run.";
 
 export const BLOCKED_HEADING = "Easy Read version not shown";
@@ -72,5 +48,5 @@ export const BLOCKED_MESSAGES: Record<BlockSource, string> = {
 
 export const FAILED_FACTS_HEADING = "Key facts that did not match";
 
-/** Shown when P1 failed but named no key fact this result knows. */
+/** P1 failed but named no key fact this result knows. */
 export const NO_FAILED_FACTS_MESSAGE = "The check did not say which key fact did not match.";

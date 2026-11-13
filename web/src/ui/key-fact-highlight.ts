@@ -1,34 +1,19 @@
 /**
- * Key-fact highlighting for the result screen (task 25, R5.3).
- *
- * - The Original: each segment from `originalSegments` is split further at the
- *   key-fact spans from `analyse`. Pieces are slices of the Original, so their
- *   texts join back to it exactly (R1.6).
- * - The Easy Read lines: spans come from the checker's `POST /line-facts`
- *   (`ConversionResult.lineFacts`). The checker matches line values to facts
- *   with P1's own extraction and normalisation, so this file never normalises
- *   a value and can't drift from P1.
- *
- * One colour per fact, the same in both columns. Facts with the same type and
- * normalised value are the same fact to P1, so they share a colour. Colour is
- * never the only signal: each type has its own underline style, and every
- * highlight carries a type label for screen readers and as a tooltip.
- *
- * Nothing here logs, and labels hold the fact type only, never the value (R7.4).
+ * Line spans come from the checker's `POST /line-facts`, which uses P1's own
+ * normalisation, so this file never normalises a value and can't drift from P1.
+ * Labels hold the fact type only, never the value.
  */
 import type { KeyFact, LineFactSpan } from "@/src/checker-client/schemas";
 import type { OriginalSegment } from "./result-layout";
 
 export type KeyFactType = KeyFact["type"];
 
-/** A fact's place in a text: offsets into that text. */
 export interface FactSpan {
   factId: string;
   start: number;
   end: number;
 }
 
-/** A run of text with the facts that cover it. */
 export interface HighlightPiece {
   start: number;
   end: number;
@@ -40,13 +25,9 @@ export interface HighlightPiece {
 }
 
 /**
- * Splits `text[from:to]` at the fact spans. The pieces cover the range
- * exactly, in order, with no gaps, overlaps or empty pieces, and adjacent
- * pieces never have the same `factIds`.
- *
- * Spans are clamped to the range; empty ones are dropped. Spans may nest or
- * overlap (an action often holds a date or an amount): each piece lists every
- * fact that covers it, longest span first.
+ * Pieces cover `text[from:to]` exactly, with no gaps or empty pieces, and
+ * adjacent pieces never share `factIds`. Spans may nest or overlap (an action
+ * often holds a date), so each piece lists every covering fact, longest first.
  */
 export function highlightPieces(text: string, from: number, to: number, spans: readonly FactSpan[]): HighlightPiece[] {
   const lo = Math.max(0, Math.min(from, text.length));
@@ -85,14 +66,9 @@ function sameIds(a: readonly string[], b: readonly string[]): boolean {
   return a.length === b.length && a.every((id, i) => id === b[i]);
 }
 
-/** A segment of the Original with its key-fact pieces. */
 export type HighlightedSegment = OriginalSegment & { pieces: HighlightPiece[] };
 
-/**
- * Splits every Original segment (sentences and the text between them) at the
- * key-fact spans. A fact outside every sentence is still highlighted, in the
- * text segment it falls in. A fact across a segment edge is split there.
- */
+/** A fact outside every sentence is still highlighted; one across a segment edge is split there. */
 export function highlightSegments(
   text: string,
   segments: readonly OriginalSegment[],
@@ -102,10 +78,7 @@ export function highlightSegments(
   return segments.map((segment) => ({ ...segment, pieces: highlightPieces(text, segment.start, segment.end, spans) }));
 }
 
-/**
- * Pieces of one Easy Read line. Only spans for this line and for facts in
- * `knownFactIds` are used, so a span for an unknown fact is never shown.
- */
+/** A span for a fact not in `knownFactIds` is never shown. */
 export function linePieces(
   lineId: string,
   text: string,
@@ -118,14 +91,9 @@ export function linePieces(
   return highlightPieces(text, 0, text.length, spans);
 }
 
-// --- colours -------------------------------------------------------------------
-
 /**
- * Fixed palette after the Okabe-Ito colour-blind-safe set: orange, sky blue,
- * bluish green, yellow, blue, vermilion and reddish purple. Light tints carry
- * near-black text and dark tints carry near-white text, so contrast stays well
- * above 4.5:1 in both themes. The class strings are written out in full so
- * Tailwind generates them.
+ * After the Okabe-Ito colour-blind-safe set, with contrast above 4.5:1 in both
+ * themes. Class strings are written out in full so Tailwind generates them.
  */
 export const FACT_PALETTE: readonly string[] = [
   "bg-orange-100 text-orange-950 decoration-orange-700 dark:bg-orange-900/70 dark:text-orange-50 dark:decoration-orange-300",
@@ -137,7 +105,7 @@ export const FACT_PALETTE: readonly string[] = [
   "bg-fuchsia-100 text-fuchsia-950 decoration-fuchsia-700 dark:bg-fuchsia-900/70 dark:text-fuchsia-50 dark:decoration-fuchsia-300",
 ];
 
-/** A second signal besides colour: each type has its own underline style. */
+/** A second signal besides colour. */
 export const FACT_TYPE_UNDERLINE: Record<KeyFactType, string> = {
   date: "decoration-solid",
   time: "decoration-double",
@@ -158,14 +126,12 @@ export const FACT_TYPE_LABELS: Record<KeyFactType, string> = {
   action: "action",
 };
 
-/** Label suffix for a key fact P1 couldn't find unchanged in the Easy Read version. */
 export const FAILED_FACT_LABEL = "did not match";
 
 /**
- * A palette index per fact ID. Facts are taken in order of where they start
- * in the Original; each new (type, normalised value) gets the next colour,
- * cycling when there are more facts than colours. Facts with the same type and
- * value share a colour, because P1 treats them as one fact.
+ * Palette index per fact ID, in Original order, cycling through the palette.
+ * Facts with the same type and normalised value share a colour, because P1
+ * treats them as one fact.
  */
 export function factColours(keyFacts: readonly KeyFact[], paletteSize: number = FACT_PALETTE.length): Map<string, number> {
   const size = Math.max(1, Math.floor(paletteSize));
@@ -187,19 +153,16 @@ export function factColours(keyFacts: readonly KeyFact[], paletteSize: number = 
   return out;
 }
 
-/** How one fact is drawn. The same object is used in both columns. */
 export interface FactStyle {
   factId: string;
   type: KeyFactType;
   /** Index into `FACT_PALETTE`. */
   colour: number;
-  /** True when P1 names this fact as failed. Task 27 builds on this for the blocked state. */
   failed: boolean;
   /** "date", or "date, did not match". Never the value. */
   label: string;
 }
 
-/** Styles for every key fact, keyed by fact ID. `failedFactIds` come from the P1 result. */
 export function factStyles(keyFacts: readonly KeyFact[], failedFactIds: readonly string[]): Map<string, FactStyle> {
   const colours = factColours(keyFacts);
   const failed = new Set(failedFactIds);
@@ -219,20 +182,19 @@ export function factStyles(keyFacts: readonly KeyFact[], failedFactIds: readonly
   return out;
 }
 
-/** Tailwind classes for a piece: the innermost fact sets the colour and underline. */
+/** The innermost fact sets the colour and underline. */
 export function pieceClassName(piece: HighlightPiece, styles: ReadonlyMap<string, FactStyle>): string | null {
   const id = piece.factIds.at(-1);
   const style = id === undefined ? undefined : styles.get(id);
   return style ? factClassName(style) : null;
 }
 
-/** Tailwind classes for one fact's highlight. The blocked state's failed-fact list uses it too (task 27). */
 export function factClassName(style: FactStyle): string {
   const base = `rounded-sm underline decoration-2 underline-offset-4 ${FACT_PALETTE[style.colour % FACT_PALETTE.length]} ${FACT_TYPE_UNDERLINE[style.type]}`;
   return style.failed ? `${base} font-semibold ring-2 ring-destructive` : base;
 }
 
-/** Tooltip for a piece: the labels of every fact covering it, innermost first. */
+/** Labels of every covering fact, innermost first. */
 export function pieceTitle(piece: HighlightPiece, styles: ReadonlyMap<string, FactStyle>): string | undefined {
   const labels = [...piece.factIds].reverse().flatMap((id) => styles.get(id)?.label ?? []);
   return labels.length > 0 ? labels.join("; ") : undefined;

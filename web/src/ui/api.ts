@@ -1,13 +1,10 @@
-/**
- * Browser calls to `/api/extract`, `/api/convert`, `/api/check`, `/api/sample`, `/api/export` and `/api/access`. They return plain
- * outcomes, never throw for HTTP errors, and never log or store letter text
- * (R7.4).
- */
+/** Browser calls to the API routes. They never throw for HTTP errors and never log or store letter text. */
 import { z } from "zod";
 import type { AccessState } from "@/src/access/errors";
 import type { ConversionResult, ProgressEvent } from "@/src/pipeline/types";
 import { type SampleInfo, sampleInfoSchema } from "@/src/samples/sample";
 import {
+  type ApiRoute,
   GENERIC_MESSAGE,
   NETWORK_MESSAGE,
   STREAM_BROKEN_MESSAGE,
@@ -19,6 +16,7 @@ import { type CheckRequestBody, type CheckResponseBody, checkResponseSchema } fr
 import { readNdjson } from "./ndjson";
 
 type Fetch = typeof fetch;
+type RequestOptions = { signal?: AbortSignal; fetch?: Fetch };
 
 export type ApiFailure = { ok: false; error: string | null; message: string; aborted?: boolean };
 
@@ -40,22 +38,34 @@ function codeOf(body: unknown): string | null {
     : null;
 }
 
-export async function extractText(
-  file: File,
-  options: { signal?: AbortSignal; fetch?: Fetch } = {},
-): Promise<ExtractOutcome> {
-  const form = new FormData();
-  form.append("file", file);
-  let response: Response;
+function httpFailure(route: ApiRoute, status: number, body: unknown): ApiFailure {
+  return { ok: false, error: codeOf(body), message: errorMessage(route, status, body) };
+}
+
+function jsonPost(body: unknown): RequestInit {
+  return { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) };
+}
+
+/** A network error or abort becomes a failure instead of a throw. */
+async function send(
+  url: string,
+  init: RequestInit,
+  options: RequestOptions,
+): Promise<{ ok: true; response: Response } | ApiFailure> {
   try {
-    response = await (options.fetch ?? fetch)("/api/extract", { method: "POST", body: form, signal: options.signal });
+    return { ok: true, response: await (options.fetch ?? fetch)(url, { ...init, signal: options.signal }) };
   } catch (err) {
     return failure(err, NETWORK_MESSAGE);
   }
-  if (!response.ok) {
-    const body = await readErrorBody(response);
-    return { ok: false, error: codeOf(body), message: errorMessage("extract", response.status, body) };
-  }
+}
+
+export async function extractText(file: File, options: RequestOptions = {}): Promise<ExtractOutcome> {
+  const form = new FormData();
+  form.append("file", file);
+  const sent = await send("/api/extract", { method: "POST", body: form }, options);
+  if (!sent.ok) return sent;
+  const { response } = sent;
+  if (!response.ok) return httpFailure("extract", response.status, await readErrorBody(response));
   const body = (await readErrorBody(response)) as { text?: unknown; source?: unknown } | null;
   if (!body || typeof body.text !== "string" || (body.source !== "pdf" && body.source !== "image")) {
     return { ok: false, error: null, message: GENERIC_MESSAGE };
@@ -65,26 +75,12 @@ export async function extractText(
 
 export type CheckOutcome = { ok: true; response: CheckResponseBody } | ApiFailure;
 
-/** Re-checks the lines after an edit (R9.2). The body is sent as built, never logged. */
-export async function checkEdit(
-  body: CheckRequestBody,
-  options: { signal?: AbortSignal; fetch?: Fetch } = {},
-): Promise<CheckOutcome> {
-  let response: Response;
-  try {
-    response = await (options.fetch ?? fetch)("/api/check", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
-      signal: options.signal,
-    });
-  } catch (err) {
-    return failure(err, NETWORK_MESSAGE);
-  }
+export async function checkEdit(body: CheckRequestBody, options: RequestOptions = {}): Promise<CheckOutcome> {
+  const sent = await send("/api/check", jsonPost(body), options);
+  if (!sent.ok) return sent;
+  const { response } = sent;
   const parsedBody = await readErrorBody(response);
-  if (!response.ok) {
-    return { ok: false, error: codeOf(parsedBody), message: errorMessage("check", response.status, parsedBody) };
-  }
+  if (!response.ok) return httpFailure("check", response.status, parsedBody);
   const parsed = checkResponseSchema.safeParse(parsedBody);
   if (!parsed.success) return { ok: false, error: null, message: GENERIC_MESSAGE };
   return { ok: true, response: parsed.data };
@@ -92,30 +88,12 @@ export async function checkEdit(
 
 export type ExportOutcome = { ok: true; pdf: Blob } | ApiFailure;
 
-/**
- * Sends the result on screen to `/api/export` and returns the PDF (R8.1). The
- * server checks P1 again and returns 409 if the result is blocked (R9.5). The
- * PDF stays in memory as a Blob until the browser saves it.
- */
-export async function exportPdf(
-  result: ConversionResult,
-  options: { signal?: AbortSignal; fetch?: Fetch } = {},
-): Promise<ExportOutcome> {
-  let response: Response;
-  try {
-    response = await (options.fetch ?? fetch)("/api/export", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(result),
-      signal: options.signal,
-    });
-  } catch (err) {
-    return failure(err, NETWORK_MESSAGE);
-  }
-  if (!response.ok) {
-    const body = await readErrorBody(response);
-    return { ok: false, error: codeOf(body), message: errorMessage("export", response.status, body) };
-  }
+/** The server checks P1 again and returns 409 for a blocked result. */
+export async function exportPdf(result: ConversionResult, options: RequestOptions = {}): Promise<ExportOutcome> {
+  const sent = await send("/api/export", jsonPost(result), options);
+  if (!sent.ok) return sent;
+  const { response } = sent;
+  if (!response.ok) return httpFailure("export", response.status, await readErrorBody(response));
   if (!(response.headers.get("content-type") ?? "").startsWith("application/pdf")) {
     return { ok: false, error: null, message: GENERIC_MESSAGE };
   }
@@ -134,29 +112,13 @@ const sampleResponseSchema = z.object({
 
 export type SampleOutcome = { ok: true; result: ConversionResult; sample: SampleInfo } | ApiFailure;
 
-/**
- * Loads a recorded sample letter. The server re-runs P1 to P8 through the
- * checker and makes no model call, so this spends no model quota.
- */
-export async function loadSample(
-  id: string,
-  options: { signal?: AbortSignal; fetch?: Fetch } = {},
-): Promise<SampleOutcome> {
-  let response: Response;
-  try {
-    response = await (options.fetch ?? fetch)("/api/sample", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ id }),
-      signal: options.signal,
-    });
-  } catch (err) {
-    return failure(err, NETWORK_MESSAGE);
-  }
+/** The server re-runs P1 to P8 and makes no model call. */
+export async function loadSample(id: string, options: RequestOptions = {}): Promise<SampleOutcome> {
+  const sent = await send("/api/sample", jsonPost({ id }), options);
+  if (!sent.ok) return sent;
+  const { response } = sent;
   const body = await readErrorBody(response);
-  if (!response.ok) {
-    return { ok: false, error: codeOf(body), message: errorMessage("sample", response.status, body) };
-  }
+  if (!response.ok) return httpFailure("sample", response.status, body);
   const parsed = sampleResponseSchema.safeParse(body);
   if (!parsed.success) return { ok: false, error: null, message: GENERIC_MESSAGE };
   return { ok: true, result: parsed.data.result, sample: parsed.data.sample };
@@ -167,67 +129,34 @@ const accessResponseSchema = z.object({ access: accessStateSchema });
 
 export type AccessOutcome = { ok: true; access: AccessState } | ApiFailure;
 
-/** Asks whether this browser may use the model routes (judge access key). */
-export async function getAccess(options: { signal?: AbortSignal; fetch?: Fetch } = {}): Promise<AccessOutcome> {
-  let response: Response;
-  try {
-    response = await (options.fetch ?? fetch)("/api/access", { method: "GET", cache: "no-store", signal: options.signal });
-  } catch (err) {
-    return failure(err, NETWORK_MESSAGE);
-  }
+async function accessOutcome(response: Response): Promise<AccessOutcome> {
   const body = await readErrorBody(response);
-  if (!response.ok) return { ok: false, error: codeOf(body), message: errorMessage("access", response.status, body) };
+  if (!response.ok) return httpFailure("access", response.status, body);
   const parsed = accessResponseSchema.safeParse(body);
   if (!parsed.success) return { ok: false, error: null, message: GENERIC_MESSAGE };
   return { ok: true, access: parsed.data.access };
 }
 
-/** Sends the judge access key. On a match the server sets an HttpOnly cookie. The key is never stored here. */
-export async function sendAccessKey(
-  key: string,
-  options: { signal?: AbortSignal; fetch?: Fetch } = {},
-): Promise<AccessOutcome> {
-  let response: Response;
-  try {
-    response = await (options.fetch ?? fetch)("/api/access", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ key }),
-      signal: options.signal,
-    });
-  } catch (err) {
-    return failure(err, NETWORK_MESSAGE);
-  }
-  const body = await readErrorBody(response);
-  if (!response.ok) return { ok: false, error: codeOf(body), message: errorMessage("access", response.status, body) };
-  const parsed = accessResponseSchema.safeParse(body);
-  if (!parsed.success) return { ok: false, error: null, message: GENERIC_MESSAGE };
-  return { ok: true, access: parsed.data.access };
+export async function getAccess(options: RequestOptions = {}): Promise<AccessOutcome> {
+  const sent = await send("/api/access", { method: "GET", cache: "no-store" }, options);
+  return sent.ok ? accessOutcome(sent.response) : sent;
 }
 
-/**
- * Sends the confirmed text unchanged (R1.6) and reads the progress stream.
- * Resolves with the result or a failure once the stream ends.
- */
+/** On a match the server sets an HttpOnly cookie. The key is never stored here. */
+export async function sendAccessKey(key: string, options: RequestOptions = {}): Promise<AccessOutcome> {
+  const sent = await send("/api/access", jsonPost({ key }), options);
+  return sent.ok ? accessOutcome(sent.response) : sent;
+}
+
+/** Sends the confirmed text unchanged and reads the progress stream until a result or an error. */
 export async function convertLetter(
   original: string,
-  options: { onProgress?: (event: ProgressEvent) => void; signal?: AbortSignal; fetch?: Fetch } = {},
+  options: RequestOptions & { onProgress?: (event: ProgressEvent) => void } = {},
 ): Promise<ConvertOutcome> {
-  let response: Response;
-  try {
-    response = await (options.fetch ?? fetch)("/api/convert", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ original }),
-      signal: options.signal,
-    });
-  } catch (err) {
-    return failure(err, NETWORK_MESSAGE);
-  }
-  if (!response.ok) {
-    const body = await readErrorBody(response);
-    return { ok: false, error: codeOf(body), message: errorMessage("convert", response.status, body) };
-  }
+  const sent = await send("/api/convert", jsonPost({ original }), options);
+  if (!sent.ok) return sent;
+  const { response } = sent;
+  if (!response.ok) return httpFailure("convert", response.status, await readErrorBody(response));
   if (!response.body) return { ok: false, error: null, message: STREAM_BROKEN_MESSAGE };
   try {
     for await (const value of readNdjson(response.body)) {

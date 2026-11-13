@@ -1,21 +1,16 @@
 /**
- * Hard words left in an Easy Read line, and what they mean ("Tap a word").
- *
- * A fixed list, written by hand: no model call and no letter text leaves the
- * browser when a reader taps a word (safety.md, R7.4). A word is underlined
- * only when it is in this list. Each meaning follows the Easy Read rules: one
- * sentence, at most 15 words, plain words, no advice. Each picture is an ID
- * from the symbol index (P8); `tests/glossary.test.ts` checks that.
+ * "Tap a word": a fixed list written by hand, so tapping a word sends no
+ * letter text anywhere. Each meaning follows the Easy Read rules (one
+ * sentence, at most 15 words, no advice) and each picture is from the symbol
+ * index; `tests/glossary.test.ts` checks that.
  */
 
 export interface GlossaryEntry {
-  /** The word as shown in the popover. */
   term: string;
-  /** Every written form that matches, lower case. Plurals are listed by hand. */
+  /** Lower case. Plurals are listed by hand. */
   forms: readonly string[];
-  /** One sentence. */
   meaning: string;
-  /** ARASAAC ID, or null for no picture. */
+  /** ARASAAC ID. */
   symbolId: string | null;
 }
 
@@ -166,7 +161,6 @@ export const GLOSSARY: readonly GlossaryEntry[] = [
   },
 ];
 
-/** A glossary word found in a text: offsets into that text. */
 export interface GlossaryMatch {
   start: number;
   end: number;
@@ -190,10 +184,7 @@ const GLOSSARY_PATTERN = new RegExp(
   "giu",
 );
 
-/**
- * Every glossary word in `text`, in order, with no overlaps. Matching ignores
- * case and treats any run of spaces inside a phrase as one space.
- */
+/** In order, with no overlaps. Ignores case; any run of spaces in a phrase counts as one. */
 export function findGlossaryMatches(text: string): GlossaryMatch[] {
   const out: GlossaryMatch[] = [];
   for (const m of text.matchAll(GLOSSARY_PATTERN)) {
@@ -203,13 +194,9 @@ export function findGlossaryMatches(text: string): GlossaryMatch[] {
   return out;
 }
 
-/** A run of a text: plain, or a glossary word. Joining the `text` values gives back the input. */
 export type WordPart = { text: string; entry: GlossaryEntry | null };
 
-/**
- * Splits `text` at its glossary words. `matches` are offsets into `text`.
- * The parts cover the text exactly, with no gaps and no empty parts.
- */
+/** The parts cover the text exactly, with no gaps and no empty parts. */
 export function splitAtGlossary(text: string, matches: readonly GlossaryMatch[]): WordPart[] {
   const parts: WordPart[] = [];
   let cursor = 0;

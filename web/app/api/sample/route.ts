@@ -1,11 +1,5 @@
-/**
- * POST /api/sample: load a recorded sample letter and re-run P1 to P8 on it
- * through the checker (task 29). No model call, so it spends no model quota.
- * All logic is in `src/samples`.
- *
- * No `runtime` export: Cache Components runs route handlers on Node.js and
- * rejects the segment option (see app/api/check/route.ts).
- */
+// No `runtime` export: Cache Components runs route handlers on Node.js and rejects the segment option.
+// No model call, so it spends no model quota.
 import { createCheckerClient } from "@/src/checker-client";
 import { sampleCatalog } from "@/src/samples/catalog";
 import { handleSample } from "@/src/samples/handler";

@@ -1,6 +1,3 @@
-/**
- * Pipeline types (design "Pipeline orchestrator" and "Data Models").
- */
 import type {
   ActionSynonym,
   CheckResult,
@@ -34,38 +31,28 @@ export type ConversionResult = {
   status: Status;
   original: { text: string; sentences: Sentence[] };
   keyFacts: KeyFact[];
-  /** Empty when `status` is "blocked" (R2.5). */
+  /** Empty when `status` is "blocked". */
   lines: Line[];
-  /** Always all 10 rules, P1 to P10 in order (R6.1). */
+  /** Always all 10 rules, P1 to P10 in order. */
   checks: CheckResult[];
   /** 1 to 3. */
   attempts: number;
-  /** The R7.1 statement. */
   notice: string;
-  /**
-   * False when the judge gave no valid answer on the last try. P9 and P10 are
-   * then failed with "judge unavailable" and flagged, never passed.
-   */
+  /** When false, P9 and P10 are failed with "judge unavailable" and flagged, never passed. */
   judgeAvailable: boolean;
-  /** Provider and model for each model call that answered. */
   models: ModelUse[];
-  /**
-   * The verb swaps P1 accepted in required actions, listed in the rule report.
-   * From the checker's `GET /config/action-synonyms`; `ACTION_SYNONYMS` in
-   * checker/src/checks/config.py is the only copy.
-   */
+  /** From the checker. `ACTION_SYNONYMS` in checker/src/checks/config.py is the only copy. */
   actionSynonyms: ActionSynonym[];
   /**
-   * Where each key fact appears in `lines`, for highlighting (R5.3). From the
-   * checker's `POST /line-facts`, which matches by P1's normalised values, so
-   * the web app never normalises values itself. Empty when blocked.
+   * From the checker, which matches by P1's normalised values, so the web app
+   * never normalises values itself. Empty when blocked.
    */
   lineFacts: LineFactSpan[];
 };
 
 export type PipelineStage = "analysing" | "rewriting" | "checking" | "regenerating";
 
-/** Streamed by `/api/convert` (task 17). Holds no letter content. */
+/** Holds no letter content. */
 export interface ProgressEvent {
   type: "progress";
   stage: PipelineStage;
@@ -73,29 +60,25 @@ export interface ProgressEvent {
   maxAttempts: number;
 }
 
-/** The model calls the pipeline makes. `modelFromClient` wraps the real ones. */
+/** `modelFromClient` wraps the real calls. */
 export interface PipelineModel {
   rewrite(input: RewriteInput): Promise<RewriteResult>;
   regenerate(input: RegenerateInput): Promise<RegenerateResult>;
   judge(pairs: JudgePair[]): Promise<JudgeResult>;
 }
 
-/** The checker calls the pipeline makes. A `CheckerClient` fits. */
+/** A `CheckerClient` fits. */
 export interface PipelineChecker {
   analyse(original: string): Promise<{ sentences: Sentence[]; key_facts: KeyFact[] }>;
   check(request: { original: string; key_facts: KeyFact[]; lines: Line[] }): Promise<CheckResult[]>;
-  /** Key-fact spans in the final lines, for highlighting. Called once, only when lines are returned. */
+  /** Called once, only when lines are returned. */
   lineFacts(request: { key_facts: KeyFact[]; lines: Line[] }): Promise<LineFactSpan[]>;
-  /** `find_symbol`, best first. Used to pick a pictogram per line. */
+  /** Best first. */
   symbols(q: string, limit?: number): Promise<SymbolMatch[]>;
-  /** P1's action synonym table, copied into the result for the rule report. */
   actionSynonyms(): Promise<ActionSynonym[]>;
 }
 
-/**
- * Log events. Rule results, counts, timings and provider and model only.
- * Never letter text, Easy Read lines, check details or key-fact values (R7.4).
- */
+/** Never letter text, Easy Read lines, check details or key-fact values. */
 export type PipelineLogEvent =
   | {
       msg: "pipeline_attempt";
@@ -116,23 +99,21 @@ export type PipelineLogEvent =
       ms: number;
     }
   | {
-      /** Regenerate gave no usable answer, so the last checked try is the result. */
       msg: "pipeline_regenerate_failed";
       attempt: number;
       /** The error class name only, never its message. */
       error: string;
     }
   | {
-      /** Key-fact spans couldn't be fetched; the checked result is returned without highlighting. */
       msg: "pipeline_line_facts_failed";
       attempt: number;
+      /** The error class name only. */
       error: string;
     }
   | {
-      /** The last try failed P1, so the latest try that passed P1 (`attempt`) is the result. */
+      /** The last try (`of`) failed P1, so the latest try that passed P1 (`attempt`) is the result. */
       msg: "pipeline_kept_earlier_try";
       attempt: number;
-      /** The last try made. */
       of: number;
     };
 

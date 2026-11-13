@@ -5,27 +5,24 @@ import { type Transport, fetchTransport } from "./transport";
 /** Output cap for `gpt-oss-120b` on Groq. Reasoning tokens count against the cap. */
 export const GPT_OSS_MAX_TOKENS = 3000;
 /**
- * Output cap for every model on Bedrock. Bedrock bills the tokens a reply
- * uses, not the cap, and has no per-request budget like Groq's 8,000 tokens a
- * minute, so the per-task caps (sized for the Groq fallback) don't apply.
- * With them, long letters (about 1,000 words) cut the judge and regenerate
- * replies off mid-JSON (`finish_reason: "length"`), which failed validation.
+ * Output cap for every model on Bedrock, which bills the tokens used, not the
+ * cap. The per-task caps are sized for Groq's token budget. On Bedrock they
+ * cut the judge and regenerate replies for long letters off mid-JSON.
  */
 export const BEDROCK_MAX_TOKENS = 8000;
-/** Per-request timeout. */
 export const DEFAULT_TIMEOUT_MS = 45_000;
 /**
- * Per-request timeout on Bedrock. Replies up to `BEDROCK_MAX_TOKENS` on a
- * ~1,000-word letter took 38 to 45 seconds when measured, so 45 seconds cut
- * them off and pushed the request to Groq, whose smaller cap truncates again.
+ * Replies up to `BEDROCK_MAX_TOKENS` on a 1,000-word letter took 38 to 45
+ * seconds, so 45 seconds cut them off and pushed the request to Groq, whose
+ * smaller cap truncates again.
  */
 export const BEDROCK_TIMEOUT_MS = 90_000;
-/** Longest `Retry-After` the caller should wait before giving up (design "Error Handling"). */
+/** Longest `Retry-After` the caller should wait before giving up. */
 export const MAX_RETRY_AFTER_MS = 20_000;
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant" | "tool";
-  // String, or OpenAI content parts (text and image_url) for vision.
+  /** OpenAI content parts (text and image_url) for vision. */
   content: string | unknown[] | null;
   [key: string]: unknown;
 }
@@ -86,17 +83,12 @@ export interface ChatResult {
   message: ChatResponseMessage;
   finishReason: string | null;
   usage?: Usage;
-  /** The entry that answered. */
   provider: Provider;
   model: string;
   attempts: AttemptRecord[];
 }
 
-/**
- * Every entry in the chain failed with a 429, a 5xx, a 401, 403 or 404 (key
- * rejected, model access not granted, or model not offered in the Region), a
- * timeout or a network error.
- */
+/** Every entry in the chain failed with a 429, 5xx, 401, 403, 404, timeout or network error. */
 export class ProviderChainError extends Error {
   constructor(
     readonly role: Role,
@@ -125,7 +117,7 @@ export class ProviderRequestError extends Error {
   }
 }
 
-/** Log event. Holds no prompt, letter text, model output or keys. */
+/** Never holds prompts, letter text, model output or keys. */
 export interface ModelLogEvent {
   role: Role;
   provider: Provider;
@@ -153,7 +145,6 @@ export interface ModelClient {
   chat(role: Role, request: ChatRequest): Promise<ChatResult>;
 }
 
-/** Model-specific request settings from design "Model provider". */
 export function modelParams(role: Role, entry: ChainEntry, request: ChatRequest): Record<string, unknown> {
   const params: Record<string, unknown> = {};
   if (request.maxTokens !== undefined) params.max_tokens = request.maxTokens;
@@ -177,7 +168,7 @@ export function buildBody(role: Role, entry: ChainEntry, request: ChatRequest): 
   return { ...body, ...modelParams(role, entry, request) };
 }
 
-/** Parse `Retry-After` as seconds or an HTTP date. */
+/** Seconds or an HTTP date. */
 export function parseRetryAfter(value: string | undefined, nowMs: number = Date.now()): number | undefined {
   if (!value) return undefined;
   const seconds = Number(value);

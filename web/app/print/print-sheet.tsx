@@ -1,8 +1,6 @@
 /**
- * The print layout in React, for the `/print` preview. It renders the same
- * `PrintDocument`, class names and `PRINT_CSS` as the PDF export's static
- * HTML (`src/export/print-html.ts`), so the preview matches the PDF.
- * The PDF inlines pictures as data URIs; the preview loads `/symbols/<id>`.
+ * Uses the same `PrintDocument`, class names and `PRINT_CSS` as the PDF's HTML
+ * (`src/export/print-html.ts`), so the preview matches the PDF.
  */
 import Image from "next/image";
 import { CHECKS_HEADING, PRINT_CSS, type PrintDocument, failedCheckText } from "@/src/export/print-document";

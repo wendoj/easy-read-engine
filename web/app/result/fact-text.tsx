@@ -1,8 +1,4 @@
 "use client";
-/**
- * Text with key-fact highlights (R5.3), and the small controls that sit on a
- * line of Easy Read text: tap-a-word, Listen.
- */
 import { Square, Volume2 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -19,11 +15,7 @@ import { symbolSrc } from "@/src/ui/result-layout";
 
 const WORD_PICTURE_SIZE = 64;
 
-/**
- * A hard word. Tapping it opens its meaning and a picture. A dotted underline
- * in the accent colour marks it; fact highlights use other underline styles
- * and a background, so the two stay apart.
- */
+/** Dotted accent underline, so it stays apart from fact highlights. */
 function ExplainedWord({ entry, text }: { entry: GlossaryEntry; text: string }) {
   return (
     <Popover>
@@ -73,12 +65,9 @@ function PieceText({ text, explain }: { text: string; explain: boolean }) {
 }
 
 /**
- * Text with key-fact highlights (R5.3). Each fact keeps its colour in both
- * columns; the underline style and a type label mean colour is never the only
- * signal. The label is screen-reader text after the fact and a tooltip.
- *
- * With `explain`, hard words from the glossary can be tapped for their meaning.
- * Use it for Easy Read lines only. The Original is shown as it is.
+ * Each fact's type label is screen-reader text and a tooltip, so colour is
+ * never the only signal. Use `explain` (tap a word) on Easy Read lines only;
+ * the Original is shown as it is.
  */
 export function FactText({
   pieces,
@@ -114,10 +103,7 @@ export function FactText({
   );
 }
 
-/**
- * Reads one line aloud with the browser's speech. Shows nothing where the
- * browser has none. Only 1 thing is read at a time; pressing it again stops it.
- */
+/** Shows nothing where the browser has no speech. */
 export function ListenButton({
   id,
   text,
@@ -127,7 +113,7 @@ export function ListenButton({
 }: {
   id: string;
   text: string;
-  /** Names the line for a screen reader, e.g. "line 3". */
+  /** For a screen reader, e.g. "line 3". */
   label: string;
   readAloud: ReadAloud;
   disabled?: boolean;

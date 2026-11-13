@@ -1,9 +1,21 @@
-/** Shared pieces for the rewrite and regenerate calls. */
+/** Shared pieces for the rewrite, regenerate and judge calls. */
 import { z } from "zod";
 import type { KeyFact, Sentence } from "@/src/checker-client/schemas";
-import { oneLine } from "./prompts";
+import { type PromptTemplate, oneLine } from "./prompts";
+import type { StructuredOptions } from "./structured";
 
-/** One Easy Read line as the model returns it. The pipeline adds the line ID and symbol ID. */
+export interface LlmCallOptions extends StructuredOptions {
+  /** Used instead of the file in `prompts/`. */
+  prompt?: PromptTemplate;
+}
+
+/** Which provider and model answered one request. */
+export interface ModelAnswer {
+  provider: string;
+  model: string;
+}
+
+/** The pipeline adds the line ID and symbol ID. */
 export const draftLineSchema = z.object({
   text: z.string().trim().min(1),
   sourceSentenceId: z.string().trim().min(1),
@@ -12,7 +24,6 @@ export const draftLineSchema = z.object({
 
 export type DraftLine = z.infer<typeof draftLineSchema>;
 
-/** JSON schema for one draft line, used in tool definitions. */
 export const DRAFT_LINE_PARAMETERS = {
   type: "object",
   properties: {

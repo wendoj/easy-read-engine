@@ -1,13 +1,7 @@
-/**
- * Read aloud with the browser's own speech (Web Speech API). The text is
- * spoken on the device by the browser or the system, and the app sends
- * nothing anywhere for it (R7.4). Where the browser has no speech, `supported`
- * is false and the screen shows no Listen buttons.
- */
+/** Uses the browser's own speech (Web Speech API), so no text leaves the device. */
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 const SPEECH_LANG = "en-GB";
-/** A little slower than normal, which is easier to follow. */
 const SPEECH_RATE = 0.9;
 
 export function isSpeechSupported(): boolean {
@@ -18,9 +12,8 @@ const noopSubscribe = () => () => {};
 
 export interface ReadAloud {
   supported: boolean;
-  /** The ID of what is being read now, or null. */
   speakingId: string | null;
-  /** Reads `text`. Reads nothing if `id` is already being read, which stops it. */
+  /** Stops instead when `id` is already being read. */
   toggle: (id: string, text: string) => void;
   stop: () => void;
 }
@@ -66,7 +59,6 @@ export function useReadAloud(): ReadAloud {
     [setSpeaking],
   );
 
-  // Stop speaking when the screen goes away.
   useEffect(() => {
     return () => {
       if (isSpeechSupported()) window.speechSynthesis.cancel();

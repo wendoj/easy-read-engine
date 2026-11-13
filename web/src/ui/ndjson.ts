@@ -1,10 +1,4 @@
-/**
- * Newline-delimited JSON reading for the `/api/convert` stream. Pure and
- * browser-safe: no Next.js or server imports.
- *
- * Errors never include the line that failed to parse, because a line can hold
- * letter text (R7.4).
- */
+/** Errors never include the line that failed to parse, because a line can hold letter text. */
 
 export class NdjsonParseError extends Error {
   constructor() {
@@ -23,10 +17,7 @@ function parseLine(line: string): unknown | undefined {
   }
 }
 
-/**
- * Splits text chunks into JSON values. A chunk can end in the middle of a
- * line; the rest is kept until the next chunk or `end()`.
- */
+/** A chunk can end mid-line; the rest is kept until the next chunk or `end()`. */
 export class NdjsonParser {
   private buffer = "";
 
@@ -51,7 +42,6 @@ export class NdjsonParser {
   }
 }
 
-/** Reads a byte stream and yields each JSON value. Multi-byte characters split across chunks are decoded correctly. */
 export async function* readNdjson(stream: ReadableStream<Uint8Array>): AsyncGenerator<unknown> {
   const reader = stream.getReader();
   const decoder = new TextDecoder("utf-8");

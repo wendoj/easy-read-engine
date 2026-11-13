@@ -1,32 +1,20 @@
 "use client";
 
 /**
- * Hands the conversion result from the input screen to the result screen.
- *
- * The result holds the letter text, so it lives only in React state in this
- * provider, which wraps the app in the root layout. It is never written to
- * localStorage, sessionStorage, cookies, the URL or the server (R7.4). A
- * client navigation keeps it; a reload or a new tab loses it. The result
- * screen then loads a public sample again from its ID in the URL, or says the
- * user's letter is gone (src/ui/result-url.ts).
- *
- * `sample` is set when the result came from a recorded sample letter (task
- * 29), so the result screen can show when and with which model it was
- * recorded. `setResult` keeps it (edits to a sample are still that sample);
- * `startResult` replaces both, for a new conversion or a newly loaded sample.
+ * Hands the result from the input screen to the result screen. It holds
+ * letter text, so it lives only in React state: never in storage, cookies,
+ * the URL or the server.
  */
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import type { ConversionResult } from "@/src/pipeline/types";
 import type { SampleInfo } from "@/src/samples/sample";
 
 export interface ConversionContextValue {
-  /** The latest result, or null before a conversion or after `clearResult`. */
   result: ConversionResult | null;
-  /** The recorded sample the result came from, or null for the user's own letter. */
+  /** Null for the user's own letter. */
   sample: SampleInfo | null;
-  /** Replaces the result and keeps `sample`. Used after an edit or an undo. */
+  /** Keeps `sample`: an edited sample is still that sample. */
   setResult: (result: ConversionResult) => void;
-  /** A new result: from a conversion (`sample` null) or a loaded sample. */
   startResult: (result: ConversionResult, sample: SampleInfo | null) => void;
   clearResult: () => void;
 }

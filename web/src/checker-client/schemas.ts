@@ -1,9 +1,6 @@
 /**
- * zod schemas for checker responses, validated at the boundary (tech.md).
- *
- * The generated types in `@/src/types/checker` are the contract. Each schema
- * below is checked against its generated type at compile time (`Exact`), so a
- * change to the Pydantic models that isn't mirrored here fails `tsc`.
+ * Each schema is checked against its generated type at compile time
+ * (`_SchemaMatchesGenerated`), so a Pydantic change that isn't mirrored here fails `tsc`.
  */
 import { z } from "zod";
 import type { components } from "@/src/types/checker";
@@ -88,7 +85,6 @@ export const validationErrorSchema = z.object({
   ),
 });
 
-// --- compile-time drift check against the generated types ---------------------
 
 type Exact<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 type Assert<T extends true> = T;

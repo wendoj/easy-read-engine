@@ -1,7 +1,3 @@
-/**
- * Pure decisions for the pipeline: which lines to regenerate, which key facts
- * need a new line, and the final status (design "Pipeline orchestrator").
- */
 import type { ActionSynonym, CheckResult, KeyFact, Line, Sentence } from "@/src/checker-client/schemas";
 import type { ConversionResult, ModelUse, Rule, Status } from "./types";
 
@@ -9,7 +5,7 @@ export const MAX_ATTEMPTS = 3;
 
 export const RULES: readonly Rule[] = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"];
 
-/** R7.1. Shown on every result, including the blocked state. */
+/** Shown on every result, including the blocked state. */
 export const NOTICE = "This is a simplified version of your letter. The original letter is the official one.";
 
 const JUDGE_RULES: ReadonlySet<Rule> = new Set(["P9", "P10"]);
@@ -21,28 +17,26 @@ export interface FailureContext {
   lines: readonly Line[];
   keyFacts: readonly KeyFact[];
   /**
-   * False when the judge gave no valid answer. P9 and P10 then fail on every
-   * line with "judge unavailable", which says nothing about the lines, so those
-   * failures don't send lines to regenerate.
+   * False when the judge gave no valid answer for some lines. A "judge
+   * unavailable" failure says nothing about a line, so it doesn't send the
+   * line to regenerate.
    */
   judgeAvailable: boolean;
   /**
-   * The lines the judge gave no valid answer for, when it answered for some
-   * lines and not others (a failed batch). Only these lines' P9 and P10
-   * failures are skipped; real verdicts from the batches that answered,
-   * advice included, still send lines to regenerate. Left out with
-   * `judgeAvailable` false, every line's P9 and P10 failures are skipped.
+   * Only these lines' P9 and P10 failures are skipped. Real verdicts from the
+   * batches that answered, advice included, still send lines to regenerate.
+   * Left out with `judgeAvailable` false, every line's are skipped.
    */
   judgeUnavailableLineIds?: ReadonlySet<string>;
 }
 
-/** True if a P9 or P10 failure on line `id` says nothing about the line ("judge unavailable"). */
+/** True if a P9 or P10 failure on line `id` is "judge unavailable". */
 function judgeSkips(ctx: FailureContext, id: string): boolean {
   if (ctx.judgeAvailable) return false;
   return ctx.judgeUnavailableLineIds === undefined || ctx.judgeUnavailableLineIds.has(id);
 }
 
-/** Exactly one result per rule, P1 to P10 in order. A rule with no result fails. */
+/** One result per rule, P1 to P10 in order. A rule with no result fails. */
 export function completeChecks(checks: readonly CheckResult[]): CheckResult[] {
   const byRule = new Map<Rule, CheckResult>();
   for (const c of checks) if (!byRule.has(c.rule)) byRule.set(c.rule, c);
@@ -52,10 +46,7 @@ export function completeChecks(checks: readonly CheckResult[]): CheckResult[] {
   );
 }
 
-/**
- * Key facts P1 reports as missing whose source sentence has no line. The
- * regenerate prompt is asked to add a line for each.
- */
+/** Key facts P1 reports as missing whose source sentence has no line. Regenerate adds a line for each. */
 export function missingFacts(checks: readonly CheckResult[], ctx: FailureContext): KeyFact[] {
   const p1 = checks.find((c) => c.rule === "P1");
   if (!p1 || p1.passed) return [];
@@ -65,11 +56,9 @@ export function missingFacts(checks: readonly CheckResult[], ctx: FailureContext
 }
 
 /**
- * IDs of the lines to regenerate:
- * - every line a failed rule names, except P9 and P10 on a line the judge
- *   gave no answer for (`judgeUnavailableLineIds`);
- * - for a key fact P1 reports as missing, the lines from that fact's source sentence.
- * Only IDs of current lines are returned.
+ * Every current line a failed rule names, except "judge unavailable" lines
+ * for P9 and P10, plus the lines from the source sentence of each key fact
+ * P1 reports as missing.
  */
 export function failingLineIds(checks: readonly CheckResult[], ctx: FailureContext): Set<string> {
   const current = new Set(ctx.lines.map((l) => l.id));
@@ -90,9 +79,8 @@ export function failingLineIds(checks: readonly CheckResult[], ctx: FailureConte
 }
 
 /**
- * The checks with the regeneration targets made explicit, for
- * `collectFailures`: P1 also names the lines mapped from missing facts, and
- * P9 and P10 drop the lines the judge gave no answer for.
+ * For `collectFailures`: P1 also names the lines mapped from missing facts,
+ * and P9 and P10 drop the "judge unavailable" lines.
  */
 export function regenerationChecks(
   checks: readonly CheckResult[],
@@ -135,10 +123,7 @@ export interface DecideExtras {
   actionSynonyms?: ActionSynonym[];
 }
 
-/**
- * The final result. "blocked" if P1 failed, "flagged" if any other rule
- * failed, otherwise "passed". A blocked result holds no lines (R2.5).
- */
+/** A blocked result (P1 failed) holds no lines. */
 export function decide(
   original: string,
   sentences: Sentence[],

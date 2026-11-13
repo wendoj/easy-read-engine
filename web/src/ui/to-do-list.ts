@@ -1,23 +1,14 @@
 /**
- * "What you need to do": a checklist built from the lines the checker already
- * matched to the Original's required actions.
- *
- * Nothing is written here. An item is an Easy Read line that holds a required
- * action (a key fact of type "action", found by `POST /line-facts`), so its
- * wording was checked like every other line. Failed rules are in the Check
- * report, not on the item. A deadline is the one full date (day, month and year) in that line. A
- * date with no year, or a line with 2 different dates, gets no deadline: the
- * date is never guessed (safety.md).
- *
- * Never logs. Holds letter text only in what it returns (R7.4).
+ * "What you need to do": checked Easy Read lines that hold a required action.
+ * No new text is written. A deadline is the one full date in the line; a date
+ * with no year, or 2 different dates, gives none, so a date is never guessed.
  */
 import type { ConversionResult } from "@/src/pipeline/types";
 import type { LineRow } from "./result-layout";
 
 export interface ToDoItem {
-  /** The line this item is. */
   row: LineRow;
-  /** `YYYY-MM-DD` of the deadline, or null. */
+  /** `YYYY-MM-DD`. */
   deadline: string | null;
 }
 
@@ -34,31 +25,21 @@ export function validIsoDate(value: string): string | null {
 }
 
 /*
- * The checker marks every instruction-shaped phrase in the letter as an
- * action, so P1 can make sure none is lost. Not all of them are things the
- * reader has to do. These leave a line out of the list (the line itself is
- * still in the Easy Read version):
+ * The checker marks every instruction-shaped phrase as an action, so P1 loses
+ * none. Not all are things the reader has to do. A line is left out of the list
+ * (it stays in the Easy Read version) when it is:
+ * - a condition: the source starts with "If", "Unless" or "When", has an "if"
+ *   that isn't a softener ("if you can", "if possible"), or the line starts with
+ *   "Maybe", "Then" or "So" (the If-split)
+ * - an option: "you can", "you may", "why not", "if you want"
+ * - a question, or "ignore" / "disregard"
+ * - another way to do the same thing: starts with "Or", or "for more information"
+ * - a menu (a bullet, or a line ending in ":"), unless it says "must", "need to",
+ *   "have to" or "required". A missing full stop says nothing: PDF tables often have none
  *
- * - a condition: the source sentence starts with "If", "Unless" or "When",
- *   the line or its sentence has an "if" that isn't a softener ("if you
- *   can", "if possible"), or the line starts with "Maybe", "Then" or "So"
- *   (the If-split and its result). An action that applies only sometimes
- *   ("Call us if you can't pay") is not on everyone's list
- * - an option or a suggestion: "you can", "you may", "why not", "if you want"
- * - a question: "Need help with council tax?"
- * - "ignore" or "disregard": "Please ignore this." is never a task
- * - another way to do the same thing: a line that starts with "Or", or
- *   "for more information"
- * - a menu: a bullet point, or a line that opens a list ("Help yourself
- *   online:", "• Check your account"), unless it says the reader must do it
- *   ("must", "need to", "have to", "required"). A missing full stop says
- *   nothing: text from a PDF table often has none ("Pay full amount")
- *
- * Letters repeat themselves (the same box on the front and the back), so a
- * line is also left out when its text, or every action in it, is already in
- * the list. When one item's words hold another's ("Call 0161 234 5002." and
- * "Call 0161 234 5002, 9am to 6pm."), only the fuller one is kept, in the
- * earlier place.
+ * Letters repeat themselves, so a line is also left out when its text, or every
+ * action in it, is already listed. When one item's words hold another's, only
+ * the fuller one is kept, in the earlier place.
  */
 const CONDITION_START = /^[\s•*–-]*(if|unless|when)\b/iu;
 // "if you can" and "if possible" are softeners; "if you can't pay" is a condition.
@@ -71,7 +52,6 @@ const OBLIGATION = /\b(must|need to|needs to|have to|has to|required)\b/iu;
 /** "if you can" doesn't make an option: "Please pay now if you can." is a request. */
 const SOFT_IF = /\bif\s+you\s+can\b(?!['’]t)/giu;
 
-/** Whether a line with an action is something the reader has to do (see above). */
 export function isTask(lineText: string, sourceText: string): boolean {
   const source = sourceText.trim();
   if (RESULT_LINE.test(lineText) || NOT_A_TASK.test(lineText) || CONDITION.test(lineText)) return false;
@@ -82,7 +62,7 @@ export function isTask(lineText: string, sourceText: string): boolean {
   return !OPTION.test(withoutSoftIf(lineText)) && !OPTION.test(withoutSoftIf(source));
 }
 
-/** Lower case, with punctuation and spacing removed, for spotting repeats. */
+/** For spotting repeats. */
 function sameKey(text: string): string {
   return text
     .normalize("NFKC")
@@ -91,7 +71,6 @@ function sameKey(text: string): string {
     .trim();
 }
 
-/** Items in line order. Empty when there are no lines, or no line holds an action the reader has to do. */
 export function buildToDoItems(result: ConversionResult, rows: readonly LineRow[]): ToDoItem[] {
   if (result.status === "blocked") return [];
   const facts = new Map(result.keyFacts.map((f) => [f.id, f]));
@@ -122,7 +101,6 @@ export function buildToDoItems(result: ConversionResult, rows: readonly LineRow[
   return items;
 }
 
-/** The closed to-do box's count: "1 thing to do", "4 things to do". */
 export function toDoCountLabel(count: number): string {
   return `${count} ${count === 1 ? "thing" : "things"} to do`;
 }

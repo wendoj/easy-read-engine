@@ -1,21 +1,13 @@
 /**
- * Pipeline step 6: pick a pictogram for each line (design "Symbols").
- *
- * For each line, ask the checker's `find_symbol` for the top match on the
- * line's `symbolQuery`. The line gets that ID only when the score is above
- * `SYMBOL_MIN_SCORE`; otherwise, or when the query is empty, `symbol_id` is
- * `null` and the line shows no picture rather than a wrong one (R4.2). IDs
- * come from the checker's index, and P8 checks them afterwards (R4.3).
- *
- * Lines with the same query share one request, and at most
- * `SYMBOL_LOOKUP_CONCURRENCY` requests run at once. A checker error
- * (`CheckerUnavailable`) is not caught: the route returns 503.
+ * A line gets the checker's top match for its `symbolQuery` only when the
+ * score is above `SYMBOL_MIN_SCORE`; otherwise `symbol_id` is `null`.
+ * `CheckerUnavailable` is not caught, so the route returns 503.
  */
 import type { SymbolMatch } from "@/src/checker-client/schemas";
 import { SYMBOL_LOOKUP_CONCURRENCY, SYMBOL_MIN_SCORE } from "./config";
 import type { WorkingLine } from "./lines";
 
-/** The checker call this step makes. A `CheckerClient` fits. */
+/** A `CheckerClient` fits. */
 export interface SymbolLookup {
   symbols(q: string, limit?: number): Promise<SymbolMatch[]>;
 }
