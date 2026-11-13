@@ -44,6 +44,40 @@ describe("splitCondition", () => {
   });
 
   it.each([
+    ["You can claim Council Tax Support if your income is low.", ["Maybe your income is low.", "Then you can claim Council Tax Support."]],
+    ["You can get money off your bill if you qualify.", ["Maybe you qualify.", "Then you can get money off your bill."]],
+    ["Call us if you owe more than £50.", ["Maybe you owe more than £50.", "Then call us."]],
+  ])("splits the trailing if in %s", (text, lines) => {
+    expect(splitCondition(text)).toEqual(lines);
+  });
+
+  it.each([
+    ["You have missed a payment, and we want to help.", ["You have missed a payment.", "We want to help."]],
+    ["You owe £1,000, and we want it.", ["You owe £1,000.", "We want it."]],
+    ["The council got your form, and it will reply by 14 March 2026.", ["The council got your form.", "It will reply by 14 March 2026."]],
+  ])("splits the joined clauses in %s", (text, lines) => {
+    expect(splitCondition(text)).toEqual(lines);
+  });
+
+  it.each([
+    "You must pay, and you must pay today.. Now.",
+    "Pay now, and then wait.",
+  ])("leaves the joined clauses in %s alone", (text) => {
+    expect(splitCondition(text)).toBeNull();
+  });
+
+  it.each([
+    "You can get extra help even if you do not qualify.",
+    "Check if you can get help.",
+    "Pay it if you can.",
+    "Please pay by direct debit if you can at www.manchester.gov.uk/directdebit.",
+    "Citizens Advice can help if you ask them.",
+    "You can pay online if you like. You can also phone.",
+  ])("leaves the trailing if in %s alone", (text) => {
+    expect(splitCondition(text)).toBeNull();
+  });
+
+  it.each([
     "You can pay online.",
     "Please pay now if you can.",
     "If so, pay now.",
