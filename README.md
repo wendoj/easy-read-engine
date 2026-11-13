@@ -230,6 +230,6 @@ Both guides say to involve people with learning disabilities and test with them 
 ## Status and known limitations
 
 - [docs/day1-results.md](docs/day1-results.md): day 1 spike results.
-- [docs/pass-rates.md](docs/pass-rates.md): the latest 8-letter fixture run on Bedrock (13 November 2026) finished every letter with no provider errors. 0 passed all 10 rules, 6 were flagged and 2 were blocked on P1. P9 (meaning) passed on 3 of 8 letters, up from 0 of 8 the day before. After that run, extractor fixes cleared both P1 blocks. In single live runs afterwards, the invented council tax letter passed all 10 rules once, and Manchester ended flagged instead of blocked. The full fixture run has not been repeated since, and the P3 code split (`0f5bff9`) has had no live run. This is 8 letters, not the planned 20.
-- The 3 public sample letters were re-recorded on Bedrock (`web/data/samples/`). All 3 are flagged. No sample passes all 10 rules.
+- [docs/pass-rates.md](docs/pass-rates.md): the latest 8-letter run (13 November 2026) ended with 0 passed, 6 flagged and 2 blocked on P1. P9 passed on 3 of 8 letters. Extractor fixes since cleared both blocks, and the invented council tax letter passed all 10 rules in one later run. The full run has not been repeated.
+- The 3 public samples in `web/data/samples/` are all flagged. None passes all 10 rules.
 - [docs/deploy.md](docs/deploy.md): the Chromium sandbox is turned off for PDF export in the container. The live deploy is still pending.
