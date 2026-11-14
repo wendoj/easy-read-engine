@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-14T17:27:26+00:00",
+  "title": "Design System: Easy Read Engine",
+  "extensions": {
+    "colorMeta": {
+      "ink-blue": {
+        "role": "primary",
+        "displayName": "Ink Blue",
+        "tonalRamp": [
+          "#030a1c",
+          "#102448",
+          "#204078",
+          "#335eac",
+          "#5381d2",
+          "#80a5e6",
+          "#afcaf9",
+          "#dfefff"
+        ]
+      },
+      "ink-blue-deep": {
+        "role": "primary",
+        "displayName": "Ink Blue Deep",
+        "tonalRamp": [
+          "#040b1a",
+          "#132443",
+          "#254172",
+          "#395fa3",
+          "#5981c9",
+          "#85a6de",
+          "#b2caf3",
+          "#e1efff"
+        ]
+      },
+      "ink-blue-wash": {
+        "role": "primary",
+        "displayName": "Ink Blue Wash",
+        "tonalRamp": [
+          "#0a0b0e",
+          "#22252a",
+          "#3e424a",
+          "#5b616d",
+          "#7c838f",
+          "#a0a5af",
+          "#c5c9d0",
+          "#eceef3"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "tonalRamp": [
+          "#0c0b09",
+          "#262523",
+          "#434240",
+          "#62615f",
+          "#838280",
+          "#a6a5a2",
+          "#cac9c6",
+          "#efeeeb"
+        ]
+      },
+      "paper-wash": {
+        "role": "neutral",
+        "displayName": "Paper Wash",
+        "tonalRamp": [
+          "#0c0b08",
+          "#262521",
+          "#43423e",
+          "#63615d",
+          "#84827e",
+          "#a7a5a0",
+          "#cbc9c4",
+          "#f0eee9"
+        ]
+      },
+      "sheet-white": {
+        "role": "neutral",
+        "displayName": "Sheet White",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "linen": {
+        "role": "neutral",
+        "displayName": "Linen",
+        "tonalRamp": [
+          "#0c0b08",
+          "#262521",
+          "#43423e",
+          "#63615d",
+          "#84827e",
+          "#a7a5a0",
+          "#cbc9c4",
+          "#f0eee9"
+        ]
+      },
+      "linen-deep": {
+        "role": "neutral",
+        "displayName": "Linen Deep",
+        "tonalRamp": [
+          "#0d0b07",
+          "#272520",
+          "#44423c",
+          "#64615b",
+          "#85827c",
+          "#a8a59e",
+          "#ccc9c2",
+          "#f1eee7"
+        ]
+      },
+      "table-grey": {
+        "role": "neutral",
+        "displayName": "Table Grey",
+        "tonalRamp": [
+          "#0c0b08",
+          "#262521",
+          "#43423e",
+          "#63615d",
+          "#84827e",
+          "#a7a5a0",
+          "#cbc9c4",
+          "#f0eee9"
+        ]
+      },
+      "print-black": {
+        "role": "neutral",
+        "displayName": "Print Black",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "pencil-grey": {
+        "role": "neutral",
+        "displayName": "Pencil Grey",
+        "tonalRamp": [
+          "#0d0b06",
+          "#28251e",
+          "#45423b",
+          "#64615a",
+          "#85827a",
+          "#a8a59d",
+          "#ccc9c0",
+          "#f2eee5"
+        ]
+      },
+      "edge-grey": {
+        "role": "neutral",
+        "displayName": "Edge Grey",
+        "tonalRamp": [
+          "#0e0b05",
+          "#29241d",
+          "#464139",
+          "#656158",
+          "#878279",
+          "#aaa49b",
+          "#cec8bf",
+          "#f3eee4"
+        ]
+      },
+      "field-edge": {
+        "role": "neutral",
+        "displayName": "Field Edge",
+        "tonalRamp": [
+          "#0e0b05",
+          "#29241e",
+          "#46413a",
+          "#656059",
+          "#878279",
+          "#aaa49c",
+          "#cec8bf",
+          "#f3eee4"
+        ]
+      },
+      "stop-red": {
+        "role": "status",
+        "displayName": "Stop Red",
+        "tonalRamp": [
+          "#190403",
+          "#42140f",
+          "#6f2720",
+          "#9f3c32",
+          "#c65f52",
+          "#de8c80",
+          "#f5b8af",
+          "#ffe5df"
+        ]
+      },
+      "stop-red-wash": {
+        "role": "status",
+        "displayName": "Stop Red Wash",
+        "tonalRamp": [
+          "#100909",
+          "#2b2323",
+          "#493f3f",
+          "#685e5e",
+          "#8a7f7f",
+          "#ada2a2",
+          "#d1c6c6",
+          "#f7ebeb"
+        ]
+      },
+      "pass-green": {
+        "role": "status",
+        "displayName": "Pass Green",
+        "tonalRamp": [
+          "#030f05",
+          "#0e2c18",
+          "#1e4d2d",
+          "#2f7145",
+          "#529365",
+          "#82b38e",
+          "#b1d4b9",
+          "#e1f5e5"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The one page heading. 36px on phones, 40px from 640px."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings: Original, Easy Read, What you need to do."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Sub-headings and the brand name."
+      },
+      "easy-read-line": {
+        "displayName": "Easy Read Line",
+        "purpose": "Each Easy Read line and its edit field."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "The sentence under the page heading; to-do counts."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All other reading text. The floor."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, tabs and field labels."
+      }
+    },
+    "shadows": [],
+    "focus": [
+      {
+        "name": "focus-ring",
+        "value": "outline: 3px solid #1446a0; outline-offset: 2px",
+        "purpose": "Every control. Highlight in forced-colours mode. The letter field inside a panel has none."
+      }
+    ],
+    "motion": [
+      {
+        "name": "status-fade",
+        "value": "opacity 150ms cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Only for a status or error that appears after load."
+      },
+      {
+        "name": "control-state",
+        "value": "150ms ease-out",
+        "purpose": "Colour change on hover and press."
+      },
+      {
+        "name": "press",
+        "value": "scale(0.96)",
+        "purpose": "Button press feedback, motion-safe only."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "All animation and transition under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ],
+    "keyFactPalette": {
+      "byType": {
+        "date": "yellow",
+        "time": "orange",
+        "money": "emerald",
+        "reference": "stone",
+        "phone": "purple",
+        "address": "teal",
+        "action": "fuchsia"
+      },
+      "recipe": "Tailwind 100 fill (stone 200), 950 text, 700 underline, 2px underline offset 4px",
+      "underlineByType": {
+        "date": "solid",
+        "time": "double",
+        "money": "dashed",
+        "reference": "dotted",
+        "phone": "wavy",
+        "address": "double",
+        "action": "none"
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action on a screen, such as Next, Read the letter or Download PDF.",
+      "html": "<button class=\"ds-btn-primary\">Next <svg aria-hidden=\"true\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 24px; border-radius: 9999px; font-family: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif; font-size: 18px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background-color 150ms ease-out, border-color 150ms ease-out, scale 150ms ease-out; background: #1446a0; color: #ffffff; border: 1px solid transparent; } .ds-btn-primary:hover { background: #0f3780; } .ds-btn-primary:active { scale: 0.96; } .ds-btn-primary:focus-visible { outline: 3px solid var(--ring, #1446a0); outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Every other action, with an icon beside a word: Listen, Show in the Original, Change this line.",
+      "html": "<button class=\"ds-btn-outline\"><svg aria-hidden=\"true\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z\"/><path d=\"M16 9a5 5 0 0 1 0 6\"/><path d=\"M19.364 18.364a9 9 0 0 0 0-12.728\"/></svg> Listen</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 24px; border-radius: 9999px; font-family: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif; font-size: 18px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background-color 150ms ease-out, border-color 150ms ease-out, scale 150ms ease-out; background: #ffffff; color: #1a1a1a; border: 1px solid #6b665e; } .ds-btn-outline:hover { background: #f4f2ed; } .ds-btn-outline:active { scale: 0.96; } .ds-btn-outline:focus-visible { outline: 3px solid var(--ring, #1446a0); outline-offset: 2px; }"
+    },
+    {
+      "name": "Tabs",
+      "kind": "nav",
+      "refersTo": "tab-list",
+      "description": "How to add your letter: a pill track with an Ink Blue active tab.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button class=\"ds-tab\" role=\"tab\" aria-selected=\"true\">Paste text</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Photo or PDF</button></div>",
+      "css": ".ds-tabs { display: inline-flex; height: 56px; padding: 4px; gap: 4px; border: 1px solid #8c877e; border-radius: 9999px; background: #f1efea; } .ds-tab { height: 100%; padding: 0 20px; border: 1px solid transparent; border-radius: 9999px; background: transparent; color: #1a1a1a; font-family: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif; font-size: 18px; font-weight: 600; cursor: pointer; transition: background-color 150ms, color 150ms; } .ds-tab[aria-selected=true] { background: #1446a0; color: #ffffff; } .ds-tab:focus-visible { outline: 3px solid var(--ring, #1446a0); outline-offset: 2px; }"
+    },
+    {
+      "name": "Letter Field",
+      "kind": "input",
+      "refersTo": "textarea",
+      "description": "A white field with a 5.4:1 border and 18px text.",
+      "html": "<label class=\"ds-label\" for=\"ds-f\">Letter text</label><textarea id=\"ds-f\" class=\"ds-textarea\" placeholder=\"Paste your letter here\"></textarea>",
+      "css": ".ds-label { display: block; margin-bottom: 8px; font-family: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif; font-size: 18px; font-weight: 600; color: #1a1a1a; } .ds-textarea { width: 100%; min-height: 120px; padding: 12px 16px; border: 1px solid #6b665e; border-radius: 14px; background: #ffffff; color: #1a1a1a; font-family: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif; font-size: 18px; line-height: 1.625; transition: border-color 150ms; } .ds-textarea::placeholder { color: #4a4740; } .ds-textarea:focus-visible { outline: 3px solid var(--ring, #1446a0); outline-offset: 2px; }"
+    },
+    {
+      "name": "Outside-AI Notice",
+      "kind": "custom",
+      "refersTo": "alert-note",
+      "description": "A note with no close button, right above the button that sends the letter.",
+      "html": "<div class=\"ds-note\" role=\"note\"><svg aria-hidden=\"true\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4\"/><path d=\"M12 8h.01\"/></svg><p>Your letter text is sent to an outside AI service, so don't upload letters with personal details.</p></div>",
+      "css": ".ds-note { display: grid; grid-template-columns: auto 1fr; gap: 12px; padding: 12px 16px; border: 1px solid #6b665e; border-radius: 16.8px; background: #e3ebfa; color: #1a1a1a; font-family: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif; font-size: 18px; line-height: 1.5; } .ds-note svg { margin-top: 2px; } .ds-note p { margin: 0; }"
+    },
+    {
+      "name": "Error Alert",
+      "kind": "custom",
+      "refersTo": "alert-destructive",
+      "description": "Errors and the blocked state: red text on a red wash, with an icon.",
+      "html": "<div class=\"ds-alert-error\" role=\"alert\"><svg aria-hidden=\"true\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\"/><line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\"/></svg><p>This letter is longer than 1,500 words.</p></div>",
+      "css": ".ds-alert-error { display: grid; grid-template-columns: auto 1fr; gap: 12px; padding: 12px 16px; border: 1px solid rgb(179 38 30 / 0.3); border-radius: 16.8px; background: #fef2f2; color: #b3261e; font-family: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif; font-size: 18px; line-height: 1.5; } .ds-alert-error svg { margin-top: 2px; } .ds-alert-error p { margin: 0; }"
+    },
+    {
+      "name": "Steps",
+      "kind": "nav",
+      "refersTo": "step-current",
+      "description": "Where you are: a tick, a number and words. Never animates.",
+      "html": "<ol class=\"ds-steps\"><li><span class=\"ds-step ds-step-done\"><svg aria-hidden=\"true\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg></span>Your letter</li><li><span class=\"ds-step ds-step-here\">2</span><strong>Check it</strong></li><li><span class=\"ds-step\">3</span>Easy Read</li></ol>",
+      "css": ".ds-steps { display: flex; flex-wrap: wrap; gap: 20px; margin: 0; padding: 0; list-style: none; font-family: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif; font-size: 18px; color: #4a4740; } .ds-steps li { display: flex; align-items: center; gap: 12px; } .ds-steps strong { font-weight: 600; color: #1a1a1a; } .ds-step { display: grid; place-items: center; width: 36px; height: 36px; border: 2px solid #6b665e; border-radius: 9999px; background: #ffffff; color: #1a1a1a; font-weight: 600; } .ds-step-here { border-color: #1446a0; background: #1446a0; color: #ffffff; } .ds-step-done { background: #e4e1da; }"
+    },
+    {
+      "name": "Easy Read Line",
+      "kind": "custom",
+      "refersTo": "easy-read-row",
+      "description": "Signature row: picture left, 24px line with a highlighted key fact, buttons below.",
+      "html": "<ul class=\"ds-lines\"><li class=\"ds-line\"><div class=\"ds-pic\" aria-hidden=\"true\"></div><div class=\"ds-line-body\"><p class=\"ds-line-text\">You must pay <span class=\"ds-fact\">£142.50</span> by <span class=\"ds-fact ds-fact-date\">3 March 2026</span>.</p><button class=\"ds-btn-outline\"><svg aria-hidden=\"true\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z\"/><path d=\"M16 9a5 5 0 0 1 0 6\"/><path d=\"M19.364 18.364a9 9 0 0 0 0-12.728\"/></svg> Listen</button></div></li></ul>",
+      "css": ".ds-lines { margin: 0; padding: 0; list-style: none; border: 1px solid #8c877e; border-radius: 21.6px; background: #ffffff; overflow: hidden; } .ds-line { display: flex; align-items: flex-start; gap: 24px; padding: 24px; } .ds-pic { width: 80px; height: 80px; flex-shrink: 0; border: 1px solid #8c877e; border-radius: 12px; background: #f4f2ed; } .ds-line-body { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; } .ds-line-text { margin: 0; font-family: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif; font-size: 24px; line-height: 1.5; color: #1a1a1a; } .ds-fact { border-radius: 4px; background: #ffedd5; color: #431407; text-decoration: underline dashed #c2410c 2px; text-underline-offset: 4px; } .ds-fact-date { background: #e0f2fe; color: #082f49; text-decoration: underline solid #0369a1 2px; } .ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 24px; border-radius: 9999px; font-family: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif; font-size: 18px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background-color 150ms ease-out, border-color 150ms ease-out, scale 150ms ease-out; background: #ffffff; color: #1a1a1a; border: 1px solid #6b665e; } .ds-btn-outline:hover { background: #f4f2ed; } .ds-btn-outline:focus-visible { outline: 3px solid var(--ring, #1446a0); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Kitchen-Table Letter",
+    "overview": "Two people sit at a table with a letter between them: the person it was sent to, and someone who helps them read it. The interface is the table and the paper. It is warm off-white, with white sheets laid on it, dark print, and one blue pen for the things you can press. Nothing on screen competes with the letter. Nothing moves unless something new has to be said.\n\nThe system is calm and patient. Space is generous, corners are soft, type is large, and every edge is a real line, not a shadow. Urgency is saved for one case: a fact that did not match the letter. Then, and only then, red appears. Density is low on purpose. Each Easy Read line gets its own row, its own picture and its own buttons, so the reader never has to search.\n\nThe current values come from the Easy Read guides (Inclusion Europe, Department of Health) and WCAG 2.2 AA. PRODUCT.md treats them as reference, not as binding brand. A redesign may replace them, but it must still meet the accessibility needs that PRODUCT.md lists.",
+    "keyCharacteristics": [
+      "Warm paper background, white sheets, near-black print.",
+      "One accent colour, Ink Blue, for action, focus and selection.",
+      "Flat: depth comes from borders and tone, never from shadow.",
+      "Large type everywhere. Body text is 18px, and Easy Read lines are 24px.",
+      "Pill-shaped controls at least 48px tall, each icon paired with a word.",
+      "No animation apart from a 150ms fade for a status that appears later."
+    ],
+    "rules": [
+      {
+        "name": "The One Pen Rule",
+        "body": "Ink Blue is the only accent. If something is blue, you can press it, it has focus, or it is selected. Nothing is blue for decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Red Means Stop Rule",
+        "body": "Red appears only when a check failed or something went wrong. A flagged line that still reached the reader gets a quiet \"Check this line\" box in Linen, not red.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Cues Rule",
+        "body": "Colour is never the only signal. Every key fact also has an underline style, and every state also has an icon or a word.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Weights Rule",
+        "body": "Only 400 and 600. Emphasis is 600, never italic: `em`, `i` and `cite` render upright and bold.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Shouting Rule",
+        "body": "No capitals for whole words, no letter-spacing changes, no eyebrow labels over headings, no justified text. Everything is left-aligned.",
+        "section": "typography"
+      },
+      {
+        "name": "The 18px Floor",
+        "body": "No reading text is smaller than 18px. The only smaller text is the inert shadcn defaults that the app overrides.",
+        "section": "typography"
+      },
+      {
+        "name": "The Paper on a Table Rule",
+        "body": "No box-shadows. If something needs to stand out, give it a border or a different surface tone.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep Ink Blue for things you can press, focus or select (The One Pen Rule).",
+      "**Do** give every panel and control a real border, so edges survive forced-colours mode.",
+      "**Do** keep every control at least 48px tall, with a word next to any icon.",
+      "**Do** pair every key-fact colour with its underline style, and every state with an icon or a word.",
+      "**Do** keep reading text at 18px or larger, and Easy Read lines at 24px with 1.5 line height.",
+      "**Do** use the 150ms fade only for a status that appears after load, and nothing under `prefers-reduced-motion`."
+    ],
+    "donts": [
+      "**Don't** use box-shadows, gradients or glassy effects (The Paper on a Table Rule).",
+      "**Don't** animate entrances, stagger lists or use shimmer loaders.",
+      "**Don't** use italics, all-caps words, letter-spacing changes, eyebrow labels or justified text.",
+      "**Don't** add a mascot, character or cartoon. The readers are adults.",
+      "**Don't** use red for anything other than a failed check or an error.",
+      "**Don't** add a close button to the outside-AI notice or the simplified-version notice.",
+      "**Don't** add a weight other than 400 and 600."
+    ]
+  }
+}
