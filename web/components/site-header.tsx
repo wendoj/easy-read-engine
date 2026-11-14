@@ -10,6 +10,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useId } from "react";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "cn";
 
 /** The Easy Read mark: a letter with a folded corner and two short lines. Same shape as app/icon.svg. */
 export function Mark({ className }: { className?: string }) {
@@ -42,10 +43,16 @@ export function SiteHeader() {
   const away = pathname === "/result" || pathname === "/print";
   return (
     <header className="border-b border-border bg-card print:hidden">
-      <div className="mx-auto flex min-h-[72px] w-full max-w-[1200px] items-center gap-6 px-4 py-3">
-        <Link href="/" className="flex min-h-12 items-center gap-3 rounded-md text-[22px] font-semibold">
+      {/* Same width as the page under it, so the mark lines up with the content: 880px on the input screen, 1200px elsewhere. */}
+      <div
+        className={cn(
+          "mx-auto flex min-h-[72px] w-full items-center gap-6 px-4 py-3",
+          away ? "max-w-[1200px]" : "max-w-[912px]",
+        )}
+      >
+        <Link href="/" className="flex min-h-12 items-center gap-3 rounded-md text-xl font-semibold whitespace-nowrap sm:text-[22px]">
           <Mark className="size-8 text-primary" />
-          Easy Read
+          Easy Read Engine
         </Link>
         {away ? (
           <Link href="/" className={buttonVariants({ variant: "outline", className: "ml-auto" })}>

@@ -29,8 +29,8 @@ function PopoverContent({
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          // No entrance or exit animation (ui.md: nothing moves). A real border keeps the edge visible in forced colours.
-          "z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-xl border-2 border-border bg-popover p-4 text-lg text-popover-foreground shadow-md outline-hidden",
+          // No entrance or exit animation (ui.md: nothing moves), and no shadow: the 2px border is the edge, also in forced colours.
+          "z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-xl border-2 border-border bg-popover p-4 text-lg text-popover-foreground outline-hidden",
           className
         )}
         {...props}
