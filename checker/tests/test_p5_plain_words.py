@@ -96,7 +96,7 @@ def test_official_wording_fails() -> None:
     assert not result.passed
     assert result.line_ids == ["l1"]
     # "rental" and "reassessed"; "liability" is on the NGSL.
-    assert result.details == ["l1 has 2 words that are not common and not explained"]
+    assert result.details == ["l1 has 2 words that are not common and not explained: rental, reassessed"]
 
 
 def test_amount_after_is_does_not_define_a_word() -> None:

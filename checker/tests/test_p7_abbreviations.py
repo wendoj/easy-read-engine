@@ -87,7 +87,7 @@ def test_unexplained_abbreviation_fails() -> None:
     result = check_p7("", [], text_lines(["You can get PIP."]))
     assert not result.passed
     assert result.line_ids == ["l1"]
-    assert result.details == ["l1 has 1 abbreviations that are not explained"]
+    assert result.details == ["l1 has 1 abbreviations that are not explained: PIP"]
 
 
 def test_wrong_expansion_fails() -> None:

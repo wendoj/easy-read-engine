@@ -94,7 +94,7 @@ def check_p7(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
     details: list[str] = []
     docs = get_nlp().pipe(line.text for line in lines)
     for line, doc in zip(lines, docs):
-        unexplained = 0
+        unexplained: list[str] = []
         address: set[int] = set()
         if postcodes:
             for sent in doc.sents:
@@ -108,8 +108,9 @@ def check_p7(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
             if is_expanded_here(token, abbreviation):
                 expanded.add(abbreviation)
             else:
-                unexplained += 1
+                unexplained.append(token.text)
         if unexplained:
             failing.append(line.id)
-            details.append(f"{line.id} has {unexplained} abbreviations that are not explained")
+            named = ", ".join(dict.fromkeys(unexplained))
+            details.append(f"{line.id} has {len(unexplained)} abbreviations that are not explained: {named}")
     return line_result("P7", failing, details)

@@ -141,7 +141,7 @@ def check_p5(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
     details: list[str] = []
     docs = get_nlp().pipe(line.text for line in lines)
     for line, doc in zip(lines, docs):
-        hard = 0
+        hard: list[str] = []
         for sent in doc.sents:
             for token in _defined_words(sent):
                 defined.update(_forms(token))
@@ -154,8 +154,10 @@ def check_p5(original: str, key_facts: list[KeyFact], lines: list[Line]) -> Chec
                 forms = _forms(token)
                 if forms & words or forms & defined or forms & _CLITICS or _common_parts(token, words):
                     continue
-                hard += 1
+                hard.append(token.text)
         if hard:
             failing.append(line.id)
-            details.append(f"{line.id} has {hard} words that are not common and not explained")
+            # Names the words, so the report and the regenerate prompt can point at them.
+            named = ", ".join(dict.fromkeys(hard))
+            details.append(f"{line.id} has {len(hard)} words that are not common and not explained: {named}")
     return line_result("P5", failing, details)
