@@ -8,6 +8,7 @@ import type { CheckResult, KeyFact, Line, LineFactSpan, Sentence } from "@/src/c
 import type { ConversionResult, Rule } from "@/src/pipeline/types";
 import {
   FACT_PALETTE,
+  FACT_TYPE_ORDER,
   type FactSpan,
   factColours,
   factStyles,
@@ -169,14 +170,12 @@ describe("highlightSegments: properties", () => {
             record(p.factIds.at(-1)!, pieceClassName(p, layout.factStyles));
           }
         }
-        // Facts with the same type and value share a colour; others differ until the palette runs out.
+        // A colour means one fact type: same type, same colour; different types, different colours.
         const colours = factColours(keyFacts);
-        const keys = [...new Set(keyFacts.map((f) => `${f.type}/${f.normalised}`))];
         for (const a of keyFacts) {
           for (const b of keyFacts) {
-            const same = a.type === b.type && a.normalised === b.normalised;
-            if (same) expect(colours.get(a.id)).toBe(colours.get(b.id));
-            else if (keys.length <= FACT_PALETTE.length) expect(colours.get(a.id)).not.toBe(colours.get(b.id));
+            if (a.type === b.type) expect(colours.get(a.id)).toBe(colours.get(b.id));
+            else expect(colours.get(a.id)).not.toBe(colours.get(b.id));
           }
         }
       }),
@@ -206,12 +205,15 @@ describe("highlightPieces", () => {
 });
 
 describe("factColours", () => {
-  it("cycles through the palette by first position in the Original", () => {
-    const facts = Array.from({ length: FACT_PALETTE.length + 2 }, (_, i) => fact(`k${i}`, 100 - i, 101 - i));
+  it("gives each fact type its own palette colour", () => {
+    expect(FACT_PALETTE).toHaveLength(FACT_TYPE_ORDER.length);
+    const facts = FACT_TYPE_ORDER.map((type, i) => ({ ...fact(`k${i}`, i * 10, i * 10 + 5), type }));
     const colours = factColours(facts);
-    // The last fact starts first, so it gets colour 0.
-    expect(colours.get(`k${FACT_PALETTE.length + 1}`)).toBe(0);
-    expect(colours.get("k0")).toBe((FACT_PALETTE.length + 1) % FACT_PALETTE.length);
+    FACT_TYPE_ORDER.forEach((_, i) => expect(colours.get(`k${i}`)).toBe(i));
+  });
+
+  it("never uses red or blue, which mean failure and action", () => {
+    for (const entry of FACT_PALETTE) expect(entry).not.toMatch(/\b(?:bg|text|decoration)-(?:red|blue|sky|rose)-/u);
   });
 });
 

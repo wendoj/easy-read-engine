@@ -91,29 +91,37 @@ export function linePieces(
   return highlightPieces(text, 0, text.length, spans);
 }
 
+/** Palette order: one colour per fact type, so a colour always means the same kind of fact. */
+export const FACT_TYPE_ORDER: readonly KeyFactType[] = ["date", "time", "money", "reference", "phone", "address", "action"];
+
 /**
- * After the Okabe-Ito colour-blind-safe set, with contrast above 4.5:1 in both
- * themes. Class strings are written out in full so Tailwind generates them.
+ * One colour per fact type, in `FACT_TYPE_ORDER`. No red (failures only) and
+ * no blue (Ink Blue means "you can press this"). Each is a 100 fill with 950
+ * text, above 12:1. Class strings are written out in full so Tailwind
+ * generates them.
  */
 export const FACT_PALETTE: readonly string[] = [
-  "bg-orange-100 text-orange-950 decoration-orange-700 dark:bg-orange-900/70 dark:text-orange-50 dark:decoration-orange-300",
-  "bg-sky-100 text-sky-950 decoration-sky-700 dark:bg-sky-900/70 dark:text-sky-50 dark:decoration-sky-300",
-  "bg-emerald-100 text-emerald-950 decoration-emerald-700 dark:bg-emerald-900/70 dark:text-emerald-50 dark:decoration-emerald-300",
-  "bg-yellow-100 text-yellow-950 decoration-yellow-700 dark:bg-yellow-900/70 dark:text-yellow-50 dark:decoration-yellow-300",
-  "bg-blue-100 text-blue-950 decoration-blue-700 dark:bg-blue-900/70 dark:text-blue-50 dark:decoration-blue-300",
-  "bg-red-100 text-red-950 decoration-red-700 dark:bg-red-900/70 dark:text-red-50 dark:decoration-red-300",
-  "bg-fuchsia-100 text-fuchsia-950 decoration-fuchsia-700 dark:bg-fuchsia-900/70 dark:text-fuchsia-50 dark:decoration-fuchsia-300",
+  "bg-yellow-100 text-yellow-950 decoration-yellow-700",
+  "bg-orange-100 text-orange-950 decoration-orange-700",
+  "bg-emerald-100 text-emerald-950 decoration-emerald-700",
+  "bg-stone-200 text-stone-950 decoration-stone-600",
+  "bg-purple-100 text-purple-950 decoration-purple-700",
+  "bg-teal-100 text-teal-950 decoration-teal-700",
+  "bg-fuchsia-100 text-fuchsia-950 decoration-fuchsia-700",
 ];
 
-/** A second signal besides colour. */
-export const FACT_TYPE_UNDERLINE: Record<KeyFactType, string> = {
+/**
+ * A second signal besides colour. Actions are often whole phrases, so they
+ * carry the fill only; an underline would clash with the explained-word underline.
+ */
+export const FACT_TYPE_UNDERLINE: Record<KeyFactType, string | null> = {
   date: "decoration-solid",
   time: "decoration-double",
   money: "decoration-dashed",
   reference: "decoration-dotted",
   phone: "decoration-wavy",
-  address: "decoration-solid",
-  action: "decoration-dotted",
+  address: "decoration-double",
+  action: null,
 };
 
 export const FACT_TYPE_LABELS: Record<KeyFactType, string> = {
@@ -128,27 +136,11 @@ export const FACT_TYPE_LABELS: Record<KeyFactType, string> = {
 
 export const FAILED_FACT_LABEL = "did not match";
 
-/**
- * Palette index per fact ID, in Original order, cycling through the palette.
- * Facts with the same type and normalised value share a colour, because P1
- * treats them as one fact.
- */
-export function factColours(keyFacts: readonly KeyFact[], paletteSize: number = FACT_PALETTE.length): Map<string, number> {
-  const size = Math.max(1, Math.floor(paletteSize));
-  const byKey = new Map<string, number>();
+/** Palette index per fact ID: the index of its type in `FACT_TYPE_ORDER`. */
+export function factColours(keyFacts: readonly KeyFact[]): Map<string, number> {
   const out = new Map<string, number>();
-  const ordered = keyFacts
-    .map((fact, index) => ({ fact, index }))
-    .sort((a, b) => a.fact.start - b.fact.start || a.index - b.index);
-  for (const { fact } of ordered) {
-    if (out.has(fact.id)) continue;
-    const key = `${fact.type}\u0000${fact.normalised}`;
-    let colour = byKey.get(key);
-    if (colour === undefined) {
-      colour = byKey.size % size;
-      byKey.set(key, colour);
-    }
-    out.set(fact.id, colour);
+  for (const fact of keyFacts) {
+    if (!out.has(fact.id)) out.set(fact.id, Math.max(0, FACT_TYPE_ORDER.indexOf(fact.type)));
   }
   return out;
 }
@@ -190,7 +182,9 @@ export function pieceClassName(piece: HighlightPiece, styles: ReadonlyMap<string
 }
 
 export function factClassName(style: FactStyle): string {
-  const base = `rounded-sm underline decoration-2 underline-offset-4 ${FACT_PALETTE[style.colour % FACT_PALETTE.length]} ${FACT_TYPE_UNDERLINE[style.type]}`;
+  const underline = FACT_TYPE_UNDERLINE[style.type];
+  const line = underline === null ? "" : ` underline decoration-2 underline-offset-4 ${underline}`;
+  const base = `rounded-sm box-decoration-clone ${FACT_PALETTE[style.colour % FACT_PALETTE.length]}${line}`;
   return style.failed ? `${base} font-semibold ring-2 ring-destructive` : base;
 }
 
