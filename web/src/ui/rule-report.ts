@@ -6,6 +6,7 @@
 import type { CheckResult, KeyFact } from "@/src/checker-client/schemas";
 import { RULES } from "@/src/pipeline/decide";
 import type { ConversionResult, Rule } from "@/src/pipeline/types";
+import { plainReason, reasonsByLine } from "./plain-reasons";
 
 export const TOTAL_RULES = RULES.length;
 
@@ -55,9 +56,20 @@ export interface RuleRow {
   /** In screen order. */
   lines: RuleLine[];
   reasons: string[];
+  /** The reasons in plain words, each with its line when it has one. Lines first, in screen order. */
+  items: ReportItem[];
   /** P1 only. */
   failedFacts: FailedFact[];
 }
+
+export interface ReportItem {
+  /** Null for a reason about the whole letter. */
+  line: RuleLine | null;
+  text: string;
+}
+
+/** For a line named by a failed rule that gave no reason for it. */
+export const NO_REASON_TEXT = "This line did not pass.";
 
 export interface RuleLine {
   id: string;
@@ -101,6 +113,7 @@ export function passCount(input: Pick<ReportInput, "checks" | "judgeAvailable">)
 export function ruleRows(input: ReportInput): RuleRow[] {
   const position = new Map(input.lines.map((l, i) => [l.id, i + 1]));
   const facts = new Map(input.keyFacts.map((f) => [f.id, f]));
+  const ids = new Set(input.lines.map((l) => l.id));
   return [...effectiveChecks(input).values()].map((c) => {
     const lines = [...new Set(c.line_ids)]
       .flatMap((id) => {
@@ -119,9 +132,34 @@ export function ruleRows(input: ReportInput): RuleRow[] {
       resultLabel: c.passed ? "Passed" : "Failed",
       lines,
       reasons: c.details,
+      items: reportItems(c, lines, failedFacts.length > 0, ids),
       failedFacts,
     };
   });
+}
+
+function reportItems(c: CheckResult, lines: RuleLine[], hasFailedFacts: boolean, ids: ReadonlySet<string>): ReportItem[] {
+  const byId = new Map(lines.map((l) => [l.id, l]));
+  const general: ReportItem[] = [];
+  const perLine: ReportItem[] = [];
+  for (const detail of c.details) {
+    // P1's own details name fact IDs; the failed facts are listed with their values instead.
+    if (c.rule === "P1" && hasFailedFacts) continue;
+    const r = plainReason(c.rule, detail, ids);
+    const line = r.lineId === null ? undefined : byId.get(r.lineId);
+    if (line) perLine.push({ line, text: r.text });
+    else if (r.lineId === null) general.push({ line: null, text: r.text });
+  }
+  for (const line of lines) {
+    if (!perLine.some((i) => i.line?.id === line.id)) perLine.push({ line, text: NO_REASON_TEXT });
+  }
+  perLine.sort((a, b) => (a.line?.number ?? 0) - (b.line?.number ?? 0));
+  return [...general, ...perLine];
+}
+
+/** Plain reasons per line for failed rules, in rule order. Lines with none are left out. */
+export function lineReasons(input: Pick<ReportInput, "checks" | "lines" | "judgeAvailable">): Map<string, string[]> {
+  return reasonsByLine([...effectiveChecks(input).values()], new Set(input.lines.map((l) => l.id)));
 }
 
 /** Failed rules per line, in rule order. Lines with none are left out. */

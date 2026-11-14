@@ -9,7 +9,7 @@ import {
   highlightSegments,
   linePieces,
 } from "./key-fact-highlight";
-import { lineMarkers } from "./rule-report";
+import { lineMarkers, lineReasons } from "./rule-report";
 
 export type OriginalSegment =
   | { kind: "text"; start: number; end: number; text: string }
@@ -65,6 +65,12 @@ export interface LineRow {
   flagged: boolean;
   /** In rule order. */
   failedRules: Rule[];
+  /** Why the line was flagged, in plain words. Empty when it passed. */
+  reasons: string[];
+  /** The source sentence as written in the Original, for showing it under the line. */
+  sourceText: string | null;
+  /** The line holds a date or an amount (not a bare year). */
+  important: boolean;
   /** Joining the piece texts gives `text`. */
   pieces: HighlightPiece[];
 }
@@ -79,6 +85,11 @@ export interface ResultLayout {
   factStyles: Map<string, FactStyle>;
 }
 
+/** A bare year ("the Planning Act 1990") is part of a name, not a date to act on. */
+function isDateOrAmount(fact: { type: string; normalised: string }): boolean {
+  return fact.type === "money" || (fact.type === "date" && !/^\d{4}$/u.test(fact.normalised));
+}
+
 export function resultLayout(result: ConversionResult): ResultLayout {
   const { text, sentences } = result.original;
   const segments = highlightSegments(text, originalSegments(text, sentences), result.keyFacts);
@@ -90,17 +101,23 @@ export function resultLayout(result: ConversionResult): ResultLayout {
     return { status: result.status, withheld: true, segments, rows: [], factStyles: styles };
   }
   const markers = lineMarkers(result);
-  const sentenceIds = new Set(sentences.map((s) => s.id));
+  const reasons = lineReasons(result);
+  const sentenceText = new Map(sentences.map((s) => [s.id, s.text]));
+  const facts = new Map(result.keyFacts.map((f) => [f.id, f]));
   const factIds = new Set(styles.keys());
   const rows = result.lines.map((line) => {
     const failedRules = markers.get(line.id) ?? [];
+    const inLine = result.lineFacts.filter((s) => s.line_id === line.id).map((s) => facts.get(s.fact_id));
     return {
       id: line.id,
       text: line.text,
       symbolSrc: line.symbol_id === null ? null : symbolSrc(line.symbol_id),
-      sourceSentenceId: sentenceIds.has(line.source_sentence_id) ? line.source_sentence_id : null,
+      sourceSentenceId: sentenceText.has(line.source_sentence_id) ? line.source_sentence_id : null,
       flagged: failedRules.length > 0,
       failedRules,
+      reasons: failedRules.length > 0 ? (reasons.get(line.id) ?? []) : [],
+      sourceText: sentenceText.get(line.source_sentence_id) ?? null,
+      important: inLine.some((f) => f !== undefined && isDateOrAmount(f)),
       pieces: linePieces(line.id, line.text, result.lineFacts, factIds),
     };
   });
