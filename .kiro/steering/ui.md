@@ -16,7 +16,7 @@ fileMatchPattern: ["web/app/**/*.tsx", "web/components/**/*.tsx"]
 | Safety and privacy notices | `Alert`, with no close button |
 | Progress | `Progress` and one status line |
 | Pass count and rule results in the report | `Badge` |
-| Rule report | `Sheet` with a `Table` |
+| Rule report | `Sheet` with one list item per rule |
 | Line editing | `Textarea` and `Button`, inline in the line |
 | Sample letters | `Select` |
 | Errors (limit, handwriting, 503) | `Alert` with `variant="destructive"` |
@@ -35,10 +35,10 @@ fileMatchPattern: ["web/app/**/*.tsx", "web/components/**/*.tsx"]
 
 - Input screen: heading, one sentence, the step bar (`components/steps.tsx`: Your letter, Check it, Easy Read), then one panel with Paste text and Photo or PDF tabs. The R7.5 notice is an `Alert` with no close button, right above the button that sends the letter out, on both steps.
 - Progress: one status line in words ("Checking again (try 2 of 3)"), the `Progress` bar and the stage list. No shimmer.
-- Result screen: Original on the left, Easy Read on the right, picture to the left of each line. The Easy Read column is wider (5:7), because it is the one people read.
+- Result screen: meaning first. The simplified-version notice, then "What you need to do" and "Dates and amounts" side by side on wide screens. Both start closed and show a count and a one-line preview (the first payment or "must" item; the first two dates or amounts), and open to the full list with "Go to line N" on each item. Then the Checks strip and the colour key, then Original on the left and Easy Read on the right, picture to the left of each line with a "Line N" button under it. The Easy Read column is wider (5:7), because it is the one people read. Pressing "Line N" (or the line's text) selects the line: its sentence lights up in the Original, and only then do Listen, Change this line and "Next line to check" appear under it. Download PDF and Print sit next to the Easy Read heading and again in the closing block after the last line. Sample recording details (date, models) are in the check report, not on the page.
 - Narrow screens (under 1024px): the columns stack, Original first, with a "Go to the Easy Read version" link above them. Easy Read guidance says "Do not write in columns" (IE 2.27), but safety.md requires the Original on every result screen so the reader or a supporter can check it, so it stays, with the Easy Read version easy to reach.
-- Use one colour per key fact, the same in both columns, plus an underline style per fact type, so colour is never the only cue.
-- Flagged lines carry no marker. A Checks strip leads with the key-fact result (green tick and "All N key facts match the letter", or red with an icon when P1 fails), then the pass count in plain words and "See the check report". The report names each failed rule in words, and its line numbers go to the line. The blocked state keeps the Original and lists the key facts that did not match.
+- Use one colour per key fact type, the same in both columns, plus an underline style per type, so colour is never the only cue. No red (failures only) and no blue (Ink Blue means "you can press this"). Show a colour key for the types in the letter above the columns.
+- A flagged line carries a quiet "Check this line with the letter." box under its text, with a flag icon and a "Why?" button that shows the checker's reasons for the supporter. No red: the line passed P1 and is shown. The Checks strip has "Go to the first line to check", and a selected flagged line has "Next line to check". A Checks strip leads with the key-fact result (green tick and "All N key facts match the letter", or red with an icon when P1 fails), then how many checks found lines to look at, and "See the check report". The report names each rule in words with its code after it, and every reason starts with a "Line N" link that goes to the line. Reasons use the line number on screen, never the line ID. The blocked state keeps the Original and lists the key facts that did not match.
 - Reload: results are never stored (R7.4). A sample letter keeps its ID in the URL (`/result?sample=<id>`) and loads again. The user's own letter shows "Your Easy Read version is gone" and "Start again", and the browser asks before a reload while it is on screen, on `/result` and on `/print`.
 - Print layout uses at least 16pt (18pt text, 20pt lines), a picture left of each line, the R7.1 notice at the top and the ARASAAC attribution in the footer.
 - Show the ARASAAC attribution in the result screen footer and the PDF footer.

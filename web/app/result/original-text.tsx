@@ -34,7 +34,7 @@ export function OriginalText({
       role="region"
       aria-labelledby="original-heading"
       tabIndex={0}
-      className="max-h-[50vh] overflow-y-auto overscroll-contain p-5 text-lg leading-normal whitespace-pre-wrap focus-visible:outline-offset-[-3px] lg:max-h-[calc(100vh-8rem)]"
+      className="max-h-[50vh] overflow-y-auto p-5 text-lg leading-normal whitespace-pre-wrap [overflow-wrap:anywhere] lg:overscroll-contain focus-visible:outline-offset-[-3px]! lg:max-h-[calc(100vh-8rem)]"
     >
       {segments.map((segment) =>
         segment.kind === "text" ? (

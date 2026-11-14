@@ -26,6 +26,8 @@ import { useAccess } from "@/src/ui/use-access";
 import { useConfirmUnload } from "@/src/ui/use-confirm-unload";
 import { cn } from "cn";
 import { BlockedState } from "./blocked-state";
+import { FactLegend } from "./fact-legend";
+import { MainPoints, mainPoints } from "./main-points";
 import { SECTION_HEADING } from "./headings";
 import { LineRow } from "./line-row";
 import { NoResult } from "./no-result";
@@ -75,37 +77,77 @@ export function ResultView() {
   const blocked = blockSource(result, editing.history);
   const toDoItems = useMemo(() => (result && layout ? buildToDoItems(result, layout.rows) : []), [result, layout]);
   const failedFacts = useMemo(() => (result ? failedKeyFacts(result) : []), [result]);
+  const lineNumbers = useMemo(() => new Map((layout?.rows ?? []).map((r, i) => [r.id, i + 1])), [layout]);
+  const points = useMemo(
+    () => (result && layout && !layout.withheld ? mainPoints(result.keyFacts, result.lineFacts, lineNumbers) : []),
+    [result, layout, lineNumbers],
+  );
+  // For "Next line to check": each line's next flagged line, by screen order.
+  const nextToCheck = useMemo(() => {
+    const out = new Map<string, { id: string; number: number } | null>();
+    let next: { id: string; number: number } | null = null;
+    const rows = layout?.rows ?? [];
+    for (let i = rows.length - 1; i >= 0; i--) {
+      out.set(rows[i].id, next);
+      if (rows[i].flagged) next = { id: rows[i].id, number: i + 1 };
+    }
+    return { byLine: out, first: next };
+  }, [layout]);
+  const selectedSource = layout?.rows.find((r) => r.id === selection.selectedLineId)?.sourceText ?? null;
   const exportAllowed = canExport(result);
 
   if (!result || !layout) return <NoResult sampleId={sampleId} error={reloadError} />;
 
+  const exportActions = (
+    <div className="flex flex-wrap items-center gap-3">
+      {/* When blocked, "Undo edit" is in the blocked state instead. */}
+      {undoAllowed && blocked === null && (
+        <Button type="button" variant="outline" onClick={onUndo}>
+          Undo edit
+        </Button>
+      )}
+      <Button
+        type="button"
+        disabled={!exportAllowed || pdf.exporting || edit !== null}
+        onClick={() => void pdf.onExport()}
+      >
+        {pdf.exporting && <LoaderCircle aria-hidden data-icon="inline-start" className="motion-safe:animate-spin" />}
+        {pdf.exporting ? "Making the PDF…" : "Download PDF"}
+      </Button>
+      {exportAllowed && edit === null && (
+        <Link href="/print" className={buttonVariants({ variant: "outline" })}>
+          Print
+        </Link>
+      )}
+    </div>
+  );
+
   // Nothing moves on load. Only a status that appears later fades in.
+  // Meaning first: what to do, the dates and amounts, then the checks, then the two columns.
   return (
     <div className="flex flex-col gap-6">
       <SafetyNotice text={result.notice} />
-      {sample !== null && <SampleLabel sample={sample} />}
-      <RuleReport input={result} synonyms={result.actionSynonyms} onGoToLine={selection.onGoToLine} />
-      <div className="flex flex-wrap items-center gap-3">
-        {/* When blocked, "Undo edit" is in the blocked state instead. */}
-        {undoAllowed && blocked === null && (
-          <Button type="button" variant="outline" onClick={onUndo}>
-            Undo edit
-          </Button>
-        )}
-        <Button
-          type="button"
-          disabled={!exportAllowed || pdf.exporting || edit !== null}
-          onClick={() => void pdf.onExport()}
-        >
-          {pdf.exporting && <LoaderCircle aria-hidden data-icon="inline-start" className="motion-safe:animate-spin" />}
-          {pdf.exporting ? "Making the PDF…" : "Download PDF"}
-        </Button>
-        {exportAllowed && edit === null && (
-          <Link href="/print" className={buttonVariants({ variant: "outline" })}>
-            Print
-          </Link>
-        )}
-      </div>
+      {/* Both start closed, side by side on wide screens, so the Easy Read lines stay close. */}
+      {!layout.withheld && (
+        <div className="grid items-start gap-4 lg:grid-cols-2">
+          <ToDoBox
+            items={toDoItems}
+            styles={layout.factStyles}
+            notice={result.notice}
+            readAloud={readAloud}
+            lineNumbers={lineNumbers}
+            onGoToLine={selection.onGoToLine}
+          />
+          <MainPoints points={points} styles={layout.factStyles} onGoToLine={selection.onGoToLine} />
+        </div>
+      )}
+      <RuleReport
+        input={result}
+        synonyms={result.actionSynonyms}
+        onGoToLine={selection.onGoToLine}
+        firstToCheck={nextToCheck.first}
+        recording={sample !== null ? <SampleLabel sample={sample} /> : undefined}
+      />
       {/* No export while P10 (no advice) hasn't run. Not dismissable. */}
       {blocked === null && !result.judgeAvailable && (
         <Alert role="status" className="border-input">
@@ -121,9 +163,7 @@ export function ResultView() {
           </Alert>
         </motion.div>
       )}
-      {!layout.withheld && (
-        <ToDoBox items={toDoItems} styles={layout.factStyles} notice={result.notice} readAloud={readAloud} />
-      )}
+      <FactLegend keyFacts={result.keyFacts} />
       {/* Narrow screens stack the columns, Original first. */}
       <a
         href="#easy-read-heading"
@@ -150,9 +190,12 @@ export function ResultView() {
           </div>
         </section>
         <section aria-labelledby="easy-read-heading" className="flex min-w-0 flex-col gap-3">
-          <h2 id="easy-read-heading" tabIndex={-1} className={cn(SECTION_HEADING, "scroll-mt-6")}>
-            Easy Read
-          </h2>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 id="easy-read-heading" tabIndex={-1} className={cn(SECTION_HEADING, "scroll-mt-6")}>
+              Easy Read
+            </h2>
+            {!layout.withheld && exportActions}
+          </div>
           {/* A block from the conversion shows at once; one from an edit fades in. */}
           {layout.withheld ? (
             <motion.div key="blocked" {...statusFade(reduceMotion || blocked !== "edit")}>
@@ -164,6 +207,8 @@ export function ResultView() {
               />
             </motion.div>
           ) : (
+            <>
+            <p className="text-lg leading-normal">Press a line number to listen to the line, see it in the letter, or change it.</p>
             <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
               {layout.rows.map((row, index) => (
                 <LineRow
@@ -181,12 +226,26 @@ export function ResultView() {
                   onDraft={editing.onDraft}
                   onSave={() => void editing.onSave()}
                   onCancel={editing.onCancel}
+                  nextToCheck={nextToCheck.byLine.get(row.id) ?? null}
+                  onGoToLine={selection.onGoToLine}
                 />
               ))}
             </ul>
+            </>
+          )}
+          {!layout.withheld && (
+            <section aria-label="End of the Easy Read version" className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 sm:p-6">
+              <p className="text-xl leading-normal font-semibold">This is the end of the Easy Read version.</p>
+              <p className="text-lg leading-normal">{result.notice}</p>
+              {exportActions}
+            </section>
           )}
         </section>
       </div>
+      {/* Says which sentence of the Original a selected line came from, for screen readers. */}
+      <p aria-live="polite" className="sr-only">
+        {selectedSource !== null ? `From the letter: ${selectedSource}` : ""}
+      </p>
       <ResultFooter />
     </div>
   );

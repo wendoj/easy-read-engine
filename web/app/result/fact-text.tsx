@@ -22,7 +22,7 @@ function ExplainedWord({ entry, text }: { entry: GlossaryEntry; text: string }) 
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="cursor-pointer rounded-sm border-b-4 border-dotted border-primary [-webkit-tap-highlight-color:transparent] hover:bg-accent-tint"
+          className="cursor-pointer border-b-4 border-dotted border-primary [-webkit-tap-highlight-color:transparent] hover:bg-accent-tint"
         >
           {text}
           <span className="sr-only"> (open the meaning)</span>

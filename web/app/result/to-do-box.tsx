@@ -1,39 +1,44 @@
 "use client";
 /**
- * Starts closed, so the Easy Read lines are reachable without scrolling.
- * Ticks live in this component, so they survive closing, and are never saved.
+ * Starts closed, showing only its heading and count, so the Easy Read lines
+ * stay close. Ticks live in this component, survive closing, and are never
+ * saved. Nothing animates.
  */
-import { CalendarPlus, ChevronDown } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useId, useState } from "react";
+import { CalendarPlus, ScanSearch } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CALENDAR_FILENAME, buildIcs } from "@/src/ui/calendar";
 import type { FactStyle } from "@/src/ui/key-fact-highlight";
 import type { ReadAloud } from "@/src/ui/read-aloud";
 import { saveBlob } from "@/src/ui/save-blob";
-import { EASE_OUT } from "@/src/ui/motion";
 import { type ToDoItem, toDoCountLabel } from "@/src/ui/to-do-list";
 import { FactText, ListenButton } from "./fact-text";
+import { SummaryPanel } from "./summary-panel";
 
 export const TO_DO_HEADING = "What you need to do";
+
+const MAIN_TASK = /\b(pay|must|need to|have to)\b/iu;
 
 export function ToDoBox({
   items,
   styles,
   notice,
   readAloud,
+  lineNumbers,
+  onGoToLine,
 }: {
   items: ToDoItem[];
   styles: ReadonlyMap<string, FactStyle>;
   /** The simplified-version notice, put in the calendar file. */
   notice: string;
   readAloud: ReadAloud;
+  /** Line ID to its number on screen, from 1. */
+  lineNumbers: ReadonlyMap<string, number>;
+  onGoToLine: (lineId: string) => void;
 }) {
   const [done, setDone] = useState<ReadonlySet<string>>(new Set());
   const [open, setOpen] = useState(false);
-  const reduce = useReducedMotion() ?? false;
-  const panelId = useId();
   if (items.length === 0) return null;
 
   const toggle = (id: string, checked: boolean) =>
@@ -56,85 +61,62 @@ export function ToDoBox({
     saveBlob(new Blob([ics], { type: "text/calendar;charset=utf-8" }), CALENDAR_FILENAME);
   };
 
+  // A payment or a "must" is what the reader most needs to see; otherwise the first item.
+  const lead = items.find((i) => MAIN_TASK.test(i.row.text)) ?? items[0];
   return (
-    <section aria-labelledby="to-do-heading" className="rounded-2xl border-2 border-primary bg-card">
-      <h2 id="to-do-heading" className="text-[28px] leading-tight font-semibold">
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={panelId}
-          onClick={() => setOpen((o) => !o)}
-          className="flex min-h-12 w-full items-center gap-4 rounded-[14px] p-5 text-left sm:p-6"
-        >
-          <span className="flex min-w-0 flex-1 flex-col gap-1">
-            <span>{TO_DO_HEADING}</span>
-            <span className="text-xl font-normal text-muted-foreground">{toDoCountLabel(items.length)}</span>
-          </span>
-          <ChevronDown
-            aria-hidden
-            strokeWidth={2}
-            absoluteStrokeWidth
-            className={`size-7 shrink-0 ${open ? "rotate-180" : ""} motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)]`}
-          />
-        </button>
-      </h2>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            id={panelId}
-            key="to-do-panel"
-            initial={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
-            animate={reduce ? { opacity: 1 } : { height: "auto", opacity: 1 }}
-            exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
-            transition={{ duration: reduce ? 0.15 : 0.2, ease: EASE_OUT }}
-            className="overflow-hidden"
-          >
-            <ul className="flex flex-col divide-y divide-border px-5 pb-5 sm:px-6 sm:pb-6">
-              {items.map((item, index) => {
-                const textId = `to-do-text-${item.row.id}`;
-                const label = `item ${index + 1}`;
-                return (
-                  <li key={item.row.id} className="flex items-start gap-4 py-4 first:pt-0 last:pb-0">
-                    <Checkbox
-                      aria-labelledby={textId}
-                      checked={done.has(item.row.id)}
-                      onCheckedChange={(checked) => toggle(item.row.id, checked === true)}
-                      className="mt-1.5 size-7 border-2 border-foreground"
-                    />
-                    <div className="flex min-w-0 flex-1 flex-col items-start gap-3">
-                      <p
-                        id={textId}
-                        className={`text-2xl leading-normal ${done.has(item.row.id) ? "text-muted-foreground" : ""}`}
-                      >
-                        <FactText pieces={item.row.pieces} styles={styles} explain />
-                      </p>
-                      <div className="flex flex-wrap gap-3">
-                        <ListenButton
-                          id={`todo-${item.row.id}`}
-                          text={item.row.text}
-                          label={label}
-                          readAloud={readAloud}
-                        />
-                        {item.deadline !== null && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            aria-label={`Add to calendar, ${label}`}
-                            onClick={() => addToCalendar(item)}
-                          >
-                            <CalendarPlus aria-hidden strokeWidth={2} absoluteStrokeWidth data-icon="inline-start" />
-                            Add to calendar
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </section>
+    <SummaryPanel
+      heading={TO_DO_HEADING}
+      count={toDoCountLabel(items.length)}
+      preview={`For example: ${lead.row.text}`}
+      open={open}
+      onOpenChange={setOpen}
+      emphasis
+    >
+      <ul className="flex flex-col divide-y divide-border">
+        {items.map((item, index) => {
+          const textId = `to-do-text-${item.row.id}`;
+          const label = `item ${index + 1}`;
+          const number = lineNumbers.get(item.row.id);
+          return (
+            <li key={item.row.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+              <Checkbox
+                aria-labelledby={textId}
+                checked={done.has(item.row.id)}
+                onCheckedChange={(checked) => toggle(item.row.id, checked === true)}
+                className="mt-0.5 size-7 border-2 border-foreground"
+              />
+              <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
+                <p
+                  id={textId}
+                  className={`text-xl leading-normal [overflow-wrap:anywhere] ${done.has(item.row.id) ? "text-muted-foreground" : ""}`}
+                >
+                  <FactText pieces={item.row.pieces} styles={styles} explain />
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <ListenButton id={`todo-${item.row.id}`} text={item.row.text} label={label} readAloud={readAloud} />
+                  {item.deadline !== null && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      aria-label={`Add to calendar, ${label}`}
+                      onClick={() => addToCalendar(item)}
+                    >
+                      <CalendarPlus aria-hidden strokeWidth={2} absoluteStrokeWidth data-icon="inline-start" />
+                      Add to calendar
+                    </Button>
+                  )}
+                  {number !== undefined && (
+                    <Button type="button" variant="outline" onClick={() => onGoToLine(item.row.id)}>
+                      <ScanSearch aria-hidden strokeWidth={2} absoluteStrokeWidth data-icon="inline-start" />
+                      Go to line {number}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </SummaryPanel>
   );
 }
